@@ -1,0 +1,833 @@
+---
+title: "Linear Regression Introduction"
+subtitle: "POLSCI 630: Probability and Basic Regression"
+format: clean-revealjs
+html-math-method:
+  method: mathjax
+  url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+date: 1/14/2025
+embed-resources: true
+---
+
+# 1. The Flexible Linear Model
+
+## Goals for regression
+
+Regression has a variety of uses in the social sciences
+
+-   Characterizing associations between variables
+-   Prediction to future observations
+-   Causal effect estimation
+
+. . .
+
+Regression can in theory do all of the above *if the right assumptions are met*.
+
+## Notation
+
+::: incremental
+-   generic units of analysis are indicated by $i=1,...,N$
+-   scalars are lower-case italics (e.g., $x_{1i}$)
+-   (column) vectors are lower-case bold italics (e.g., $\boldsymbol{x}_i$, transpose: $\boldsymbol{x}_i'$)
+-   matrices are upper-case bold (e.g., $\mathbf{X}$)
+-   random variables are generally Roman (e.g., $x$)
+-   model parameters are generally Greek (e.g., $\beta_1$, $\boldsymbol{\beta}$)
+-   generic model variables (and associated parameters) are indicated by $j=1,...,K$
+-   error terms are indicated by $u_i$ or $\boldsymbol{u}$, but sometimes $e_i$ or even $\epsilon_i$
+-   error variance is indicated by $\sigma^2$ or $\sigma_u^2$ if necessary
+:::
+
+## What is regression?
+
+Regression describes the relationship between one or more independent variables, $\boldsymbol{x}_1,\boldsymbol{x}_{2},...,\boldsymbol{x}_{K}$, and a dependent variable, $\boldsymbol{y}$.
+
+```{r echo=FALSE, fig.align='center'}
+par(mar=c(5,4,2,1))
+plot(trees$Height, trees$Volume, pch=19, main="Relationship of tree volume to tree height",
+     xlab="Height (ft)", ylab="Volume (cubic ft)")
+```
+
+## Conditional expected value: $\text{E}(y_i|x_i)$
+
+```{r echo=FALSE, fig.align='center', fig.height=6}
+par(mar=c(5,4,2,1))
+plot(trees$Height, trees$Volume, pch=19, main="Relationship of tree volume to tree height",
+     xlab="Height (ft)", ylab="Volume (cubic ft)")
+abline(v=80, lty=3)
+abline(h=mean(trees$Volume[trees$Height==80]), lty=3)
+```
+
+::: notes
+-   One way to do this is to simply calculate mean of the DV at each value of the IV
+-   But there are small numbers of observations at each value of the IV - estimates are noisy
+-   By imposing a model on the relationship, we leverage "knowledge" that comes from the model assumptions to get more efficient estimates
+-   This is a very general idea that you should internalize until you feel it in your bones
+:::
+
+## Conditional expected value based on linear model
+
+```{r echo=FALSE, fig.align='center', fig.height=6}
+par(mar=c(5,4,2,1))
+plot(trees$Height, trees$Volume, pch=19, main="Relationship of tree volume to tree height",
+     xlab="Height (ft)", ylab="Volume (cubic ft)")
+abline(lm(trees$Volume ~ trees$Height), lty=1, lwd=2)
+segments(80, 0, 80, coef(lm(trees$Volume ~ trees$Height)) %*% c(1,80), lty=2)
+segments(80, coef(lm(trees$Volume ~ trees$Height)) %*% c(1,80), 0, coef(lm(trees$Volume ~ trees$Height)) %*% c(1,80), lty=2)
+text(70, 65, expression(paste("Predicted Volume = ", beta[0], " + ", beta[1], " * Height")))
+text(70, 60, paste0("Predicted Volume = ", round(coef(lm(trees$Volume ~ trees$Height))[1], 2), " + ", 
+                    round(coef(lm(trees$Volume ~ trees$Height))[2], 2), " * Height"))
+text(70, 55, paste0(-87.12 + 1.54*80, " = ", "-87.12 + 1.54 * 80"))
+```
+
+## The linear regression model
+
+$$\boldsymbol{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{u}$$
+
+::: incremental
+-   $\boldsymbol{y}$ is an $N \times 1$ vector
+-   $\bf{X}$ is an $N \times (K \rm{+1)}$ matrix
+-   $\boldsymbol{\beta}$ is a $(K \rm{+1)} \times 1$ vector
+-   $\boldsymbol{u}$ is an $N \times 1$ vector
+:::
+
+. . .
+
+For data with N observations and K predictors
+
+-   The first column of $\bf{X}$ is all 1s
+-   The first element of $\boldsymbol{\beta}$ is the y-intercept
+
+## Vectors and matrices
+
+$$\boldsymbol{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{u}$$
+
+$$\begin{bmatrix} 10.3 \\ 10.3 \\ 10.2 \\ 16.4 \end{bmatrix} = 
+  \begin{bmatrix} 1 & 8.3 & 70 \\ 1 & 8.6 & 65 \\ 1 & 8.8 & 63 \\ 1 &                    10.5 & 72 \end{bmatrix}
+  \begin{bmatrix} \beta_0 \\ \beta_1 \\ \beta_2 \end{bmatrix} + 
+  \begin{bmatrix} u_1 \\ u_2 \\ u_3 \\ u_4 \end{bmatrix}$$
+
+## The linear regression model, expanded
+
+$$\boldsymbol{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{u}$$
+
+$$\boldsymbol{y} = \beta_0 + \beta_1\boldsymbol{x_1} + \beta_2\boldsymbol{x_2}\ldots\beta_K\boldsymbol{x_K} + \boldsymbol{u}$$
+
+::: incremental
+-   $\boldsymbol{y}$ is an $N \times 1$ vector
+-   Each $\boldsymbol{x_k}$ is an $N \times 1$ vector
+-   Each $\beta_k$ is a scalar
+-   $\boldsymbol{u}$ is an $N \times 1$ vector
+:::
+
+## The linear regression model, single unit
+
+</br>
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i}\ldots\beta_Kx_{Ki} + u_i$$
+
+-   This is the model for a single unit, $i$
+-   Each symbol represents a scalar
+
+## Model components
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i}\ldots\beta_Kx_{Ki} + u_i$$
+
+::: incremental
+-   $\beta_0$ is the (y-)intercept or constant term
+    -   The predicted value of $y_i$ when all $x_{ki} = 0$
+-   $\beta_k$ is the coefficient or slope for predictor $x_{ki}$
+    -   Change in $y_i$ associated with a 1-unit change in $x_{ki}$
+-   $u_i$ is the error or disturbance term
+    -   The random deviation of the observed value from the fitted value
+:::
+
+## Model components, visually
+
+```{r, fig.height=6}
+my.lm <- lm(trees$Volume ~ trees$Girth)
+par(mar=c(5,4,1,1))
+plot(trees$Girth, trees$Volume, ylim=c(-40,80), xlim=c(-5,30), 
+     main = "",
+     xlab="Diameter of cherry trees", ylab="Volume of cherry trees",
+     axes=F)
+axis(1, at=seq(-5,30,5))
+axis(2, at=seq(-40,80,20), las=2)
+abline(v=0, lty=2, col="purple")
+text(3,60, "y-axis (x = 0)", col="purple")
+abline(h=-36.94, lty=3, col="blue")
+abline(a = coef(my.lm)[1], b = coef(my.lm)[2])
+segments(5, coef(my.lm)[1] + 5*coef(my.lm)[2], 
+         5+3, coef(my.lm)[1] + (5+3)*coef(my.lm)[2],
+         lwd=3, col="red")
+segments(5, coef(my.lm)[1] + 5*coef(my.lm)[2],
+         5+3, coef(my.lm)[1] + 5*coef(my.lm)[2])
+segments(5+3, coef(my.lm)[1] + 5*coef(my.lm)[2],
+         5+3, coef(my.lm)[1] + (5+3)*coef(my.lm)[2])
+text(9,-5, expression(paste(Delta, "y")))
+text(6.5,-16, expression(paste(Delta, "x")))
+text(9, -30, expression(paste(beta[0], " = -36.94")), col="blue")
+text(6, 15, expression(paste(beta[1], " = ", paste(Delta, "y", "/", Delta, "x"), )), col="red")
+text(6.1, 3.5, " = 5.07", col="red")
+arrows(6,-29, 0,-36.94, angle = 5, col="blue")
+points(0,-36.94, col="blue", pch=19)
+points(20.6,77, col="brown")
+points(20.6,coef(my.lm)[1]+20.6*coef(my.lm)[2], pch=19, col="black")
+segments(20.6,77, 20.6,coef(my.lm)[1]+20.6*coef(my.lm)[2], col="green", lwd=3)
+text(19.5,72, expression(paste("u"[31])), col="green")
+text(23,62, expression(paste("predicted value of ", "y"[31])), cex=0.75, col="black")
+text(18,82.5, expression(paste("observed value of ", "y"[31])), cex=0.75, col="brown")
+```
+
+## Multivariate case, visually
+
+When we have more than one predictor, we are fitting a [hyperplane]{.alert} to the data
+
+```{r multiv_trees, fig.width=8, fig.align='center'}
+library(scatterplot3d)
+plot3d <- scatterplot3d(trees$Height, trees$Girth, trees$Volume,
+angle=55, scale.y=0.7, pch=16, color ="red", main ="Regression Plane",
+xlab = "Height", ylab = "Girth", zlab = "Volume")
+my.lm<- lm(trees$Volume ~ trees$Height + trees$Girth)
+plot3d$plane3d(my.lm, lty.box = "solid")
+detach("package:scatterplot3d", unload=TRUE)
+```
+
+## Multivariate case, visually
+
+Bivariate "slices" of the hyperplane gives [conditional]{.alert} relationships
+
+```{r slices, fig.width=10, fig.align='center'}
+library(patchwork)
+library(ggplot2)
+source("helper_functions.R")
+my.lm <- lm(trees$Volume ~ trees$Height + trees$Girth)
+
+plot.a <- 
+  trees %>%
+  ggplot(aes(x = Height, y = Volume))+
+  geom_point()+
+  geom_abline(intercept =  coef(my.lm)[1] + coef(my.lm)[3]*mean(trees$Girth),
+              slope = coef(my.lm)[2])+
+  labs(x = "Height", y = "Volume",
+       title = "Volume by Height",
+       subtitle = "Diameter held constant")+
+  theme_630()
+
+plot.b <- 
+  trees %>%
+  ggplot(aes(x = Girth, y = Volume))+
+  geom_point()+
+  geom_abline(intercept =  coef(my.lm)[1] + coef(my.lm)[2]*mean(trees$Height),
+              slope = coef(my.lm)[3])+
+  labs(x = "Diameter", y = "Volume",
+       title = "Volume by Diameter",
+       subtitle = "Height held constant")+
+  theme_630()
+
+plot.a + plot.b
+```
+
+## Expected value of $y_i$
+
+There are two pieces to each regression model:
+
+-   A [systematic]{.alert} part: $\boldsymbol{x}_i \boldsymbol{\beta}$
+-   A [stochastic]{.alert} part: $u_i$ (where $\text{E}(u_i) = 0$)
+
+. . .
+
+The systematic part gives us the expected value of $y_i$, which is generally our *predicted* value ($\hat{y}_i$)
+
+$$\text{E}(y_i | \boldsymbol{x_i}) = \boldsymbol{x_i} \boldsymbol{\beta} = \hat{y}_i$$
+
+## The errors
+
+We will assume several things about the errors
+
+::: incremental
+-   They are completely random disturbances
+-   They have an expected value of zero
+-   They have an error variance $\sigma^2$, which is the model-unexplained portion of the dependent variable
+-   They are uncorrelated with the model predictors
+:::
+
+. . .
+
+Eventually, we will deal with the fall-out from violations of these assumptions
+
+## Example `lm` output
+
+```{r, echo=FALSE}
+summary(lm(trees$Volume ~ trees$Girth + trees$Height))
+```
+
+## Why *linear* regression?
+
+Linear here means linear *in the parameters* ($\boldsymbol{\beta}$)
+
+Those parameters can be applied to *non-linear transformations* of $x$
+
+Define $x_2 = x_1^2$:
+
+$$\text{income}_i = \beta_0 + \beta_1 \text{age}_{i} + \beta_2 \text{age}^2_{i} + u_i$$
+
+```{r echo=FALSE, fig.align="center", fig.height=5}
+curve(2500*x - 20*x^2, 18, 80)
+```
+
+## Why *linear* regression?
+
+We can also transform the DV and/or the IVs in ways that allow for non-linear relationships
+
+$$\text{ln}(y_i) = \beta_0 + \beta_1 \text{ln}(x_{1i}) + \beta_2x_{2i}+\beta_3x_{3i} + u_i$$
+
+::: incremental
+-   This implies a non-constant relationship of $x_{1i}$ to $y_i$
+-   It is still a linear combination of (transformed) predictors
+    -   A 1-unit change in $\text{ln}(x_{1i})$ implies a $\beta_1$-unit change in $\text{ln}(y_i)$
+-   To characterize the relationship between the untransformed variables, we need to do additional work (we will have a section on this)
+:::
+
+## Why *linear* regression?
+
+Examples of *non*-linear regression models:
+
+-   $y_i = x_{1i}^{\alpha}+u_i$
+-   $y_i = e^{\beta_0+\beta_1x_{1i}+u_i}$
+
+# Part 2. Estimation and Interpretation
+
+## Estimation goals
+
+$$\boldsymbol{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{u}$$
+
+We would like to generate an estimate of $\boldsymbol{\beta}$ using a sample with $N$ observations.
+
+What qualities would we want in an ideal estimator?
+
+::: incremental
+-   Unbiasedness: $\text{E}(\hat{\boldsymbol{\beta}}) = \boldsymbol{\beta}$
+
+-   Consistency: $\text{lim}_{N\rightarrow\infty} \space \text{Pr}(|\hat{\boldsymbol{\beta}}-\boldsymbol{\beta}|>\epsilon)=0, \space \forall \space +\epsilon$
+
+    -   limit as sample size goes to infinity...
+
+    -   as sample size gets larger and larger, probability that your estimate will deviate from the true value by an arbitrarily small amount goes to 0
+
+-   Efficiency: $\text{E} \left((\hat{\boldsymbol{\beta}}-\boldsymbol{\beta})^2 \right)$ (the variance of the estimator) is smallest possible
+:::
+
+## Ordinary least squares estimator
+
+The ordinary least squares (OLS) estimator has these properties
+
+-   In general, find $\boldsymbol{\beta}$ that minimizes the sum of squared [residuals]{.alert}
+    -   estimate of an error term
+
+. . .
+
+-   For bivariate case: find $\hat{\beta}_0$ and $\hat{\beta}_1$ that minimize:
+
+$$\min_{\beta_0,\beta_1} \left[\sum_{i=1}^N(y_i-\beta_0-\beta_1x_{1i})^2 \right] =\min_{\beta_0,\beta_1} \left[\sum_{i=1}^N\hat{u}_i^2 \right]$$
+
+. . .
+
+Should be intuitive: minimize the (squared) distance between the actual value and the model's "best guess"
+
+## Minimizing
+
+To find the minimum with respect to some variable
+
+1.  Take the first partial derivative
+2.  Set it to zero
+3.  Solve for parameter of interest
+4.  Verify that 2nd partial derivative is positive
+
+## OLS estimators for bivariate case
+
+OLS estimator for $\beta_1$:
+
+$$\hat{\beta}_1 = \frac{cov(y,x_1)}{var(x_1)}$$
+
+OLS estimator for $\beta_0$:
+
+$$\hat{\beta}_0 = \bar{y} - \hat{\beta}_1\bar{x}_1$$
+
+::: notes
+-   to see B0, take expected value of y = B0 + B1x1 + u
+:::
+
+## Example, by hand and with lm()
+
+Regression of `Volume` on `Girth` in `trees` data
+
+```{r echo=TRUE}
+# estimate b1
+b1 <- cov(trees$Volume, trees$Girth) / var(trees$Girth)
+
+# estimate b0
+b0 <- mean(trees$Volume) - b1*mean(trees$Girth)
+
+# print estimates
+c(b0,b1)
+```
+
+. . .
+
+```{r echo=TRUE}
+# estimate model using OLS and store in object 'm1'
+m1 <- lm(Volume ~ Girth, data = trees)
+
+# print estimates
+coef(m1)
+```
+
+## OLS estimator for multiple regression
+
+$$\hat{\boldsymbol{\beta}}=(\textbf{X}'\textbf{X})^{-1}\textbf{X}'\boldsymbol{y}$$
+
+. . .
+
+-   Note the similarity to the bivariate case:
+
+$$\hat{\beta}_1 = \frac{cov(y,x_1)}{var(x_1)}$$
+
+## Example, by hand {.scrollable}
+
+```{r echo=TRUE}
+# define X matrix (with 1st column of 1s for intercept)
+X <- as.matrix(cbind(rep(1, nrow(trees)), trees[, c("Girth", "Height")]))
+colnames(X)[1] <- "Intercept"
+
+# define Y vector
+y <- trees$Volume
+
+# calculate beta
+beta <- solve(t(X) %*% X) %*% t(X) %*% y
+
+# print beta
+round(beta, 3)
+```
+
+. . .
+
+```{r}
+summary(lm(Volume ~ Girth + Height, data=trees))
+```
+
+## What if we forget intercept?
+
+```{r echo=TRUE}
+# define X matrix (with 1st column of 1s for intercept)
+X <- as.matrix(trees[, c("Girth", "Height")])
+
+# define Y vector
+y <- trees$Volume
+
+# calculate beta
+beta <- solve(t(X) %*% X) %*% t(X) %*% y
+
+# print beta
+round(beta, 3)
+```
+
+## What if we forget the intercept?
+
+Taking out the intercept forces the plane to run through the origin (0,0)
+
+```{r reg_origin, fig.width=8, fig.align='center'}
+my.lm <- lm(trees$Volume ~ trees$Girth)
+my.lm.ni <- lm(trees$Volume ~ 0 + trees$Girth)
+
+trees %>%
+  ggplot(aes(x = Girth, y = Volume))+
+  geom_point(col = "blue")+
+  geom_abline(slope = coef(my.lm)[2], intercept = coef(my.lm)[1], col = "blue")+
+  geom_abline(slope = coef(my.lm.ni)[1], intercept = 0, col = "red")+
+  xlim(c(0,22))+
+  ylim(c(-60, 80))+
+  annotate("text", x = 10, y = 40, 
+           label =  expression(paste("Volume = ", beta[0]," + ", beta[1], "Girth")),
+           col = "blue")+
+  annotate("text", x = 5, y = 20, 
+           label =  expression(paste("Volume = ", beta[1], "Girth")),
+           col = "red")+
+  geom_vline(xintercept = 0, lty = "dashed")+
+  geom_hline(yintercept = 0, lty = "dashed")+
+  theme_630()
+
+```
+
+## Predicted/expected values
+
+The predicted or expected value of $y_i$ is simply the systematic portion of the RHS: $\beta_0 + \beta_1x_{1i}$
+
+```{r echo=TRUE}
+# estimate model using OLS and store in object 'm1'
+m1 <- lm(Volume ~ Girth, data = trees)
+
+# print estimates
+coef(m1)
+```
+
+</br>
+
+-   "A tree with a 15 inch diameter is predicted to have a volume of $-36.94 + (5.07)(15) = 39.11$ cubic inches."
+
+## With multiple IVs
+
+```{r echo=TRUE}
+# estimate model using OLS and store in object 'm1'
+m1 <- lm(Volume ~ Girth + Height, data = trees)
+
+# predicted values are dot product of coefficients with x-values
+coef(m1) %*% c(1, 15, 60) # 15 inch diameter and 60 ft height
+```
+
+. . .
+
+```{r echo=TRUE}
+coef(m1)[1]*1 + coef(m1)[2]*15 + coef(m1)[3]*60
+```
+
+</br>
+
+. . .
+
+-   "A tree with a 15 inch diameter and 60ft height is predicted to have a volume of 33 cubic inches."
+
+## Interpreting coefficients
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + u_i$$
+
+We are interested in how $\text{E}(y_i)$ changes as a function of $x_{1i}$
+
+::: incremental
+-   When you think "rate of change" you should think "derivative"
+-   With more than one variable, think *partial* derivative
+:::
+
+. . .
+
+$$
+\begin{align}
+\text{E}(y_i) &= \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} \\
+\frac{\partial{\text{E}(y_i)}}{\partial{x_{1i}}} &= \beta_1
+\end{align}
+$$
+
+Tells us how the function is changing at a given point in response to infinitesimal changes in one of the function's variables
+
+## Slope of tangent line, linear
+
+```{r tan_lin}
+par(mar=c(5,4,2,1))
+curve(2*x, 0, 10)
+segments(3, 2*2 + 2, 1, 2*2 - 2, lty=1, col="red", lwd=2)
+points(2, 2*2, col="red")
+segments(7, 2*6 + 2, 5, 2*6 - 2, lty=1, col="blue", lwd=2)
+points(6, 2*6, col="blue")
+title(main="First derivative of 2x at x=2 and x=6")
+text(2, 12, "Slope = 2", col="red")
+text(6, 6, "Slope = 2", col="blue")
+```
+
+## Slope of tangent line, non-linear
+
+```{r tan_nonlin}
+par(mar=c(5,4,2,1))
+curve(log(x), 0, 10)
+segments(4, log(2) + 2/2, 0, log(2) - 2/2, lty=1, col="red")
+points(2, log(2), col="red")
+title(main="First derivative of log(x) at x=2 and x=6")
+text(2, -0.5, "Slope = 1/2", col="red")
+segments(8, log(6) + 2/6, 4, log(6) - 2/6, lty=1, col="blue")
+points(6, log(6), col="blue")
+text(6, 0.5, "Slope = 1/6", col="blue")
+```
+
+## Interpreting coefficients
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + u_i$$
+
+With discrete IVs, we cannot take the 1st derivative
+
+. . .
+
+-   Instead, we think about [first differences]{.alert} for a change in $x_{1i}$ from some value ($k_1$) to another ($k_2$)
+
+$$
+\begin{align}
+&\text{E}(y_i[x_{1i} = k_2]) - \text{E}(y_i[x_{1i} = k_1]) \\
+&= (\beta_0 + \beta_1k_2 + \beta_2x_{2i}) - (\beta_0 + \beta_1k_1 + \beta_2x_{2i}) \\
+&= \beta_1(k_2 - k_1)
+\end{align}
+$$
+
+-   If $k_2 - k_1 = 1$, then this just equals $\beta_1$
+
+## First difference, linear
+
+```{r}
+par(mar=c(5,4,2,1))
+curve(2*x, 0, 10)
+segments(3, 2*2 + 2, 1, 2*2 - 2, lty=1, col="red", lwd=2)
+points(2, 2*2, col="red")
+curve(2*x, 2, 3, col="blue", add=T, lwd=2)
+title(main="First diff of 2x at x=2")
+text(2, 12, "Slope = 2", col="red")
+text(2, 10, "First diff = 2*3 - 2*2 = 2", col="blue")
+```
+
+## First difference, non-linear
+
+```{r}
+par(mar=c(5,4,2,1))
+curve(log(x), 0, 10)
+segments(4, log(2) + 2/2, 0, log(2) - 2/2, lty=1, col="red")
+points(2, log(2), col="red")
+title(main="First difference of log(x) at x=2")
+curve(log(x), 2, 3, col="blue", add=T, lwd=2)
+text(3, -0.5, paste0("First diff = log(3) - log(2) = ", round(log(3)-log(2),3)), col="blue")
+text(1.5, 1.5, "Slope of tangent = 1/2", col="red")
+```
+
+## Example, CEO salaries
+
+```{r echo=TRUE}
+
+get(wd)
+
+# ceo data (salary in $1,000s, profits in $1Ms, age in years)
+ceo <- read.csv("./2024-2025/630 - Spring 25/ceosalary.csv")
+
+# estimate model using OLS and store in object
+m_ceo <- lm(salary ~ age + profits, data = ceo)
+
+# summary
+summary(m_ceo)
+```
+
+## The importance of scale
+
+The substantive meaning of a given coefficient depends on how $y_i$ and $x_{ki}$ are [scaled]{.alert}
+
+```{r echo=TRUE}
+# estimate model using OLS and store in object
+m_ceo <- lm(salary/1000 ~ age + profits, data = ceo)
+
+# summary
+summary(m_ceo)
+```
+
+## Standardized coefficients
+
+Common to scale to mean of 0 and standard deviation of 1
+
+Two kinds:
+
+-   Only standardize (one or more) IVs
+
+-   Also standardize the DV
+
+. . .
+
+`scale()` function in `R` will Z-score by default (i.e. subtract mean, divide by SD)
+
+-   Unit of change becomes SD
+
+## Standardized CEO
+
+```{r echo=TRUE}
+# estimate model using OLS and store in object
+m_ceo <- lm(scale(salary) ~ scale(age) + scale(profits), data = ceo)
+
+# summary
+summary(m_ceo)
+```
+
+## Care in interpretation with standardized vars
+
+![](images/values_UR.png){fig-width="8in"}
+
+standardizing – differencing out the means
+
+## 0-1 coding
+
+PoliSci often uses 0-1 (or min-max) coding
+
+$$\frac{x_i - \min(x)}{\max(x) - \min(x)}$$
+
+. . .
+
+Either [theoretical]{.alert} or [sample]{.alert} minima/maxima.
+
+-   If lowest observed value is higher than lowest theoretically possible value, you may have a choice to make
+
+-   Similar issue to "care in interpretation" with standardized vars
+
+## 0-1 example
+
+```{r, echo=TRUE}
+# recode Girth and Volume
+trees$Volume_01 <- (trees$Volume - min(trees$Volume)) / (max(trees$Volume) - min(trees$Volume)) 
+trees$Girth_01 <- (trees$Girth - min(trees$Girth)) / (max(trees$Girth) - min(trees$Girth))
+
+# estimate model
+m_tree <- lm(Volume_01 ~ Girth_01, data = trees)
+summary(m_tree)
+```
+
+# Part 3. Model Fit
+
+## Model fit
+
+we want to be able to talk about how "good" our model is
+
+We often evaluate our models by their ability to account for variation in our outcome -- i.e. how well they "fit" the data.
+
+-   model fit isn't everything! it's one thing you might be interested in
+
+::: incremental
+-   There are many different measures of model fit.
+-   We will discuss the most common today; later this semester, we will turn to alternatives.
+-   Model fit is not everything! Depends on your goals.
+    -   ie, if studying turnout, impact of some intervention (mailer) on turnout
+:::
+
+## Sums of squares
+
+People sometimes talk about the following [sums of squares]{.alert}:
+
+::: incremental
+-   [Total]{.alert}: $\sum_N{(y_i - \bar{y})^2}$
+
+    -   terminology differs! some people mean this when they say "total sum of squares"
+
+    -   the sum of squared deviations of the dependent variable from its mean
+
+-   [Model / Explained]{.alert}: $\sum_N{(\hat{y}_i - \bar{y})^2}$
+
+    -   the sum of squared deviations of predicted values from the mean
+
+-   [Error / Residual]{.alert}: $\sum_N{(y_i - \hat{y}_i)^2}$
+
+    -   the sum of squared deviations of observed values from predicted values
+:::
+
+## Errors vs residuals
+
+The errors, $u_i$, are population quantities, and unobservable
+
+. . .
+
+-   Residuals are sample estimates, $\hat{u}_i$, and have an expected value of 0 by construction
+
+. . .
+
+-   An unbiased estimator of the error variance, $\hat{\sigma}^2$ is:
+
+$$\frac{\sum_N{(y_i - \hat{y}_i)^2}}{N - K - 1}$$
+
+## Mean squared error
+
+More generally, we can define the [mean squared error]{.alert} for any model as:
+
+$$\text{MSE} = \text{E} \left((\hat{\theta} - \theta)^2 \right)$$
+
+-   Expected value of quadratic loss from applying model
+
+::: incremental
+-   Interpretable only with reference to scale of $\theta$
+
+    -   useful in relative terms (for comparing fit between two versions of same model)
+
+-   Incorporates both bias and variance
+
+    -   For unbiased estimators such as OLS, $\text{MSE} \equiv \text{Error Variance}$
+:::
+
+## MSE in linear regression
+
+In linear regression, mean squared error typically refers to the following:
+
+$$\text{MSE} = \frac{\sum_N{(y_i - \hat{y}_i)^2}}{N - K - 1}$$
+
+i.e. we divide by degrees of freedom, not sample size
+
+-   More complex model --\> smaller denominator --\> higher MSE, all else equal
+
+## $R^2$
+
+A common measure of model fit is [$R^2$]{.alert}, which is 1 minus the ratio of residual to total variation in $y$:
+
+$$1 - \frac{\text{SS}_R}{\text{SS}_T} = 1 - \frac{\sum_N{(y_i - \hat{y}_i)^2}}{\sum_N{(y_i - \bar{y})^2}}$$
+
+::: incremental
+-   This can be interpreted as the proportionate reduction in error of prediction (relative to always guessing $\bar{\boldsymbol{y}}$)
+
+-   It is also the squared correlation (shared variance) between $\boldsymbol{y}$ and $\hat{\boldsymbol{y}}$
+:::
+
+## $R^2$
+
+Given Model 1 with K covariates and Model 2 with K + 1 covariates, $R^2_2 \geq R^2_1$.
+
+. . .
+
+Why is this true?
+
+. . .
+
+Why is this a problem?
+
+## Adjusted $R^2$
+
+A better version of $R^2$ uses the MSE in the numerator, thus penalizing model complexity
+
+$$R^2_{adj} = 1 - \frac{\text{MSE}}{\text{Var}(\boldsymbol{y})} = 1 - \frac{\frac{\sum_N{(y_i - \hat{y}_i)^2}}{N - K - 1}}{\frac{\sum_N{(y_i - \bar{\boldsymbol{y}})^2}}{N - 1}}$$
+
+. . .
+
+If you add a useless variable, adjusted $R^2$ will *decrease*.
+
+## Example
+
+```{r, echo = TRUE}
+m2 <- lm(Volume ~ Girth + Height, data = trees)
+s2 <- summary(m2)
+
+c(round(s2$r.squared, 3), round(s2$adj.r.squared, 5))
+```
+
+. . .
+
+```{r, echo=TRUE}
+set.seed(3587)
+m3 <- lm(Volume ~ Girth + Height + rnorm(length(trees$Volume)), data = trees)
+s3 <- summary(m3)
+
+c(round(s3$r.squared, 3), round(s3$adj.r.squared, 5))
+```
+
+## By hand {.scrollable}
+
+```{r r2_byhand, echo=TRUE}
+# calculate r2
+r2 <- 1 - var(m2$residuals) / var(trees$Volume)
+
+# calculate mean squared error
+mse <- (sum(m2$residuals^2) / m2$df.residual)
+
+# adjusted r2
+r2_adj <- 1 -  mse / var(trees$Volume)
+
+# print
+c(round(sqrt(mse),3),round(r2,3),round(r2_adj, 3))
+```
+
+. . .
+
+```{r}
+summary(m2)
+```
