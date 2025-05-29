@@ -1,0 +1,684 @@
+---
+title: "Bias and Variance"
+subtitle: "POLSCI 630: Probability and Basic Regression"
+format: clean-revealjs
+html-math-method:
+  method: mathjax
+  url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+date: 4/8/2025
+embed-resources: true
+
+---
+
+```{r helperfunc, echo = FALSE}
+library(patchwork)
+library(gganimate)
+library(caret)
+```
+
+## Flexibility and variance
+
+There is a fundamental trade-off in statistical modeling.
+
+Adding parameters to the model (i.e. making it more complex)...
+
+::: incremental
+-   increases "flexibility": it allows the model to better fit the current ("training" or "in-sample") data
+-   increases variance: larger uncertainty about the true parameter values (more variation from sample to sample)
+:::
+
+## Flexibility and variance
+
+Your model's fit contains...
+
+::: incremental
+-   systematic elements of the true data-generating process
+
+    -   generalizable, likely to remain consistent under repeated sampling / new data
+
+-   stochastic elements of the true data-generating process
+
+    -   noise, *unlikely* to replicate on new data
+:::
+
+## Simple example
+
+```{r, echo = FALSE, fig.width=8}
+# Set seed to ensure reproducible results
+set.seed(1839)
+
+# Generate 100 random values from a standard normal distribution
+xdat <- rnorm(100)
+
+# Create the first data frame
+dat <- data.frame(
+  x = xdat,
+  y = -2 * xdat + xdat^2 + rnorm(100, sd = 2)
+)
+
+# Create the second data frame (with independent noise)
+dat2 <- data.frame(
+  x = xdat,
+  y = -2 * xdat + xdat^2 + rnorm(100, sd = 2)
+)
+
+# Calculate x-axis limits: minimum and maximum from both data frames, with padding
+x_limits <- range(c(dat$x, dat2$x)) + c(-0.3, 0.3)
+
+# Calculate y-axis limits: minimum and maximum from both data frames, with padding
+y_limits <- range(c(dat$y, dat2$y)) + c(-0.3, 0.3)
+
+# Create a scatter plot of the data from 'dat'
+plot(dat$x, dat$y,
+     xlim = x_limits,       # Use the calculated x-axis limits
+     ylim = y_limits,       # Use the calculated y-axis limits
+     main = "More flexible models better fit the data at hand",  # Plot title
+     sub = "True DGP: y = -2x + x^2 + u",  # Subtitle
+     xlab = "x",            # Label for the x-axis
+     ylab = "y",            # Label for the y-axis
+     pch = 16)              # pch=16 provides solid circle markers
+```
+
+## Simple example
+
+```{r, echo = FALSE, fig.width=8}
+# Assuming dat and dat2 have already been defined
+
+# Calculate x-axis limits from both data frames with a padding of 0.3
+x_limits <- range(c(dat$x, dat2$x)) + c(-0.3, 0.3)
+
+# Calculate y-axis limits from both data frames with a padding of 0.3
+y_limits <- range(c(dat$y, dat2$y)) + c(-0.3, 0.3)
+
+# Create a scatter plot of the data in 'dat'
+plot(dat$x, dat$y,
+     xlim = x_limits,         # Set x-axis limits
+     ylim = y_limits,         # Set y-axis limits
+     main = "More flexible models better fit the data at hand",  # Main title
+     sub = "True DGP: y = -2x + x^2 + u",  # Subtitle
+     xlab = "x",              # x-axis label
+     ylab = "y",              # y-axis label
+     pch = 16)                # pch=16 produces solid circle markers
+
+# Fit a loess model to 'dat' with a span of 0.1
+loess_fit <- loess(y ~ x, data = dat, span = 0.1)
+
+# Create a sequence of x values covering the plot's x-axis limits
+new_x <- seq(x_limits[1], x_limits[2], length.out = 200)
+
+# Predict y values using the loess fit
+pred_y <- predict(loess_fit, newdata = data.frame(x = new_x))
+
+# Overlay the loess smoothed line on the scatter plot in blue
+lines(new_x, pred_y, col = "blue", lwd = 2)
+
+# R2
+pred_y_x <- predict(loess_fit, newdata = data.frame(x = dat$x))
+text(1.5, 7, paste0("R2 = ", round( 1 - ( sum((dat$y - pred_y_x)^2) / length(dat$y)) / var(dat$y) , 3) ) )
+```
+
+## Simple example
+
+```{r, echo = FALSE, fig.width=8}
+# Assuming dat2 and dat2 have already been defined
+
+# Calculate x-axis limits from both data frames with a padding of 0.3
+x_limits <- range(c(dat2$x, dat2$x)) + c(-0.3, 0.3)
+
+# Calculate y-axis limits from both data frames with a padding of 0.3
+y_limits <- range(c(dat2$y, dat2$y)) + c(-0.3, 0.3)
+
+# Create a scatter plot of the dat2a in 'dat2'
+plot(dat2$x, dat2$y,
+     xlim = x_limits,         # Set x-axis limits
+     ylim = c(-5,10),         # Set y-axis limits
+     main = "But don't project as well onto new data",  # Main title
+     sub = "True DGP: y = -2x + x^2 + u",  # Subtitle
+     xlab = "x",              # x-axis label
+     ylab = "y",              # y-axis label
+     pch = 16)                # pch=16 produces solid circle markers
+
+# Fit a loess model to 'dat2' with a span of 0.1
+loess_fit <- loess(y ~ x, data = dat, span = 0.1)
+
+# Create a sequence of x values covering the plot's x-axis limits
+new_x <- seq(x_limits[1], x_limits[2], length.out = 200)
+
+# Predict y values using the loess fit
+pred_y <- predict(loess_fit, newdata = data.frame(x = new_x))
+
+# Overlay the loess smoothed line on the scatter plot in blue
+lines(new_x, pred_y, col = "blue", lwd = 2)
+
+# R2
+pred_y_x <- predict(loess_fit, newdata = data.frame(x = dat2$x))
+text(1.5, 7, paste0("R2 = ", round( 1 - ( sum((dat2$y - pred_y_x)^2) / length(dat2$y)) / var(dat2$y) , 3) ) )
+```
+
+## Simple example
+
+```{r, echo = FALSE, fig.width=8}
+# Compute axis limits from both data frames with 0.3 padding
+x_limits <- range(c(dat$x, dat2$x)) + c(-0.3, 0.3)
+y_limits <- range(c(dat$y, dat2$y)) + c(-0.3, 0.3)
+
+# Plot the points for dat2
+plot(dat2$x, dat2$y,
+     xlim = x_limits,           # Set x-axis limits
+     ylim = y_limits,           # Set y-axis limits
+     main = "But don't project as well onto new data",  # Main title
+     sub = "True DGP: y = -2x + x^2 + u",  # Subtitle
+     xlab = "x",                # x-axis label
+     ylab = "y",                # y-axis label
+     pch = 16)                # pch=16 produces solid circle markers
+
+# Generate a sequence of x-values for the LOESS fits
+new_x <- seq(x_limits[1], x_limits[2], length.out = 200)
+
+# 1. Fit and plot the LOESS smooth for dat2 (orange)
+fit_dat2 <- loess(y ~ x, data = dat2, span = 0.1)
+pred_dat2 <- predict(fit_dat2, newdata = data.frame(x = new_x))
+lines(new_x, pred_dat2, col = "orange", lwd = 2)
+
+# 2. Fit and plot the LOESS smooth for dat (blue)
+fit_dat <- loess(y ~ x, data = dat, span = 0.1)
+pred_dat <- predict(fit_dat, newdata = data.frame(x = new_x))
+lines(new_x, pred_dat, col = "blue", lwd = 2)
+
+```
+
+## Estimating a simpler model
+
+```{r echo=TRUE}
+m <- lm(y ~ x + I(x^2), data = dat)
+summary(m)
+```
+
+. . .
+
+```{r echo=TRUE}
+1 - 
+  ( sum( (predict(m, newdata = data.frame(x = dat2$x)) - dat2$y)^2 ) / (length(m$residuals) - 1)) / 
+  var(dat2$y)
+```
+
+## Test mean squared error
+
+The true model of $y_i$ is: $y_i = f(\boldsymbol{x}_i) + u_i$, and we want to estimate $f$ using $\hat{f}$ to make predictions $\hat{y}_i$
+
+-   Common practice to evaluate $\hat{f}$ using variance of prediction errors on new data (i.e. test mean squared error):
+
+$$
+\text{E} \left( \left(y_{0i} - \hat{f}(\boldsymbol{x}_{0i}) \right)^2 \right)
+$$
+
+## Bias-variance tradeoff
+
+Test mean squared error, $\text{E} \left( \left(y_{0i} - \hat{f}(\boldsymbol{x}_{0i}) \right)^2 \right)$, can be decomposed as:
+
+$$
+\text{Var}\left(\hat{f}(x_{0i})\right) + \left[\text{Bias}\left(\hat{f}(x_{0i})\right)\right]^2 + \text{Var}(u_{0i})
+$$
+
+-   variance of estimator
+-   bias of estimator squared
+-   "irreducible" error variance
+
+. . .
+
+We may be willing to tolerate a little bias if it reduces variance by enough
+
+## Bias-variance tradeoff
+
+![James et al., p. 31](images/biasvariance_1.png){fig-align="center"}
+
+## Bias-variance tradeoff
+
+![James et al., p. 36](images/biasvariance.png){fig-align="center"}
+
+## Bias-interpretability tradeoff
+
+In addition to increasing variance, increasing flexibility (reducing bias) may also *decrease* model interpretability
+
+::: incremental
+-   More variables, more parameters, more complexity means more difficult to understand and explain
+-   e.g., cubic vs linear relationship of X to Y
+-   e.g., non-parametric models
+-   e.g., "deep learning" neural networks with millions of parameters
+:::
+
+## Upshot
+
+Constructing a useful estimator doesn't *necessarily* mean minimizing bias
+
+-   We care about expected distance from the true value
+-   This is a function of *both* bias and variance
+
+. . .
+
+We are willing to increase bias to decrease variance if it reduces our [generalization error]{.alert}
+
+-   May also increase interpretability as a byproduct
+
+## Implications for assessing fit
+
+We expect our "training" MSE (fit to current data) to underestimate "test" MSE (fit to future data).
+
+. . .
+
+In-sample fit includes fit to signal and fit to noise.
+
+-   Reporting training MSE and $R^2$ overstates model fit
+
+Corrections we have discussed so far (adjusted $R^2$, e.g.) indicate whether adding parameters improves fit to *current* data at rates better than chance. This is a low bar to clear!
+
+## Implications for assessing fit
+
+If we have new/unseen/"test" data, use it!
+
+. . .
+
+But we usually don't. What's the next best thing?
+
+## Hold out some of your data
+
+Another obvious possibility is to "hold out" some of your training data to use as test data
+
+-   Fit model on random subsample of your total dataset
+
+-   Use the held out data as "test" data to assess fit
+
+```{r heldout, echo = TRUE, eval = FALSE}
+# randomly sample rows to include/exclude from training
+train_index <- sample(1:nrow(df), floor(nrow(df)*.7), replace = F)
+
+# split
+model <- lm(y ~ independent_variables, data = df[train_index,])
+
+# compare heldout observations to heldout predictions
+heldout_observations <- df[-train_index,y]
+heldout_predictions <- predict(model, newdata = df[-train_index,])
+
+```
+
+## Cross-validation
+
+Not obvious how much data to hold out / how sensitive results are to which observations are held out.
+
+. . .
+
+We could maximize our sample size by minimizing the amount of data "held out", but this may also increase the variance of our estimate of the test MSE (because we are only using 1 observation!)
+
+## Cross-validation
+
+Common to repeat this process across equally-sized chunks of held-out data and average loss across the K "folds"
+
+![](images/k_fold_crossval.png){fig-align="center"}
+
+## Example K-fold, using `caret`
+
+```{r echo=TRUE}
+
+# load data and fit in-sample
+BEPS <- carData:: BEPS
+m1 <- lm(Europe ~ I(age/10) + gender + economic.cond.national + economic.cond.household, data = BEPS)
+
+# estimate models using 10-fold
+m1_trainControl <- trainControl(method = "cv", number = 10)
+m1_10fCV <- train(formula(m1), data = BEPS, method = "lm", trControl = m1_trainControl)
+print(m1_10fCV)
+```
+
+## Cross-validation
+
+Can extend this such that K = N (i.e. we estimate the model $N$ times on $N-1$ data points)
+
+-   Rather than evaluating fit based on in-sample *residuals*, we instead use out-of-sample *prediction errors*
+
+-   The MSE of these predictions is an estimate of the true test MSE
+
+. . .
+
+This is [leave-one-out cross-validation]{.alert}
+
+## Example LOOCV, using `caret`
+
+```{r echo=TRUE}
+# load caret package
+library(caret)
+
+# estimate models using LOOCV
+m1_trainControl <- trainControl(method = "LOOCV")
+m1_LOOCV <- train(formula(m1), data = BEPS, method = "lm", trControl = m1_trainControl)
+print(m1_LOOCV)
+```
+
+## Example LOOCV, analytically
+
+For OLS, there is an analytic solution for LOOCV (where $h_i$ is the [leverage]{.alert} of observation $i$):
+
+$$
+\text{LOOCV} = \frac{1}{N} \sum_{i=1}^N \left[\frac{\hat{u}_i}{(1 - h_i)} \right]^2
+$$
+
+```{r echo=TRUE}
+sqrt( sum( (m1$residuals / (1 - hatvalues(m1)))^2 ) / nrow(BEPS) )
+```
+
+. . .
+
+-   In words, inflate observed squared error by observations' leverage
+-   It's an HC3 adjustment!
+
+## Bias and variance in cross-validation {.scrollable}
+
+How to choose $K$? Using only a portion of the data for training leads to upward bias on estimate of test MSE (b/c sample is smaller, so estimator is higher variance)
+
+::: incremental
+-   As $K \rightarrow N$, the bias goes to 0 but the variance can also increase
+    -   b/c of potential for higher correlations across folds
+-   Common practice to use 10 folds (i.e. hold 10% of data out at a time)
+-   There is debate about this - unclear whether standard practice is actually better than LOOCV
+:::
+
+. . .
+
+With small $K$, the final estimate depends (to some degree) on the randomness of the divisions into folds (we would get a different answer with different folds)
+
+-   Extension: estimate K-fold CV $M$ times and average the results
+
+## Cross-validation for model choice
+
+You may often wish to choose among models of varying complexity
+
+One criterion is to choose the model that minimizes the test MSE:
+
+::: incremental
+-   Estimate a series of models with different sets of parameters
+-   Calculate K-fold test MSE for each
+-   Choose the model with the lowest test MSE
+:::
+
+## Other selection criteria
+
+If $\hat{L}$ is the value of the likelihood function at the maximum:
+
+[Akaike Information Criterion]{.alert} ($\text{AIC} = 2(K+1) - 2\ln(\hat{L})$)
+
+. . .
+
+[Bayesian Information Criterion]{.alert} ($\text{BIC} = \ln(N)(K+1) - 2\ln(\hat{L})$)
+
+::: incremental
+-   Choose model with smallest AIC or BIC
+-   If we assume normal errors, maximum likelihood and ordinary least squares are equivalent, and so AIC and BIC can be used as model selection criteria
+:::
+
+<!---   BIC exacts a larger penalty for complexity when $ln(N) > 2 \approx ln(7)$-->
+
+## AIC and BIC in R
+
+It is easy to get AIC and BIC values using base R
+
+```{r echo=TRUE}
+AIC(m1)
+BIC(m1)
+```
+
+## Regularization
+
+[Regularization]{.alert} methods place constraints on the parameter space during estimation
+
+::: incremental
+-   These constraints operate to reduce model flexibility
+-   This increases bias (relative to OLS), but reduces variance, ideally reducing test MSE
+-   These methods may also be used to increase interpretability (again, by trading for bias)
+:::
+
+## Penalized Regression {.scrollable}
+
+One way to regularize is to *augment the loss function* to explicitly penalize coefficient size
+
+$$
+\begin{aligned}
+\hat{\boldsymbol{\beta}}_{OLS} &= \min(SS_R) \\
+\hat{\boldsymbol{\beta}}_{Penalized} &= \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} f(\hat{\beta}_k) \right)
+\end{aligned}
+$$
+
+::: incremental
+-   $\lambda$ is the [hyperparameter]{.alert} chosen by the researcher (often selected by cross-validation)
+    -   larger $\lambda$ means larger penalties and more shrinkage
+-   Dividing $SS_R$ by the sample size ensures that the loss function is independent of $N$, which makes the scale of $\lambda$ comparable across applications (though some software does not do this, e.g., `MASS`)
+-   $\hat{\beta}_k$ is sensitive to scale! Standardize inputs prior to estimation
+:::
+
+## Penalized Regression
+
+[LASSO]{.alert} (Least Absolute Shrinkage and Selection Operator)
+
+$$
+\hat{\boldsymbol{\beta}}_{LASSO} = \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} |\hat{\beta}_k| \right)
+$$
+
+-   Penalize sum of coefficient absolute values
+-   Leads uninformative coefficients to "shrink" to zero
+-   LASSO is thus a good choice when one wishes to reduce model complexity
+
+## Penalized Regression
+
+[Ridge regression]{.alert}
+
+$$
+\hat{\boldsymbol{\beta}}_{RR} = \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} \hat{\beta}_k^2 \right)
+$$
+
+-   Penalize sum of squared coefficients
+-   Shrinks coefficients toward zero as a function of uninformativeness
+-   A limitation of ridge is that it does not do subset selection
+
+## Penalized Regression
+
+[Elastic net]{.alert} regression
+
+$$
+\hat{\boldsymbol{\beta}}_{EN} = \min \left( \frac{SS_R}{2N} + \frac{\lambda(1 - \alpha)}{2} \sum_{k=1}^{K} \hat{\beta}_k^2 + \lambda\alpha \sum_{k=1}^{K} |\hat{\beta}_k| \right)
+$$
+
+-   Adds another tuning parameter, $\alpha$, which ranges from 0-1 and "mixes" LASSO and Ridge
+-   When $\alpha$ = 1, we've got LASSO; when When $\alpha$ = 0, we've got ridge
+
+## Ridge vs LASSO, visually
+
+Why the LASSO is *sparse*:
+
+![James et al., p. 222](images/ridgelasso.jpg)
+
+## Example using `MASS`
+
+```{r echo=TRUE}
+# estimate original model with scaled vars
+m1_std <- lm(scale(Europe) ~ scale(age) + scale(as.numeric(gender)) + scale(economic.cond.national) + scale(economic.cond.household), data = BEPS)
+
+# estimate ridge regression with lambda = 100
+m1_rr <- MASS::lm.ridge(formula(m1_std), data = BEPS, lambda = 100)
+round(cbind(coef(m1_std), coef(m1_rr)), 3)
+
+```
+
+## Example using `MASS`
+
+```{r fig.align='center'}
+# estimate series of models with varying lambda and plot
+plot(seq(1,10000,100), 
+     sapply(seq(1,10000,100), 
+            function(x) coef(MASS::lm.ridge(formula(m1_std), data = BEPS, lambda = x))[2]),
+     ylim=c(0,0.08), ylab="coef estimate for age", xlab=expression(paste(lambda)),
+     main=expression(paste("Shrinkage of age coefficient for increasing ", lambda))
+     )
+```
+
+## Example using `glmnet`
+
+```{r echo=TRUE}
+library(glmnet)
+
+# run ridge regression with lambda = 100
+m1_ridge <- glmnet(x = m1_std$model[,-1], 
+                   y = m1_std$model[,1], 
+                   alpha = 0, # indicates ridge penalty
+                   lambda = 100 / nrow(m1_std$model)) # MASS lambda inflated b/c no std of RSS by N, divide by N to make comparable
+
+cbind(m1_ridge$beta, coef(m1_rr)[-1])
+```
+
+## Example, with `glmnet`
+
+```{r echo=TRUE}
+library(glmnet)
+
+# run a lasso regression
+m1_lasso <- glmnet(x = m1_std$model[,-1], 
+                   y = m1_std$model[,1], 
+                   alpha = 1, # indicates lasso penalty
+                   lambda = c(0.01, 0.02, 0.1, 0.2))
+round(cbind(m1_lasso$beta, coef(m1_std)[-1]), 3)
+```
+
+## Selecting the tuning parameter
+
+The researcher must choose the value of $\lambda$
+
+-   There is unlikely to be theoretical guidance
+
+-   We can choose based on model fit using cross-validation
+
+    -   Estimate ridge or lasso many times with varying values and choose the model with lowest MSE
+
+## Example, using `glmnet` {.scrollable}
+
+![](images/Hitters.png){height="14in"}
+
+## Example, using `glmnet`
+
+```{r echo=TRUE, fig.align='center'}
+Hitters <- na.omit(ISLR::Hitters)
+
+# run lasso regression with many lambdas
+m2_lasso_cv <- cv.glmnet(x = model.matrix(Salary ~ ., 
+                                          data = Hitters[, 1:19])[,-1], 
+                         y = Hitters[, 19], 
+                         alpha = 1)
+m2_lasso_cv$lambda.min
+```
+
+## Example, using `glmnet`
+
+```{r fig.width=8}
+plot(m2_lasso_cv)
+text(-0.5, 200000, expression(paste("value of ", lambda, " with lowest MSE")))
+text(3.5, 200000, "sparse model: \nMSE is within \n1SD of minimum")
+```
+
+## Using minimum lambda
+
+```{r echo=TRUE}
+# refit lasso model with minimum MSE lambda
+m2_lasso <- glmnet(x = model.matrix(Salary ~ ., data = Hitters[, 1:19])[,-1], 
+                   y = Hitters[, 19], 
+                   alpha = 1,
+                   lambda = m2_lasso_cv$lambda.min)
+round(m2_lasso$beta, 3)
+```
+
+## Using 1SD above min lambda
+
+```{r echo=TRUE}
+# refit lasso model with minimum MSE lambda
+m2_lasso_1sd <- glmnet(x = model.matrix(Salary ~ ., data = Hitters[, 1:19])[,-1], 
+                   y = Hitters[, 19], 
+                   alpha = 1,
+                   lambda = m2_lasso_cv$lambda.1se)
+round(m2_lasso_1sd$beta, 3)
+```
+
+## Example, using `glmnet`
+
+```{r echo=TRUE, fig.align='center'}
+# run ridge regression with many lambdas
+m2_ridge_cv <- cv.glmnet(x = model.matrix(Salary ~ ., 
+                                          data = Hitters[, 1:19])[,-1], 
+                         y = Hitters[, 19], 
+                         alpha = 0)
+m2_ridge_cv$lambda.min
+plot(m2_ridge_cv)
+```
+
+## Example, using `glmnet`
+
+```{r echo=TRUE}
+# refit ridge model with minimum MSE lambda
+m2_ridge <- glmnet(x = model.matrix(Salary ~ ., data = Hitters[, 1:19])[,-1], 
+                   y = Hitters[, 19], 
+                   alpha = 0,
+                   lambda = m2_ridge_cv$lambda.min)
+round(cbind(m2_ridge$beta, m2_lasso$beta), 3)
+```
+
+## Elastic net
+
+[Elastic net]{.alert} regression
+
+$$
+\hat{\boldsymbol{\beta}}_{EN} = \min \left( \frac{SS_R}{2N} + \frac{\lambda(1 - \alpha)}{2} \sum_{k=1}^{K} \hat{\beta}_k^2 + \lambda\alpha \sum_{k=1}^{K} |\hat{\beta}_k| \right)
+$$
+
+-   Adds another tuning parameter, $\alpha$, which ranges from 0-1 and "mixes" LASSO and Ridge
+-   When $\alpha$ = 1, we've got LASSO; when When $\alpha$ = 0, we've got ridge
+
+## Example, using `caret`
+
+```{r echo=TRUE}
+library(caret)
+
+# set up cross-validation approach
+cv_10 = trainControl(method = "cv", number = 10)
+
+# run enet regression with many lambdas
+m2_enet_cv <- train(Salary ~ ., 
+                    data = Hitters[, 1:19][,-1], 
+                    method = "glmnet",
+                    trControl = cv_10,
+                    tuneLength = 10)
+m2_enet_cv
+```
+
+## Example, using `caret`
+
+```{r echo=TRUE}
+round(m2_enet_cv$results[which(rownames(m2_enet_cv$results) == rownames(m2_enet_cv$bestTune)), ], 3)
+round(m2_enet_cv$finalModel$beta[, which(rownames(m2_enet_cv$results) == rownames(m2_enet_cv$bestTune))], 3)
+```
+
+## Standard errors in regularization
+
+You may have noticed that penalized regression functions are not providing standard errors!
+
+::: incremental
+-   For ridge regression
+
+    -   There are analytic solutions for covariance matrix (see Hanson (2022, p. 947)), though many packages do not report
+    -   Unclear how to think about confidence intervals when loss function introduces unknown bias, as the target of estimation is not the true value
+
+-   For LASSO, the idea of a confidence interval is even more problematic, because variables are being eliminated entirely
+
+-   You should take Machine Learning so that someone more informed on these topics can give you better advice!
+:::
+
+## Bayesian regularization
+
+An alternative to penalized regression is a full Bayesian analysis with informative priors for coefficients that center on 0
+
+-   This has the same regularizing effect of shrinking estimates toward zero
+-   SEs and uncertainty bounds are easily calculated
+-   Though, again, if those are not your *true* priors, then it is not entirely clear how to interpret...

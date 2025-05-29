@@ -1,0 +1,905 @@
+---
+title: "Advanced Strategies for Inference"
+format: html
+editor: visual
+---
+
+## 7: Advanced Strategies for Inference
+
+## Inference w/ non-linearity
+
+$$y = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_1x_2 + u$$
+
+Calculating measures of uncertainty is tougher with non-linear relationships b/c can't rely on `R` canned output
+
+-   e.g. what is standard error for marginal effect of $x_1$ when $x_2 = 1$?
+
+. . .
+
+There are 4 basic strategies we will discuss
+
+::: incremental
+1.  Analytic solutions
+2.  Simulation-based approximations
+3.  Bootstrapping-based approximations
+4.  Delta method approximations
+:::
+
+## Analytic: variance of linear combination
+
+</br>
+
+$$
+\text{Var} (aX + bY) = a^2\text{Var}(X) + b^2\text{Var}(Y) + 2ab\text{Cov}(X,Y)
+$$
+
+## Standard errors for interactions (see also [here](https://www.cambridge.org/core/journals/political-analysis/article/understanding-interaction-models-improving-empirical-analyses/9BA57B3720A303C61EBEC6DDFA40744B))
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + \beta_3x_{1i}x_{2i} + u_i$$
+
+Marginal effect of $x_1$: $\frac{\partial y_i}{\partial x_{1i}} = \beta_1 + \beta_3x_{2i}$
+
+. . .
+
+The standard error for the conditional marginal effect of $x_{ki}$, given its interaction with $x_{li}$ is:
+
+$$\sigma_{\frac{\partial y_i}{\partial x_{ki}}} = \sqrt{\text{Var}(\hat{\beta}_k) + x_{li}^2 \text{Var}(\hat{\beta}_{k,l}) + 2x_{li} \text{Cov}(\hat{\beta}_k, \hat{\beta}_{k,l})}$$
+
+-   where $\hat{\beta}_{k,l}$ represents the interaction term coefficient
+
+## Standard errors for quadratic models
+
+Since a quadratic term is a special case of an interaction, this formula holds for those cases as well
+
+-   One difference is the "2" multiplier that tags along because of the first derivative of the quadratic term:
+
+$$\sigma_{\frac{\partial y_i}{\partial x_{i}}} = \sqrt{\text{Var}(\hat{\beta}_x) + (2x_{i})^2 \text{Var}(\hat{\beta}_{x^2}) + 4x_{i} \text{Cov}(\hat{\beta}_x, \hat{\beta}_{x^2})}$$
+
+## Example
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + \beta_3x_{2i}^2 + u_i$$
+
+. . .
+
+Marginal effect of $x_{2i}$:
+
+$$
+\frac{\partial y_i}{\partial x_{2i}} = \beta_2 + 2\beta_3x_{2i}
+$$
+
+. . .
+
+Variance of this random variable:
+
+$$
+\begin{align}
+&\text{Var} (1\beta_2 + 2x_{2i}\beta_3) = \\
+&1^2\text{Var}(\beta_2) + (2x_{2i})^2\text{Var}(\beta_3) + (2)(1)(2x_{2i})\text{Cov}(\beta_2,\beta_3)
+\end{align}
+$$
+
+## Interaction example
+
+```{r echo=FALSE}
+# load Lucid pub opinion data
+lucid <- read.csv("data/Lucid_Data.csv", 
+                  stringsAsFactors = F)
+
+# estimate regression of left-right economic policy prefs on IVs
+m5 <- lm(econ_mean ~ age_scale + I(age_scale^2) + male + educ_scale + 
+           income_scale*know_mean, 
+         data = lucid)
+summary(m5)
+```
+
+## Interaction example
+
+Marginal effect of `income_scale`:
+
+$$
+\frac{\partial y_i}{\partial \text{income_scale_i}} = \beta_5 + \beta_7 \text{know_mean_i}
+$$
+
+```{r echo=TRUE}
+# calculate conditional standard error for marginal effect of income
+se_income <- sqrt(   
+  
+  # (1)^2 * (Var(B_income))
+  1^2 * vcov(m5)["income_scale", "income_scale"] +
+    
+  # (know_mean)^2 * (B_interaction)
+  seq(0, 1, 0.05)^2 * vcov(m5)["income_scale:know_mean", "income_scale:know_mean"] + 
+    
+  # (2) * (1) * (know_mean) * cov(B_income, B_interaction)
+  2 * 1 * seq(0, 1, 0.05) * vcov(m5)["income_scale", "income_scale:know_mean"]
+
+)
+```
+
+## Plot of conditional marginal effect
+
+```{r echo=FALSE, fig.height=8, fig.align='center'}
+# plot conditional marginal effect of income with confidence bounds
+par(mar=c(5,4,1,1))
+plot(seq(0,1,0.05), coef(m5)[6] + coef(m5)[8]*seq(0,1,0.05), type="l", 
+     xlab="Political knowledge", ylab="Conditional marginal effect of income", 
+     ylim=c(0,0.3))
+lines(seq(0,1,0.05), coef(m5)[6] + coef(m5)[8]*seq(0,1,0.05) + 2*se_income, lty=2)
+lines(seq(0,1,0.05), coef(m5)[6] + coef(m5)[8]*seq(0,1,0.05) - 2*se_income, lty=2)
+```
+
+## Quadratic example
+
+```{r echo=FALSE}
+# estimate regression of left-right economic policy prefs on IVs
+m4 <- lm(econ_mean ~ age_scale + I(age_scale^2) + 
+           male + educ_scale + income_scale, 
+         data = lucid)
+summary(m4)
+```
+
+## Plot of conditional marginal effect
+
+```{r echo=FALSE, fig.height=8, fig.align='center'}
+# calculate conditional standard error for marginal effect of age
+se_age <- sqrt(vcov(m4)["age_scale", "age_scale"]
+                  + (2*seq(0,1,0.05))^2*vcov(m4)["I(age_scale^2)", "I(age_scale^2)"]
+                  + 4*seq(0,1,0.05)*vcov(m4)["age_scale", "I(age_scale^2)"]
+                  )
+
+# plot conditonal marginal effect of age with confidence bounds
+par(mar=c(5,4,1,1))
+plot(seq(0,1,0.05), coef(m4)["age_scale"] + 2*coef(m4)["I(age_scale^2)"]*seq(0,1,0.05), type="l", 
+     xlab="Age", ylab="Conditional marginal effect of age", 
+     ylim=c(-0.4,0.3))
+lines(seq(0,1,0.05), coef(m4)["age_scale"] + 2*coef(m4)["I(age_scale^2)"]*seq(0,1,0.05) + 2*se_age, lty=2)
+lines(seq(0,1,0.05), coef(m4)["age_scale"] + 2*coef(m4)["I(age_scale^2)"]*seq(0,1,0.05) - 2*se_age, lty=2)
+abline(h=0, lty=3)
+```
+
+## `marginaleffects` package [HERE](https://marginaleffects.com/)
+
+```{r echo=TRUE, warning=FALSE}
+library(marginaleffects)
+options(marginaleffects_print_omit = c("s.value"))
+
+# estimate marginal effects w/ all vars held at means
+# if called w/o 'newdata' option, calculates ME for every obs in data
+slopes(m5,
+       variables = c("male", "educ_scale", "income_scale"),
+       newdata = "mean")
+```
+
+## At range of values
+
+```{r echo=TRUE, warning=FALSE}
+# estimate marginal effect of income across values of knowledge
+m_income <- slopes(m5,
+                   variables = c("income_scale"),
+                   newdata = datagrid(know_mean = seq(0, 1, 0.1)))
+m_income
+```
+
+## Plot
+
+```{r echo=FALSE, fig.height=8, fig.align='center'}
+# plot conditional marginal effect of income with confidence bounds
+par(mar=c(5,4,1,1))
+plot(seq(0, 1, 0.1), m_income$estimate, type="l", 
+     xlab="Political knowledge", ylab="Conditional marginal effect of income", 
+     ylim=c(0,0.3))
+lines(seq(0, 1, 0.1), m_income$conf.low, lty=2)
+lines(seq(0, 1, 0.1), m_income$conf.high, lty=2)
+```
+
+## Average marginal effects
+
+`avg_slopes` calculates marginal effect at every observation and then takes mean
+
+```{r echo=TRUE}
+avg_slopes(m5,
+           variables = c("age_scale", "male", "educ_scale", "income_scale")
+)
+```
+
+## Can also do slope tests
+
+Imagine we want to test two coefficients: null hypothesis is equality
+
+```{r echo=TRUE}
+summary(m5)
+hypotheses(m5, hypothesis = "male - educ_scale = 0")
+```
+
+## Simulation for inference
+
+In this context, "simulation" describes the process of repeated random sampling from the sampling distribution
+
+::: incremental
+-   We can calculate quantities of interest for each sample realization and then summarize these
+-   The resulting distributions give us information about uncertainty w/o needing analytic solutions for SEs
+-   This is easily done using the `arm` package's `sim` function, but it is easy by hand as well
+-   `marginaleffects` has this functionality too (though it is currently labeled "EXPERIMENTAL") - it also does NOT (based on help files) propogate uncertainty for $\hat{\sigma}$ (see below)
+:::
+
+## Using `sim` from `arm`
+
+```{r echo=TRUE}
+# draw 1,000 realizations of model parameters from sampling distribution
+m4_sims <- arm::sim(m4, n.sims=1000)
+```
+
+. . .
+
+```{r echo=TRUE}
+# the betas are stored in @coef
+m4_sims@coef[1:3,]
+```
+
+. . .
+
+```{r echo=TRUE}
+# the sigmas are stored in @sigma
+m4_sims@sigma[1:3]
+```
+
+## What does `sim` do?
+
+For each sample, `sim` first draws a random value of $\hat{\sigma}$ from its sampling distribution, and then uses this value to draw a random sample from the sampling distribution for $\hat{\boldsymbol{\beta}}$
+
+```{r echo=TRUE, eval=FALSE}
+sigma.hat <- summary(m4)$sigma
+beta.hat <- summary(m4)$coef[, 1, drop=FALSE]
+cov.beta <- summary(m4)$cov.unscaled
+n <- summary(m4)$df[1] + summary(m4)$df[2]
+k <- summary(m4)$df[1]
+n.sims <- 1000
+
+sigma <- array(NA, n.sims)
+beta <- array(NA, c(n.sims, k))
+for (i in 1:n.sims){
+  sigma[i] <- sigma.hat*sqrt((n-k)/rchisq(1,n-k))
+  beta[i,] <- MASS::mvrnorm (1, beta.hat, cov.beta*sigma[i]^2)
+}
+```
+
+## `sim` draws from MV normal
+
+This is the asymptotic distribution of $\hat{\boldsymbol{\beta}}$ under standard assumptions, and the t distribution converges pretty quickly to normal with increasing sample size
+
+-   For small samples, say, less than 100, you might not want to rely on asymptotic normality
+
+-   A good alternative is bootstrapping (described below), which does not make distributional assumptions
+
+## Example, quadratic {.scrollable}
+
+```{r echo=TRUE, fig.align='center'}
+# calculate conditional marginal effect of age for each sim
+age_cme_sims <- apply(m4_sims@coef, 1, function(x) x["age_scale"] + 2*seq(0,1,0.05)*x["I(age_scale^2)"])
+dim(age_cme_sims)
+```
+
+. . .
+
+```{r echo=TRUE}
+# summary
+age_cme <- round(cbind(B = coef(m4)["age_scale"] + 2*seq(0,1,0.05)*coef(m4)["I(age_scale^2)"],
+                       se = apply(age_cme_sims, 1, sd), 
+                       lowCI = apply(age_cme_sims, 1, function(x) quantile(x, 0.025)),
+                       highCI = apply(age_cme_sims, 1, function(x) quantile(x, 0.975))
+)
+, 3)
+age_cme
+```
+
+## Plot
+
+```{r echo=FALSE, fig.height=8}
+# plot conditional marginal effect of age with confidence bounds
+par(mar=c(5,4,1,1))
+plot(seq(0,1,0.05), age_cme[, 1], type="l", 
+     xlab="Age", ylab="Conditional marginal effect of age", 
+     ylim=c(-0.4,0.3))
+lines(seq(0,1,0.05), age_cme[, 3], lty=2)
+lines(seq(0,1,0.05), age_cme[, 4], lty=2)
+abline(h=0, lty=3)
+```
+
+## Resampling methods
+
+[Resampling]{.alert} methods use the actual data you have to approximate the sampling distribution of quantities of interest
+
+::: incremental
+-   They are "resampling" in the sense that they estimate the model many times, on varying subsets of observations, to produce a distribution of estimates
+
+-   Jackknife
+
+-   Bootstrap (many variants; large and complicated literature)
+:::
+
+. . .
+
+Much of my discussion here draws from [Hanson (2022), Ch. 10](https://press.princeton.edu/books/hardcover/9780691235899/econometrics), which has an extensive treatment of these methods
+
+## Advantages and disadvantages
+
+::::::: columns
+:::: column
+Advantages
+
+::: incremental
+-   Does not require ability to calculate variance of estimator of quantity of interest
+-   Often performs better when standard assumptions don't hold (e.g., normality of errors, "large enough" sample)
+:::
+::::
+
+:::: column
+Disadvantages
+
+::: incremental
+-   Computationally more expensive (though varies a lot across methods)
+-   The statistical theory is rather difficult (for me at least!)
+-   There is a large literature with many variants and approaches
+:::
+::::
+:::::::
+
+. . .
+
+All that said, if you are looking for a "go-to" approach when finite-sample properties cannot be assumed, bootstrapping is a reasonable bet
+
+## Jackknife
+
+A [leave-one-out]{.alert} estimator computes estimates using all observations except one (there are thus $N$ possibilities)
+
+::: incremental
+-   The [jackknife]{.alert} variance estimator calculates the variance of a parameter of interest by calculating a function of the variance of the set of leave-one-out estimators
+:::
+
+. . .
+
+$$
+\text{Var} (\hat{\theta})_{JK} = \frac{N - 1}{N} \sum_1^N (\hat{\theta}_{(-i)} - \bar{\theta})^2
+$$
+
+-   Square root is jackknife standard error
+
+## Jackknife
+
+Very flexible method, overlap with other approaches
+
+::: incremental
+-   Requires no distributional assumptions
+-   Asymptotically approximates the Delta-method estimator (see below)
+-   Approximates the HC3 heteroskedasticity-robust estimator (see week on heteroskedasticity), but without assumptions regarding asymptotic covariance matrix
+-   But does require $N$ separate estimations (not a big deal for the models we are dealing with)
+:::
+
+## Jackknife example {.scrollable}
+
+```{r echo=TRUE}
+# sample size and num parms for model
+N <- nrow(m5$model)
+K <- length(coef(m5))
+
+# init array to store betas
+betas <- array(NA, c(K, N))
+
+# leave one out
+for (i in 1:nrow(m5$model)){
+  
+  betas[, i] <- coef(update(m5, . ~ ., data = m5$model[-i, ]))
+  
+}
+
+# calculate SE estimates
+cbind(JK = round( apply(betas, 1, 
+                        function(x) sqrt( ( (N-1)/N ) * sum( (x - mean(x))^2 ) ) ),
+                  3 ), 
+      
+      OLS = round(sqrt(diag(vcov(m5))), 3),
+      
+      HC3 = round(sqrt(diag(sandwich::vcovHC(m5, type = "HC3"))), 3)
+)
+```
+
+## Jackknife variance matrix {.scrollable}
+
+$$
+\text{Var} (\hat{\theta})_{JK} = \frac{N - 1}{N} \sum_{i=1}^N (\hat{\boldsymbol{\beta}}_{(-i)} - \bar{\boldsymbol{\beta}}) (\hat{\boldsymbol{\beta}}_{(-i)} - \bar{\boldsymbol{\beta}})'
+$$
+
+```{r echo=TRUE}
+# sample size and num parms for model
+N <- nrow(m5$model)
+K <- length(coef(m5))
+
+# init array to store betas
+betas <- array(NA, c(K, N))
+
+# leave one out
+for (i in 1:nrow(m5$model)){
+  
+  betas[, i] <- coef(update(m5, . ~ ., data = m5$model[-i, ]))
+  
+}
+
+# jackknife variance matrix
+betas_mean <- rowMeans(betas)
+sum_mats <- Reduce("+",  lapply(1:N, function(i) 
+  (betas[, i] - betas_mean) %*% t(betas[, i] - betas_mean)))
+V_jack <- (N - 1)/N * sum_mats
+
+# calculate SE estimates
+cbind(JK = round(sqrt(diag(V_jack)), 3),
+      OLS = round(sqrt(diag(vcov(m5))), 3),
+      HC3 = round(sqrt(diag(sandwich::vcovHC(m5, type = "HC3"))), 3)
+)
+```
+
+## Bootstrapping {.scrollable}
+
+[Bootstrapping]{.yellow} repeatedly samples (w/ replacement, each of size $N$) from the data and runs the model for each
+
+::: incremental
+-   The distribution of estimated parameters (1 for each resample), is the estimated sampling distribution
+-   Bootstrapping makes no assumptions about the form of the sampling distribution
+-   More computationally demanding (some approaches more demanding than others)
+:::
+
+. . .
+
+```{r echo=TRUE}
+population <- 1:10
+
+boot_1 <- sample(population, size = 10, replace = TRUE)
+boot_2 <- sample(population, size = 10, replace = TRUE)
+boot_3 <- sample(population, size = 10, replace = TRUE)
+
+boot_1
+boot_2
+boot_3
+```
+
+## Example with loop
+
+Draw `boots` random samples from analytical sample, each of size $N$, run model, store coefs
+
+```{r echo=TRUE, eval=FALSE}
+# number of bootstrap samples
+boots <- 1000
+
+# initialize array to store coefs
+boots_beta <- array(NA, c(boots, # num of bootstrap samples
+                          summary(m4)$df[1]) # number of regression coefficients (K+1)
+)
+
+# iterate over samples
+for (i in 1:boots){
+  
+  new <- sample(1:nrow(m4$model), nrow(m4$model), replace = T) # sample rows of data w/ replacement
+  
+  boots_beta[i, ] <- coef(lm(formula(m4), data = m4$model[new, ])) # run model with bootstrap sample
+ 
+  # repeat boots number of times 
+}
+```
+
+## Standard errors
+
+The distribution of bootstrap estimates is an estimate of the sampling distribution of the parameter, which we can then use for inference
+
+-   The bootstrap standard error is simply the square root of the sample variance of bootstrap estimates
+-   It is consistent for simple linear models
+
+. . .
+
+There are cases where it is inconsistent, especially w/ non-linear functions of estimated coefficients
+
+-   An alternative, "trimmed" estimator is preferable in these cases
+-   Cut the most extreme p% of the bootstrap estimates (e.g., 1%)
+-   Consistent under more general conditions
+
+## Confidence intervals
+
+There is a large literature on methods for calculating bootstrap confidence intervals, and various different options
+
+-   normal approximation
+-   percentile intervals
+-   bias-corrected
+-   percentile-t
+
+## Normal approximation
+
+Use bootstrap standard error and plug into formula for confidence intervals using normal distribution
+
+-   Often the default
+-   Not the best option: worse performance than others
+
+## Percentile intervals
+
+Choose confidence level (e.g., $\alpha = 5%$), select quantiles of bootstrap estimates associated with $\alpha/2$ and $(100 - \alpha/2)$ (e.g., 2.5% and 97.5%)
+
+-   Easy and popular; does not require calculation of standard errors
+-   Consistent under weaker assumptions than normal approximation and bootstrap standard errors, and does not require trimming
+
+. . .
+
+Requires that the asymptotic distribution is symmetric about 0
+
+-   Finite-sample performance may be unsatisfactory if estimator is asymmetric for your sample size
+-   This includes cases where estimators are biased (even if consistent), which is often true with non-linear models
+
+## Bias-corrected (BC) intervals
+
+Adjusts percentile intervals for finite-sample bias using degree of asymmetry in empirical distribution of bootstrap estimates around parameter estimate
+
+-   Provides "exact" coverage under assumption that bias depends only on a parameter drawn from a symmetric, invertible distribution
+-   Is also asymptotically valid for the interval of interest
+
+. . .
+
+An extension, the [accelerated bias-corrected]{.alert} estimator (BC$_{\alpha}$) also estimates skewness in sampling distribution (in addition to bias) and adjusts for it
+
+-   Will typically have better performance than BC
+-   Faster rate of asymptotic convergence than percentile and BC methods
+-   Can take a *long* time to estimate in `R`
+
+## Percentile-t intervals
+
+Calculate a t-statistic for every bootstrap sample: $T^* = \frac{\hat{\theta}^* - \hat{\theta}}{se(\hat{\theta}^*)}$
+
+-   $\hat{\theta}^*$ is the bootstrap parameter estimate for a particular bootstrap sample
+-   $se(\hat{\theta}^*)$ is the estimated standard error for a particular bootstrap sample
+-   $\hat{\theta}$ is the estimate from your standard procedure (e.g., OLS coefficient)
+
+## Percentile-t intervals
+
+Calculate the percentile-t interval from the quantiles of $T^*$, $q^*$:
+
+$$
+\left( \hat{\theta} - se(\hat{\theta}) q_{(1 - \alpha/2)}^*, \space \hat{\theta} - se(\hat{\theta}) q_{(\alpha/2)}^*   \right)
+$$
+
+-   Uses standard error, so need a method for calculating, and accuracy depends on the reliability of the estimate
+
+    -   Can use bootstrap to estimate SE on each bootstrap (i.e., [nested bootstrap]{.alert})
+
+-   When SE estimate reliable, may be better than other methods
+
+-   Faster rate of asymptotic convergence than percentile and BC methods
+
+## Using `boot` package via `marginaleffects`
+
+```{r echo=TRUE, eval=FALSE}
+# estimate slopes
+m5_me <- slopes(m5,
+                variables = c("male", "educ_scale", "income_scale"),
+                newdata = "mean")
+
+# use inferences() to get bootstrap intervals
+inferences(m5_me, method = "boot", R = 1000, conf_type = "perc")
+inferences(m5_me, method = "boot", R = 1000, conf_type = "bca")
+```
+
+## `boot` package {.scrollable}
+
+```{r echo=TRUE, eval=TRUE}
+library(boot)
+
+# boot call
+m5_boot <- boot(m5$model, 
+                function(data, indices) {
+                  d <- data[indices, ]
+                  coef(update(m5, . ~ ., data = d))[5]
+                },
+                R = 10) # DON'T USE 10!!! THIS IS NOT A RECOMMENDATION
+
+# use boot.ci to get CIs
+boot.ci(m5_boot)
+```
+
+## `boot` package to get percentile-t
+
+```{r echo=TRUE, eval=TRUE}
+# boot call
+m5_boot <- boot(m5$model, 
+                function(data, indices) {
+                  d <- data[indices, ]
+                  fit <- update(m5, . ~ ., data = d)
+                  B <- coef(fit)[5]
+                  se <- sqrt(diag(vcov(fit)))[5]
+                  return(c(B, se))
+                },
+                R = 1000)
+
+# use boot.ci to get CIs
+boot.ci(m5_boot, type = "stud")
+```
+
+## Bootstrap hypothesis testing
+
+We can use the bootstrapped t-statistics to calculate p-values - recall:
+
+$$T^* = \frac{\hat{\theta}^* - \hat{\theta}}{se(\hat{\theta}^*)}$$
+
+-   The (two-tailed) p-value is then the percent of $|T^*| > |T|$, where $T$ is the t-statistic from your standard procedure (e.g., OLS output for a coefficient)
+
+## Wild bootstrap
+
+Our bootstrap methods to this point all sample both $X$ and $Y$, but our standard linear regression model treats $X$ as fixed and imposes $\text{E}(u | \mathbf{X}) = 0$
+
+-   Integrating these assumptions into the bootstrap will increase precision (and also take into account heteroskedasticity)
+
+. . .
+
+The wild bootstrap fixes $X$ and takes draws of the error to generate bootstrap observations:
+
+$$
+y_i^* = \boldsymbol{x}_i'\hat{\boldsymbol{\beta}} + \hat{u}_i\xi_i^*, \\ \quad \Pr(\xi_i^* = 1) = \Pr(\xi_i^* = -1) = 0.50
+$$
+
+-   For hypothesis testing, it is better to generate bootstrap resamples using the null model (set coefficients to null hypothesis values to generate residuals and then generate $y^*$)
+
+## Structured data (see [Cameron et al. 2008](https://direct.mit.edu/rest/article/90/3/414/57731/Bootstrap-Based-Improvements-for-Inference-with))
+
+If you have data with "structure" that is relevant to the analysis, you need to reproduce that structure in your resampling
+
+. . .
+
+-   With "clustered" data, we want to reproduce the clustering so we don't overstate precision
+
+    -   E.g., if you have students nested within schools, resample schools
+    -   With wild bootstrap, each cluster gets a single draw of $\xi_i^*$
+
+. . .
+
+With clustered data, you are effectively treating the sample size as the number of clusters
+
+-   Small number of clusters may imply inaccurate approximations
+
+## How many?
+
+For simulation-based and bootstrapped calculations, how many should you use?
+
+-   As always with these things, no firm answer beyond "as many as possible given constraints"
+
+. . .
+
+A reasonable approach when large number is very time-consuming:
+
+-   Use small number (e.g., 10-100) when checking to make sure your code works
+-   Use modest number for working "drafts" of your analyses (e.g., 500-1,000)
+-   When you are ready to generate final "archive-ready" results, use large number(10,000) and let it run while you sleep
+
+## Set seed!
+
+</br>
+
+Remember to set a seed value (especially for your final runs that will be archived) (`set.seed()`)
+
+## Delta method
+
+A differentiable function of an asymptotically normal estimator is also asymptotically normal
+
+when interested in some function of beta_hat, rather than beta_hat itself
+
+$$\sqrt{N} \left( f(\hat{\boldsymbol{\beta}}) - f(\boldsymbol{\beta}) \right) \underset{d}{\rightarrow} \ Normal \left( 0, \left( f'(\boldsymbol{\beta}) \right)^T \text{Var}(\hat{\boldsymbol{\beta}}) (f'(\boldsymbol{\beta})) \right)$$
+
+-   $f(\hat{\boldsymbol{\beta}})$: some function of our estimator
+-   $f(\boldsymbol{\beta})$: the same function evaluated at the true population value
+-   $f'(\boldsymbol{\beta})$: the gradient (vector of 1st partial derivatives) of the function evaluated at the true value
+
+\*will. almost always rely on \[\] to do this for you
+
+-   popular because flexible
+
+-   relies on asymptotic normality to be valid \<-- downside
+
+    -   `(error of approximation converges to 0 as $N \rightarrow \infty$)`
+
+Approximate a continuous function by its 1st derivatives evaluated at a particular point:
+
+-   uses first order Taylor expansion
+
+-   approximates the function about a particular point (true value of beta in pop
+
+-   Identity:
+
+$$
+f(\hat{\boldsymbol{\beta}}) \approx f(\boldsymbol{\beta}) + f'(\boldsymbol{\beta})^T(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})
+$$
+
+. . .
+
+then can square both sides – looks like variance of function of estimator on left
+
+$$
+\left(f(\hat{\boldsymbol{\beta}}) - f(\boldsymbol{\beta}) \right)^2 \approx \left (f'(\boldsymbol{\beta})^T(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) \right)^2
+$$
+
+. . .
+
+then can simplify. scalar quantity on right – so can take transpose, and it's itself
+
+$$
+\left(f(\hat{\boldsymbol{\beta}}) - f(\boldsymbol{\beta}) \right)^2 \approx f'(\boldsymbol{\beta})^T(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) (\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})^T f'(\boldsymbol{\beta})
+$$
+
+. . .
+
+$$
+\text{E} \left((f(\hat{\boldsymbol{\beta}}) - f(\boldsymbol{\beta}))^2 \right) \approx \left(f'(\boldsymbol{\beta}) \right)^T \text{E} \left((\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})^2 \right) f'(\boldsymbol{\beta})
+$$
+
+. . .
+
+$$
+\text{Var} \left(f(\hat{\boldsymbol{\beta}}) \right) \approx \left(f'(\boldsymbol{\beta}) \right)^T \text{Var}(\hat{\boldsymbol{\beta}}) (f'(\boldsymbol{\beta}))
+$$
+
+. . .
+
+-   Substitute estimates: $\hat{\text{Var}}(\hat{\boldsymbol{\beta}})$, and $\hat{\boldsymbol{\beta}}$
+
+## Example
+
+SE for conditional ME of age: $f(\hat{\boldsymbol{\beta}}) = \hat{\beta}_1 + 2\hat{\beta}_2age_i$
+
+-   note that what we're interested in is a function of the cond. marg. effect
+
+-   can we get SE for above function of beta hat
+
+-   vector of first partial derivatives (far left below) – need two partial derivatives
+
+. . .
+
+$$
+(f'(\boldsymbol{\beta}))^T = \left( \frac{\partial f}{\partial \boldsymbol{\beta}}\Bigr|_{\boldsymbol{\beta} = \hat{\boldsymbol{\beta}}} \right)^T = \begin{bmatrix} 1 & 2age_i \end{bmatrix} \\
+$$
+
+. . .
+
+$$
+(f'(\boldsymbol{\beta}))^T \hat{\text{Var}}(\hat{\boldsymbol{\beta}}) (f'(\boldsymbol{\beta})) = \begin{bmatrix} 1 & 2age_i \end{bmatrix} \hat{\text{Var}}(\hat{\boldsymbol{\beta}}_{2:3}) \begin{bmatrix} 1 \\ 2age_i \end{bmatrix} \\
+$$
+
+. . .
+
+$$
+= \hat{\text{Var}}(\hat{\beta}_1) + (2age_i)^2\hat{\text{Var}}(\hat{\beta}_2) \space + \space 4age_i\hat{\text{Cov}}(\hat{\beta}_1, \hat{\beta}_2)
+$$
+
+-- point: when you do this by hand, you end up with the anaytic solution to the conditional marginal effect, variance for quadratic model
+
+-- delta method perfect approximation in simple case in example, but not always the case
+
+## Non-linear example
+
+```{r echo=TRUE}
+m1 <- lm(log(salary) ~ yrs.since.phd + sex + discipline, 
+         data = carData::Salaries)
+summary(m1)
+```
+
+## Non-linear example
+
+Avg effect of change from 10 to 20 years since PhD on unlogged salaries: $f = \frac{1}{N} \sum_N e^{\boldsymbol{x}_{i,yrs=20}\hat{\boldsymbol{\beta}}}E[u_i] - e^{\boldsymbol{x}_{i,yrs=10}\hat{\boldsymbol{\beta}}}E[u_i]$
+
+$\frac{\partial f}{\partial \boldsymbol{\beta}} =$
+
+$$
+\begin{bmatrix}
+\frac{1}{N} \sum_N e^{\boldsymbol{x}_{i,yrs=20}\hat{\boldsymbol{\beta}}}E[u_i] - e^{\boldsymbol{x}_{i,yrs=10}\hat{\boldsymbol{\beta}}}E[u_i] \\
+\frac{1}{N} \sum_N 20e^{\boldsymbol{x}_{i,yrs=20}\hat{\boldsymbol{\beta}}}E[u_i] - 10e^{\boldsymbol{x}_{i,yrs=10}\hat{\boldsymbol{\beta}}}E[u_i] \\
+\frac{1}{N} \sum_N male_ie^{\boldsymbol{x}_{i,yrs=20}\hat{\boldsymbol{\beta}}}E[u_i] - male_ie^{\boldsymbol{x}_{i,yrs=10}\hat{\boldsymbol{\beta}}}E[u_i] \\
+\frac{1}{N} \sum_N discipline_ie^{\boldsymbol{x}_{i,yrs=20}\hat{\boldsymbol{\beta}}}E[u_i] - discipline_ie^{\boldsymbol{x}_{i,yrs=10}\hat{\boldsymbol{\beta}}}E[u_i]
+\end{bmatrix}
+$$
+
+## Calculation {.scrollable}
+
+$$f = e^{\bf{X_{20}}\hat{\boldsymbol{\beta}}}E[u_i] - e^{\bf{X_{10}}\hat{\boldsymbol{\beta}}}E[u_i]$$
+
+```{r echo=TRUE}
+
+# new data
+
+X <- cbind(1, m1$model[,2:4])
+
+X$sex <- ifelse(X$sex == "Male", 1, 0)
+
+X$discipline <- ifelse(X$discipline == "A", 1, 0)
+
+nd_1 <- nd_2 <- X
+
+nd_1$yrs.since.phd <- 10
+
+nd_2$yrs.since.phd <- 20
+
+nd_1 <- as.matrix(nd_1)
+
+nd_2 <- as.matrix(nd_2)
+
+# define Jacobian
+
+J <- c()
+
+J[1] <- mean( exp(nd_2 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) -  exp(nd_1 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) )
+
+J[2] <- mean( 20*exp(nd_2 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) -  10*exp(nd_1 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) )
+
+J[3] <- mean( nd_2[,3] * exp(nd_2 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) -  nd_1[,3]*exp(nd_1 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) )
+
+J[4] <- mean( nd_2[,4] * exp(nd_2 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) -  nd_1[,4] * exp(nd_1 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) )
+
+# calculate first difference
+
+fd <- mean( exp(nd_2 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) -  exp(nd_1 %*% coef(m1)) * exp(summary(m1)$sigma^2 / 2) )
+
+# calculate standard error of first difference
+
+se <- sqrt(t(J) %*% vcov(m1) %*% J)
+
+```
+
+## Calculation
+
+```{r echo=TRUE}
+
+# print
+
+cbind(fd, se)
+
+```
+
+## Using `car` package
+
+Holding all other variables at central tendencies:
+
+-   allows you to write function of coefficients in symbolic terms
+
+```{r echo=TRUE}
+
+library(car)
+
+Eu_1 <- sum(exp(m1$residuals)) / nrow(m1$model)
+
+car <- deltaMethod(m1,
+
+                   "exp(b0 + b1*20 + b2*0 + b3*0)*Eu_1 - exp(b0 + b1*10 + b2*0 + b3*0)*Eu_1",
+
+                  parameterNames = c("b0","b1","b2","b3"))
+
+cbind(car$Estimate, car$SE)
+
+```
+
+## `marginaleffects` package
+
+The delta method is the **default** approach to calculating standard errors in `marginaleffects`
+
+-   I do not see a simple approach for logged DVs, but I think you can write your own functions (or use `car`)
+
+-   But for most cases, it will work well
+
+-   The exception is when you have exact standard errors (assuming normal regression errors), in which case, you would use t for tests and CIs, but delta method uses normal
+
+-   good for when youre interested in coefficients themselves, or function of
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+##### Delta method most practical upshot:
+
+You're implicitly assuming a multivariate normal distribution, so that's what you're using for confidence intervals. Keep in mind + decide whether that's an assumption you will make

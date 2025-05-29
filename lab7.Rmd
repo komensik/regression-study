@@ -1,0 +1,282 @@
+---
+title: "Lab 7"
+output: html_document
+---
+
+# Inference with Non-Linearity 
+
+ + Quadratic $y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{1i}^2$
+ + Interaction $y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + \beta_3x_{1i}x_{2i}$
+
+1. Analytic solutions 
+2. Simulation-based approximations 
+3. Bootstrapping-based approximations 
+
+## Analytic Solutions
+
+Conditional Marginal Effect: 
+
++ Quadratic 
+$$
+\frac{\partial y_i}{\partial x_{1i}} = \beta_1 + 2\beta_2x_{1i}
+$$ 
++ Interaction 
+$$
+\frac{\partial y_i}{\partial x_{1i}} = \beta_1 + \beta_3x_{2i}
+$$
+
+To find the variance of the conditional marginal effect, we calculate the variance of the linear combination of coefficients: 
+$$
+\text{Var} (aX + bY) = a^2\text{Var}(X) + b^2\text{Var}(Y) + 2ab\text{Cov}(X,Y)
+$$
+
++ Quadratic 
+$$
+\text{Var} (1\beta_1 + 2x_{1i}\beta_2) = 1^2\text{Var}(\beta_1) + (2x_{1i})^2\text{Var}(\beta_2) + (2)(1)(2x_{1i})\text{Cov}(\beta_1,\beta_2)
+$$
++ Interaction 
+$$
+\text{Var} (1\beta_1 + x_{2i}\beta_3) = 1^2\text{Var}(\beta_1) + (x_{2i})^2\text{Var}(\beta_3) + (2)(1)(x_{2i})\text{Cov}(\beta_1,\beta_2)
+$$
+To find the standard error of the conditional marginal effect, we take the sqrt of the variance. Let's try a simple example with an interaction using the `trees` data.
+
+### By Hand 
+
+```{r echo=TRUE}
+# load the data 
+trees <- datasets::trees
+
+# estimate the model 
+m <- lm(Volume ~ Girth*Height, data=trees)
+summary(m)
+
+# create a vector of heights from the minimum to maximum value by increments of 0.1
+height <- seq(min(trees$Height), max(trees$Height), 0.1)
+
+# calculate the conditional marginal effect of girth across height
+cme_girth <- coef(m)["Girth"] +  height * coef(m)["Girth:Height"]
+
+# extract the variance-covariance matrix 
+cov_B <- vcov(m)
+
+# calculate standard errors for conditional marginal effects
+se_cme_girth <- sqrt(cov_B["Girth","Girth"] + (height)^2 * cov_B["Girth:Height","Girth:Height"] + (2*height) * cov_B["Girth","Girth:Height"])
+
+# plot cme
+plot(height, cme_girth, 
+     ylab="Conditional ME of Girth", xlab="Height", type="l",
+     ylim=c(-1,8), xlim=c(60,90))
+abline(h=0, lty=3)
+
+# add confidence bounds to plot (+/- 2SE)
+lines(height, cme_girth + 2*se_cme_girth, lty=2)
+lines(height, cme_girth - 2*se_cme_girth, lty=2)
+```
+
+### Marginal Effects Package 
+
+```{r}
+library(marginaleffects)
+options(marginaleffects_print_omit = c("s.value"))
+
+# estimate ME for every obs in data
+me <- slopes(m, variables = c("Girth"))
+
+# plot ME and SE for every obs in data 
+plot(me$Height, me$estimate)
+lines(me$Height, me$estimate + 2*me$std.error) 
+lines(me$Height, me$estimate - 2*me$std.error) 
+
+# estimate ME of Girth at range of Height
+cme <- slopes(m, variables = c("Girth"),
+       newdata = datagrid(Height = height))
+
+# plot ME and SE for range of Height
+plot(cme$Height, cme$estimate)
+lines(cme$Height, cme$estimate + 2*cme$std.error) 
+lines(cme$Height, cme$estimate - 2*cme$std.error) 
+
+# estimate ME w/ all vars held at means
+mem <- slopes(m, variables = c("Height", "Girth"), newdata = "mean")
+
+# takes mean of ME at every observation 
+mme <- avg_slopes(m, variables = c("Height", "Girth"))
+
+#slope tests 
+hypotheses(m, hypothesis = "Height - Girth = 0")
+```
+
+## Simulation-based Approximations 
+
+1. Simulate sigma (error variance) using estimated sigma and chi-square distribution.
+2. Simulate beta (coefficients) using estimated coefficients, simulated sigma, and multivariate normal distribution. 
+3. Use the distribution of simulated beta to estimate SE (sd) and CI (quantile). 
+
+$$\hat{\sigma}^2 \sim \frac{\sigma^2}{n-k} \chi^2 (n-k) $$
+
+### By Hand 
+
+```{r}
+# estimated SE of residuals (assumes normal)
+sigma.hat <- summary(m)$sigma
+
+# estimated coefficients 
+beta.hat <- summary(m)$coef[, 1, drop=FALSE]
+
+# vcov matrix of beta estimates 
+cov.beta <- summary(m)$cov.unscaled
+
+n <- summary(m)$df[1] + summary(m)$df[2] # observations 
+k <- summary(m)$df[1] # parameters 
+n.sims <- 1000 # simulations 
+
+# init arrays to store sigmas and betas
+sigma <- array(NA, n.sims)
+beta <- array(NA, c(n.sims, k))
+
+for (i in 1:n.sims){
+  # draw random value of sigma from chi-square distribution with n-k df
+  sigma[i] <- sigma.hat*sqrt((n-k)/rchisq(1,n-k))
+  # draw random value of beta from multivariate normal distribution
+  beta[i,] <- MASS::mvrnorm (1, beta.hat, cov.beta*sigma[i]^2)
+  # vcov matrix is the estimated variance of beta, scaled by simulated variance
+}
+```
+
+### Arm Package 
+
+```{r}
+# calculate coefficients from 1000 samples 
+m_sims <- arm::sim(m, n.sims=1000)
+head(m_sims@coef)
+head(m_sims@sigma)
+
+# calculate cme of girth for each sim (241 x 1000)
+cme_sims <- apply(m_sims@coef, 1, function(x) x["Girth"] + x["Girth:Height"]*height)
+
+# apply SD and quantiles over the rows of the simulations
+girth_cme <- round(cbind(B = coef(m)["Girth"] + coef(m)["Girth:Height"]*height,
+                         se = apply(cme_sims, 1, sd), 
+                         lci = apply(cme_sims, 1, function(x) quantile(x, 0.025)),
+                         uci = apply(cme_sims, 1, function(x) quantile(x, 0.975))),3)
+```
+
+## Jackknife 
+
+Calculate a function of the variance of the leave-one-out estimators. 
+Square root is jackknife SE. 
+
+$$
+Var(\hat{\theta})_{JK} = \frac{N-1}{N} \displaystyle\sum_1^N (\hat{\theta}_{(-i)} - \bar{\theta})^2
+$$
+
+```{r}
+# sample size and number of parameters
+N <- nrow(m$model)
+K <- length(coef(m))
+
+# init array to store betas
+betas <- array(NA, c(K, N))
+
+# remove the ith observation and re-estimate coef
+for (i in 1:nrow(m$model)){
+  betas[, i] <- coef(update(m, . ~ ., data = m$model[-i, ]))
+}
+
+# mean of estimates for each coef 
+betas_mean <- rowMeans(betas)
+
+# sum outer products element-wise 
+sum_mats <- Reduce("+",  lapply(1:N, function(i) 
+  (betas[, i] - betas_mean) %*% t(betas[, i] - betas_mean)))
+
+# jackknife variance 
+V_jack <- (N - 1)/N * sum_mats
+
+# calculate SE estimates
+cbind(JK = round(apply(betas,1,function(x)sqrt(((N-1)/N)*sum((x-mean(x))^2))),3), 
+      JKV = round(sqrt(diag(V_jack)),3),
+      OLS = round(sqrt(diag(vcov(m))),3),
+      HC3 = round(sqrt(diag(sandwich::vcovHC(m, type = "HC3"))),3))
+```
+
+## Bootstrapping-based Approximations 
+
+The distribution of bootstrap estimates is an estimate of the sampling distribution of the parameter. 
+
+### Bootstrap Standard Error 
+
+The square root of the sample variance is the bootstrap SE. 
+Inconsistent with nonlinear functions of estimated coefficients. 
+As alternative, "trim" most extreme p% of bootstrap estimates. 
+
+```{r}
+# number of bootstrap samples
+boots <- 1000
+
+# number of regression coefficients (K+1)
+ncoef <- summary(m)$df[1] 
+
+# initialize array to store coefs
+boots_beta <- array(NA, c(boots, ncoef))
+
+# iterate over samples
+for (i in 1:boots){
+  
+  # sample rows of data w/ replacement
+  new <- sample(1:nrow(m$model), nrow(m$model), replace = T) 
+  
+  # run model with bootstrap sample
+  boots_beta[i, ] <- coef(lm(formula(m), data = m$model[new, ])) 
+}
+
+# calculate SE for each coef
+boots_se <- apply(boots_beta, 2, sd) 
+
+# calculate SE for "trimmed" coef 
+boots_se_trimmed <- apply(boots_beta, 2, function(x) {
+  trimmed <- x[x >= quantile(x, 0.01) & x <= quantile(x, 0.99)]  
+  return(sd(trimmed))  
+})
+
+
+cbind(BSE = boots_se,
+      TBSE = boots_se_trimmed)
+```
+
+### Bootstrap Confidence Intervals 
+
+Normal Approximation (assumes normal distribution, uses SE)
+Percentile Intervals (assumes asymptotic symmetry)
+Bias-Corrected (adjusts for estimated bias)
+Accelerated Bias Corrected (also adjusts for estimated skewness)
+Percentile-t (calculate T-stat for every bootstrap sample, uses SE)
+
+```{r}
+# boot package via marginal effects 
+library(marginaleffects)
+
+# estimate slopes using marginal effects
+m_me <- slopes(m, variables = c("Height", "Girth"), newdata = "mean")
+
+# use inferences() to get bootstrap intervals
+inferences(m_me, method = "boot", R = 1000, conf_type = "perc")
+inferences(m_me, method = "boot", R = 1000, conf_type = "bca")
+```
+
+```{r}
+# boot package 
+library(boot)
+
+# boot call
+m_boot <- boot(m$model, function(data, indices){
+  d <- data[indices, ] # subset data by randomly generated vector of row indices (w replacement)
+  fit <- update(m, . ~ ., data = d)
+  B <- coef(fit)[4]
+  se <- sqrt(diag(vcov(fit)))[4] 
+  return(c(B, se))
+}, R = 1000) 
+
+# use boot.ci to get CIs
+boot.ci(m_boot)
+```

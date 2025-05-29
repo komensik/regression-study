@@ -1,0 +1,224 @@
+---
+title: "Lab 1"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Formatting
+
+-   Use hash tags to create headings (\# Problem 1) and subheadings (\## Part a)
+-   `echo = F`: the output (e.g. a plot) will appear in the knitted pdf, but the code will not
+-   `echo = T`: the output (e.g. a plot) and the code will appear in the knitted pdf
+-   `include = F`: neither the code nor the output will appear in the knitted pdf, but the code will be evaluated
+-   `fig.width = 5, fig.height = 3`: plots will appear in the knitted pdf as 5 inches wide and 3 inches tall
+
+# Data
+
+In this lab, we will work with data on CEO salaries from 1990, from the dataset `ceosalary.csv`. (You may remember this dataset from yesterday's lecture (slides 40 - 43), or last semester (PS 12R and Exam 3R))
+
+The relevant variables are:
+
+-   `salary`: 1990 compensation (\$1000s)
+
+-   `age`: Age (years)
+
+-   `profits`: 1990 profits (\$ millions)
+
+```{r, include = F}
+# load data
+rawceosalary <- read.csv("data/ceosalary.csv")
+
+# create new variable
+rawceosalary$rawsalary <- rawceosalary$salary * 1000
+
+# subset/reassign (ifelse and logicals) 
+rawceosalary$profits <- ifelse(rawceosalary$profits < 0, NA, rawceosalary$profits) 
+
+# remove missing (listwise deletion)
+ceosalary <- na.omit(rawceosalary[, c("salary","age","profits")])
+```
+
+# Bivariate Regression
+
+$$salary_i = \beta_0 + \beta_1 profits_{1i} + u_i$$ Find OLS estimates of $\beta_0$ and $\beta_1$ in the above model.
+
+```{r, echo = T}
+# variables 
+y <- ceosalary$salary
+x <- ceosalary$profits
+X <- cbind(1, ceosalary$profits)
+
+# bivariate formula
+b1 <- sum((y - mean(y)) * (x - mean(x)))/sum(((x - mean(x))^2))
+b0 <- mean(y) - b1 * mean(x)
+
+b1 <- cov(ceosalary$salary, ceosalary$profits) / var(ceosalary$profits)
+b0 <- mean(ceosalary$salary) - mean(ceosalary$profits)*b1
+
+# matrix 
+beta <- solve(t(X) %*% X) %*% t(X) %*% y 
+
+# lm function
+coef(lm(ceosalary$salary ~ ceosalary$profits))
+```
+
+How much is a CEO who made 0 in firm profits predicted to make in salary? How much is a CEO who made 10-million in firm profits predicted to make in salary? If firm profits increase by 1-million, what is the predicted increase in salary?
+
+# Scatter Plot
+
+Create a scatter plot depicting the relationship between `salary` and `profits` (with `profits` on the x-axis).
+
+```{r, echo=F}
+par(mar=c(5,4,1,1))
+
+# scatter plot 
+plot(ceosalary$profits, ceosalary$salary, pch=19,
+     xlab="Firm Profits (million USD)", ylab="CEO Salary (thousand USD)",
+     main = "CEO Salary by Firm Profits")
+
+?abline() # regression line, vertical/horizontal lines, col, lty
+?points() # x/y coordinates, pch, col
+```
+
+# Multiple Regression
+
+$$salary_i = \beta_0 + \beta_1 profits_{1i} + \beta_2 age_{2i} + u_i$$ Find OLS estimates of $\beta_0$, $\beta_1$, and $\beta_3$ in the above model.
+
+```{r, echo=T}
+# matrix 
+X <- cbind(1, ceosalary$profits, ceosalary$age)
+y <- ceosalary$salary
+beta <- solve(t(X) %*% X) %*% t(X) %*% y
+
+# function 
+m1 <- lm(salary ~ profits + age, data=ceosalary)
+```
+
+# Coefficient Table
+
+Report the coefficient estimates, standard errors, t-statistics, and two-tailed p-values, in a professional looking table.
+
+```{r, echo=F, results='asis', warning=F}
+# install.packages("knitr")
+library(knitr)
+library(kableExtra)
+
+# create data frame 
+coefficient_data <- data.frame(
+  Coefficient = coef(m1),
+  Standard_Error = summary(m1)$coefficients[, "Std. Error"],
+  T_Statistic = summary(m1)$coefficients[, "t value"],
+  P_Value = summary(m1)$coefficients[, "Pr(>|t|)"]
+)
+
+coefficient_table <- knitr::kable(
+  coefficient_data, 
+  format="html", 
+  longtable=FALSE, 
+  caption = "Regression Coefficient Estimates")
+
+styled_table <- kable_styling(
+  coefficient_table,
+  full_width = FALSE,
+  bootstrap_options = c("striped", "hover")
+)
+
+print(styled_table)
+```
+
+# Plot Predictions
+
+Create a figure that plots the predicted value of `salary` as a function of `profits` at three different values for `age`: the 5th percentile, the 50th percentile, and 95th percentile. Use the `predict` function to do it.
+
+```{r, echo=F}
+# 5th, 50th, and 95th percentile of age
+age_percentiles <- quantile(ceosalary$age, c(0.05, 0.5, 0.95))
+
+# range of profit values 
+profits_range <- seq(min(ceosalary$profits), max(ceosalary$profits), length.out = 100)
+
+#create dataset with every combination of profit and age 
+new_data <- expand.grid(profits = profits_range, age = age_percentiles)
+
+#predict values of salary based on profit and age in new dataset 
+predicted_values <- predict(m1, newdata = new_data)
+
+#combine new dataset with predicted salary 
+predicted_df <- cbind(new_data, salary = predicted_values)
+```
+
+## Base R
+
+```{r, echo=F}
+par(mar=c(5,4,1,1))
+
+plot(NULL, xlim = range(profits_range), ylim = range(predicted_df$salary),
+     xlab = "Profits", ylab = "Predicted Salary", 
+     main = "Predicted Salary vs. Profits at Different Ages")
+
+colors = c("blue", "red", "green")
+
+# lines
+for (i in seq_along(age_percentiles)) {
+  subset_data <- predicted_df[predicted_df$age == age_percentiles[i], ]
+  lines(subset_data$profits, subset_data$salary, col = colors[i], lwd = 2)
+}
+
+# legend
+legend("topleft", legend = paste("Age =", age_percentiles), 
+       col = colors, lty = 1, lwd = 2, 
+       title = "Age Percentile")
+
+```
+
+## ggplot
+
+```{r, echo=F}
+# install.packages("ggplot2")
+library(ggplot2)
+
+# ggplot 
+ggplot(predicted_df, aes(x = profits, y = salary, color = factor(age))) +
+  geom_line() +
+  scale_color_manual(values = c("blue", "red", "green"),
+                     labels = c(paste("Age =", age_percentiles[1]), 
+                                paste("Age =", age_percentiles[2]), 
+                                paste("Age =", age_percentiles[3])),
+                     name = "Age Percentile") +
+  labs(x = "Profits", y = "Predicted Salary",
+       title = "Predicted Salary vs. Profits at Different Ages") +
+  theme_minimal()
+
+```
+
+# Model Fit
+
+Calculate R squared, mean squared error, and adjusted R squared by hand.
+
+$$R^2 = 1 - \frac{SSR}{SST} = 1 - \frac{\Sigma_N (y_i - \hat{y_i})^2}{\Sigma_N (y_i - \bar{y})^2}$$ $$MSE = \frac{\Sigma_N (y_i - \hat{y_i})^2}{N - K - 1} $$ $$R_{adj}^2 = 1 - \frac{MSE}{Var(y)} = 1 - \frac{\frac{\Sigma_N (y_i - \hat{y_i})^2}{N - K - 1}}{\frac{\Sigma_N (y_i - \bar{y})^2}{N - 1}}$$
+
+```{r, echo=F}
+X <- cbind(1, ceosalary$profits, ceosalary$age)
+y <- ceosalary$salary
+beta <- solve(t(X) %*% X) %*% t(X) %*% y
+y_hat <- X %*% beta
+
+# R2 
+SSR <- sum((y - y_hat)^2)
+SST <- sum((y - mean(y))^2)
+R2 <- 1 - (SSR / SST)
+
+1 - var(m1$residuals)/var(m1$model$salary)
+
+# MSE
+sum(m1$residuals^2) / m1$df.residual
+
+# adj. R2
+1 - (sum(m1$residuals^2) / m1$df.residual) / var(m1$model$salary)
+```

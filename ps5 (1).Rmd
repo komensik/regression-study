@@ -1,0 +1,63 @@
+---
+title: "PS5"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 5` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 21 February, by 10:00 EST*. Name your files `lastname_ps05` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Problem 1
+
+In this problem, you will demonstrate, through simulation, that the sampling distribution for $\hat{\boldsymbol{\beta}}$ is asymptotically normally distributed, even if the errors are not normally distributed - indeed, even if the dependent variable is binary!
+
+Consider the following model:
+
+$$
+y_i^* = 0.50 + 1.5x_{1i} - 2x_{2i} + u_i, \quad x_{1i}, x_{2i}, u_i \sim normal(0,1)
+$$
+
+In other words, the independent variables and the error term are all independently normally distributed with means of 0 and variances of 1. The true intercept and regression coefficients are given, as above.
+
+There is another variable, $y_i$, that is related to $y_i^*$ in the following way:
+
+$$
+y_i \sim Bernoulli(p_i), \quad p = \Phi(y_i^*)
+$$
+
+The Bernoulli distribution is the Binomial distribution with 1 trial and a probability of returning 1 (rather than 0) equal to $p_i$. In `R`, you can generate Bernoulli trials with `rbinom(N, 1, p)`, where `N` is the number of trials you want, "1" tells the function you want only 1 trial (Bernoulli), and $p$ is the probability the trial is equal to 1.
+
+This model says that $y_i$ is binary: it only takes on values of 0 or 1. And the probability that the $i$th observation is equal to 1 is $p_i$.
+
+Moreover, $p_i$ is determined by $y_i^*$. Specifically, $p_i$ is equal to the cumulative normal distribution function (in `R`, `pnorm`), evaluated at $y_i^*$.
+
+This is called a "probit" regression model for binary dependent variables.
+
+### a
+
+Set your seed to 02212025, and then generate 1,000 observations of $y_i$ from the model above.
+
+### b
+
+Using `lm`, estimate an OLS regression of $y_i$ (not $y_i^*$) on $x_{1i}$ and $x_{2i}$. Then plot the residuals. Describe what they look like. Explain why the residuals from this model are not - and *cannot*, in principle - be normally distributed.
+
+### c
+
+Write a function that that repeats the following procedure 10,000 times: (1) generate $N$ observations of $y_i$, as in (a) above; (2) regress those $N$ observations on the two independent variables using `lm`; (3) store the estimated coefficient for $x_{1i}$ in a vector; (4) returns the vector of coefficient estimates at the end.
+
+### d
+
+Run your function for the following values of $N$ and store the output vector for each in an object: (1) $N=10$, (2) $N=100$, (3) $N=1,000$, (4) $N=10,000$.
+
+### e
+
+Use the functions `qqnorm` and `qqline` to assess how normal the distribution of estimated coefficients is for each of those sample sizes. Explain why, even though the error term for the OLS model you are estimating is not normally distributed, the sampling distributions for the coefficients look normally distributed for large $N$.

@@ -1,0 +1,307 @@
+Speaker 1  0:00  
+The first five sample row samples that are in New are 112356, anytime I repeat a row, it's just going to copy that row again. So if the first two observations in new are one, one, that first observation in my original data set,
+
+Unknown Speaker  0:28  
+and anything that doesn't appear will never get within
+
+Speaker 1  0:48  
+so there's two ways that you can get error. If it's if your sample is systematically bias drilled so that it's an unrepresentative sample, then they will be it'll be biased in the same way that your sample is bias. So basically, this is assuming that your sample is a good representation of the population of interest. So if that's not true, all the problems that come with that are going to be repro scratch. But note that that's also a problem just for estimating your model in the first place, you have an unrepresentative sample, and you estimate your model with OLS you're getting, there's a sense you're getting by assessment, your population isn't the same. Your sample doesn't come from the population, so that is reproduced in the boot structure. But it's also a problem just regular. The second possibility, though, is that even if it's not a bias sample, it's just a sample, and you're treating it as if it's the population, and that sample is going to randomly deviate from the population characteristics for random reasons, right? Just because you find that sample. And so that's why bootstrapping gives you asymptotically valid standard errors and confidence intervals, not by Max if you have a sample of 10, you know that's going to be that's going to deviate from the true population characteristics in unknown ways, right? Random, random, and so that's going to cause problems. But
+
+Unknown Speaker  2:22  
+as synthetically the bootstrap intervals,
+
+Speaker 1  2:27  
+and then the question becomes, right? We say, well, that's a problem. It is a problem, but it's also a problem for all our other methods of calculating complex interval standard errors. And so the question then just becomes, does bootstrapping do better or worse? And there's other choices that we have available to us, and it often does better. Question is, yeah, the question is not, you know, is bootstrapping perfect with small samples? Is it better? Often,
+
+Unknown Speaker  2:56  
+that seems
+
+Speaker 1  3:02  
+okay. So, so I'm just looping over, you know, 1000 times. Each of those 1000 times I take a new sample of roads, I estimate my model with that new sample of roads, and I store the coefficients in my array. And if I do that 1000 times, I'll have 1000 coefficient estimates for each of my and then I can just summarize the uncertainty. I can summarize the variability in those coefficient estimates, and that gives me a standard error, or the common symbol, whatever. And so to actually calculate the standard error, bootstrap sample error. All I need to do is to take the square root of the sample variance of the bootstrap estimates like imagine, you know, I just did this, and I have my first column in this matrix, is the column for the intercept, and there's 1000 new intercept estimates from my bootstrap re sample, and I want a standard error for that intercept. Well, what do I do? I just calculate the sample variance of those 1000 intercept estimates and take the square root, just the standard deviation, right? It's the sample standard deviation of those bootstrap estimates of the intercept, and that is just my boots draft standard error that makes sense and that will be consistent for simple linear models. As I said, I think this is around where we ended last time, when you have non linear functions of the estimated coefficient or non linear models, which includes models where, there's an alternative way to go about doing this. It's called the trim de estimator, where, instead of using all of the bootstrap samples, you trim off, say, 1% of the tails. And that tends to be quite a bit better in these kind of situations. This can be fairly bias in non linear cases, while the trim estimator does a lot better. Unfortunately, as I said last time, I think, I don't think there's any simple implementation of the trim estimator using like package or whatever, but not sure about that. But at the end of the day, this is very easy to write in food once you figure it out the first time, and all you have to do is add one more step here, where you just trim off 1% of the tail, or like half a percent, and that's that's it, and then you just continue on. So that's actually quite easy to do. I don't think many people actually do that, but it seems to be maybe that's not like a piece of the daily data analysis,
+
+Unknown Speaker  5:55  
+okay, but
+
+Speaker 1  5:57  
+as we're going to see, there's Other probably preferable methods to go about characterizing uncertainty co efficient using boot scrapping. They don't require something to know, right? But there alternative ways about this that don't necessarily
+
+Unknown Speaker  6:17  
+okay. So
+
+Speaker 1  6:21  
+probably you know, as I mentioned before, my general philosophy is that confidence intervals are typically more informative for presentation of for characterizing your uncertainty and co efficient estimates. And so there's a whole literature on calculating confidence intervals for bootstrapped you. Using boot strapping. And there it's just like a almost like a wild west out there, like different methods for doing this. So I'm going to talk about the main one and what their advantages and disadvantages might be. And I think right, I mean, sort of the up shot of all this is that if you're using bootstrapping to get characterize the uncertainty in your estimates, using one of the better methods of confidence interval calculation for those quantities, is probably the right way to go and worry about the standard error. But the most obvious one, which is not going to be the best one talked about, is to use that bootstrap standard error to just calculate a confidence interval the way you normally would. You have a coefficient estimate. You just calculated your bootstrap standard error using this method. Well, just use the normal distribution to calculate a 95% confidence interval any other time you can absolutely do that. And that's, I think the default in a lot of software might be, might be the default in STATA strap standard error, but it's not the best option. I mean, first, you're worried about all the issues we just talked about calculating standard error. But it also just in looking at how well it performs in terms of, you know, does it capture the true 95% the true 95% confidence interval? Does it capture the true parameter 95% of the time, it seems to perform worse than the other method. So you can do this. Again, it might be the default you should check, depending on your software, but this is not going to be the one you want to get. But again, with the idea. The idea is, calculate the bootstrap standard error and then just plug it into your formula for a better approach, and the one that's most common, I think, are called percentile intervals. And this is super easy. It's even easier than this, I would say, if you're using R in particular, all you do with this one is take your number of bootstrap replications of the coefficient of interest, and just find the two point fifth and 97 point fifth percentile. That's it. You can do this using the quantile function in R. So let's say you've got your your replications in reps, so like 1000 estimates of beta one or something from your bootstrap replications, and if you did quantile
+
+Unknown Speaker  9:26  
+reps,
+
+Speaker 1  9:39  
+if you just write that In R, this will give you the percent value. That's it. That's all you have to do. So it's easier than even then, the normal approximation method. And notice that it doesn't require you to calculate any standard errors, right? You're just taking the distribution and just finding the two points, so you don't need to calculate standard errors. You don't need a formula for standard errors. You don't need any assumptions about trimming or anything like that. You just pick those percent out. It's consistent. This method is consistent under weaker assumptions than the normal approximation method, and obviously you don't have to worry about the trimming aspect of this. One reason it's consistent under weaker assumptions is that you're not making a normal you're not assuming a normal distribution. You're just calculating percentiles of a distribution, whatever, if it's very asymmetric distribution, you can at least get some, you know, you can capture some of that with the fact that you're just finding with the normal, if it's asymmetric, you miss you not taking into account that asymmetry, you're imposing symmetric distribution on something that's actually asymmetric.
+
+Unknown Speaker  10:59  
+So having said
+
+Speaker 1  11:03  
+that, it does sort of and this assumption is, you know, I'm getting a hard time explaining some of these assumptions, both because my own knowledge, but also because it's hard to say the assumptions and words when they're but the assumption underlying this percentile method is that the asymptotic distribution is symmetric about zero. And so in sort of papers that have looked at the performance of the percentile method, they found that in cases where you have very asymmetric sample distributions, given whatever sample size you have the finite performance. The performance of the percentile estimator might be worse than the other method. So it's not that it's bad in most cases. I think this will function pretty well for you, but there are improvements that you can get by using the methods that we're about. When you have distributions that are asymmetric in some sense, and that includes if your estimator is consistent, but bias a non linear model, your estimators are typically going to be biased but consistent. In cases like that, you can get an improvement over the percentile method by trying to estimate that bias and integrate it into and so what's the upshot of all this? What the upshot is that this is a pretty good approach, especially for like linear OS models. But right there are ways to improve on the percentile method that are probably worth investing in most of the time, you know. But many cases, if you had a, you know, one big thing that would be to give a small sample, right? Then you might want to be more you're more like when I say, required for the recommended approach here is going to be one that actually is computation. Why I say effort? It's not matter, like, let's take half a second one way, or half a second another way. It can take, like, an hour. And so, okay, so easy to do, often, probably quite good. But there are alternatives that take into account explicitly the amount of bias and skew. So bias corrected intervals are the next option. These are often labeled VC in like pulp files and stuff. And so it's pretty straight forward. What this is doing. It's simply taking the percentile intervals and adjusting them for the bias that you can estimate in the distribution given sort of the actual distribution of and it does that by just trying to look at how much asymmetry there actually is in that distribution, and then correct for it. And so this approach will be better than the percentile approach in general, if the sort of the basic assumption of this approach is met, it will actually provide exact coverage, even for finite sample. Otherwise, it's asymptotically valid, but it's it's sort of not sure if this one converges faster somehow. So I won't say that. But in cases where sort of basic assumption that that underlies this method to met this provides exact coverage, while this does not and it's more generally asymptotically valid, but you can do a little bit better than this one as well. And so there's a modified version of the bias corrected method called the accelerated bias corrected method, and that's typically labeled either VCA or VC, subscript alpha in different kinds of software. And the only difference between these two is that in addition to correcting for the bias, it also corrects for the Skewness in the distribution. And so it has to estimate another parameter, right? So percentile method estimates no additional parameters. You just put that into the quantile function. This estimates one additional parameter. It estimates the bias based on the asymmetry of the distribution. This estimates an additional moment of the distribution. So there's two additional parameters to estimate, but it does better than the typical DC, and it also has a faster rate of asymptotic convergence than all the other methods. So not only is it doing better in finite samples, but it's also converging to the true interval at a faster rate than the other. So you're getting sort of both finite sample improvements and asymptotic Alpha approach. It's easy to do in R I'm going to show you how to do it, but it takes a lot longer than the other ones into qualifications and so, and when I say long, I mean, like, you know, actually, practically speaking, quite long, like an hour, potentially not always that long, but it's not like 30 seconds versus one second. It's like 20 minutes versus half a second or so. I'll give you some recommendations at the end about that. But it does seem like this is essentially the right choice,
+
+Speaker 2  16:44  
+yeah. I went to clarify this the assumption. So the theoretical assumption we're making here is that asymmetry is bias, because we're assuming that the population distribution is symmetric around zero,
+
+Unknown Speaker  16:58  
+yeah. So please, everyone. Yes. So
+
+Speaker 2  17:03  
+when it says that the bias depends only on a parameter drawn from a symmetric, invertible distribution, the assumption is that the extent of asymmetry is the extent of bias like the bias is coming from the fact that it's not symmetrical around zero, which theoretically requires us to assume that in the population it is, in fact, symmetrical around zero.
+
+Unknown Speaker  17:27  
+Like, what do you think is symmetrical
+
+Unknown Speaker  17:30  
+around zero? The bias that we're correcting for? I
+
+Unknown Speaker  17:43  
+so
+
+Speaker 1  17:48  
+I'm not sure, I'm not interested, but if there's a term in sort of the assumption that's drawn from a symmetric distribution, which I guess, in expectation, has a mean zero, but you're
+
+Speaker 2  18:03  
+let me re face the question, what is the source of the bias that we're correcting for by making the assumption that
+
+Unknown Speaker  18:12  
+we're making? So I mean
+
+Speaker 1  18:15  
+the bias, the term bias, in this case, is being used, I think, in a more and more general way than to please the term bias. It's not that our it's that you can think about the distribution as not being centered around the true parameter value, right? The sampling distribution is not centered around the true parameter value. And so there's a sense in which you can think about that bias, but it's really just like you're missing on one side more than
+
+Speaker 2  18:47  
+another. Oh, okay, I was thinking bias and just in terms of estimate relative to population. Part
+
+Speaker 1  18:52  
+of the problem here is surely most of the problem is surely me not doing a terribly good job at explaining this sort of, sort of a set of assumptions that are difficult for me to understand. Never mind. I do have, like, an explicit reference that I can give you to see exactly what the assumption is, but it's pretty technical.
+
+Speaker 3  19:23  
+Premium practical level, what would the difference in the quality of these different types of calculating the confidence impulse actually look like? So I mean, yeah, like with the are we talking about the values of the upper and lower bounds? Would they be wrong? Are we just not sure that the actual estimate is in that in between those bounds, the X percent of the time that we think it is? Yeah, like trying to
+
+Speaker 1  19:58  
+do in part of the answer? It could be any of those things, but one way to think about it, well, here's a couple things. One way to think about it is just, you know, what are you trying to do? You're trying to calculate an interval that you can credibly claim will capture the true parameter 95% of the time. And you can evaluate how good that interval is by seeing if it actually does, you know, how what does it actually capture the true parameter? And if it's 95% you claim that's pretty you know, that's good. So that's one thing to think about. And so, you know, like, for example, when I say this one provides exact coverage under the key assumption, that means that it's 19, it will capture parameter 95% of time. But it could potentially mean something more than that, too, in the sense that, I guess there are situations where you could capture the pre parameter about 95% of the time, but still be missing randomly, one way or the other. And so you want it to not only be sort of valid in the sense of capturing it this nominal percent of the time, but you want that interval to be converging. You want the sampling distribution that you're estimating to be convergent, true sampling over time, where, if you just took the 2.5 and the 97.6% five and the 97 point percentile, those would be the true percentile. So all that's to say, right? You know, the different ways you talk about it, messing up can all happen. You could have the lower bound be too high or too low. The upper bound same thing 80% of the time. And likelihood it's all combination. But I'll show you, when I show you an example, you'll see like, four different ways of estimating it, and you'll see that they differ in practice. You know, thing in practice, how much is this going to matter? It depends a lot on the context. I think as your sample size gets bigger. It matters less and less. The other thing to think about is, I think practically speaking, I think often when you use the better methods, what you're going to get is more conservative intervals that are also under these numbers are better and they're also in the practical so another way to say that, and I'm not fully confident in this, but on average, I think when you use a poor a worse method of Calvin common sense, you end up being
+
+Unknown Speaker  22:37  
+sort of closer together, Yeah, but
+
+Speaker 1  22:41  
+it can also be that they're efficient from wrong to random class.
+
+Unknown Speaker  22:49  
+Okay, so
+
+Speaker 1  22:53  
+All right, so the upshot of this so far is that, you know, the current state of the literature seems to suggest that the VCA Alpha approach is the best one to use in what cases, if there is another possibility, and if you have a formula for the standard error, you can use this approach, because it requires a calculation of standard error, Although I'll do a caveat to that in second. So this method is called percentile T intervals, and the basic idea is that every time you take a bootstrap sample, you're going to calculate a t statistic based on that bootstrap sample. So let's say that theta in this case is like beta one.
+
+Unknown Speaker  23:40  
+It's some beta coefficient that you're interested in. You take a bootstrap sample. Based on that Bootstrap, bootstrap sample, you calculate an estimate of beta one.
+
+Speaker 1  23:55  
+Subtract from that your OLS estimate of beta one, and divide by the standard error of beta one in your bootstrap sample. So this is calculating a typical t statistic, with the difference that you're using your OLS estimate as the zero or the null, and you're using your bootstrap estimate of the parameter and the standard error from that bootstrap sample as the parameter standard error. And so what's going to happen? Well, you're going to get a T star for every single bootstrap replication. So if you do 1000 bootstrap replications, you'll get 1000 but again, it does require that you be able to estimate that standard error for each bootstrap in that standard error estimate. If you can do that, this will often give you more a better interval, more precise interval. And why is that? What? Exactly because you're using additional information, essentially by you're using a formula to standard error interval and then to calculate the final confidence. Calculate the final confidence interval as well. So there's like an upside and down side here. The upside is that it's more efficient. The down side is required that you feel confident in your formula for that efficiency.
+
+Speaker 4  25:22  
+I you
+
+Unknown Speaker  25:27  
+explicitly say, Yeah, so
+
+Speaker 1  25:32  
+the relative difference, right is that you you are basically saying, I have a formula for the standard error, and I'm going to use it to characterize. I'm going to use it in my form. Right the percentile interval is not it's just ignoring the standard error altogether, and just taking the empirical looking at the empirical distribution of the bootstrap and the addition of that assumption, right is that you can essentially say it's an assumption that comes with a constraint. And in all cases, right, you can make an additional assumption. You always get something in return, and you get more efficiency.
+
+Unknown Speaker  26:11  
+But it's
+
+Speaker 1  26:14  
+another side to that if you're not confident that your formula for calculating this good then only
+
+Unknown Speaker  26:22  
+more efficient. Might be a wrong interval that's more efficient. So it does very much require that you feel confident In feeling
+
+Unknown Speaker  26:35  
+often about if
+
+Unknown Speaker  26:42  
+you have small sample
+
+Unknown Speaker  27:02  
+is I mean,
+
+Speaker 1  27:07  
+I think, I think spiritual questions, right, right, which is that if you you're already in a situation where You're worried about sort of small sample is
+
+Unknown Speaker  27:21  
+somewhat
+
+Speaker 1  27:24  
+relevant. There's no nobody to check with confidence because, yeah, there's nobody check the comment because there's nothing compared. You don't know the truth value. You can't know for sure. You can never know for sure. But one thing you can do, and I'll talk about this in a second. You can do what's called a nested Bootstrap. And so instead of using an analytic formula for the standard error, here, your typical standard error on each bootstrap sample, you can bootstrap the standard error within a bootstrap sample, and then you can see how different it is from the analytic solution. And if they're very different. You might be worried
+
+Unknown Speaker  28:03  
+about, I'll get to that in a second.
+
+Speaker 1  28:12  
+Okay, but so you do this, and so you're going to get some, you know, maybe 1000 different piece, one for each draft sample, and then you just plug the percentiles of that empirical distribution of T is into the standard confidence interval formula, but with the key difference. And again, you have to, you know, there's a proof for this that makes it more efficient that I can't drive. You have to reverse the value such that the lower bound uses the 97 point fifth percentile of the T, and the lower bound uses the two point fifth percentile of that T. Okay. So what are we doing? We calculate one of these for every single bootstrap sample that gives us, say, 1000 boots. Now what we want to do is find the relevant percentiles right of of that empirical distribution of teas and use it for substituted in for what we would typically use for. The only difference is that instead of using the two point fifth percentile of that t distribution or the lower bound to use the 97 point fifth. And instead of using the 97 point fifth for the upper bound, use the two point and again, why is that? I can point you to the proof. But that's about why? Why that's relevant. It's related to taking into account, to adjusting for asymmetries. And it's just, it turns out that flipping them is important for figuring out, for approximating any asymmetry. But beyond that, I can help you out, as you out. But again, right? So importantly, at least for the standard formula, everything else is the same. So this is the OLS estimate. This is the standard error of that OLS estimate. And the only difference is that instead of using your standard values of t that you would get doing using Q, T and R, for example, you're using the empirically estimated version of that from your bootstrap scan. Now, again, as Norma was saying, right, like you might worry about, using standard these standard errors, right, using that analytic formula for these standard errors, exactly because you have a small sample that's by what you're doing. So instead, you can estimate this standard error for each bootstrap replication. You can bootstrap the standard error so like try to think about what's happening. You take a random sample from your data set. Let's say you have 1000 people in your data set. You take a random sample with replacement of size 1000 and then you estimate, you know, the coefficient of interest one, one thing you typically do right is just to use the OLS standard error for that bootstrap sample as and plug into this one, you can instead treat your bootstrap sample as the population and re sample from the bootstrap sample using Bootstrap so for each of your 1000 bootstrap re samples, you can take 1000 bootstrap re samples from the bootstrap re sample itself and Then bootstrap that standard error for each of those 1000 boots. It's hard to say that in a way that makes any sense, but you sort of say it's called the nested Bootstrap, because you're bootstrapping, and then for each Bootstrap, you do 1000 more bootstraps on that single bootstrap example to get the standard error. So you might ask yourself, doesn't that take a long time? And the answer is, again, but good computers are getting fast. If we're taking the nested
+
+Speaker 4  32:12  
+construct of the standard error, then why would we have to take the more than one? Because in theory, we would be nested, doing the nested boots running for like, 1000 sample. Why would we have to do it 1000 times? Why can't we just take one and just check to see if the standard error, yeah, like, would we get flush variation
+
+Speaker 1  32:46  
+one and test it again? So you're saying, if I just do one Bootstrap, re sample on a cap to the standard error, and then, and then do the Bootstrap, do the nested bootstrap for one bootstrap replication, and then compare it to the analytic version.
+
+Speaker 1  33:12  
+Yeah, I don't have a good answer for you. I'm not sure how accurate that would be relevant stuff, but it seems like a reasonable thought is the same
+
+Speaker 1  33:35  
+asymptotic so the bootstrap standard error is consistent, not on buckets, so it has asymptotic convergence.
+
+Speaker 5  33:50  
+Can I try to explain him and tell me if it's quite close? So from my perspective, the difference, the only difference between this method and the normal approximation method is just that in the normal approximation method, like if you go back to the T calculation, like the the NA half, there would just be the average of all the bootstrap estimate, and the standard error would just simply be the standard error all the boots estimate. But here what we're doing is like, we substitute the OS coefficient or the theta hat, and then we just use, like, a different weight to calculate the standard errors for each of the bootstrap estimates.
+
+Unknown Speaker  34:42  
+So, okay, let me just,
+
+Speaker 1  34:47  
+I think, let me, let me repeat back here. So you saying, so for the normal approximation, we're preparing the normal approximation to this and seeing how it's different, for the normal approximation method. The way that you would do it is that you would take the the actual OLS coefficient estimate single real sample, and you can use the standard error from the boots, the standard error that you calculate for that coefficient from the bootstrap replications, which is just the square root of sample variance, so that that's a normal and then you would use the normal distribution to get your confidence. So for this one, right, you know how to character, how to characterize the difference,
+
+Speaker 1  35:46  
+you know, instead of, sort of the most sound difference, I think, is that, instead of using a normal distribution, you're using an empirical distribution of t values, right? You're sort of, you're not assume, making any assumption about the distribution, aside from the fact that it has this structure. But because you're doing this for every single bootstrap replication, right, whatever the true distribution of these things looks like, you're going to be approximating that. Yeah. I mean, it'll converge to a T and just so, I guess you're gaining. Most of the gain, I suppose, comes from the use of T and allowing were possibly
+
+Speaker 2  36:45  
+I had a related question. If it's asymptotically valid, could you not just do the nested bootstrap at the outset and then use the normal method for the increased sample, and that would effectively be giving you the same information. So
+
+Speaker 1  37:06  
+can you describe it like more detail, what you're proposing?
+
+Speaker 2  37:09  
+So you you have you bootstrap, you do a nested Bootstrap, so you have an even larger sample, and then you use the normal method to find if it's asymptotically valid, the fact that we've just enlarged our sample size should give us the same estimate without having to do all the T
+
+Speaker 1  37:29  
+Yeah, it would be nice if that was possible. But the the asymptotic nature of it is the original sample size. It's not just like how many samples you pull out. So the asymptotic property is conditional on your properties condition on. And I guess the intuitive way to think about that right is that you can't, you can't create new information. Yeah, you have the information you have. You can use it in creative ways, but you never,
+
+Speaker 2  38:00  
+you only have those observations, but then, what is the marginal benefit of a nested Bootstrap?
+
+Speaker 1  38:07  
+Oh, so the nested Bootstrap is useful in this case, right? If either you don't have an analytic solution for the standard error or you, for some reason, you're not, you're worried about the assumptions that underlying standard error, in which case you can use booting like you would in any other situation, which
+
+Speaker 2  38:27  
+is dealing with the problem of a small sample effectively, right?
+
+Speaker 1  38:33  
+Yeah, so maybe, I mean, potentially, that's one reason, but it could also be that you just don't have a solution there. But so maybe, like, your question, then is about, like, it sort of a deeper question about bootstrapping, which is like, you know, in general, things aside, it's like, well, and this is very good question, right? If bootstrapping is only asymptotically valid and all the other things are also asymptotically valid, then what are we getting and that is kind of a an issue, right? And so it's not something, I mean, I guess there's two answers. The general one is that that's right, and that's a good insight, and that's important to remember. And then the question just becomes, in practical situations, do we have any evidence of scraping this better? And it seems like we do, but that doesn't mean it's a guarantee, and it's not a guarantee for exactly the reasons. So good term is not guaranteed to be better with small samples, but it does seem like in practice, it is often better. The second thing to say is that they're sort of, how good are you doing in finite samples? And there's a question of, how fast are you converging to, to the to the true sampling distribution. So there's like a second order question of, like, the rate of convergence, and at least in some cases, you know, looking at across different methods, there there are differences in rate of convergence. So I don't know for sure that you can prove that this is has a higher rate of higher rate of convergence than, say, like a standard approach calculating standard error, but I think that's true, and definitely higher than the other. So you might be able to get that kind of rate of convergence gain, even if you can't be confident that in any finite sample it's better. That's not a very satisfying answer, I'm sure.
+
+Speaker 1  40:43  
+Okay, oh, and then yeah, and so on that point, when you you feel reasonably confident your standard error estimate, it seems like percentile speed performs as well or better than and it also has this asymptotic convergence gain that is also the case for VC Alpha. Both the VC alpha and the percentile T converge to the true sampling distribution faster than the percentile regular percentile method and regular so in that sense, right the percentile T and the PC, alpha c,
+
+Speaker 1  41:29  
+so we do the citizen R. These options are available in R. Some are easier than others, using the original effects package, which we use for a bunch better easily get involved. Procedure for you, you can get the VC Alpha comparable or easily marginal effects using the inferences function in that package. So here I'm giving you an example where I estimated a model using LM and export it in an object called m5 then I use the slips function for marginal effects, and that's going to give me the marginal effects estimates for all my coefficients. I'm doing it for variables listed here, and I'm holding everything else I mean. And so that's going to give me a bunch of marginal estimates. I can then take the object that comes out of the slopes function and marginal effect called inferences, and that will then give me bootstrap standard errors and confidence intervals using whatever two different possibilities. And so what's this code like? Right? Again, I'm taking the slopes object that I get out of that first call, the first entry, I'm saying you need bootstrapped standard errors and confidence intervals. R equals 1000 tells inferences how many bootstrap replications you want to do. In case, I'm choosing 1000 and then comp type is just choosing which of these methods you want to use for your confidence. And so here in the first one, I'm choosing percentile, the second one I'm choosing BC alpha.
+
+Unknown Speaker  43:13  
+So this,
+
+Unknown Speaker  43:21  
+this the for some reason,
+
+Unknown Speaker  43:25  
+the marginal effect
+
+Speaker 1  43:29  
+package, its bootstrapping function in inferences, is actually just under the hood, calling the boot package, which I'll also show you in a second. So it's not doing it itself. It's actually just calling the boot package and using the boot package to do bootstrap intervals, which is fine and conducting the deal. But for some reason, and I don't know why this is true, it doesn't allow you to do percentile T, even though the boot package does allow you to do percent, I don't know why that is, but there's no option for marginal effects using this inference function to do percent actually, even though you can do that with the boot package explicitly, but you can do DC alpha, maybe the standard. So not hard, right? If you want to do bootstrap comp, considerable if I'll show you how to do this with a boot package. It's a little less straight forward and so nice to use as the marginal effects. But you can get very easily, all the different ones you want. And you can also get a percentile show you that. So library, boot package, I have some model that I estimated, and I'm pulling out the data for that model. So one of the not so nice things about the boot package is that it's not nearly as user friendly as most R packages are. Instead, it wants you to do things that you would typically be doing if you were doing this all yourself, which is annoying, because you don't want to do it yourself, function. So what is boot asking for? It's asking for the data that you want to bootstrap from, and then it wants a function. It basically wants the function that you would be using to do the bootstrapping if you were doing it yourself. That's kind of the part of the continent, right? You want that to be doing it under the hood, rather than having to write it yourself. But in any case, what the function that it wants is a function that takes as two things as input, some data as the first entry that can be pulling from this, and then it wants something called indices, which never appears anywhere. It's just all happening under the code, but in these indices, clunky, but what it's essentially going to do is it's going to take draws of the rows from data and then plug in the indices for those rows here, just like I showed you before, when we did it by hand. So there's not really a big step between going from by hand food scrapping to using the food pack. Not helping all that much. Maybe it's helping a little. But what it's going to do, right? It's going to say, Okay, pull me out a new data set based on a random sample with replacement of the rows of the original data, and then just re run the model a bunch of times. Here I'm going to pull out a particular coefficient that I'm interested in. Once you have that function written, you just say, How many times do you want to do the bootstrapping? Here I'm doing 10. That is not a recommendation. Don't do that. The reason why I'm doing 10 is because every time I render this file, if I did 1000 it would take,
+
+Unknown Speaker  46:49  
+but don't do that,
+
+Unknown Speaker  46:53  
+but it will take quite a bit.
+
+Speaker 1  46:56  
+Okay, but what do you get as sort of the default you just summarize if you use this if you collect confidence intervals from that boot object, well, it'll, by default, give you a few different versions of confidence intervals that you might be interested in. It'll give you the normal approximation. It'll give you the percentile method, and it'll give you the VC Alpha metric. All just by all, just by default. I have no idea what basic is. I can't find it. I can't find any sort of documentation about it. I don't know what they're talking about. But if you want to report something that you don't understand, you can report that one or you get that. I don't know if I figured out, but here the the main ones, we talk about normal percentile, BCA, so you could report all those if you want to, but as well, so I showed you that you can do this in boot. But if you're only interested say in using PCA, you could just use effects. It's easier, it's less clunky. The advantage to using the boot package is, if you want the percentile T method, where you can't get that for marginal effects. And so here I'm doing the exact same thing I just did, but with a couple modifications. The only modification being that number one, I'm asking for percentile t, which is s, t, u, d, for student violence, T, but that's giving me a percent penalty. And the only other difference is that I need to return both the coefficient of interest and the standard error, some kind of standard error calculation that it's going to use to do that percentile T method, right? So if we go back to that for every bootstrap replication, I need these two things. And so the function when you ask for student is T, it's expecting to see a coefficient and a standard error come out of the function. And so you need to get that explicit. And if you do, then you'll get a student is t, or you'll get the percent penalty. So again, that's not a user friendly,
+
+Unknown Speaker  49:08  
+unfortunately. So the thing that we have estimating is you will get the confidence interval co efficient, or are we getting the marginal effect because they marginal effect because they don't always, in
+
+Speaker 1  49:25  
+this case, it's absolutely the co efficient. That's what I'm pulling out here.
+
+Speaker 5  49:32  
+The original context of why we're talking about all of this is because sometimes the marginal effect is a function of the coefficient, yeah. And so, how do we get from
+
+Speaker 1  49:46  
+here? So let's, let's, yeah, that's great question. So, so imagine that instead of being interested in coefficient number five, we're interested in the difference between five and four. Or let's say it's that we want D, you know, e to the differences between five and four. Just instead of doing b this, do you know theta equals X CO of five minus co four, and then now that's the quantity, right? So the nice thing about the boot package is that whatever you want to do you can do, you just have to feed it into function. So any function of the coefficients that you can imagine, you could plug in here and it'll give you boots. Now again, like it's very small step from here to just doing it by hand. If you want to think about this more generally, right? Anytime you can write a loop where you take bootstrap re samples from your data, you can then do anything you want with that data and any quantity of interest you can imagine, you can calculate from the bootstrap response of your data and summarize however you want. So that's what bootstrap that's what boot package is doing here. It's saying. All I'm going to do for you is take re samples of your data and then apply this function, and then I'm going to use these different methods that are available for calculating content. Does that make sense? So yeah, that's totally right. And any situation that's like that, just write the function that you're interested in.
+
+Speaker 2  51:18  
+So it's the final line of code that is then calculating those t statistics and then putting them in a T distribution and drawing out the percentile values. You mean right here? No, the boot.ci is that the stage at which, yes, that is doing that. Yeah.
+
+Speaker 1  51:33  
+Okay, so, yeah, this is, this is just going to take whatever get spit out here and then apply whatever method you ask for, and if you didn't return beta and se, but you did type equal stud, it would give for an error. Basically say we were looking for a standard error, and you didn't get I tried to write this code, it was like, I'm looking for a standard error. So definitely do it. But if you're just doing this approach, it knows what it's
+
+Unknown Speaker  52:13  
+doing. So
+
+Unknown Speaker  52:17  
+this all probably seems like a mess. You know, partly that is just because it is kind of
+
+Speaker 1  52:26  
+a mess. You know, there is just a massive literature on bootstrapping all these different methods, and we don't have, you know, rigorous proofs that any particular method is always better than any other method. We just have, you know, different papers that are using simulated data try to get a handle on one when something's worked better than others, and the software available in R is not fantastic for doing this,
+
+Unknown Speaker  52:52  
+and it's
+
+Speaker 1  52:58  
+unfortunate because bootstrapping does seem like you would be a reasonable default approach. So yeah, I'm not sure what to say, except that, you know, things are better now than they were, say, three years ago, because marginal effects is integrated boots and marginal effect software package to use for all the things you want to do, regression lines. So if you really do want to do bootstrapping as your default, and you're doing the kinds of models that fit well, that play well with marginal effects, you actually can do it pretty best.
+
+Speaker 1  53:38  
+So a couple more things with bootstrapping, you will sometimes see bootstrap hypothesis testing. And the basic idea here is to use these bootstrap t statistics as a way to get at like critical values for rejecting the novel so again, imagine that we're just constructing this value of t for every single bootstrap re sample, we can then use that distribution T is to calculate a e value by just looking for the percentage of the time that our bootstrap T's exceed right the actual t we calculate from OLS. So you know, we'll always get a T output from our summary of LM, and what we want to see is how often right we get t star values that exceed the value that we calculated or from our LLS, and that just gives you the p value. If you do the absolute value of t star, it gives you a two tailed P value. You do only the sine version, it gives you one tail P value. And why is that true? Right? Well, think about what you're doing. When you calculate this, you're essentially treating this as, you know, as a null distribution. And so this is essentially telling you, like you know, if, if the null is true, right? How often are you going to get large t values anyway, just by chance, random, given the data that you actually have? And that's exactly what you want to know, right? You want to know if the t value you calculated on your true sample is large enough to be confident that the null is not true, and you can be confident in that if the values of t that you would get for totally random reasons are typically smaller than the t value you calculate. So you can always always do that as well.
+
+Speaker 1  55:54  
+There's yet more probably worth considering. Whether going into this boot. But okay, so think about everything we've done so far. Every single time we've taken a bootstrap re sample, we've sampled the row of the data, which includes both the dependent variable and the input. But think about our standard linear regression model assumptions. We're actually imposing additional assumptions that are not being imposed by the bootstrap re sampling procedure. In particular, we're treating x as fixed, and we're imposing this relatively stringent assumption that's not being opposed anywhere in the boot procedures, as always, right? If we make more assumptions, we get more efficiency. And so you might think, Well, if we impose those assumptions, will we get better precision? And the answer is yes, just reasonable. And so that's what we're going to do with something called the wild juice graph, and that we talked about in a week, that has the additional the wild food strap has the additional advantage of taking into account better methods don't. And so what is the wild boot strap? So the wild boot strap fixes the x, as we typically assume in O, and so instead of taking draws of the rows, the entire rows with replacement, it's going to calculate a new set of observations on y that start with the predicted value of y given our OLS estimates and our fixed x. So it's just x beta here, but it's going to have a random, randomly new error term for each observation. So basically, again, right? What we're saying is we're going to get new values of the dependent variable for each observation. But instead of resampling from the entire data, we're just going to re sample the error term, the residual. And we're going to do that by taking the actual residual and multiplying it by something, some random variable. And there's different you can choose any random variable there, the question is, what to choose? What's the best thing to choose? And there's two choices that people use. We're going to just talk about one that seems to be the current standard. It's called The Rademacher distribution, and it just says, and so this chi, right? Chi star here is a variable. It's a random variable, and it's just a draw from a distribution that has only two values, one or negative one, and they're equally like. So what are we doing for each observation on each bootstrap re sample? We take the actual predictive value from our OS regression, and we add the actual residual times a random drop from this Brad mock District, which is either one or negative one with equal probability. We do that for each observation in our sample, and that gives us a bootstrap re sample. We then estimate our model on that. We do that 1000 times, so
+
+Unknown Speaker  59:23  
+that's called the wild.
+
+Speaker 1  59:31  
+Again. So what are the advantages of doing it this way? The first is that we're imposing the assumptions that we typically impose on OLS, and that gives us more precision. The second is that it's going to take into account heteroscedasticity. And so what we'll show next week is that the wild food truck approximates the standard, robust estimator for standard error. So we talked a little bit about this HC, three heteros, consistent standard errors. We're going to show we're going to derive those next week and the wild boot strap. So this takes into account that our stochasticity, in addition sites, this approach seems to be much more popular in the last like five to 10 years previously. You can also do the same kind of hypothesis testing framework that we did that I just showed you, and what you want to do in that case is just set the beta coefficient to the null hypothesis when you start
+
+Speaker 2  1:00:38  
+drawing what is it fixing X at the original sample. Okay, yeah.
+
+Speaker 1  1:00:43  
+So when I say fixed x, I mean like the same assumption that we usually make an OS, which is that instead of picking up x as random variable, we think of it as a given set of data. You don't treat it as and so it's integrating that exact assumption we always make by not taking random draws of the rows, then we take random draws of rows, we're treating x as random, varying from sample to sample. Here, it never varies. It's always in for every bootstrap replication, it's the same. The only thing that varies is y, and that's because y is the only random in our model, and to get a random y well, how do you do it? You take the expected value plus a random deviation. While doing strap it is reproduces the way we think about the data, generate the process that we are assuming when we estimate a little
+
+Speaker 6  1:01:46  
+I haven't seen anything in R
+
+Speaker 1  1:01:52  
+does this automatically. But again, right, like with all the boots driving stuff like this is very easy to do just by hand, and not clear that imposing package on it all makes a big difference or makes it easier. All you need to do is just loop over, you know, a set of commands where you just take the predictive value for each observation and add this random deviation. And the random deviation is easily coded as just a sample negative one one probability. So it's actually quite easy to do a couple more things to think about when you are thinking about data structure. Yet we will talk about that, but imagine that. And when I say structure, I'm trying to be broad here, but like, imagine a concrete scenario where, let's say you sample, you first randomly sample schools in North Carolina, and then within each school you take a random sample of that data is structured in the sense that observations that occur in the same school are poorly same thing is true if you take a random sample of counties, and then individual counties or states, and then counties, and then individuals, right? The data is structured in some way. This is also true if you have a potential structure. When that's true, you generally need to reproduce that structure in your bootstrap re sample. So like, let's say you have, you went out into North Carolina and you randomly sampled 100 secondary schools, and then within each school, you randomly sample kids within that and then you're thinking, well, I want to boot strap my standard errors. What do I do? You want to reproduce that structure by taking your bootstrap re samples with replacement from the higher level of the data. So if I was, if I had this data structure and I wanted to boot strap, I would first. I would do my boot strapping by Re sampling schools with replacement, not kids. So if I had 100 schools, that could be the level of which I do the RE sampling, and once I have my re sample from the schools, I just use all the observations within each school every time. So basically, what that's going to do is some of the time I'm going to get the same school 234, times, and sometimes when you get to school, no times. And the reason why you're doing that is because you're assuming there's a correlation of kids within schools, and so you need to take that into account. When you pass the standard error, if you don't, as we're going to talk about with cluster standard errors, you'll be overly optimistic about how efficient dress. So that's something to keep in mind. If you have cluster data like this, it's something you want to reproduce in your boots, and that's true, but the wild boots too. How would you do that? Basically, every time you draw one of these for you drive for the cluster, right for the school rather, and then everybody in that school gets the same draw from that.
+
+Speaker 1  1:05:14  
+Yeah. So one way to think about that, right, is that your effective sample size is, in a sense, the second level, right? It's like the number of schools rather than the number of kids. Some, some exact to that, but, and so once you think about it that way, you realize that, like, even if you have 10,000 people, if you've only got a few clusters, you know, this might not perform all that well. You've got all the same kind of small sample problems. Now, if it turns out right that people are largely independent,
+
+Speaker 1  1:06:02  
+okay, so we're basically done, but bootstrapping. But the last question is a bicycle simulation based and bootstrapping. How many of these things should you do? Right? Like you, 100 1000 10,000 100,000 million, and as always, this kind of thing, there's, there's no single answer, because the answer is always, it's always going to be more, better, more, whatever you're thinking, do more. But obviously you have constraints. And so how do you have to make a decision? So what kind of approach could you implement in practice that would be reasonable? And I think this kind of three step approach makes sense. It's like a general rule that you could modify as needed. The first claim would be that when you're just trying to figure out if your code works, or you're trying to get a very rough sense of whether you're doing things correctly, use a very small number of simulations or Bootstrap. So like when I write code for Bayesian modeling and Stan, it takes a very long time to run this, like maybe 10 hours. Like 12 hours, 24 hours, if I, if I'm just trying to check whether I wrote my code right, I don't want to wait 24 hours to figure out that I just I've done that many times, wait 24 hours and realize I made some stupid coding error, and that was the entire day, right? So what you want to do, right is to test your code with a very small number of things and make sure that you didn't do sense. And so just all that kind of checking, that checking stuff, use this very small number of simulation when you want to know your results with some degree of confidence, but you're worried about how long it's going to take. Use a modest number that will get you if you've done in a reasonable amount of time. Maybe that's 100 maybe it's 1000 depends on how complicated your model is. 1000 is usually a reasonable baseline. Then when you're ready to go to print, you're going to submit to the journal like at that point, right? You're not changing your code anymore, and you don't really care if it takes 24 hours, right? You figured out exactly what you want to do. You're confident in it, you're you're not going to change it at all. All you're going to do is hit go, and then it's going to write your paper. At that point, just bump it up to 10,000 100,000 and just let it run overnight while you sleep, and then you'll get as much precision as you need. And you're not doing anything else anyway. You know it's going to be the same model. You know, code not going to change. Just increasingly you get into Bayesian modeling, it can take quite a long time. But even with the bootstrap DC alpha, like I said, one that I was running for these slides. Whenever you're doing simulation or bootstrapping, set your seed. Set a seed before you run it, so that someone can reproduce your exact estimates. You don't do that and someone uses your code again, they're going to get a different answer. Now, if you've done what I just said here, you'll get something very, very close, because you use an appropriate number of replications, but it'll still be different, right? A little bit different. If you just want to be very confident that anyone who uses your same code and get the same answer, set your C guarantee that, well, you don't guarantee it actually, because Daniel, like, a he had 2w he had run a model on a Mac, on Windows and on a virtual Linux machine, and was getting different answers on all of them. And the journal reviewer was like, you can't even reproduce your own data. You reproduce your own results, like that problem. And it turns out, if you like, don't it like, turns out there's something to do with, like the underlying random number generators that are in these different systems that might
+
+Unknown Speaker  1:10:09  
+and it's rare
+
+Speaker 1  1:10:11  
+that you never get reviewed. All this is just to say this, this is good practice, but it actually doesn't technically ensure that I was just gonna ask,
+
+Speaker 1  1:10:31  
+yeah, yeah. So if you set the seed to a particular value and then draw 1000 re samples from your data, every time you run that code, you'll get the exact same 1000 reset. So all your estimates, I feel
+
+Speaker 7  1:10:54  
+like I need to apologize. Yeah,
+
+Speaker 3  1:11:06  
+is the quiz on, mostly on boot strip, or a qualitative
+
+Unknown Speaker  1:11:12  
+7.1 7.4
+
+Speaker 1  1:11:20  
+So on Thursday, we will go through the delta method. And then we'll go to quad.
+
+Transcribed by https://otter.ai

@@ -1,0 +1,505 @@
+---
+title: "OLS Assumptions & Properties"
+subtitle: "POLSCI 630: Probability and Basic Regression"
+format: clean-revealjs
+html-math-method:
+  method: mathjax
+  url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+date: 1/21/2025
+embed-resources: true
+---
+
+## Desirable properties
+
+Our estimator, $\hat{\beta}$, is a random variable: it produces a different estimate each time it is "run"
+
+We would like it to have the following properties
+
+-   [Unbiasedness]{.alert}: $\text{E}(\hat{\boldsymbol{\beta}}) = \boldsymbol{\beta}$
+
+-   [Minimum variance / Efficiency]{.alert}: $\text{E} \left((\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})^2) \right)$ is smallest possible
+
+## Bias and variance, visually
+
+Distribution of hypothetical estimator ($\hat{\boldsymbol{\beta}}$) across repeated sampling:
+
+```{r, fig.width=6, fig.align='center'}
+library(ggplot2)
+source("helper_functions.R")
+
+ggplot() +
+  stat_function(data = data.frame(x = c(-3, 3)), aes(x),
+                fun = dnorm, 
+                n = 101, 
+                args = list(mean = 0, sd = 1)) +
+  geom_vline(aes(xintercept = 0), lty = "dotted")+
+  geom_hline(aes(yintercept = 0))+
+  geom_segment(aes(x =-1.5, xend = -1.15,
+                y = .1, yend =.1),
+            arrow = arrow(length=unit(0.30,"cm"), ends="first"))+
+   geom_segment(aes(x =1.15, xend = 1.5,
+                y = .1, yend =.1),
+            arrow = arrow(length=unit(0.30,"cm"), ends="last"))+
+  annotate("text", x = 0, y= .5, label = expression(paste("Unbiased: E(", hat(beta), ") =", beta)))+
+  annotate("text", x = -0.5, y= .2, label = expression(paste("Efficient: ")))+
+  annotate("text", x = 0, y= .1, label = expression(paste("low variance of ", hat(beta))))+
+  scale_x_continuous(name = expression(paste("Values of ", hat(beta))),
+                     breaks = 0,
+                     labels = expression(beta))+
+  labs(y = "") +
+  theme_630()+
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+```
+
+## Gauss-Markov theorem
+
+Given some necessary assumptions, OLS has the smallest variance among linear, unbiased estimators. i.e. it is the:
+
+-   [B]{.alert}est
+-   [L]{.alert}inear
+-   [U]{.alert}nbiased
+-   [E]{.alert}stimator
+
+. . .
+
+OLS is only the "best" of "unbiased" estimators!
+
+Sometimes (but not right now) we might prefer a *biased* estimator with less variance.
+
+-   will spend a week on this – why sometimes might choose biased estimator for lower variance
+
+## Gauss-Markov assumptions
+
+Assumptions necessary in order for OLS to be BLUE:
+
+1.  Linear in the parameters
+
+2.  Independent, identically distributed observations from random sample of relevant population
+
+## Gauss-Markov assumptions
+
+Assumptions necessary in order for OLS to be BLUE:
+
+3.  No perfect collinearity
+
+. . .
+
+Stated plainly, every IV contributes unique information to the system
+
+-   No constants (every variable actually varies, except intercept)
+-   No IVs perfect linear combinations of each other
+    -   If regress each IV on all others, no $R^2 = 1$
+
+. . .
+
+Correlations between independent variables OK, as long as they aren't perfect
+
+## Gauss-Markov assumptions
+
+More generally:
+
+3.  $\text{rank}(\mathbf{X})=K+1$ ($\mathbf{X}$ is [full rank]{.alert} / invertible)
+
+. . .
+
+```{r perfect_collin, echo = TRUE, error = TRUE}
+
+df <- data.frame(x1 = rnorm(1000),
+                 x2 = rnorm(1000),
+                 x3 = rnorm(1000),
+                 x4 = rnorm(1000),
+                 x5 = rnorm(1000))
+
+df$x6 <- with(df, x1 + 2*x2 - x3) # introduce perfect collinearity
+
+X <- as.matrix(df)
+
+solve(t(X) %*% X) # can't invert t(X) %*% X
+
+```
+
+x6 is linear combination of x1, x2, and x3.
+
+## Gauss-Markov assumptions
+
+More generally:
+
+3.  $\text{rank}(\mathbf{X})=K+1$ ($\mathbf{X}$ is [full rank]{.alert} / invertible)
+
+```{r rankviolation, echo = TRUE, error = TRUE}
+
+df <- data.frame(x1 = rnorm(5),
+                 x2 = rnorm(5),
+                 x3 = rnorm(5),
+                 x4 = rnorm(5),
+                 x5 = rnorm(5),
+                 x6 = rnorm(5))
+
+X <- as.matrix(df); dim(X) # more columns than rows
+
+solve(t(X) %*% X) # also can't invert t(X) %*% X
+
+```
+
+More variables than observations means infinite number of solutions (e.g., draw a line through a single point)
+
+## Gauss-Markov assumptions
+
+Assumptions necessary in order for OLS to be BLUE:
+
+4.  $\text{E}(\boldsymbol{u}|\mathbf{X}) = \text{E}(u|x_1,x_2,...,x_K) = 0$ ([exogeneity]{.alert})
+
+The expected value of the error is 0 for any realization of $\mathbf{X}$ - no correlation between functions of the IVs and error term
+
+::: incremental
+-   Nothing that's correlated with both DV and at least one IV
+-   Nothing that's correlated with both DV and some linear or non-linear function of IVs
+-   No measurement error in IVs
+-   No "reverse causality" (DV causing IVs)
+-   We will spend a week unpacking these issues
+:::
+
+## Gauss-Markov assumptions
+
+Assumptions necessary in order for OLS to be BLUE:
+
+5.  $\text{Var}(\boldsymbol{u}|\mathbf{X}) = \sigma^2\mathbf{I}$ ([spherical errors]{.alert} AKA [homoskedasticity]{.alert})
+
+</br>
+
+::: incremental
+-   What does the right-hand side look like?
+-   Given heteroskedastic errors, there are other linear unbiased estimators with lower variance
+-   We will spend a week unpacking this issue
+:::
+
+## Gauss-Markov assumptions
+
+Note: These assumptions do not need to be met in order to *estimate* an OLS model.[^1]
+
+[^1]: With the exception of $\mathbf{X}$ is full rank, i.e., as long as you can invert $X^TX$.
+
+. . .
+
+These assumptions need to be met for OLS to be [BLUE]{.alert}.
+
+It's *your job* to theoretically and empirically justify that these assumptions are being met!
+
+## Prove OLS estimator is unbiased
+
+$$\hat{\boldsymbol{\beta}} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{y}$$
+
+Prove:
+
+$$\text{E}(\hat{\boldsymbol{\beta}} | \mathbf{X}) = \boldsymbol{\beta}$$
+
+## Proof
+
+$\hat{\boldsymbol{\beta}} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{y}$
+
+. . .
+
+$= (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'[\mathbf{X}\boldsymbol{\beta} + \boldsymbol{u}]$
+
+. . .
+
+$= (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{X}\boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u}$
+
+. . .
+
+$= \mathbf{I}\boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u}$
+
+## Proof
+
+$\hat{\boldsymbol{\beta}} = \mathbf{I}\boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u}$
+
+. . .
+
+$\text{E}(\hat{\boldsymbol{\beta}} | \mathbf{X}) = \text{E}(\mathbf{I}\boldsymbol{\beta} | \mathbf{X}) + \text{E} \left((\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u} | \mathbf{X} \right)$
+
+. . .
+
+$= \boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}' \text{E}(\boldsymbol{u} | \mathbf{X})$
+
+. . .
+
+Assume [$\text{E}(\boldsymbol{u}|\mathbf{X}) = 0$]{.alert}:
+
+. . .
+
+$= \boldsymbol{\beta} + 0 = \boldsymbol{\beta}$
+
+. . .
+
+The estimator $\hat{\boldsymbol{\beta}}$ is unbiased for $\boldsymbol{\beta}$ for any realization of $\mathbf{X}$ (assuming random sampling)
+
+## Assumption to prove unbiased
+
+$\boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}' \text{E}(\boldsymbol{u} | \mathbf{X})$
+
+If [$\text{E}(\boldsymbol{u}|\mathbf{X}) = 0$]{.alert} cannot be assumed, $(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}' \text{E}(\boldsymbol{u} | \mathbf{X}) \neq 0$ . . .
+
+And thus $\text{E}(\hat{\boldsymbol{\beta}}) \neq \boldsymbol{\beta}$
+
+-   The exogeneity / zero conditional mean assumption is thus necessary for OLS to be an unbiased estimator
+
+In plain language: the average value of the error term should be zero for every combination of independent variables. That is, once we've controlled for our predictors (age and income), there shouldn't be anything systematically left over in the error term that is related to age or income. AKA: nothing outside the model should be both affecting the outcome and correlated with the predictors.
+
+## Confounding example
+
+```{r, echo = TRUE}
+# set seed
+set.seed(837)
+
+# true correlation between x1 and x2, sample 1000 from pop
+X <- cbind(rep(1,1000), 
+           MASS::mvrnorm(1000, 
+                     mu = c(0,0), 
+                     Sigma = matrix(c(1,0.5,0.5,1), 2, 2)
+                     )
+           )
+
+# true betas
+B <- c(1, 1, 1)
+
+# true error variance
+sigma2 <- 1
+
+# true model generates sampled y from pop
+y <- X %*% B + rnorm(1000, 0, sigma2)
+```
+
+## Confounding example
+
+```{r echo=TRUE}
+# estimate B using sample
+solve(t(X) %*% X) %*% t(X) %*% y
+```
+
+. . .
+
+But what if we estimate without $x_2$?
+
+. . .
+
+```{r echo=TRUE}
+# what if we estimate without x2?
+solve(t(X[, -3]) %*% X[, -3]) %*% t(X[, -3]) %*% y
+```
+
+## Variance of $\boldsymbol{\beta}$
+
+We would like it to have the following properties
+
+-   [Unbiasedness]{.alert}: $\text{E}(\hat{\boldsymbol{\beta}}) = \boldsymbol{\beta}$
+
+-   [Minimum variance / Efficiency]{.alert}: $\text{E} \left((\hat{\boldsymbol{\beta}} - \boldsymbol{\beta})^2) \right)$ is smallest possible
+
+. . .
+
+But what is the variance of $\boldsymbol{\beta}$? How can we derive it in general terms?
+
+## Derive variance-covariance matrix of $\boldsymbol{\hat\beta}$ {.scrollable}
+
+$\hat{\boldsymbol{\beta}} = \mathbf{I}\boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u}$
+
+. . .
+
+$\text{Var}(\hat{\boldsymbol{\beta}}) = \text{Var} \left((\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u} \right)$
+
+. . .
+
+$=(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T}(\text{Var}(\boldsymbol{u}))\boldsymbol{[(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\mathbf{X}^T]^T}$
+
+. . .
+
+$=(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T}(\text{Var}(\boldsymbol{u}))\boldsymbol{\mathbf{X}}\boldsymbol{(\mathbf{X}^T\mathbf{X})^{-1}}$
+
+. . .
+
+[assume $\text{E}(\boldsymbol{u}\boldsymbol{u}'|\mathbf{X}) = \text{Var}(\boldsymbol{u}|\mathbf{X}) = \sigma^2\mathbf{I}$]{.alert}:
+
+$=(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T}(\sigma^2\mathbf{I})\boldsymbol{[(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\mathbf{X}^T]^T}$
+
+. . .
+
+$=\sigma^2(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T} \boldsymbol{\mathbf{X}}\boldsymbol{(\mathbf{X}^T\mathbf{X})^{-1}}$
+
+. . .
+
+$=\sigma^2\boldsymbol{(\mathbf{X}^T\mathbf{X})^{-1}}$
+
+## Assumption
+
+5.  $\text{Var}(\boldsymbol{u}|\mathbf{X}) = \sigma^2\mathbf{I}$ ([Spherical errors]{.alert}, homoskedasticity)
+
+This implies:
+
+::: incremental
+-   [Homoskedasticity]{.alert} (no correlation of error variance with IVs, which is called [heteroskedasticity]{.alert})
+
+-   No [autocorrelation]{.alert} (no correlation of residuals among observations, e.g., adjacent units in space or time)
+:::
+
+. . .
+
+What we get, in return, is (1) a simple form for $\text{Var}(\hat{\boldsymbol{\beta}})$ and (2) the property that OLS is *efficient*
+
+## Covariance matrix of $\boldsymbol{\beta}$
+
+$$\sigma^2(\mathbf{X}'\mathbf{X})^{-1}$$
+
+::: incremental
+-   A $(K+1) \times (K+1)$, symmetric matrix
+
+-   Main diagonal gives variances
+
+-   Off-diagonal elements give covariances
+
+-   What does this look like?
+:::
+
+. . .
+
+We typically do not know $\sigma^2$ and use $\frac{\hat{\boldsymbol{u}}'\hat{\boldsymbol{u}}}{N - K - 1}$ (MSE) as an estimate
+
+-   Next week!
+
+## Getting some intuition
+
+![](images/wooldridge_varB.png)
+
+::: footnote
+See also [this tutorial](https://polsci630-site-f61095.pages.oit.duke.edu/lectures/Variance-of-beta.html) on the variance matrix for $\hat{\boldsymbol{\beta}}$
+:::
+
+## Two issues
+
+"Multicollinearity"
+
+-   Thought of as a problem when corr between two predictors is very high (e.g., \> 0.9)
+-   How should we thinking about this?
+
+. . .
+
+Including irrelevant variables in the model
+
+-   No bias
+-   Less efficient b/c of non-zero corr with other predictors
+
+## Example SE calculation using `trees`
+
+Let's use the same example from last week:
+
+```{r echo=TRUE}
+# define X matrix (with 1st column of 1s for intercept)
+X <- as.matrix(cbind(rep(1, nrow(trees)), trees[, c("Girth", "Height")]))
+colnames(X)[1] <- "Intercept"
+
+# define Y vector
+y <- trees$Volume
+
+# calculate beta
+beta <- solve(t(X) %*% X) %*% t(X) %*% y
+```
+
+## Calculate covariance matrix for $\boldsymbol{\beta}$
+
+```{r echo=TRUE}
+# calculate residuals
+resid <- as.numeric(y - X %*% beta)
+
+# calculate degrees of freedom for estimating sigma^2
+resid_df <- nrow(X) - length(beta)
+
+# estimate error variance (MSE)
+s2 <- sum(resid^2) / resid_df
+
+# calculate covariance matrix for beta
+beta_cov <- s2 * (solve(t(X) %*% X))
+beta_cov
+```
+
+. . .
+
+What does it mean that two coefficients are correlated?
+
+## Example {.scrollable}
+
+```{r echo=TRUE}
+
+## simulate from the same "population" 100 times
+
+# number of sims
+sims <- 100
+
+# store each B1 and B2
+betas <- array(NA, c(sims, 2))
+
+# loop over sims
+for (i in 1:sims){
+  
+  # true correlation between x1 and x2, sample 1000 from pop
+  X <- cbind(rep(1,1000), 
+             MASS::mvrnorm(1000, 
+                           mu = c(0,0), 
+                           Sigma = matrix(c(1,0.5,0.5,1), 2, 2)
+             )
+  )
+  
+  # true betas
+  B <- c(1, 1, 1)
+  
+  # true error variance
+  sigma2 <- 1
+  
+  # true model generates sampled y from pop
+  y <- X %*% B + rnorm(1000, 0, sigma2)
+  
+  # store betas
+  betas[i, ] <- (solve(t(X)%*%X) %*% t(X)%*%y)[2:3]
+}
+
+# calculate covariance matrix for betas using last sim
+resid <- y - X%*%B
+as.numeric(sum(resid^2)/(1000-3))*solve(t(X)%*%X)
+```
+
+## Visualization
+
+```{r, fig.width=8, fig.align='center'}
+par(mar=c(5,4,1,1))
+plot(betas, xlab=expression(paste(beta[1])), ylab=expression(paste(beta[2])), 
+     ylim=c(0.9,1.1), xlim=c(0.9,1.1), col="blue")
+text(0.93, 0.95, paste0("r = ", round(cor(betas)[2,1], 2)))
+```
+
+## Calculate standard errors
+
+Main diagonal is estimated variance for coefficients, so sqrts are SEs:
+
+```{r echo=TRUE}
+# calculate standard errors
+se <- sqrt(diag(beta_cov))
+
+# print betas and SEs
+round(cbind(beta, se), 3)
+```
+
+Compare to `lm`:
+
+::::: columns
+::: column
+```{r echo=TRUE}
+m1 <- lm(Volume ~ Girth + Height, data = trees)
+round(cbind(coef(m1), sqrt(diag(vcov(m1)))), 3)
+```
+:::
+
+::: column
+```{r}
+summary(m1)
+```
+:::
+:::::

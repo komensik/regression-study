@@ -1,0 +1,236 @@
+---
+title: "Lab 5"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Logs and Exponents 
+
+## Inverse Functions 
+
+$$ln(e^x) = x$$
+$$e^{ln(x)} = x$$
+Note: the `log()` function computes natural logs by default. 
+The `exp()` function computes natural exponential functions. 
+
+```{r}
+x <- 10
+log(exp(x)) 
+exp(log(x))
+```
+
+## Helpful Rules 
+
+$$ exp(a + b) = e^{a + b} = e^ae^b $$
+$$ exp(a - b) = e^{a - b} = \frac{e^a}{e^b} $$
+$$ ln(a) + ln(b) = ln(ab)$$
+$$ ln(a) - ln(b) = ln(\frac{a}{b})$$
+$$\frac{d}{dx} ln(x) = \frac{1}{x}$$
+
+```{r}
+a <- 10; b <- 7 
+
+exp(a + b) == exp(a) * exp(b)
+
+round(exp(a - b)) == round(exp(a) / exp(b)) 
+
+log(a) + log(b) == log(a*b)
+
+round(log(a) - log(b)) == round(log(a/b))
+
+D(expression(log(x)), "x")
+```
+
+## 1-Unit Change  
+
+A 1-unit increase in ln(x) implies a non-constant effect in x. 
+Constant increases in ln(x) are associated with *order of magnitude* increases in x. 
+
+```{r}
+log(10*x) - log(x) 
+log(100*x) - log(10*x)
+log(1000*x) - log(100*x)
+
+# log(a) - log(b) == log(a/b)
+log((10*x)/x)
+log(10)
+```
+
+# Log Transformations 
+
+In this lab, we will return to the CEO salaries data set. 
+
+  - `salary`: 1990 compensation ($1000s)
+  
+  - `profits`: 1990 profits ($ millions)
+
+```{r}
+ceosalary <- read.csv("data/ceosalary.csv")
+```
+
+Create a variable `lsalary` that takes the log of salary in dollars. 
+Create a variable `lprofits` that takes the log of profits in dollars. 
+
+What type of data will be lost in this transformation? 
+
+```{r}
+ceosalary$lsalary <- log(ceosalary$salary * 1000)
+ceosalary$lprofits <- log(ceosalary$profits * 1000000)
+```
+
+# Interpreting Logs 
+
+## Level-Level Model 
+
+1 unit change in $x_1$ is associated with a $\beta_1$ unit change in y. 
+Remember: units of x (millions) and units of y (thousands)!
+
+```{r}
+m1 <- lm(salary ~ profits, ceosalary)
+summary(m1)
+```
+
+## Log-Level Model 
+
+$$ ln(y_i) = \beta_0 + \beta_1 x_{1i} + u_i$$
+
+Factor Change: 1 unit change in $x_1$ multiplies $E(y)$ by $e^{\beta_1}$. 
+Percent Change: 1 unit change in $x_1$ is associated with a $100(e^{\beta_1(\Delta x_1)} - 1)$ *percent* change in $E(y)$.
+
+```{r}
+m2 <- lm(lsalary ~ profits, ceosalary)
+summary(m2)
+
+# factor change 
+exp(coef(m2)[2])
+
+# percent change
+100 * exp(coef(m2)[2] - 1)
+```
+
+## Level-Log Model 
+
+$$ y_i = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
+
+Unit Change: A 1 *percent* increase in $x_1$ is associated with a $0.01 \beta_1$ unit increase in $E(y)$.
+
+$$ y_i = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
+
+```{r}
+m3 <- lm(salary ~ lprofits, ceosalary)
+summary(m3)
+
+# unit change 
+0.01 * coef(m3)[2]
+```
+
+## Log-Log Model 
+
+$$ ln(y_i) = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
+
+Percent Change: 1 *percent* change in $x_1$ is associated with a $\beta_1$ *percent* change in $E(y)$.
+
+```{r}
+m4 <- lm(lsalary ~ lprofits, ceosalary)
+summary(m4)
+
+# percent change 
+coef(m4)[2]
+```
+
+# Hypothesis Testing 
+
+$$ ln(salary_i) = \beta_0 + \beta_1 ln(profits_i) + u_i$$
+$$ H_0: \beta_1 = 0 $$
+
+```{r}
+# list-wise delete
+data <- na.omit(ceosalary[, c("lsalary", "lprofits")])
+
+# construct X
+X <- cbind(rep(1, nrow(data)), data[, "lprofits"])
+
+# construct y
+y <- data[, "lsalary"]
+
+# df 
+df <- nrow(X) - ncol(X)
+
+# OLS
+B <- solve(t(X)%*%X) %*% t(X)%*%y
+
+# residuals
+res <- y - X%*%B
+
+# estimate sig^2
+sig2 <- sum(res^2) / df
+
+# estimate var-cov matrix for B
+V <- sig2 * solve(t(X)%*%X)
+
+# ses
+se <- sqrt(diag(V))
+
+# t stats
+t <- B / se
+
+# p
+p <- 2*pt(t, df, lower.tail = FALSE)
+
+# confidence intervals 
+lci <- B - qt(0.975, df)*se
+uci <- B + qt(0.975, df)*se
+
+# table
+knitr::kable(round(data.frame(beta=B, se=se, tstat=t, p=p, lci=lci, uci=uci, row.names = c("Intercept","Logged Profits")), 3))
+```
+
+How do we interpret the values in the table? 
+
+## F test
+
+Compares the residual SS of the restricted and unrestricted models.
+
+$$
+F = \frac{SSR_r - SSR_{ur} / q}{SSR_{ur} / (N-K-1)}
+$$
+
+Where q is the number of restrictions. 
+The F-statistic measures the ratio of explained variance to unexplained variance.
+A high F-statistic suggests that the additional parameter(s) significantly improve the model. 
+
+```{r}
+# unrestricted
+m5 <- lm(lsalary ~ lprofits + lsales, ceosalary)
+
+# re-estimate restricted model on unrestricted data
+m5_r <- lm(lsalary ~ lprofits, data = m5$model)
+m5_r <- update(m5, . ~ . - lsales, data = m5$model)
+
+# SSR, for restricted and unrestricted models
+ssr_r <- sum(m5_r$residuals^2)
+ssr_ur <- sum(m5$residuals^2)
+
+# df unrestricted
+df_ur <- m5$df.residual
+
+# df difference, # restrictions
+q <- m5_r$df.residual - m5$df.residual
+
+# F stat
+Fstat <- ((ssr_r - ssr_ur) / q) / (ssr_ur / df_ur)
+
+# p value
+pf(Fstat, q, df_ur, lower.tail=F)
+
+# compare to anova
+anova(m5_r, m5)
+```
+
+

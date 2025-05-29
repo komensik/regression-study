@@ -1,0 +1,62 @@
+---
+title: "PS2"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 2` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 31 January, by 10:00 EST*. Name your files `lastname_ps02` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Data
+
+You will use data from the `carData` package for this assignment; specifically, the `BEPS` data, or British Election Panel Study.
+
+-   Load the data and name it `beps`.
+-   Use `?carData::BEPS` to see what each variable is and how it is coded.
+-   Create a professional-looking summary table of all variables which includes their respective means and standard deviations.
+
+## Problem 1
+
+a.  Estimate the following model using OLS via `lm`. Store the model in `m1`.
+
+$$
+\text{Europe}_i = \beta_0 + \beta_1\text{age}_i + \beta_2\text{economic.cond.household}_i + u_i
+$$
+
+b.  Intercept all coefficient estimates substantively (including the intercept). Make sure to interpret the coefficients in terms of the scales of their respective variables and the dependent variable, so the reader has a sense of the effect size.
+
+c.  What is the mean squared error, the $R^2$, and the adjusted $R^2$ for this model? Interpret each one - explain what it means.
+
+## Problem 2
+
+a.  Now estimate the following model using OLS via `lm`. Store the model in `m2`.
+
+$$
+\text{Europe}_i = \beta_0 + \beta_1\text{age}_i + \beta_2\text{economic.cond.household}_i + \beta_3\text{economic.cond.national}_i + u_i
+$$
+
+b.  Describe how $\hat{\beta}_2$ and adjusted $R^2$ change from `m1` to `m2`. Why do you think they change in the way they do - what does that tell us about how economic conditions relate to the dependent variable (theoretically-speaking)?
+
+c.  Create a figure that plots (in the same plot) the relationship between $\text{economic.cond.household}$ and the dependent variable and the relationship between $\text{economic.cond.national}$ and the dependent variable. Make sure the figure looks nice and all necessary components are labeled.
+
+d.  Using `m2`, generate the following predicted values for `Europe`:
+
+    -   holding `age` at 40, and both economic variables at 5
+    -   when `age` is 20, 40, and 60, and both economic variables are at their means (3 separate predictions)
+
+## Problem 3
+
+a.  Estimate `m2` again, but this time, use only observations where $\text{political.knowledge} \geq 2$. Name the model `m3`.
+
+b.  Compare $\hat{\beta}_3$ and the adjusted $R^2$ between `m2` and `m3`: how did they change? Come up with a theoretical explanation for why they change the way they do, and how the changes relate to political knowledge.
+
+c.  Create a professional-looking figure that plots the relationship between `economic.cond.national` and `Europe`, with one line for the relationship in `m2` and one for the relationship in `m3` (they should be on the same plot). Make sure to label all necessary components of the figure so the reader can interpret it.

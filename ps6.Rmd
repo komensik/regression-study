@@ -1,0 +1,85 @@
+---
+title: "PS6"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 6` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 28 February, by 10:00 EST*. Name your files `lastname_ps06` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+
+## Data
+
+For these problems, we will use a dataset of campaign contributions: `contribupdate.csv`. 
+
+We will use the following variables:
+
+ * `age`: Age (years);
+ * `faminc`: Household income (in $1,000 U.S. dollars);
+ * `given`: Campaign contributions over the past year (in U.S. dollars).
+ 
+
+a. Load the data and store it in `contrib`.
+
+b. Create two new variables in `contrib` that are the natural log of `faminc` and `given`. Name them `lfaminc` and `lgiven`, respectively.
+
+
+## Problem 1
+
+a.  You suspect that age has a non-linear relationship with campaign contributions. You decide to model this with a quadratic term for age. Estimate the following model and store it in an object `m1`. 
+
+$$
+ \text{given}_i = \beta_0 + \beta_1\text{age}_i + \beta_2 (\text{age}_i)^2 + u_i
+$$
+
+b.  Is there evidence for a quadratic relationship between `age` and `given`? Explain why or why not.
+
+c.  Write, in LaTeX, a formula for the conditional marginal effect of `age` on `given`. 
+
+d.  At what value of age does the conditional marginal effect of age reach zero? Show your work using an R code block (`echo=T`).
+
+e.  Plot the conditional marginal effect of `age` on `given` across values of `age`. Make sure your figure is properly labeled and looks professional. Briefly interpret the plot substantively.
+
+f.  Plot the predicted values of `given` across values of `age`. Briefly interpret the plot substantively.
+
+
+## Problem 2
+
+a.  You suspect that the impact of household income on campaign contributions is conditional on the age of an individual. Estimate the following model and store it in `m2`.
+
+$$
+ \text{given}_i = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{faminc}_i + \beta_3 \text{age}_i \times \text{faminc}_i + u_i
+$$
+ 
+b. What are the marginal effects of family income on campaign contributions for individuals who are 30, 50, and 70 years old, respectively? Use the coefficients from the regression table to calculate the marginal effects and show your work using `echo=T`.
+ 
+c. Create a plot that shows the marginal effect of family income at each value of age. Make sure your figure is properly labeled and looks professional. Briefly interpret the plot substantively.
+ 
+d. Create a plot that displays the predicted contributions across the range of values of family income, with age fixed at three different values: 30, 50, and 70. That is, the plot should display predicted values across income in three separate lines, each representing a different value of age. Briefly interpret the plot substantively.
+
+
+## Problem 3
+
+a.  You now think you are better off modeling the relationship of contributions to family income as non-linear. Estimate the following model and store it in `m3`.
+
+$$
+ \ln(\text{given}_i) = \beta_0 + \beta_1 \text{age}_i + \beta_2 \ln(\text{faminc}_i) + u_i
+$$
+
+b.  Write a sentence that interprets the estimate for $\beta_2$ as an elasticity. Don't do any calculations, just use the coefficient estimate from `m3`.
+
+c.  Calculate the percentage change in `given` for a 10-year increase in `age` (use `echo=T`). Write a sentence that describes the result.
+
+d.  Calculate the expected value of `given` for a 40-year-old with $90,000 in family income (i.e., `faminc = 90`). Remember that this is expected for `given` NOT `log(given)`. Use `echo=T`
+
+e.  Calculate the change in the expected value of `given`, for a 60-year-old, when `faminc` changes from 50 to 100. In other words, calculate the first difference in `given` for a change in `faminc` from 50 to 100 holding `age` at 60. Use `echo=T`. Write a sentence that describes the result.
+

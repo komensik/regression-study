@@ -1,0 +1,297 @@
+---
+title: "Asymptotics"
+subtitle: "POLSCI 630: Probability and Basic Regression"
+format: clean-revealjs
+html-math-method:
+  method: mathjax
+  url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+date: 2/11/2025
+embed-resources: true
+---
+
+## Asymptotic properties
+
+Asymptotic (or large sample) properties are those that obtain as $N \rightarrow \infty$
+
+::: incremental
+-   Finite sample properties apply regardless of $N$
+-   Asymptotic properties only hold in the limit - we approximate an (unknown) sampling distribution with the limiting distribution
+-   By their nature, we cannot give *general* "good enough" answers about asymptotic properties
+-   We may be able to say something about performance in particular cases through simulation
+:::
+
+## Convergence in probability and consistency
+
+Consistency: $\text{lim}_{N\rightarrow\infty} \space \text{Pr}(|\hat{\boldsymbol{\beta}}-\boldsymbol{\beta}|>\epsilon)=0, \space \forall \space +\epsilon$
+
+::: incremental
+-   If true, $\boldsymbol{\beta}$ is the [probability limit]{.alert} ($\text{plim}$) of $\hat{\boldsymbol{\beta}}$
+-   $\hat{\boldsymbol{\beta}} \underset{p}\rightarrow \boldsymbol{\beta}$: $\hat{\boldsymbol{\beta}}$ "converges in probability" to $\boldsymbol{\beta}$
+:::
+
+. . .
+
+Asymptotic distribution
+
+$$
+\hat{X} \underset{d}{\rightarrow} X, \space \text{if } F_{\hat{X}}(u) \rightarrow F_{X}(u) \text{, as } N \rightarrow \infty, \space \forall \space u
+$$
+
+-   If true, $\hat{X}$ "converges in distribution" to $X$
+
+## Example of consistency
+
+```{r echo=TRUE}
+sizes <- seq(2,1000,2)
+betas <- sapply(sizes, function(x) mean(rnorm(x)))
+plot(sizes, betas, type="l", ylim=c(-0.5,0.5))
+abline(h=0, lty=3)
+```
+
+## Consistency proof {.scrollable}
+
+$\hat{\boldsymbol{\beta}} - \boldsymbol{\beta} = (\mathbf{X}'\mathbf{X})^{-1} \mathbf{X}'\boldsymbol{u}$
+
+. . .
+
+$\hat{\boldsymbol{\beta}} - \boldsymbol{\beta} = \left( \frac{N}{N}\mathbf{X}'\mathbf{X} \right)^{-1} \left( \frac{N}{N}\mathbf{X}'\boldsymbol{u} \right)$
+
+. . .
+
+$\hat{\boldsymbol{\beta}} - \boldsymbol{\beta} = \frac{1}{N}\left( \frac{1}{N}\mathbf{X}'\mathbf{X} \right)^{-1} N\left( \frac{1}{N}\mathbf{X}'\boldsymbol{u} \right)$
+
+. . .
+
+$\text{plim}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) = \text{plim} \left[ \left( \frac{1}{N}\mathbf{X}'\mathbf{X} \right)^{-1} \left( \frac{1}{N}\mathbf{X}'\boldsymbol{u} \right) \right]$
+
+. . .
+
+Weak law of large numbers says that the sample mean of any transformation of a random vector with finite mean converges in probability to the population expected value of that transformation ([Hansen 2022](https://press.princeton.edu/books/hardcover/9780691235899/econometrics?srsltid=AfmBOoorg6y2lM61XPj5_wq819hRsBJux3EZI2r5IuTwUNhRGhfNk5mV)), so assuming $\text{E}(\mathbf{X}'\boldsymbol{u}) = 0$:
+
+$\text{plim}(\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}) = \text{E} \left[ \left( \mathbf{X}'\mathbf{X} \right)^{-1} \right] \text{E} \left( \mathbf{X}'\boldsymbol{u} \right) = \text{E} \left[ \left( \mathbf{X}'\mathbf{X} \right)^{-1} \right] 0 = 0$
+
+## Consistency of OLS
+
+OLS is [consistent]{.alert} under weaker assumptions about the error term ($\text{E}(\mathbf{X}'\boldsymbol{u}) = 0$) than those required for unbiasedness ($\text{E}(\boldsymbol{u} | \mathbf{X}) = 0$)
+
+-   $\text{E}(u_i)=0$
+-   $\text{Cov}(x_{ki},u_i)=0, \space \forall \space k$
+
+. . .
+
+This means that *each* predictor must be uncorrelated with the error term
+
+-   But there **can** be functions of the $\boldsymbol{x}_i$ correlated with $u_i$
+
+    -   OLS estimates are biased in such cases, but still consistent
+
+## Example w/ small sample
+
+```{r echo=TRUE}
+set.seed(1234)
+
+# draw x
+x <- rnorm(10)
+
+# X matrix
+X <- cbind(rep(1,10), x, x^2)
+
+# "biased" X matrix
+X_b <- cbind(rep(1,10), x)
+
+# betas
+B <- c(1,1,1)
+
+# XB
+yhat <- X %*% B
+
+# unbiased beta hat
+Bhat <- sapply(1:100000,
+               function(x) ( solve(t(X)%*%X) %*% t(X)%*%(yhat + rnorm(10, 0, 5)) )[2]
+)
+
+# biased beta hat
+Bhat_b <- sapply(1:100000,
+               function(x) ( solve(t(X_b)%*%X_b) %*% t(X_b)%*%(yhat + rnorm(10, 0, 5)) )[2]
+)
+
+# summaries
+cbind(unbiased=mean(Bhat), biased=mean(Bhat_b))
+```
+
+## Example w/ big sample
+
+```{r echo=TRUE}
+set.seed(1234)
+
+# draw x
+x <- rnorm(1000)
+
+# X matrix
+X <- cbind(rep(1,1000), x, x^2)
+
+# "biased" X matrix
+X_b <- cbind(rep(1,1000), x)
+
+# betas
+B <- c(1,1,1)
+
+# XB
+yhat <- X %*% B
+
+# unbiased beta hat
+Bhat <- sapply(1:10000,
+               function(x) ( solve(t(X)%*%X) %*% t(X)%*%(yhat + rnorm(1000, 0, 5)) )[2]
+)
+
+# biased beta hat
+Bhat_b <- sapply(1:10000,
+               function(x) ( solve(t(X_b)%*%X_b) %*% t(X_b)%*%(yhat + rnorm(1000, 0, 5)) )[2]
+)
+
+# summaries
+cbind(unbiased=mean(Bhat), biased=mean(Bhat_b))
+```
+
+## A subtle point
+
+The "bias", in these cases, is a result of treating $\mathbf{X}$ as fixed over repeated sampling
+
+::: incremental
+-   In any finite sample, there will be a correlation between a predictor and the error term
+-   But if we treat $\mathbf{X}$ as random, and take expectations over repeated samples, OLS remains unbiased
+:::
+
+. . .
+
+But allowing random $\mathbf{X}$ is no free lunch I don't think
+
+-   *I think* we pay for it in increased variance of the OLS estimator
+-   When we calculate the variance, we now have randomness in both $\boldsymbol{u}$ and $\mathbf{X}$, and larger SEs
+
+## Practical implications
+
+::: incremental
+-   The number of situations where OLS is biased but consistent is likely small, for practical purposes
+-   Generally speaking, if you knew you were in one of these situations, you would probably want to model the true population regression function anyways!
+-   And if there is any correlation between a predictor and the error term, OLS is not even consistent anymore
+:::
+
+. . .
+
+Don't worry much about this subtle point
+
+## Asymptotic normality of $\boldsymbol{\hat{\beta}}$
+
+If we drop assumption 6 ($u_i$ are drawn from normal distribution), we can still say that $\boldsymbol{\hat{\beta}}$ is [asymptotically normally distributed]{.alert}
+
+::: incremental
+-   We can't claim the exact distribution for $\boldsymbol{\hat{\beta}}$
+-   But with "large" sample sizes we can invoke the central limit theorem to say:
+:::
+
+. . .
+
+$$\boldsymbol{\hat{\beta}} \approx MVNormal(\boldsymbol{\beta}, \space \hat{\sigma}^2(\textbf{X}'\textbf{X})^{-1})$$
+
+## Example, small sample
+
+```{r echo=TRUE, fig.width=10}
+set.seed(4321)
+
+sims <- 100000
+
+# assumed X
+X <- cbind(rep(1, 10), 
+           MASS::mvrnorm(10, c(0,0), matrix(c(1,0.5,0.5,1), 2, 2))
+)
+
+# Beta
+B <- c(1,1,1)
+
+# yhat
+yhat <- X %*% B
+
+## N=10
+
+# normal errors
+norme <- sapply(1:sims,
+                 function(y) ( solve(t(X)%*%X) %*% t(X)%*%(yhat + rnorm(10, 0, 5)) )[2]
+)
+
+# beta errors
+betae <- sapply(1:sims,
+                 function(y) ( solve(t(X)%*%X) %*% t(X)%*%(yhat + 50*rbeta(10, 1, 5)) )[2]
+)
+```
+
+## Example, small sample
+
+```{r echo=FALSE}
+# plot
+par(mfrow=c(1,2))
+hist(norme, main="Normal errors", xlab = expression(paste("Values of ", beta), " "), xlim=c(-20,20), ylim=c(0,25000))
+text(-8, 20000, paste0("mean = \n", round(mean(norme), 3)))
+text(-8, 15000, paste0("median = \n", round(median(norme), 3)))
+hist(betae, main="Beta errors", xlab = expression(paste("Values of ", beta), " "), xlim=c(-20,20))
+text(-10, 20000, paste0("mean = \n", round(mean(betae), 3)))
+text(-10, 15000, paste0("median = \n", round(median(betae), 3)))
+```
+
+## Example, big sample
+
+```{r echo=TRUE, fig.width=10}
+set.seed(4321)
+
+sims <- 100000
+
+# assumed X
+X <- cbind(rep(1, 1000), 
+           MASS::mvrnorm(1000, c(0,0), matrix(c(1,0.5,0.5,1), 2, 2))
+)
+
+# Beta
+B <- c(1,1,1)
+
+# yhat
+yhat <- X %*% B
+
+## N=10
+
+# normal errors
+norme <- sapply(1:sims,
+                 function(y) ( solve(t(X)%*%X) %*% t(X)%*%(yhat + rnorm(1000, 0, 5)) )[2]
+)
+
+# beta errors
+betae <- sapply(1:sims,
+                 function(y) ( solve(t(X)%*%X) %*% t(X)%*%(yhat + 50*rbeta(1000, 1, 5)) )[2]
+)
+```
+
+## Example, big sample
+
+```{r echo=FALSE}
+# plot
+par(mfrow=c(1,2))
+hist(norme, main="Normal errors", xlab = expression(paste("Values of ", beta), " "), xlim=c(-15,15), ylim=c(0,25000))
+text(-8, 20000, paste0("mean = \n", round(mean(norme), 3)))
+text(-8, 15000, paste0("median = \n", round(median(norme), 3)))
+hist(betae, main="Beta errors", xlab = expression(paste("Values of ", beta), " "), xlim=c(-15,15), ylim=c(0,25000))
+text(-10, 20000, paste0("mean = \n", round(mean(betae), 3)))
+text(-10, 15000, paste0("median = \n", round(median(betae), 3)))
+```
+
+## Practical implications
+
+::: incremental
+-   The use of t as an exact sampling distribution, given $\hat{\sigma}^2$, is not justified when $u_i$ is not normal
+
+-   But since both t and the sampling distribution for $\hat{\beta}_k$ converge to Normal as $N \rightarrow \infty$, we might as well just use t in large samples
+
+-   It's better under conditions of normal errors, and no worse in the more general case
+:::
+
+## Wooldridge, p. 175
+
+![](images/Wooldridge_p175.png)

@@ -1,0 +1,68 @@
+---
+title: "PS12"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 11` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 25 April, by 10:00 EST*. Name your files `lastname_ps12` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Packages
+
+You should install and load the following packages. For `synthdid`, install (if needed) via `devtools`:
+
+```{r echo=TRUE, eval=FALSE}
+devtools::install_github("synth-inference/synthdid")
+```
+
+```{r echo=TRUE, warning=FALSE}
+library(synthdid)
+library(did)
+library(fixest)
+library(plm)
+```
+
+## Problem 1
+
+For the first problem, you will use the `california_prop99` dataset from the `synthdid` package. Load the data using `data(california_prop99)`. Use `?california_prop99` to see the data description and the variables available.
+
+a.  Using either the `fixest` or `plm` package, estimate a two-way fixed effects model to test the hypothesis that California's cigarette tax hike in 1989 reduced per-capita cigarette consumption relative to the other control states. HINT: you need to explicitly call `Year` as a factor variable.
+
+b.  Interpret the coefficient on `treated`.
+
+c.  Calculate clustered standard errors by `State` (HINT: the packages have functions for this available) and construct a 95% confidence interval for the effect of the CA tax hike on cigarette consumption.
+
+d.  Now estimate the same model using `lm`, and show you get the same estimate for `treated`.
+
+## Problem 2
+
+For this analysis, you will use the dataset `mpdta` from the package `did`. Load the data using `data(mpdta)`. Use `?mpdta` to see the data description and the variables available.
+
+a.  You first need to recode the `treat` variable so that it is 0 in years before treatment. Use this code below:
+
+```{r echo=TRUE}
+mpdta$treat_01 <- ifelse(mpdta$first.treat != 0 & mpdta$year >= mpdta$first.treat, 1, 0)
+```
+
+b.  Use `feols` in the `fixest` package to estimate a two-way fixed effects model to test the hypothesis that raising the minimum wage reduces teen employment. Use clustered standard errors by county.
+
+c.  Estimate a dynamic version of this model using the code below, then plot the model object using `iplot`. Is there evidence against the parallel trends assumption?
+
+```{r echo=TRUE}
+# estimate dynamic version of the model
+m_dynamic  <- feols(lemp ~ sunab(first.treat, year) | countyreal + year,
+                    data = mpdta, vcov = cluster ~ countyreal)
+
+iplot(m_dynamic, xlab = "Years since minimum wage increase", ref.line = 0)
+```
+
+d.  All evidence considered, would you say there is support for the claim that minimum wage hikes reduced youth employment?

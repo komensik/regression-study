@@ -1,0 +1,216 @@
+---
+title: "Lab 2"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Data
+
+In this lab, we will continue to work with data on CEO salaries from 1990, from the dataset `ceosalary.csv`.
+
+The relevant variables are:
+
+-   `salary`: 1990 compensation (\$1000s)
+
+-   `age`: Age (years)
+
+-   `profits`: 1990 profits (\$ millions)
+
+-   `grad`: binary for graduate school
+
+```{r}
+ceosalary <- read.csv("data/ceosalary.csv")
+```
+
+# Model Fit
+
+$$salary_i = \beta_0 + \beta_1 profits_i + u_i$$
+
+```{r}
+m1 <- lm(salary ~ profits, ceosalary)
+summary(m1)
+```
+
+## R Squared
+
+$$R^2 = 1 - \frac{SSR}{SST} = 1 - \frac{\Sigma_N (y_i - \hat{y_i})^2}{\Sigma_N (y_i - \bar{y})^2}$$ $R^2$ is the proportionate reduction in error associated with the dependent variable when moving from an intercept-only model to the model of interest. It is the proportion of total variance in the dependent variable that is accounted for by the model.
+
+```{r}
+# observed y 
+y <- ceosalary$salary
+
+# predicted y 
+X <- cbind(1, ceosalary$profits)
+beta <- solve(t(X) %*% X) %*% t(X) %*% y
+y_hat <- X %*% beta
+
+# sum of squared residuals
+SSR <- sum((y - y_hat)^2)
+
+# total sum of squares
+SST <- sum((y - mean(y))^2)
+
+# r squared
+1 - (SSR / SST)
+1 - var(m1$residuals)/var(m1$model$salary)
+```
+
+## Mean Squared Error
+
+$$MSE = \frac{\Sigma_N (y_i - \hat{y_i})^2}{N - K - 1} $$ Mean squared error is the estimated variance of prediction errors, or the estimated residual variance, $\hat{\sigma}^2$.
+
+```{r}
+# mse
+SSR / (177 - 1 - 1) 
+sum(m1$residuals^2) / m1$df.residual
+```
+
+## Adjusted R Squared
+
+$$R_{adj}^2 = 1 - \frac{MSE}{Var(y)} = 1 - \frac{\frac{\Sigma_N (y_i - \hat{y_i})^2}{N - K - 1}}{\frac{\Sigma_N (y_i - \bar{y})^2}{N - 1}}$$
+
+Adjusted $R^2$ is mean squared error divided by the variance of the dependent variable. The difference between adjusted and unadjusted $R^2$ is that the former divided by the residual degrees of freedom (sample size minus parameters estimated), and thus adjusts $R^2$ downwards to account for the increase in fit associated with adding additional parameters, regardless of how well they predict the dependent variable out-of-sample.
+
+```{r}
+1 - (sum(m1$residuals^2) / m1$df.residual) / var(m1$model$salary)
+```
+
+# Multiple Regression
+
+$$salary_i = \beta_0 + \beta_1 profits_{i} + \beta_2 age_{i} + u_i$$
+
+```{r}
+m2 <- lm(salary ~ profits + age, ceosalary)
+summary(m2)
+```
+
+## Comparing Model Fit
+
+How does $\hat{\beta}_1$ change from `m1` to `m2`?
+
+How does $R^2$ change from `m1` to `m2`?
+
+How does adjusted $R^2$ change from `m1` to `m2`?
+
+## Plotting Multiple Regression
+
+Plot the relationship between profits and salary. Be careful! Consider the interpretation of $\hat{\beta}_1$.
+
+```{r, include=FALSE}
+# Load libraries
+library(ggplot2)
+library(dplyr)
+```
+
+```{r, warning=FALSE}
+# Fix age at its mean and vary profits for the profits-salary relationship
+profits_range <- data.frame(
+  profits = seq(min(ceosalary$profits), max(ceosalary$profits), length.out = 100),
+  age = mean(ceosalary$age)
+)
+profits_range$salary <- predict(m2, newdata = profits_range)
+
+# base R 
+plot(profits_range$profits, profits_range$salary, type = "l",
+     xlab="Firm Profits (million USD)", ylab="CEO Salary (thousand USD)",
+     main = "CEO Salary by Firm Profits at Mean Age")
+
+# ggplot
+ggplot(profits_range, aes(x = profits, y = salary)) +
+  geom_line(size = 1) +
+  labs(
+    title = "Relationship Between Profits and Salary",
+    x = "Profits",
+    y = "Salary") +
+  theme_minimal()
+```
+
+Add the relationship between age and salary to the same plot.
+
+```{r, eval=FALSE}
+# Fix profits at its mean and vary age for the age-salary relationship
+age_range <- data.frame(
+  age = seq(min(ceosalary$age), max(ceosalary$age), length.out = 100),
+  profits = mean(ceosalary$profits)
+)
+age_range$salary <- predict(m2, newdata = age_range)
+
+# combine datasets
+profits_range$variable <- "Profits"
+age_range$variable <- "Age"
+combined_data <- bind_rows(profits_range, age_range)
+
+ggplot() +
+  geom_line(data = age_range, aes(x = age, y = salary), color = "red") +
+  geom_line(data = profits_range, aes(x = profits, y = salary), color = "blue") +
+  scale_x_continuous(name = "Age (Years)", 
+                     sec.axis = sec_axis(~ ., name = "Profits (Million USD)")) +
+  labs(
+    y = "Salary (Thousand USD)",
+    title = "CEO Salary by Age and Firm Profits"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.title.x.bottom = element_text(color = "red"),
+    axis.title.x.top = element_text(color = "blue"),
+    axis.line = element_line(color = "black"),
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+```{r, echo=FALSE}
+# Fix profits at its mean and vary age for the age-salary relationship
+age_range <- data.frame(
+  age = seq(min(ceosalary$age), max(ceosalary$age), length.out = 100),
+  profits = mean(ceosalary$profits)
+)
+age_range$salary <- predict(m2, newdata = age_range)
+
+# normalize the x-axis values 
+profits_range$normalized_x <- scale(profits_range$profits, center = TRUE, scale = TRUE)
+age_range$normalized_x <- scale(age_range$age, center = TRUE, scale = TRUE)
+
+# combine datasets
+profits_range$variable <- "Profits"
+age_range$variable <- "Age"
+combined_data <- bind_rows(profits_range, age_range)
+
+# define transformations for the axes
+profits_trans <- function(x) x * sd(profits_range$profits) + mean(profits_range$profits)
+age_trans <- function(x) x * sd(age_range$age) + mean(age_range$age)
+
+# plot
+ggplot(combined_data, aes(x = normalized_x, y = salary, color = variable)) +
+  geom_line(size = 1) +
+  scale_color_manual(values = c("Profits" = "blue", "Age" = "red"), name = "Variable") +
+  scale_x_continuous(
+    name = "Age (years)",  # Bottom axis
+    breaks = seq(-2, 2, 0.5),
+    labels = round(age_trans(seq(-2, 2, 0.5)), 0),  # Convert back to Age scale
+    sec.axis = sec_axis(
+      ~ .,
+      name = "Profits (million USD)",  # Top axis
+      breaks = seq(-2, 2, 0.5),
+      labels = round(profits_trans(seq(-2, 2, 0.5)), 0)  # Convert back to Profits scale
+    )
+  ) +
+  labs(
+    title = "Relationship Between Profits, Age, and Salary",
+    y = "Salary (thousand USD)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.title.x.bottom = element_text(color = "red"),
+    axis.title.x.top = element_text(color = "blue"),
+    axis.text.x.bottom = element_text(color = "red"),
+    axis.text.x.top = element_text(color = "blue"),
+    panel.grid.minor = element_blank()
+  )
+
+```

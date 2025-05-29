@@ -1,0 +1,81 @@
+---
+title: "PS3"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 3` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 7 February, by 10:00 EST*. Name your files `lastname_ps03` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Data
+
+For this problem set, we will use a dataset of campaign contributions: `contrib.csv`. We will use the following variables:
+
+-   `age`: Age (years);
+-   `faminc`: Household income (in \$1,000 U.S. dollars);
+-   `given`: Campaign contributions over the past year (in U.S. dollars).
+
+Load the data and name it `contrib`.
+
+## Problem 1
+
+In this problem, you will confirm the unbiasedness of the OLS estimator by running a large number of simulations. You will also calculate the standard errors by hand.
+
+We will assume the following model:
+
+$$
+\begin{align}
+y_i &= 10 - 2x_{i1} + x_{i2} + u_i \\ 
+\quad u_i &\sim N(0,1) \\ 
+\space \boldsymbol{x}_i &\sim N \left ([0,0], \begin{bmatrix} 1 & 0.25 \\ 0.25 & 1 \end{bmatrix} \right)
+\end{align}
+$$
+
+a.  Write **a function** that takes as input a value for the number of simulations to execute, the sample size for each simulation, values for the three coefficients of the regression model above, and the correlation between $x_1$ and $x_2$. The function should do the following:
+
+    (1) take $N$ independent samples each from the distributions for $\boldsymbol{x}_i$ and $u_i$
+
+    (2) generate the model-implied values of $y_i$ for each set of sampled values (given the assumed values of the three coefficients)
+
+    (3) calculate the OLS regression coefficients (by "hand") for the model using the simulated data you just generated
+
+    (4) store the three estimated coefficients in a row of a matrix
+
+    (5) repeat this process for the number of simulations requested, appending the matrix with the new row of coefficient estimates after each sim
+
+    (6) return the final matrix of coefficient estimates for all simulations
+
+b.  `set.seed` to `1111`, then execute your function for 100 simulations with a sample size of 100 for each simulation, storing the output in a new object called `s_1`. Assume the coefficient values in the model given above. Calculate the mean estimate across the simulations for each coefficient in the model (hint: use `colMeans`). What do you find? Do the same thing again, but use 1,000 simulations instead. What do you find?
+
+c.  Simulate 100 observations from the model given above, estimate an OLS regression using these 100 observations as your sample, and calculate the standard errors for the three coefficients "by hand". Before generating your simulated observations, `set.seed` to `2222`.
+
+## Problem 2
+
+In this section of the problem set, we will explore what determines the size of individual campaign contributions -- our findings could, for instance, be of interest to political campaigns wanting to fundraise from a targeted subset of their prior donors.
+
+The dataset that we will be working with is `contrib.csv`. We will work with data based on the 2018 Cooperative Congressional Election Survey, a large online survey of U.S. adults: We will look at the subset of respondents who reported that they gave money to a political campaign or PAC over the past year.[^1]
+
+[^1]: About 18% of the respondents reported contributing to a campaign or PAC; major donors (those giving over \$5,000) have been removed.
+
+$$given_i = \beta_0 + \beta_1 age_i + \beta_2 faminc_i + u_i$$
+
+a.  Estimate the regression model above using `lm` and store it in an object named `m1`. Report the results in a professional-looking table that records the estimated coefficients, their standard errors, t-statistics, and p-values.
+
+b.  Interpret the results in your table: explain in words what each coefficient means (be specific! make sure to discuss the coefficients in terms of their associated variables, the scale of those variables, and what they represent substantively).
+
+c.  Estimate a new model where all variables (DV and both IVs) are scaled to have mean zero and standard deviation one. Summarize the estimates and interpret all three coefficients substantively.
+
+d.  Create a professional looking figure that plots the predicted contributions, as a function of age (on the x-axis), for three values of family income (in thousands): 25, 100, and 200. Your final plot should have three separate lines, one for each value of `faminc`, that move from low values of age to high values. Predicted contributions are on the y-axis. (hint: this figure should be generated from the model estimates in `m1` - you don't need to estimate any new models). Interpret your figure in words. Be specific! Make sure to to discuss the variables in substantive terms: what does the figure imply about the relationships of interest?
+
+e.  Do you think the assumption that $\text{E}(u | \boldsymbol{x}) = 0$ is a good one for this regression model? First, explain this assumption in your own words. Then, explain why you think it is, or is not, a good assumption in this case. Be specific! If you think there is a violation, explain precisely why you think that. In either case, what would the consequences be if this assumption *were* violated for this model?
+
+f.  Calculate, "by hand", the estimated variance-covariance matrix for $\boldsymbol{\beta}$, and then use it to calculate the estimated standard errors for each of these coefficient estimates. Compare them to the summary of `m1` to make sure you get the same results. Explain in words what assumption is needed for your estimate of the variance-covariance matrix to be valid.

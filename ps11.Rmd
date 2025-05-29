@@ -1,0 +1,68 @@
+---
+title: "PS11"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 11` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 18 April, by 10:00 EST*. Name your files `lastname_ps11` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Data
+
+For these problems, you will use the `refug` dataset of judge decisions by the Canadian Federal Court of Appeal. The judges were making decisions about people seeking refugee status. The variables are as follows:
+
+-   `decision`: the DV; 2=grants refugee's appeal, 1=denies appeal
+-   `judge`: name of the judge hearing the case; a factor variable
+-   `nation`: nation of origin for the refugee making the appeal; a factor variable
+-   `rater`: judgment of the merit of the appeal by an independent rater; a factor variable with two levels, yes or no
+-   `language`: language of the case, English or French; a factor variable
+-   `location`: location of original claim by refugee, Montreal, Toronto, or other; a factor variable
+-   `success`: the logit of the success rate ($\text{ln} \left( \frac{p}{1-p} \right)$) of all cases from refugee's nation of origin
+
+Load the data and name it `refug`. Recode the variable `decision` so that 1 equals grants the appeal and 0 equals denies the appeal.
+
+## Problem 1
+
+a.  Estimate a linear regression of `decision` on all other variables above EXCEPT `nation`, using `lm`. Calculate clustered standard errors by `nation` (use any packages or functions you wish), and create a professional looking regression table to present the results. Substantively interpret the coefficients for the following variables: `judgeHeald`, `locationToronto`, and `success` (HINT: think about what the dependent variable is!).
+
+b.  Create a figure that plots the coefficient estimates for all independent variables along with their 95% confidence bounds (a "coefficient plot").
+
+c.  Use 10-fold cross validation to calculate the out-of-sample (test) mean squared error and $R^2$, and compare these to the in-sample values in a. (use any functions or packages you wish). What do you find? Give a brief explanation for why there are differences.
+
+d.  Estimate a new model that uses fixed effects for `nation` to account for all nation-level variance in `decision` (HINT: what other changes do you need to make to estimate this model?).
+
+e.  Use 10-fold cross validation to calculate the out-of-sample (test) mean squared error and $R^2$, and compare these to the values in c. What is the difference? Why do you think there is this difference?
+
+## Problem 2
+
+Let's turn to new data. use the `Baumann` data from the `carData` package. They are data from an experiment with 66 undergraduate subjects who were randomly assigned to one of three treatment conditions: (1) `Basal`: a traditional method of teaching; (2) `DRTA`: an innovative method of teaching; or (3) `Strat`: a different innovative teaching method. The variables are as follows:
+
+-   `group`: student treatment assignment, a factor variable
+-   `pretest.1`: student pre-treatment performance scores on measure 1
+-   `pretest.2`: student pre-treatment performance scores on measure 1
+-   `post.test.1`: student post-treatment performance scores on measure 1
+-   `post.test.2`: student post-treatment performance scores on measure 2
+-   `post.test.3`: student post-treatment performance scores on measure 3
+
+Load the data and name it `baum`.
+
+a.  You will note that there are two pre-treatment measures of student performance and these are modestly correlated. Presumably, each of these is measured with error. Create one pre-treatment performance measure by averaging the two individual measures, and call it `pretest`.
+
+b.  There are also three post-test measures but their correlations are mixed. You decide to treat them as three distinct measures of performance and examine the treatment effects on each separately. Estimate a separate OLS regression for each of the three post-treatment measures. Include the experimental treatment factor variable in the model (traditional method as baseline) and also include your new `pretest` variable as a control.
+
+c.  Explain why including the `pretest` measure might be beneficial even though the experimental treatments are known to be exogenous via random assignment.
+
+d.  Discuss the statistical significance of the treatment effects across the three dependent variables. What issues might arise here with respect to using p-values in the regression output combined with $\alpha=0.05$ to test treatment effects for all three variables?
+
+e.  Discuss the substantive meaning of each coefficient you decide is statistically significant.
+
+f.  Create a plot that shows the estimated treatment effects of the innovative methods relative to the traditional one for each dependent variable. Include confidence bounds for each treatment effect. Make your own choices about how best to present these results (e.g., number of panels, labeling choices, reference lines, etc.). Pretend this is going into a paper to be submitted to a journal - make it look good!

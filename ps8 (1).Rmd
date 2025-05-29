@@ -1,0 +1,63 @@
+---
+title: "PS8"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 8` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 28 March, by 10:00 EST*. Name your files `lastname_ps08` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+You are going to work with the following data from an experiment I ran in 2016. The variables are described below. All respondents were randomly assigned to one of nine possible conditions. The first is a true control (no treatments at all). The remaining 8 conditions are defined by the crossing of two independent treatments (`ideotreat` and `polcond`).
+
+Read in the data and name it `yougov`
+
+-   `narcurb01`: support for Court-curbing; ranges from 0-1, with higher values indicating more support for "curbing" the Supreme Court (limiting its influence/jurisdiction)
+
+-   `right01`: right-wing political orientation; ranges from 0-1, with higher values indicating more conservatism/Republican support (versus liberalism/Democratic support)
+
+-   `ideotreat`: ideological direction of Court's decision; takes on three possible values: -1, 0, or 1; -1 means that the respondent read about a liberal Supreme Court decision; 1 means they read about a conservative decision; 0 is a control, where they did not read about a decision
+
+-   `polcond`: nature of elite party cues on the decision; takes on four possible values: 0, 1, 2, or 3; 0 is a control (no decision); 1 means the respondent did not receive any elite cues at all; 2 means they received party cues (Reps dislike liberal decisions, Dems dislike conservative decisions); and 3 means they received party cues AND those cues indicated strong party polarization on the issue
+
+You can see the structure of the treatment assignments with this code:
+
+```{r echo=TRUE, eval=FALSE}
+table(yougov$ideotreat, yougov$polcond)
+```
+
+## Problem 1
+
+a.  First remove all observations from the data that are in the control condition (did not read about any decision; `ideotreat` = 0 or `polcond` = 0): this condition is not relevant to the dependent variable of interest. Then create two new variables, one for each treatment variable (`ideotreat` and `polcond`). For each, define it as a factor variable.
+
+b.  Estimate a model, using OLS, that regresses support for Court-curbing on the two treatment variables. Report the results in a professional looking table.
+
+c.  Interpret the intercept and each of the coefficients substantively. For each one, write a sentence that describes what the coefficient means with reference to the meaning of the variables themselves (i.e., what the categories represent substantively and what the dependent variable represents, and how it is scaled). For each one except the intercept, write a second sentence that states clearly whether the coefficient is statistically significant using a two-tailed test (null hypothesis of 0).
+
+d.  Conduct an F-test to see if the elite cues treatment factor, as a whole (i.e., all three conditions, considered jointly), had an effect on the dependent variable (you can use a function or package, no need to do it by hand).
+
+e.  Conduct a hypothesis test (using method of your choosing) to test the null hypothesis that the effect of the polarized cues condition, compared to the no cues condition, is equal to the effect of the regular (non-polarized) cues condition compared to the no cues condition. Again, you can use whatever function or package you wish.
+
+f.  Calculate bootstrapped 95% confidence intervals for all coefficient estimates (except the intercept). Use the standard bootstrap approach of taking random draws, with replacement, from the rows of your model's data matrix. Use the percentile method to calculate the confidence bounds. Do this all by hand - no packages!
+
+g.  Now calculate bootstrapped 95% confidence intervals for all coefficients using the BCa method. Use whatever functions and packages you wish.
+
+## Problem 2
+
+a.  Estimate a new model with `narcurb01` as the dependent variable, that includes an interaction between `ideotreat` and `right01`, and which EXCLUDES `polcond`, but which subsets the data to only those observations in the polarized party cues condition (`polcond` = 3).
+
+b.  Interpret each of the estimated constituent terms, and the interaction term, both substantively (their meaning in terms of the variables and the dependent variable), and in terms of their statistical significance for 2-tailed tests.
+
+c.  Make a plot that shows how the expected value of the dependent variable changes across levels of right-wing political orientation, with separate lines for the two ideological treatment conditions. Make sure the figure looks professional and is labeled appropriately. Briefly interpret the plot substantively.
+
+d.  Use the `marginaleffects` package and the delta method to calculate 95% confidence bounds for the conditional marginal effect of `right01` at each value of `ideotreat`.
+
+e.  Estimate the same model but for respondents in `polcond` = 2. Conduct a Chow test of the null hypothesis that the two groups (for each category of `polcond`) can be combined into a single model (i.e., that the true model is the same across these two groups).

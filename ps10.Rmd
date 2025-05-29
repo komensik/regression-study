@@ -1,0 +1,70 @@
+---
+title: "PS10"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 10` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 11 April, by 10:00 EST*. Name your files `lastname_ps10` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Data
+
+The data are taken from Acharya, Blackwell, and Sen's study of the effects of slavery in the 19th century U.S. on contemporary U.S. attitudes. The authors argue that the proportion of the population that was enslaved in 1860 is associated with higher levels of anti-Black attitudes in the contemporary U.S.
+
+They conduct an analysis at the county level. That is, they measure county-level anti-Black attitudes as the average racial resentment of people within each county in 2010 (based on survey responses). They regress this county-level variable, named `resent`, on several county-level predictors, including the proportion of the county's population that was enslaved in 1860, named `pslave1860`.
+
+They expect a positive relationship between `pslave1860` and `resent`, all else equal. They use weighted least squares to estimate the model, with weights given by the sample size of survey respondents in each county. Counties with fewer respondents should receive less weight, because they have higher variance (because of smaller sample size).
+
+As a robustness check, they also estimate an instrumental variables regression using the suitability of the county's land for cotton farming as an instrument for `pslave1860`.
+
+The variables of interest are given below:
+
+-   `resent`: county racial resentment, coded from 1 to 5, with higher values indicating greater anti-Black attitudes
+-   `pslave1860`: proportion of the county's 1860 population that was enslaved
+-   `cottonsuit`: a measure of the suitability of the county's land for farming cotton
+-   `coarea00`: area of the county in squares miles
+-   `rugged`: index of county-level rugged terrain
+-   `latitude`: latitude of the county
+-   `longitude`: longitude of the county
+-   `water1860`: county access to navigable waterways (coded 1), otherwise 0
+-   `state.abb`: indicator for the county's state (e.g., Alabama), it is a factor variable
+-   `sample.size`: the number of survey respondents used to estimate the county's racial resentment
+
+Load the data and name it `abs_data`:
+
+## Problem 1
+
+a.  Estimate a weighted least squares regression of `resent` on `pslave1860`, controlling for all other variables, except `sample.size` and `cottonsuit`.
+
+    -   `state.abb` should be included as a factor variable, which will estimate fixed effects for state.
+    -   Use the natural log of `coarea00`
+    -   Include quadratic terms for both `latitude` and `longitude` (this replicates the specification in the authors' original work).
+    -   To use the weighted least squares estimator, use `lm` and include an option for `weights=sample.size`. In this case, the weights are known, so WLS is easy to implement.
+    -   Exclude `cottonsuit` from the model altogether, for now.
+
+b.  Substantively interpret the coefficient for `pslave1860`. Also say something about its statistical significance.
+
+c.  Substantively interpret the coefficient for `water1860` and say something about its statistical significance.
+
+d.  Identify the state that was excluded as the baseline and then substantively interpret the coefficient for `state.abbWV` and say something about its statistical significance.
+
+## Problem 2
+
+a.  Now, use the `ivreg` function from the `ivreg` package to estimate the same model using two-stage least squares (2SLS), with `cottonsuit` as the instrument for `pslave1860`.
+
+b.  Construct a professional looking table that includes the results for both the WLS and the 2SLS results. The table should be labeled appropriately so that a reader can understand what they are looking at (e.g., titles, variable labels, any notes they might need, sample size, etc.). Construct the table as-if you were submitting this to a journal.
+
+c.  Substantively interpret the 2SLS estimate for `pslave1860` and say something about statistical significance.
+
+d.  Show that you get the same coefficient estimate for `pslave1860` using the two-stage approach (i.e., estimate the 1st stage model, then use this to estimate the 2nd stage model, etc.).
+
+e.  Interpret the results for the weak instruments and Wu-Hausman tests in the `ivreg` summary output. What do each of these tests tell us about our data and our 2SLS model? Why is there no Sargan test here?

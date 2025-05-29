@@ -1,0 +1,1003 @@
+---
+title: "Endogeneity"
+subtitle: "POLSCI 630: Probability and Basic Regression"
+format: clean-revealjs
+html-math-method:
+  method: mathjax
+  url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+date: 4/1/2025
+embed-resources: true
+---
+
+## Assumption to prove unbiased
+
+Necessary assumption for OLS to be unbiased:
+
+4.  $\text{E}(u_i|\boldsymbol{x}_i)=0$ ($\boldsymbol{x}_i$ is [exogenous]{.alert})
+    -   correlation of the error term itself with the IVs
+    -   "endogenous" - caused within the context of the model
+
+. . .
+
+Potential violations (that produce [endogeneity]{.alert})
+
+-   
+
+    ## Omitted variables correlated with $\boldsymbol{x}_i$
+
+-   Measurement error in $\boldsymbol{x}_i$
+
+-   "Reverse causality" ($x_{ik} = \delta_k y_i$)
+
+<!-- ## Functional form misspecification -->
+
+<!-- <!--If your model of $y_i$ on $\boldsymbol{x}_i$ excludes functions of $\boldsymbol{x}_i$ present in the population regression function, these end up in $u_i$ and are correlated with both $y_i$ and $\boldsymbol{x}_i$-->
+
+<!-- If the true model is: -->
+
+<!-- $$ -->
+
+<!-- y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{1i}^2 + u_i -->
+
+<!-- $$ -->
+
+<!-- Then excluding $\beta_2x_{1i}^2$ puts it in the error term: -->
+
+<!-- $$ -->
+
+<!-- y_i = \beta_0 + \beta_1x_{1i} + u_i^* \\ -->
+
+<!-- u_i^* = u_i + \beta_2x_{1i}^2 -->
+
+<!-- $$ -->
+
+<!-- ## Functional form misspecification -->
+
+<!-- :::: {.columns} -->
+
+<!-- ::: {.column width="50%"} -->
+
+<!-- ```{r misspec, echo = TRUE} -->
+
+<!-- b1 <- -2 -->
+
+<!-- b2 <- 1 -->
+
+<!-- x <- rnorm(1000) -->
+
+<!-- y <- b1*x + b2*x^2 + rnorm(1000) -->
+
+<!-- mod <- lm(y ~ x) -->
+
+<!-- ``` -->
+
+<!-- ::: -->
+
+<!-- ::: {.column width="50%"} -->
+
+<!-- ```{r misspec_plot, echo = FALSE} -->
+
+<!-- data.frame(x = x, -->
+
+<!--            y = mod$residuals) %>% -->
+
+<!--   ggplot(aes(x = x, y = y))+ -->
+
+<!--   geom_point()+ -->
+
+<!--   labs(x = "x", -->
+
+<!--        y = "Residual")+ -->
+
+<!--   theme_630() -->
+
+<!-- ``` -->
+
+<!-- ::: -->
+
+<!-- :::: -->
+
+<!-- ## Test for functional form misspecification {.smaller} -->
+
+<!-- :::: {.columns} -->
+
+<!-- ::: {.column width="40%"} -->
+
+<!-- Regress the original $y_i$ on powers of $\hat{y}_i$ and $\boldsymbol{x}_i$ -->
+
+<!-- -   Perhaps just squared and cubed -->
+
+<!-- -   If an F test is significant, this suggests functional form misspecification -->
+
+<!-- ::: -->
+
+<!-- ::: {.column width="60%"} -->
+
+<!-- ``` {r misspec_check} -->
+
+<!-- mod_check <- lm(y ~ x + I(mod$fitted.values^2) + I(mod$fitted.values^3)) -->
+
+<!-- anova(mod, mod_check) -->
+
+<!-- ``` -->
+
+<!-- ::: -->
+
+<!-- :::: -->
+
+<!-- ## Example -->
+
+<!-- ```{r} -->
+
+<!-- # load Lucid pub opinion data -->
+
+<!-- lucid <- read.csv("data/Lucid_Data.csv", stringsAsFactors = F) -->
+
+<!-- # subset to complete cases on relevant variabless -->
+
+<!-- lucid_m1 <- na.omit(lucid[, c("econ_mean","age_scale","male","educ_scale","income_scale")]) -->
+
+<!-- # estimate regression of left-right economic policy prefs on IVs -->
+
+<!-- m1 <- lm(econ_mean ~ age_scale + male + educ_scale + income_scale, data = lucid_m1) -->
+
+<!-- summary(m1) -->
+
+<!-- ``` -->
+
+<!-- ## Example{.smaller} -->
+
+<!-- If functional form is properly specified, adding higher-order functions of fitted values shouldn't matter. -->
+
+<!-- :::: {.columns} -->
+
+<!-- ::: {.column width="60%"} -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- # regress y on powers of y-hat and x -->
+
+<!-- m1_reset <- lm(econ_mean ~ age_scale + male + educ_scale + income_scale  -->
+
+<!--                + I(m1$fitted.values^2) + I(m1$fitted.values^3), -->
+
+<!--                data = lucid_m1) -->
+
+<!-- summary(m1_reset) -->
+
+<!-- ``` -->
+
+<!-- ::: -->
+
+<!-- ::: {.column width="40%"} -->
+
+<!-- ```{r echo=TRUE, eval = TRUE} -->
+
+<!-- # F test -->
+
+<!-- anova(m1, m1_reset) -->
+
+<!-- ``` -->
+
+<!-- ::: -->
+
+<!-- :::: -->
+
+## Omitted variables
+
+Consider the population regression equation, where $\boldsymbol{x}_i^O$ is a vector of *omitted* predictors, i.e., you implicitly (and erroneously) fix $\boldsymbol{\gamma}$ to 0:
+
+(note - equation alone below doesns't tell that there is an endogeneity problem)
+
+$$y_i = \boldsymbol{x}_i\boldsymbol{\beta} + \boldsymbol{x}_i^O\boldsymbol{\gamma} + u_i$$
+
+. . .
+
+$$u_i^* = u_i + \boldsymbol{x}_i^O\boldsymbol{\gamma}$$
+
+. . .
+
+-   gamma doesn't actually go away bc we assume 0, but goes into error term
+
+If $\boldsymbol{x}_i^O$ are not correlated with $\boldsymbol{x}_i$ then $\boldsymbol{x}_i \perp\!\!\!\!\perp u^*_i$ and $\hat{\beta}$ is still unbiased.
+
+. . .
+
+But if $\boldsymbol{x}_i^O$ *are* correlated with $\boldsymbol{x}_i$ then $u_i^*$ will be correlated with $\boldsymbol{x}_i$ (whereas the unobserved/population error term would not be)
+
+-   In this case, $\hat{\boldsymbol{\beta}}$ is no longer unbiased or consistent
+
+## Proxy variables (solution #1 to omitted vars)
+
+We can correct this if we can "break" the correlation between $\boldsymbol{x}_i^O$ and $\boldsymbol{x}_i$
+
+::: incremental
+-   Obviously, the 1st best solution is to include $\boldsymbol{x}_i^O$ in the model!
+-   If that's not possible, another solution is to use [proxy]{.alert} variables, $\boldsymbol{x}_i^P$
+-   Intuition: if we can't observe $\boldsymbol{x}_i^O$, next best thing is something that is correlated with $\boldsymbol{x}_i^O$
+:::
+
+## Proxy variables
+
+-   thing correlated with omitted variable
+
+Two requirements for good proxies:
+
+1.  $\text{E}(u_i | \boldsymbol{x}_i^P) = 0$
+
+2.  $\text{E}(v_{li} | \boldsymbol{x}_i) = 0, \space \forall \space v_l$, where $v_{li} = x_{li}^O - \boldsymbol{\boldsymbol{x}_i^P} \boldsymbol{\delta}$, i.e., the residuals from the population model of $x_{li}^O$ on $\boldsymbol{\boldsymbol{x}_i^P}$
+
+-   exogeneity assumption but for the proxy variable (proxy excluded from pop model)
+
+-   once you regress the ommitted var on the proxy(ies), residuals now uncorrelated with IV
+
+    -   breaking the correlation with the error term + included IV
+
+-   absorbing effected that ommitted var is having; corr will be broken to extent that if regress ommitted on proxies...
+
+-   "partialling out" \~ if i was able to regress residuals on proxy....(double check transcript)
+
+. . .
+
+In words: the proxies must be (1) absent from the true population regression model, *and* (2) $\boldsymbol{x}_i^O$ must be uncorrelated with $\boldsymbol{x}_i$ *after partialing out* $\boldsymbol{x}_i^P$
+
+## Example from Wooldridge
+
+Population model for wages on education, experience, and ability:
+
+$$wages = \beta_0 + \beta_1educ + \beta_2experience + \beta_3ability + u$$
+
+. . .
+
+If we don't observe ability, we might use scores on an intelligence test as a proxy, where $ability = \delta_0 + \delta_1intel + v$:
+
+. . .
+
+$$wages = \beta_0 + \beta_1educ + \beta_2experience + \beta_3(\delta_0 + \delta_1intel + v) + u$$
+
+. . .
+
+$$wages = (\beta_0 + \beta_3\delta_0) + \beta_1educ + \beta_2experience + \beta_3\delta_1intel + (\beta_3v + u)$$
+
+$$wages = \alpha_0 + \beta_1educ + \beta_2experience + \alpha_3intel + e$$
+
+## Implications
+
+If we have a good proxy variable, we can get consistent estimates of the parameters for the observed independent variables in the population regression equation (in previous example: $\beta_1$ and $\beta_2$)
+
+::: incremental
+-   We **do not** get consistent estimates of $\beta_0$ or $\boldsymbol{\gamma}$
+
+    -   Instead, the estimated intercept, along with the coefficients for $\boldsymbol{\boldsymbol{x}_i^P}$, are specific to this particular model
+    -   An imperfect proxy **may** reduce bias and so might be worthwhile
+:::
+
+## Instrumental variables
+
+Say we've got the following model with known omitted variable bias:
+
+$$y_i = \beta_0 + \beta_1x_{1i} + u_i^*$$
+
+. . .
+
+An [instrumental variable]{.alert}, $z_{1i}$, for $x_{1i}$ in the model above is one that meets the following conditions:
+
+::: incremental
+1.  $\text{Cov}(z_{1i}, x_{1i}) \neq 0$: the IV provides information about $x_{1i}$
+
+2.  $\text{Cov}(z_{1i}, u_i^*) = 0$: the IV provides no information about $y_i$ after accounting for $x_{1i}$ and is uncorrelated with the omitted variables
+
+    1.  means IV is properly excluded from the model
+:::
+
+. . .
+
+Put another way: $z_{1i}$ is associated with $y_i$ *through, and only through,* its relationship with $x_{1i}$.
+
+## Instrumental variables
+
+$\text{Cov}(z_{1i}, u_i^*) = 0$ and $\text{Cov}(z_{1i}, x_{1i}) \neq 0$
+
+$z_{1i}$ is associated with $y_i$ *through and only through* its relationship with $x_{1i}$.
+
+. . .
+
+-   This is called the *exclusion restriction*.
+-   In practice it is primarily defended *theoretically*, though there may be some opportunity for empirical defense
+
+. . .
+
+If so, we can estimate $z_{1i} \rightarrow \hat{x}_{1i} \rightarrow y_i$
+
+-   The predicted values of $x_{1i}$, based solely on $z_{1i}$, are exogenous (by assumption): all of their variance is provided by the exogenous $z_{1i}$
+
+## IV estimator for bivariate case
+
+$$
+y_i = \beta_0 + \beta_1x_{1i} + u_i^*
+$$
+
+. . .
+
+$$
+\text{Cov}(y_i, z_{1i}) = \text{Cov}(\beta_0 + \beta_1x_{1i} + u_i^*, \space z_{1i})
+$$
+
+. . .
+
+$$
+= 0 + \beta_1 \text{Cov}(x_{1i}, z_{1i}) + \text{Cov}(u_i^*, z_{1i})
+$$
+
+. . .
+
+Assuming $\text{Cov}(z_{1i}, u_i^*) = 0$...
+
+$$
+\text{Cov}(y_i, z_{1i}) = \beta_1 \text{Cov}(x_{1i}, z_{1i})
+$$
+
+. . .
+
+$$
+\frac{\text{Cov}(y_i, z_{1i})}{\text{Cov}(x_{1i}, z_{1i})} = \beta_1
+$$
+
+## IV estimator for bivariate case
+
+Substituting our sample estimates for $\text{Cov}(y_i, z_{1i})$ and $\text{Cov}(x_{1i}, z_{1i})$ gives us the IV estimator, $\hat{\beta}_{1}^{IV}$
+
+. . .
+
+-   $\hat{\beta}_{1}^{IV}$ is *consistent* (but not unbiased), given our assumptions ($\text{Cov}(z_{1i}, u_i^*) = 0$ and $\text{Cov}(z_{1i}, x_{1i}) \neq 0$)
+
+-   May be substantially biased in small samples
+
+## IV for multiple regression
+
+Indicate exogenous variables with $x$, endogenous variables with $y$, and instrumental variables with $z$
+
+$$y_{1i} = \beta_0 + \beta_1y_{2i} + \beta_3x_{1i} + u_i$$
+
+-   notion:
+
+    -   use x for independent variables in model that are exogenous
+
+    -   endogenous independent variables given by y
+
+. . .
+
+For bivariate, need to assume z something x. Here, little more: Need to assume that the *partial* correlation between $z_{2i}$ and $y_{2i}$ is non-zero
+
+. . .
+
+-   In practice, this means that there is a non-zero coefficient for $z_{2i}$ in the regression of $y_{2i}$ on all exogenous variables from the original model (i.e., $\gamma \neq 0$):
+
+$$y_{2i} = \boldsymbol{x}_i\boldsymbol{\pi} + z_{2i}\gamma + v_i$$
+
+. . .
+
+Otherwise, the IV would provide no additional information beyond that already provided by the other independent vars in the population equation
+
+## Two-stage least squares
+
+So far we have considered special cases (bivariate regression, multiple regression with one instrument, etc.)
+
+-   We would like a more general approach
+
+. . .
+
+[Two-stage least squares]{.alert} (2SLS) allows for instrumental variables estimation in multiple regression, with multiple instrumental variables and multiple endogenous variables
+
+-   more than 1 inst, more than 1 endog var, etc (the general case)
+
+## 2SLS - what is
+
+::: incremental
+1.  Purge (residualize) the endogenous independent variable ($y_{mi}$) of variance correlated with $u_i^*$ by regressing it on all available exogenous and instrumental variables
+
+2.  Get fitted values ($\hat{y}_{mi}$) from this estimated model
+
+3.  Use $\hat{y}_{mi}$ as the instrument for $y_{mi}$ in the original regression model
+:::
+
+. . .
+
+OLS estimation of the 2nd stage provides the IV estimates, but the SEs are incorrect
+
+## Example
+
+We believe skipping class reduces college GPA, but expect there to be unmeasured variables correlated with both skipping class and low GPA (e.g., low conscientiousness, low motivation)
+
+```{r}
+gpa <- read.csv("/Users/kristinamensik/Documents/Duke/2024-2025/630 - Spring 25/gpa1.csv", stringsAsFactors = F)
+summary(gpa)
+```
+
+## Example
+
+```{r echo=TRUE}
+# 1st stage model for missed classes using only exogenous and IVs
+gpa_1 <- lm(skipped ~ campus + car + bike + walk 
+             + soph + junior + senior  + male + fathcoll + mothcoll
+            + hsGPA + ACT + job19 + job20 + greek + clubs + alcohol, data = gpa)
+summary(gpa_1)
+```
+
+## Example
+
+```{r echo=TRUE}
+# 2nd stage model for GPA
+gpa_2 <- lm(colGPA ~ gpa_1$fitted.values 
+            + soph + junior + senior  + male + fathcoll + mothcoll
+            + hsGPA + ACT + job19 + job20 + greek + clubs + alcohol, data = gpa)
+round(coef(gpa_2), 3)
+```
+
+## using `ivreg`
+
+-   two endogenous variables \| \|
+
+```{r echo=TRUE}
+library(ivreg)
+
+# estimate model ( | separates exog, endog, and IVs)
+gpa_ivreg <- ivreg(colGPA ~ soph + junior + senior + male + fathcoll + mothcoll
+            + hsGPA + ACT + job19 + job20 + greek + clubs + alcohol
+            | skipped | campus + car + bike + walk
+            , data = gpa)
+round(coef(gpa_ivreg), 3)
+```
+
+-   use vertical bars \|\| to tell IV reg what is endogenous IV is/are ("skipped" here), then \| tell all various instruments
+-   this procedure will give you estimates, but standard errors / significance texts will be wrong in NON-ivreg approaches (above, which use a two-stage approach).
+-   Below (Matrix) is what happens under the IV-reg hood
+
+## Matrix representation
+
+2SLS estimates can be obtained in one step and this is important for calculating the SEs - but first, some notation:
+
+::: incremental
+-   $y_{1i}$ is the dependent variable
+-   $\mathbf{X} = [\mathbf{X}_1, \mathbf{X}_2] = [\mathbf{X}_1, \mathbf{Y}_2]$: the exogenous and endogenous variables in the model for $y_{1i}$
+    -   composite of two matrices, better way to think is X Y; first portion ex, second end
+-   $\mathbf{Z} = [\mathbf{Z}_1, \mathbf{Z}_2] = [\mathbf{X}_1, \mathbf{Z}_2]$: the exogenous variables in the model for $y_{1i}$ and the instrumental variables for $\mathbf{Y}_2$
+-   can think abt it as X the set of ind vars that are predicting the dependent
+-   use XZ to predict Y, to predict y1i
+:::
+
+[Hanson (2022)](https://press.princeton.edu/books/hardcover/9780691235899/econometrics)
+
+## General 2SLS estimator
+
+What IV reg is doing... is not pretty (don't need to memorize):
+
+$$
+\hat{\boldsymbol{\beta}}_{2SLS} = [\mathbf{X}'\mathbf{Z} (\mathbf{Z}'\mathbf{Z})^{-1} \mathbf{Z}'\mathbf{X}]^{-1} \mathbf{X}'\mathbf{Z} (\mathbf{Z}'\mathbf{Z})^{-1} \mathbf{Z}'\boldsymbol{y}_1
+$$
+
+See [Hanson (2022, p 354)](https://press.princeton.edu/books/hardcover/9780691235899/econometrics) for derivation
+
+. . .
+
+The case with number of instruments equal to number of endogenous independent variables is much simpler and similar in form to bivariate estimator:
+
+$$
+(\mathbf{Z}'\mathbf{X})^{-1} (\mathbf{Z}' \boldsymbol{y}_1)
+$$
+
+## By hand – this is looing at the above in R
+
+```{r echo=TRUE}
+# Define matrices
+X <- as.matrix(cbind(1, gpa[, 
+                            # exogenous variables
+                            c("soph","junior","senior","male","fathcoll",
+                                "mothcoll","hsGPA","ACT","job19","job20",
+                                "greek","clubs","alcohol", 
+                              
+                               # endogenous variable(s)
+                                "skipped")]))
+Z <- as.matrix(cbind(1, gpa[, 
+                             # exogenous variables
+                            c("soph","junior","senior","male","fathcoll",
+                                "mothcoll","hsGPA","ACT","job19","job20",
+                                "greek","clubs","alcohol",
+                             # instrumental variables
+                                "campus","car","bike","walk")]))
+y_1 <- as.matrix(gpa[,"colGPA"])
+
+# 2SLS estimator
+SLS2 <- solve(t(X)%*%Z %*% solve(t(Z)%*%Z) %*% t(Z)%*%X) %*% 
+        t(X)%*%Z %*% solve(t(Z)%*%Z) %*% t(Z)%*%y_1
+```
+
+## By hand
+
+```{r, echo = TRUE}
+# reordering coefs from model object to line up with manual output
+inst_coefs <- round(coef(gpa_2)[c(1, 3:15, 2)], 3) 
+
+cbind(twostep = inst_coefs, 
+      onestep = round(SLS2, 3))
+```
+
+## 2SLS properties
+
+::: incremental
+-   2SLS is consistent and asymptotically normally distributed (typical large sample properties)
+
+-   "Weaker" instruments \[lower $\text{Cov}(x,z)$\] (\<- typo in that) mean 2 problems:
+
+    -   higher variance in the estimator – larger standard errors, higher (?) confidence bounds
+
+-   Larger correlations of instruments with $u_i$ mean larger asymptotic bias
+
+-   These two properties interact: larger bias with weaker instruments
+
+    -   Asymptotic bias in OLS, under certain conditions, can be less than that of IV estimator
+:::
+
+## 2SLS variance
+
+Assuming homoskedasticity:
+
+$$
+\text{Var}(\hat{\boldsymbol{\beta}}_{2SLS}) = \sigma^2 (\mathbf{Q}_{XZ} \mathbf{Q}_{ZZ}^{-1} \mathbf{Q}_{ZX})^{-1}
+$$
+
+-   $\mathbf{Q}_{XZ} = \text{E}(\mathbf{X}'\mathbf{Z})$
+-   $\mathbf{Q}_{ZX} = \text{E}(\mathbf{Z}'\mathbf{X})$
+-   $\mathbf{Q}_{ZZ} = \text{E}(\mathbf{Z}'\mathbf{Z})$
+
+Where do SE's come from?
+
+-   plugging in the part in ()
+
+-   square root of diagonal of matrix
+
+-   will want to use IV reg in almost every case u can imagine
+
+## 2SLS variance by hand
+
+```{r echo=TRUE}
+# sample size
+N <- nrow(gpa)
+
+# calculate sigma^2 hat
+s2_hat <- (1 / (N - ncol(X)))*sum( (y_1 - X%*%SLS2)^2 )
+
+# calculate estimated covariance matrix
+VB <- solve( t(X)%*%Z %*% solve(t(Z)%*%Z) %*% t(Z)%*%X ) * s2_hat
+```
+
+## 2SLS variance by hand
+
+```{r}
+# table with coefs and SEs
+cbind(SLS2, sqrt(diag(VB)))
+```
+
+## Weak instruments
+
+Weak instruments increase the 2SLS estimator's variance and amplify the biasing effects of correlations between instruments and the error term
+
+-   if strongly predictive not weak
+
+-   so, look at \_\_\_
+
+::: incremental
+-   Common to calculate F statistic associated with the 1st stage regression comparing a model with and without the IVs
+-   A rough rule of thumb is $F > 10$ (though some argue it should be much higher)
+-   If you only have one instrument, we can look at its associated t statistic in the 1st stage and use $t > \sqrt{10} = 3.2$
+:::
+
+## Testing for endogeneity
+
+A [Hausman test]{.alert} compares the 2SLS estimates to OLS
+
+-   2SLS less efficient in vast majority of cases
+
+-   this a way to test whether you actually need 2SLS
+
+-   corr between purportedly independent variable and the error term
+
+Think of 2SLS as controlling for the things you don't know about; comperable to random assignment in experiments
+
+NOTE: when coming up withh IV's, not trying to think of instruments that are proxies for concientiousness; we don't care what the omitted variables are; want exogenouns predictors that predict endogenous predictors (double check order on this last note)
+
+::: incremental
+-   The logic is that both estimators are consistent under the null hypothesis of no endogeneity, and thus a significant difference implies endogeneity
+
+-   In practice, estimate the 1st stage equation via OLS and save the residuals, (here usually get predicted and use in2nd, but thhink abt what residuals here mean – to extend there is a part of the var that is not only causing that var and also causing y, will be in error term) then estimate the 2nd stage including *both* the endogenous variable and the 1st stage residuals (to see if they predict y)
+
+    -   residuals are all the parts that are potentially endogenous – question is is that stuff leftover correlated with the dependent variable
+
+-   A t test on the coefficient for the residuals is the statistic of interest
+:::
+
+## Overidentifying restrictions
+
+With more than one instrument, a [Sargan test]{.alert} can examine the validity of the set of instrumental variables (only usable with cases when you have more instruments than \# of endogenous variables)
+
+-   Regress the 2SLS residuals on all stage 1 variables and calculate $NR^2 \sim \chi^2(q)$ under the null hypothesis that all instrumental variables are exogenous ($q$ is the number of extra instruments)
+    -   if reject null here, then worried – we want to reject this null
+-   properly excluded means endogenous or not
+
+. . .
+
+If you reject null, there is evidence of at least one endogenous instrument
+
+-   Can compare 2SLS estimates to those excluding one IV at a time - under null of exogeneity, these two estimates are asymptotically equivalent
+
+## Using `ivreg`
+
+`ivreg` will include these diagnostics along with instrumental variables estimates
+
+```{r}
+# estimate model ( | separates exog, endog, and IVs)
+gpa_ivreg <- ivreg(colGPA ~ soph + junior + senior + male + fathcoll + mothcoll
+            + hsGPA + ACT + job19 + job20 + greek + clubs + alcohol
+            | skipped | campus + car + bike + walk
+            , data = gpa, method = "OLS")
+summary(gpa_ivreg)
+```
+
+-   get same estimate we've been getting for end predictor skipped bc done the same way as above, but now getting right significance tests
+
+-   also gives by default 3 diagnostics: weak instrument (F test);
+
+-   wu hausman – whether we need 2sls
+
+    -   whether skipped in this case actually is endogenous or not
+
+    -   here, fail to reject null with \~0.22 p val
+
+-   Sargan – if reject null, evidence at least one instrumental variable is endogenous
+
+-   Takeaway – need to justify what your doing, so if then use 2SLS, would report both OLS and 2SLS side by side (will look at Deep Roots data as ex in problem set)
+
+## General variance estimator
+
+If we do not assume independent, homoskedastic errors...it gets ugly:
+
+$$
+\begin{align}
+\text{Var}(\hat{\boldsymbol{\beta}}_{2SLS}) = \\
+(\mathbf{Q}_{XZ} \mathbf{Q}_{ZZ}^{-1} \mathbf{Q}_{ZX})^{-1} \\ (\mathbf{Q}_{XZ} \mathbf{Q}_{ZZ}^{-1} \hat{\mathbf{\Omega}} \mathbf{Q}_{ZZ}^{-1} \mathbf{Q}_{ZX}) \\ (\mathbf{Q}_{XZ} \mathbf{Q}_{ZZ}^{-1} \mathbf{Q}_{ZX})^{-1}
+\end{align}
+$$
+
+-   where $\hat{\mathbf{\Omega}} = \textbf{Z}' \mathbf{\hat{\Sigma}} \textbf{Z}$
+
+## Correcting for heteroskedasticity
+
+```{r echo=TRUE}
+# sample size
+N <- nrow(gpa)
+
+# calculate sigma^2 hat vector
+s2_hat <- diag( as.vector((y_1 - X%*%SLS2)^2) )
+
+# calculate Omega
+Om <- t(Z) %*% s2_hat %*% Z
+
+# additional component matrices
+tXZ <- t(X)%*%Z # X'Z
+tZZi <- solve(t(Z)%*%Z) # (Z'Z)^-1
+tZX <- t(Z)%*%X # Z'X
+
+# calculate estimated covariance matrix
+VB <- solve( tXZ %*% tZZi %*% tZX )   %*%  
+  ( tXZ %*%  tZZi %*%  Om %*% tZZi %*% tZX )  %*%   
+  solve( tXZ %*% tZZi %*% tZX)
+
+```
+
+## Correcting for heteroskedasticity
+
+```{r}
+# table with coefs and SEs
+cbind(SLS2, sqrt(diag(VB)))
+```
+
+## Using `sandwich`
+
+Can use `sandwich` to re-estimate the covariance matrix
+
+```{r echo=TRUE}
+library(sandwich)
+# with sandwich
+summary(gpa_ivreg, vcov = sandwich::vcovHC)
+```
+
+## Using `sandwich`
+
+```{r echo=TRUE}
+sqrt(diag(vcovHC(gpa_ivreg, type = "HC0")))
+sqrt(diag(vcovHC(gpa_ivreg, type = "HC3")))
+```
+
+## Identification
+
+We say the model is [identified]{.alert} if there is a unique solution for the parameter estimates
+
+::: incremental
+-   A **necessary**, but **insufficient**, condition (the [*order condition*]{.alert}) is that the number of instruments is $\geq$ the number of endogenous variables
+
+    -   order condition means least as many vars as endogenous
+
+-   The **sufficient** condition is that there are at least as many instrumental variables providing *unique* information as endogenous variables
+
+    -   This is the [rank condition]{.alert}, b/c the formal requirement is $\text{rank}(\text{E}[\boldsymbol{z}_i \boldsymbol{x}_i']) = K$, where $K$ is the length of $\boldsymbol{x}_i$
+    -   need unique predictive power for
+    -   necessary + sufficient called rank condition – rank has to be = k. means you have enough unique info from instrumental variables to estimate the model
+:::
+
+-   "Overidentified" means more info...if \# instruments is greater than the number of endogenous IVs
+
+-   "Just identified" when unique = endogenous (cannot run)
+
+## Measurement Error
+
+We can distinguish between a "measured" value of some variable, $x_i^{M}$, and its true value, $x_i^{T}$:
+
+$$
+x_i^{M} = x_i^{T} + e_i
+$$
+
+-   The consequences of measurement error depend on the nature of the error and whether the error is in the DV or IV(s)
+
+## Measurement Error in DV
+
+$$
+\begin{aligned}
+y_i^{M} &= y_i^{T} + e_i\\
+y_i^{M} = y_i^{T} - e_i &= \boldsymbol{x}_i \boldsymbol{\beta} + u_i \\
+y_i^{T} &= \boldsymbol{x}_i \boldsymbol{\beta} + u_i + e_i
+\end{aligned}
+$$
+
+::: incremental
+-   $\hat{\beta}_0$ is biased if $\text{E}(e_i) \neq 0$
+-   $\boldsymbol{\beta}$ is biased if $\text{Cov}(e_i, \boldsymbol{x}_i) \neq 0$
+-   Error variance in the model of $y_i^{T}$ is greater than for the model of $y_i^{M}$
+    -   Implies larger variance of $\hat{\boldsymbol{\beta}}$
+:::
+
+## Measurement Error in One IV
+
+We distinguish the measured ($x_i^M$) and true ($x_i^T$) variables, where $x_i^M = x_i^T + e_i$ (so $x_i^T = x_i^M - e_i$), and the true population model is:
+
+$$
+y_i = \beta_0 + \beta_1x_i^T + u_i
+$$
+
+The result is:
+
+$$
+\begin{aligned}
+y_i &= \beta_0 + \beta_1(x_i^M - e_i) + u_i \\
+    &= \beta_0 + \beta_1x_i^M + (u_i - \beta_1e_i)
+\end{aligned}
+$$
+
+## Consequences for Estimation
+
+Since $x_i^M$ is the sum of its mean ($x_i^T$) and $e_i$, the covariance of $x_i^M$ and $e_i$ (the product of their deviations from means), is simply:
+
+$$
+\text{Cov}(x_i^M, e_i) = \text{Var}(e_i) = \sigma_e^2
+$$
+
+So the covariance of $x_i^M$ with the error term of our estimated model is:
+
+$$
+\text{Cov}(x_i^M, u_i - \beta_1e_i) = -\beta_1 \cdot \text{Cov}(x_i^M, e_i) = -\beta_1\sigma_e^2
+$$
+
+Since the covariance is non-zero, **OLS is biased and inconsistent**. As Wooldridge shows:
+
+$$
+\text{plim}(\hat{\beta}_1) = \beta_1 \left( \frac{\sigma_{x_i}^2}{\sigma_{x_i}^2 + \sigma_{e_i}^2} \right)
+$$
+
+-   Which implies that $\hat{\beta}_1$ is strictly closer to zero than $\beta_1$
+-   This is called **attenuation bias** or **regression dilution**
+
+## Measurement Error in Multiple Regression
+
+The bias in $\hat{\beta}_1$ is similar in form:
+
+$$
+\hat{\beta}_1 = \beta_1 \left( \frac{\sigma_{r_{1i}}^2}{\sigma_{r_{1i}}^2 + \sigma_{e_i}^2} \right)
+$$
+
+-   Where $\sigma_{r_{1i}}^2$ is the error variance in the regression of $x_i$ on the remaining predictors
+-   So $\hat{\beta}_1$ is again strictly closer to zero than $\beta_1$
+-   This result assumes error is only in this one variable
+
+If multiple variables have error:
+
+-   The remaining $\hat{\beta}_k$ will also be biased and inconsistent
+-   The exception is when $x_i$ is uncorrelated with the remaining predictors
+-   The size and direction of bias is generally unclear
+-   With error in multiple variables, we cannot generalize about the nature of the bias
+
+## Caution with Bootstrapping
+
+-   With finite samples, the number of finite moments of the 2SLS estimator = number of overidentifying restrictions (i.e., number of instruments minus number of endogenous IVs)
+    -   In "just-identified" cases, 2SLS does **not** have finite expectation
+    -   With one "extra" instrument: finite expectation, but **not** finite variance
+-   Bootstrapping tries to approximate finite sample sampling distribution
+    -   Can only be valid if that distribution is finite
+    -   (Note: a few details are missing here)
+
+## Measurement error in IVs and DVS
+
+What is? A measured var is equal to true value of that var plus some random error
+
+-   $x_{2i}^M = x_{2i} + e_{2i}$
+
+-   the consequences depend on where it is
+
+-   
+
+    ## Measurement error in DVs
+
+We can distinguish between "measured" val
+
+Assume a true model: $y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + u_i$
+
+. . .
+
+-   If $x_{2i}$ is measured with error using $x_{2i}^M = x_{2i} + e_{2i}$, then we are estimating as follows:
+
+. . .
+
+$$
+y_i = \beta_0 + \beta_1x_{1i} + \beta_2(x_{2i}^M - e_{2i}) + u_i
+$$
+
+. . .
+
+$$
+= \beta_0 + \beta_1x_{1i} + \beta_2x_{2i}^M + (u_i - \beta_2e_{2i}) 
+$$
+
+. . .
+
+-   Since $\text{Cov}(x_{2i}^M, \space (u_i - \beta_2e_{2i})) \neq 0$, $\hat{\beta_2}$ is biased and inconsistent
+
+## Implications
+
+An upside is that the bias is known to be toward 0
+
+-   Measurement error [attenuates]{.alert} the relationship between an independent and dependent variable
+-   You may sometimes see corrections to correlations based on estimates of reliability
+
+## Implications
+
+Unfortunately, this does not extend to the remaining variables in the model:
+
+::: incremental
+-   Correlations among the variable measured with error and the other variables in the model causes the coefficient estimates for these other variables to be biased and inconsistent
+
+-   The size and direction of the bias is generally unknown
+
+-   With measurement error in multiple variables, size and direction of bias is generally unknown
+:::
+
+## IV estimators for errors-in-variables
+
+One solution or attempt at is creating another measurement for the same in a 2SLS, with other instrumental variable (second as instrumental variable for the first)
+
+Find an instrumental variable that meets the standard IV conditions *and* is uncorrelated with the measurement error in the variable of interest
+
+::: incremental
+-   A common IV in such cases is a second, independent measurement of the variable of interest (e.g., two survey items measuring the same opinion)
+-   We often assume measurement errors are independent across observations, which would make the 2nd measure an IV for the 1st
+:::
+
+## Other approaches
+
+Other ways of dealing with measurement error:
+
+::: incremental
+-   Average many independent measures to reduce measurement error in expectation
+
+-   Explicitly model observed variables as indicators of latent variables and estimate regression model and [measurement model]{.alert} simultaneously (e.g., "confirmatory factor analysis", "item response theory")
+
+    -   Stegmueller is teaching a class on this (and related topics) in Fall 2025!
+:::
+
+## Measurement error in DV
+
+$$
+\begin{aligned}
+y_i^{M} &= y_i^{T} + e_i\\
+y_i^{M} = y_i^{T} + e_i &= \boldsymbol{x}_i \boldsymbol{\beta} + u_i \\
+y_i^{T} &= \boldsymbol{x}_i \boldsymbol{\beta} + u_i - e_i
+\end{aligned}
+$$
+
+::: incremental
+-   $\hat{\beta}_0$ is biased if $\text{E}(e_i) \neq 0$
+
+-   $\boldsymbol{\beta}$ is biased if $\text{Cov}(e_i, \boldsymbol{x}_i) \neq 0$
+
+-   Measurement error increases error variance
+
+    -   $\text{Var}(u_i - e_i) = \text{Var}(u_i + e_i) > \text{Var}(u_i)$
+    -   Implies larger variance of $\hat{\boldsymbol{\beta}}$
+:::
+
+## Measurement error in IVs
+
+Assume a true model: $y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + u_i$
+
+. . .
+
+what are we actually measuring?
+
+by plugging below into the model
+
+-   If $x_{2i}$ is measured with error using $x_{2i}^M = x_{2i} + e_{2i}$, then we are estimating as follows:
+
+. . .
+
+$$
+y_i = \beta_0 + \beta_1x_{1i} + \beta_2(x_{2i}^M - e_{2i}) + u_i
+$$
+
+. . .
+
+$$
+= \beta_0 + \beta_1x_{1i} + \beta_2x_{2i}^M + (u_i - \beta_2e_{2i}) 
+$$
+
+. . .
+
+-   Since $\text{Cov}(x_{2i}^M, \space (u_i - \beta_2e_{2i})) \neq 0$, $\hat{\beta_2}$ is biased and inconsistent
+
+## Implications
+
+An upside is that the bias is known to be toward 0
+
+-   Measurement error [attenuates]{.alert} the relationship between an independent and dependent variable
+    -   if trying to take acorrelation between two vars,
+    -   \*\*is there a way I would "correct" for the measurement error?
+-   You may sometimes see corrections to correlations based on estimates of reliability
+
+## Implications
+
+Unfortunately, this does not extend to the remaining variables in the model:
+
+::: incremental
+-   Correlations among the variable measured with error and the other variables in the model causes the coefficient estimates for these other variables to be biased and inconsistent
+
+-   The size and direction of the bias is generally unknown
+
+-   With measurement error in multiple variables, size and direction of bias is generally unknown
+:::
+
+## IV estimators for errors-in-variables
+
+Find an instrumental variable that meets the standard IV conditions *and* is uncorrelated with the measurement error in the variable of interest
+
+::: incremental
+-   A common IV in such cases is a second, independent measurement of the variable of interest (e.g., two survey items measuring the same opinion)
+-   We often assume measurement errors are independent across observations, which would make the 2nd measure an IV for the 1st
+:::
+
+## Other approaches
+
+Other ways of dealing with measurement error:
+
+::: incremental
+-   Average many independent measures to reduce measurement error in expectation
+
+-   Explicitly model observed variables as indicators of latent variables and estimate regression model and [measurement model]{.alert} simultaneously (e.g., "confirmatory factor analysis", "item response theory")
+
+    -   Stegmueller is teaching a class on this (and related topics) in Fall 2025!
+:::

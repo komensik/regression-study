@@ -1,0 +1,178 @@
+---
+title: "Lab 6"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Log Interpretation  
+
+In this lab, we will return to the CEO salaries data set. 
+
+  - `salary`: 1990 compensation ($1000s)
+  - `lsalary`: 1990 compensation ($1000s) logged 
+  - `profits`: 1990 profits ($ millions)
+  - `lprofits`: 1990 profits ($ millions) logged 
+  
+```{r}
+ceosalary <- read.csv("data/ceosalary.csv")
+
+ceosalary$lsalary <- log(ceosalary$salary)
+ceosalary$lprofits <- log(ceosalary$profits)
+```
+
+## Log-Level Model 
+
+$$ ln(y_i) = \beta_0 + \beta_1 x_{1i} + u_i$$
+Precise: 1 unit change in $x_1$ is associated with a $100(e^{\beta_1\Delta x_1} - 1)$ *percent* change in $E(y)$.
+
+Approx: 1 unit change in $x_1$ is associated with a $100\beta_1$ *percent* change in $E(y)$.
+
+```{r}
+m2 <- lm(lsalary ~ profits, ceosalary)
+summary(m2)
+
+# precise
+100 * (exp(coef(m2)[2]) - 1)
+
+# approx
+100 * coef(m2)[2] 
+```
+
+## Level-Log Model 
+
+$$ y_i = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
+Precise: p *percent* change in $x_1$ is associated with a $\beta_1 ln(\frac{100 + p}{100})$ unit change in $E(y)$.
+
+Approx: 1 *percent* change in $x_1$ is associated with a $\frac{\beta_1}{100}$ unit change in $E(y)$.
+
+```{r}
+m3 <- lm(salary ~ lprofits, ceosalary)
+summary(m3)
+
+# precise 
+coef(m3)[2] * log(1.01)
+
+# approximation
+coef(m3)[2] / 100
+```
+
+## Log-Log Model 
+
+$$ ln(y_i) = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
+Precise: p *percent* change in $x_1$ is associated with a $100(e^{\beta_1 ln(\frac{100+p}{100})} - 1)$ *percent* change in $E(y)$.
+
+Approx: 1 *percent* change in $x_1$ is associated with a $\beta_1$ *percent* change in $E(y)$.  
+
+```{r}
+m4 <- lm(lsalary ~ lprofits, ceosalary)
+summary(m4)
+
+# precise 
+100*(exp(coef(m4)[2]*log(101/100)) - 1)
+
+# approx 
+coef(m4)[2]
+```
+
+# Conditional Marginal Effects 
+
+When the effect is polynomial or there is an interaction with another independent variable, the marginal effect is conditional. 
+
+To find the conditional marginal effect, we take the first partial derivative with respect to $x_1$. 
+
+## Quadratics 
+
+Let's try a simple example with a quadratic using the `trees` data.
+
+$$volume_i = \beta_0 + \beta_1height_i + \beta_2(height_i)^2 + u_i$$
+Conditional Marginal Effect of Height on Volume: 
+$$
+\frac{\partial volume_i}{\partial height_i} = \beta_1 + 2\beta_2height_i
+$$ 
+```{r echo=TRUE}
+# load data
+trees <- datasets::trees
+
+# estimate quadratic model
+m <- lm(Volume ~ Height + I(Height^2), data=trees)
+
+# effect = B1 + 2B2(height) 
+
+# range of height
+height <- seq(min(trees$Height), max(trees$Height), 0.1)
+
+# calculate conditional marginal effect
+cme_height <- coef(m)["Height"] +  2 * height * coef(m)["I(Height^2)"]
+
+# plot cme
+plot(height, cme_height, 
+     main = "Conditional Marginal Effect of Height Across Values of Height",
+     ylab="CME of Height", xlab="Height", type="l",
+     xlim=c(60,90), ylim=c(-2, 4))
+abline(h=0, lty=3)
+```
+
+Predicted Volume by Height:  
+
+$$volume_i = \beta_0 + \beta_1height_i + \beta_2(height_i)^2 + u_i$$
+```{r}
+height <- data.frame(Height = height)
+volume <- predict(m, newdata = height)
+
+plot(height$Height, volume, 
+     main = "Predicted Volume by Height",
+     ylab="Volume", xlab="Height", type="l",
+     xlim=c(60,90), ylim=c(10, 60))
+```
+
+## Interactions
+
+$$
+volume_i = \beta_0 + \beta_1 girth_i + \beta_2 height_i + \beta_3 girth_i * height_i
+$$
+
+Predicted Volume by Height at Different Girths: 
+
+- This is the same code you've been practicing since PS1. 
+- Will the lines be parallel? 
+
+```{r}
+# estimate interaction model
+mi <- lm(Volume ~ Height*Girth, data=trees)
+
+# range of height values 
+height <- seq(min(trees$Height), max(trees$Height), 0.1)
+
+# girth values 
+girth <- c(10, 15, 20)
+
+new_data <- expand.grid(Height = height, Girth = girth)
+
+#predict volume based on height and girth in new dataset 
+predicted_volume <- predict(mi, newdata = new_data)
+
+#combine new dataset with predicted volume 
+predicted_df <- cbind(new_data, Volume = predicted_volume)
+
+# install.packages("ggplot2")
+library(ggplot2)
+
+# ggplot 
+ggplot(predicted_df, aes(x = Height, y = Volume, color = factor(Girth))) +
+  geom_line() +
+  scale_color_manual(values = c("blue", "red", "green"),
+                     labels = c(paste("Girth = 10"), 
+                                paste("Girth = 15"), 
+                                paste("Girth = 20")),
+                     name = "Tree Girth") +
+  labs(x = "Tree Height", y = "Predicted Tree Volume",
+       title = "Predicted Volume vs. Height at Different Girth") +
+  theme_minimal()
+```
+

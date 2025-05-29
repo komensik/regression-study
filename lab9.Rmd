@@ -1,0 +1,320 @@
+---
+title: "Lab 8"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# PS7 Problem 2
+
+We will use the following variables in the dataset `contribupdate.csv`:
+
+-   `age`: Age (years)
+-   `female`: 1=female, 0=male
+-   `faminc`: Household income (in \$1,000 U.S. dollars);
+-   `given`: Campaign contributions over the past year (in U.S. dollars).
+
+```{r}
+contrib <- read.csv("data/contribupdate.csv")
+contrib$ln_faminc <- log(contrib$faminc) 
+contrib$ln_given <- log(contrib$given)
+```
+
+$$
+ \ln(\text{given}_i) = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{female}_i + \beta_3 \ln(\text{faminc}_i) + u_i
+$$
+
+```{r}
+m2 <- lm(ln_given ~ age + female + ln_faminc, contrib)
+```
+
+Calculate the following quantities by hand and use simulation to get 95% confidence bounds. 
+
+```{r}
+library(arm)
+sims <- arm::sim(m2, n.sims = 1000)
+beta <- as.matrix(sims@coef)
+```
+
+## The predicted *percent* change in `given` for a 10-year increase in `age`. 
+
+Log-Level Model: Unit $\Delta x_1$ is associated with a $100(e^{\beta_1\Delta x_1} - 1)$ *percent* change in $E(y)$.
+
+```{r, echo=T}
+# by hand 
+(exp(10*coef(m2)["age"]) - 1)*100
+
+# simulations
+pc_sims <- (exp(10 * beta[, "age"]) - 1) * 100
+
+# confidence interval 
+quantile(pc_sims, c(0.025, 0.975))
+```
+
+The predicted change in campaign contributions (`given`) for a 10-year increase in age (`age`) is about 12%, holding all else constant. The 95% confidence interval is between 10.5% and 13.8%. 
+
+## The difference in the expected values of `given` for females versus males, holding `age` and `faminc` at their respective means.
+
+```{r, echo=T}
+# BY HAND
+
+# ln(given) for females 
+m2f <- coef(m2)["(Intercept)"] + coef(m2)["age"] * mean(contrib$age) + coef(m2)["female"] * 1 + coef(m2)["ln_faminc"] * mean(contrib$ln_faminc)
+
+# ln(given) for males 
+m2m <- coef(m2)["(Intercept)"] + coef(m2)["age"] * mean(contrib$age) + coef(m2)["female"] * 0 + coef(m2)["ln_faminc"] * mean(contrib$ln_faminc)
+
+# smearing factor 
+norm <- exp(summary(m2)$sigma^2 / 2) # assuming normal 
+duan <- mean(exp(residuals(m2))) # not assuming normal 
+
+# assuming normal 
+(exp(m2m) * norm) - (exp(m2f) * norm)
+
+# not assuming normal 
+(exp(m2m) * duan) - (exp(m2f) * duan)
+```
+
+```{r}
+# SIMULATIONS
+
+# ln(given) for females 
+m2f_sims <- beta[,"(Intercept)"] + beta[,"age"] * mean(contrib$age) + beta[,"female"] * 1 + beta[,"ln_faminc"] * mean(contrib$ln_faminc)
+
+# ln(given) for males 
+m2m_sims <- beta[,"(Intercept)"] + beta[,"age"] * mean(contrib$age) + beta[,"female"] * 0 + beta[,"ln_faminc"] * mean(contrib$ln_faminc)
+
+# difference in given bt males and females
+diff_sims <- (exp(m2m_sims) * norm) - (exp(m2f) * norm)
+diff_sims <- (exp(m2m_sims) * duan) - (exp(m2f) * duan)
+
+# confidence interval 
+quantile(diff_sims, c(0.025, 0.975))
+```
+
+The difference in the expected values of `given` for females versus males, holding `age` and `faminc` at their respective means is about \$61. In other words, men with average age and income contribute \$61 more to campaigns than women with average age and income. The 95% confidence interval is between \$53 and \$70.
+
+## The average marginal effect of `faminc` on `given`.
+
+Express in levels: 
+
+$$given = e^{\beta_0 + \beta_1 \text{age}_i + \beta_2 \text{female}_i + \beta_3 \ln(\text{faminc}_i) + u_i}$$ 
+
+Differentiate given with respect to faminc: 
+
+$$\frac{\partial(given)}{\partial(faminc)} = \hat{given} \cdot \frac{\beta_3}{faminc}$$
+    
+```{r, echo=T}
+# BY HAND (predict given, transform,  smear)
+
+# assuming normal 
+mean(coef(m2)["ln_faminc"] * (exp(predict(m2)) * norm / exp(contrib$ln_faminc))) # length? 
+
+# not assuming normal (Duan)
+mean(coef(m2)["ln_faminc"] * (exp(predict(m2)) * duan / exp(contrib$ln_faminc)))
+```
+
+```{r}
+# SIMULATIONS 
+
+me_sims <- array(NA, 1000)
+
+for (i in 1:1000) {
+  
+  given_sims <- exp(beta[i,"(Intercept)"] + beta[i,"age"] * contrib$age + beta[i,"female"] * contrib$female + beta[i,"ln_faminc"] * contrib$ln_faminc) * duan # length?
+  
+  me_sims[i] <- mean(beta[i, "ln_faminc"] * (given_sims / exp(contrib$ln_faminc))) # length? 
+  
+}
+
+# confidence interval
+quantile(me_sims, c(0.025, 0.975))
+```
+
+The average marginal effect of `faminc` on `given` is about 2, which suggests that an \$1000 increase in household income is associated with \$2 increase in campaign contributions. The 95% confidence interval is between \$1.95 and \$2.19. 
+
+# Heteroskedasticity 
+
+We're going to return to the Chile data set. The variables of interest are as follows:
+
+-   *vote_yes*: 1=will vote yes for Pinochet, 0=will vote no against Pinochet
+-   *statusquo*: higher values = more support for the status quo, standardized to have mean zero and standard deviation of one
+-   *income_1000*: monthly income, in thousands of pesos
+-   *education*: factor variable with 3 levels: primary only (baseline), secondary (S), post-secondary (PS)
+-   *sex*: factor variable with two levels, female (baseline) and male (M)
+
+```{r}
+# data
+chile <- read.csv("data/chile.csv")
+chile <- na.omit(chile)
+
+# re-code income to 1000s
+chile$income_1000 <- chile$income / 1000
+
+# re-code education as dummies 
+chile$educS <- ifelse(chile$education == "S", 1, 0)
+chile$educPS <- ifelse(chile$education == "PS", 1, 0)
+
+# re-code sex as dummy 
+chile$female <- ifelse(chile$sex == "F", 1, 0)
+
+# re-code interaction as product term 
+chile$inc_sq <- chile$income_1000 * chile$statusquo
+```
+
+$$
+voteyes_i = \beta_0 + \beta_1female_i + \beta_2educS_i + \beta_3educPS_i + \beta_4income1000_i + \beta_5statusquo_i + \beta_6(income1000_i)(statusquo_i) + u_i
+$$
+
+```{r}
+m1 <- lm(vote_yes ~ female + educS + educPS + income_1000 + statusquo + inc_sq, data=chile)
+summary(m1)
+```
+
+Heteroskedasticity: the variance of the error term is correlated with the independent variable(s). 
+
+Error Term: the difference between the true value of $y$ and the expected value of $y$. 
+
+In a linear probability model, the true value of $y$ takes on values of only 0 or 1, while the expected value of $y$ can be anything between 0 and 1.
+
+The variance of the error term will vary depending on the level of predicted y, leading to heteroskedasticity.
+
+## Robust (Huber-White) SE 
+
+By Hand: substitute a diagonal matrix where the entries are each observation’s squared residual
+
+$$Var(\hat{\beta}) = (X'X)^{-1}X' \Sigma X (X'X)^{-1}$$ 
+Default: $\Sigma=\sigma^2I$
+
+Robust: $\hat{\Sigma}=\hat{u}^2I$
+
+```{r}
+# YOUR CODE HERE
+N <- nrow(m1$model)
+K <- summary(m1)$df[1]
+
+# add intercept column, remove dv column 
+X <- cbind(rep(1,N), m1$model[,-1]) 
+colnames(X)[1] <- "Intercept"
+X <- as.matrix(X)
+
+# default standard error 
+se_default <- sqrt(diag((sum(m1$residuals^2) / m1$df.residual) * (solve(t(X) %*% X))))
+
+# robust standard error (plug squared residuals in)
+se_robust <- sqrt((diag(solve(t(X) %*% X) %*% (t(X) %*% diag(m1$residuals^2) %*% X) %*% solve(t(X) %*% X))))
+
+# t-values 
+t_values <- m1$coefficients / se_robust
+
+# p-values 
+p_values <- 2 * (1 - pt(abs(t_values), m1$df.residual))
+
+# print  
+round(data.frame(coefficient = coef(m1), 
+           se.robust = se_robust, 
+           t.value = t_values, 
+           p.value = p_values), 5) 
+```
+
+Using sandwich/car
+
+```{r}
+library(sandwich)
+library(car)
+
+HC0_sw <- sqrt(diag(vcovHC(m1, type="HC0")))
+HC0_car <- sqrt(diag(hccm(m1, type="hc0")))
+
+HC3_sw <- sqrt(diag(vcovHC(m1))) # default is HC3
+HC3_car <- sqrt(diag(hccm(m1, type="hc3")))
+
+round(data.frame(coefficient = coef(m1), 
+                 default = se_default,
+                 robust = se_robust, 
+                 HC0 = HC0_sw,
+                 HC3 = HC3_sw), 5) # round to 5 decimal places
+```
+
+In marginaleffects
+
+```{r}
+library(marginaleffects)
+options(marginaleffects_print_omit = c("s.value"))
+
+# new model with interaction term 
+m1me <- lm(vote_yes ~ female + educS + educPS + income_1000*statusquo, data=chile)
+
+# estimate ME of status quo at range of income
+
+cme <- slopes(m1me, variables = c("statusquo"), newdata = datagrid(income_1000 = seq(min(chile$income_1000), max(chile$income_1000), 1))) # default SE 
+
+cme_HC3 <- slopes(m1me, variables = c("statusquo"), newdata = datagrid(income_1000 = seq(min(chile$income_1000), max(chile$income_1000), 1)), vcov = "HC3") # robust SE 
+
+# plot ME and SE for range of income
+plot(cme$income_1000, cme$estimate,
+     main = "CME of Status Quo Across Income",
+     ylab="CME of SQ", xlab="Income (1000 Pesos)",
+     type = "l", ylim=c(0.35,0.5), xlim=c(0,200))
+
+# add default CI 
+lines(cme$income_1000, cme$estimate + 1.96*cme$std.error, lty=2) 
+lines(cme$income_1000, cme$estimate - 1.96*cme$std.error, lty=2) 
+
+# add robust CI 
+lines(cme$income_1000, cme$estimate + 1.96*cme_HC3$std.error, lty=2,col="red") 
+lines(cme$income_1000, cme$estimate - 1.96*cme_HC3$std.error, lty=2,col="red")
+```
+
+## Diagnosing Heteroskedasticity 
+
+F-Test (use the squared residuals as an estimate of error variance and check the extent to which they can be explained by IV)
+
+```{r}
+# regress squared residuals on predictors
+m1_res_1 <- lm(m1$residuals^2 ~ m1$model[,2] + m1$model[,3] + m1$model[,4] + m1$model[,5] + m1$model[,6] + m1$model[,7])
+
+# F-stat: tests whether at least one IV significantly explains variation in the squared residuals (heteroskedasticity)
+# p-value: the probability of obtaining the observed F-statistic if the null hypothesis (homoskedasticity) were true
+summary(m1_res_1) 
+```
+
+Breusch-Pagen Test (regress squared residuals on IV)
+
+```{r}
+# B-P test, use chi-squared test chi2 = N*R2, on K df
+N <- sum(summary(m1_res_1)$df[1:2]) # num observations
+R2 <- summary(m1_res_1)$r.squared # explained variance 
+chi2 = N*R2 # test statistic 
+K = summary(m1_res_1)$df[1] - 1 # num parameters 
+
+1 - pchisq(q = chi2, df = K) # p-value 
+
+#install.packages("lmtest")
+library(lmtest)
+bptest(m1)
+```
+
+# Fixed Effects 
+
+Add group as categorical variable. Since we have removed what is shared across observations within groups, the errors are now independent, and SEs are unbiased
+
+Include fixed effects for `region`. 
+
+```{r}
+m1_fe <- lm(vote_yes ~ female + educS + educPS + income_1000 + statusquo + inc_sq + as.factor(region), data=chile)
+summary(m1_fe)
+```
+
+## Clustered Standard Errors 
+
+```{r}
+# with sandwich 
+sqrt(diag(sandwich::vcovCL(m1, cluster = ~ region, type = "HC1")))
+sqrt(diag(sandwich::vcovCL(m1, cluster = ~ region, type = "HC3")))
+```

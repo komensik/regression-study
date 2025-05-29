@@ -1,0 +1,636 @@
+---
+title: "Inference"
+subtitle: "POLSCI 630: Probability and Basic Regression"
+format: clean-revealjs
+html-math-method:
+  method: mathjax
+  url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+date: 2/4/2025
+embed-resources: true
+---
+
+```{r echo=FALSE, warning=FALSE}
+library(car)
+library(carData)
+data(trees)
+```
+
+## Statistical inference
+
+To this point, we have made claims about the expected value and variance of the OLS estimator, $\boldsymbol{\hat{\beta}}$
+
+<br/>
+
+To make probabilistic claims about $\boldsymbol{\beta}$ based on our sample, we need to more fully characterize the distribution of $\boldsymbol{\hat{\beta}}$
+
+## Sampling distributions
+
+Just like the mean estimator for a single variable has a [sampling distribution]{.alert}, so will our OLS estimator, $\hat{\beta}$.
+
+```{r fig.width=6, fig.asp=0.5, fig.align='center'}
+
+# take 10,000 random samples of 20 from uniform population on 0-1
+hist(sapply(1:10000, function(x) mean(runif(20))), main="sampling distribution for mean")
+
+```
+
+## Normality assumption
+
+Our model to this point is as follows:
+
+$$y_i = \boldsymbol{x}_i'\boldsymbol{\beta} + u_i$$
+
+And we've made two assumptions about $u_i$:
+
+4.  Exogeneity: $\text{E}(u_i|\boldsymbol{x}_i) = 0$
+5.  Homoskedasticity: $\space \text{Var}(u_i|\boldsymbol{x}_i) = \sigma^2$
+
+. . .
+
+Let's make another, more stringent assumption (call it 6.):
+
+$$u_i \sim Normal(0,\sigma^2)$$
+
+## Normality assumption
+
+$$u_i \sim Normal(0,\sigma^2)$$
+
+As previously, this implies $\text{E}(u_i|\boldsymbol{x}_i) = 0$ and $\text{Var}(u_i|\boldsymbol{x}_i) = \sigma^2$
+
+. . .
+
+But $u_i \sim Normal(0,\sigma^2)$ is an *additional claim*:
+
+-   The probability density function for $u_i$ is Normal
+-   This is a restrictive assumption! So what do we get in return?
+
+## If we assume normal errors...
+
+$\hat{\boldsymbol{\beta}} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{y}$
+
+. . .
+
+$= (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'[\mathbf{X}\boldsymbol{\beta} + \boldsymbol{u}]$
+
+. . .
+
+$= (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{X}\boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u}$
+
+. . .
+
+$= \mathbf{I}\boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u}$
+
+. . .
+
+$\hat{\boldsymbol{\beta}} - \boldsymbol{\beta} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u}$
+
+. . .
+
+If the right-hand side is a linear function, [$(\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'$]{.alert}, of a normally-distributed random variable, [$\boldsymbol{u}$]{.alert}, the left-hand side (which subtracts a constant, [$\boldsymbol{\beta}$]{.alert}) is also normally distributed.
+
+## Sampling distribution for $\boldsymbol{\hat{\beta}}$
+
+Given these 6 assumptions, we can say that:
+
+$$\hat{\beta}_k \sim Normal(\beta_k, \text{Var}(\hat{\beta}_k))$$
+
+. . .
+
+In matrix form:
+
+$$\boldsymbol{\hat{\beta}} \sim MVNormal(\boldsymbol{\beta}, \sigma^2(\mathbf{X}'\mathbf{X})^{-1})$$
+
+. . .
+
+And any linear combination of the $\beta_k$ is also normally distributed
+
+## Importance of normality assumption
+
+In order for OLS to be [BLUE]{.alert}, we only need the assumptions we talked about last week
+
+-   Linear in the parameters
+-   Observations i.i.d.
+-   No perfect collinearity
+-   Exogeneity
+-   Homoskedastic errors
+
+. . .
+
+The additional normality assumption is necessary for *statistical inference*, i.e. representing our beliefs about $\boldsymbol{\beta}$
+
+## $\sigma^2$ vs $\hat{\sigma}^2$
+
+We rarely know the true value of $\sigma^2$
+
+Instead, we substitute $\hat{\sigma}^2 = \sum_N \frac{\hat{u}_i^2}{N - K - 1}$
+
+$$\hat{\text{Var}}(\boldsymbol{\hat{\beta}}) = \hat{\sigma}^2(\mathbf{X}'\mathbf{X})^{-1}$$
+
+</br>
+
+. . .
+
+The estimated variance of our estimator is a function of our independent variables and the estimated error variance
+
+-   What does it look like?
+
+## Standard errors
+
+[Standard errors]{.alert} for the $\hat{\beta}_k$ are the square roots of the main diagonal of the covariance matrix, $\hat{\sigma}^2(\mathbf{X}'\mathbf{X})^{-1}$
+
+-   This is the standard deviation of the sampling distributions for $\hat{\beta_k}$
+
+::::: columns
+::: column
+```{r}
+summary(lm(Volume ~ Height, data = trees))
+```
+:::
+
+::: column
+```{r, fig.height=8}
+curve(dt(x, 29, 1.54), -5, 5, xlim=c(-2, 5))
+```
+:::
+:::::
+
+## Standard errors
+
+::::: columns
+::: {.column width="60%"}
+```{r, echo = TRUE}
+# define vars
+X <- as.matrix(cbind(rep(1, nrow(trees)), 
+                     trees[, c("Height", "Girth")]))
+y <- trees$Volume
+
+# estimate parameters
+beta <- solve(t(X) %*% X) %*% t(X) %*% y
+
+# calculate residuals
+uhat <- as.numeric(y - X %*% beta)
+
+# estimate residual variance (MSE / degrees of freedom)
+s2 <- sum(uhat^2) / (nrow(X) - length(beta))
+
+# calculate variance-covariance matrix
+var_cov <- s2 * (solve(t(X) %*% X))
+
+# standard errors
+se <- sqrt(diag(var_cov))
+
+# print coefs and SEs
+round(cbind(beta, se), 4)
+```
+:::
+
+::: {.column width="40%"}
+```{r, echo = TRUE}
+# using lm
+m_trees <- lm(Volume ~ Height + Girth, data = trees)
+m_trees_sum <- summary(m_trees)
+
+# print coefs and SEs from summary object
+round(m_trees_sum$coefficients[,c(1,2)], 4)
+```
+:::
+:::::
+
+## Sampling distribution using $\hat{\sigma}^2$
+
+If we substitute $\hat{\sigma}^2$ for $\sigma^2$, the sampling distribution for $\hat{\boldsymbol{\beta}}$ is no longer normal
+
+-   However, the following is true:
+
+$$\frac{\hat{\beta}_k - \beta_k}{\hat{se}(\hat{\beta}_k)} \sim t_{(N-K-1)}$$
+
+## t(2) vs normal distribution
+
+```{r echo=FALSE}
+par(mar=c(5,4,1,1))
+curve(dt(x, 2), -5, 5, ylim=c(0,0.4))
+curve(dnorm(x, 0, 1), -5, 5, add=T, lty=2)
+legend("topright", c("t(2)","normal(0,1)"), lty=1:2, bty="n")
+```
+
+## Null hypothesis tests
+
+Given that we know the CDF of the $t_{N-K-1}$ distribution, we can evaluate how extreme our estimated $\hat{\beta}_k$ is under the [null hypothesis]{.alert} that $\beta_k = 0$.
+
+```{r, fig.height=6, fig.align='center'}
+curve(dt(x, m_trees_sum$df[2]), -4, 4, xlab=expression(paste("Values of ", beta[1], " / se(", beta[1], ")")))
+abline(v=c(qt(0.025, m_trees_sum$df[2]), qt(0.975, m_trees_sum$df[2])), lty=3)
+text(-2.5, 0.3, "2.5 percentile")
+text(2.5, 0.3, "97.5 percentile")
+```
+
+## Null hypothesis tests
+
+Once we know $\hat{\beta}_k$ and its standard error, we can divide the former by the latter to get a:
+
+::: incremental
+1.  t-statistic: "How many standard errors away from zero is $\hat{\beta}_k$?"
+
+2.  p-value: "How frequently would our estimate be this many standard errors from zero, under repeated sampling, if $\beta_k = 0$?"
+:::
+
+. . .
+
+By default, political scientists tend to use two-tailed tests
+
+-   "How frequently would our estimate be this extreme, in *either direction*"?
+-   One-tailed: ...this extreme in a *particular* direction
+
+## Null hypothesis tests
+
+-   let you test the null hypotheses (ie, the coefficient on the predictor0 is statistically indistinguishable from 0.
+
+-   lets you check how far away the estimated $\hat\beta_1$ is from 0 in *either* direction – and how likely that is under the assumption the true value is 0. Reject if too unlikely (p-value \<0.05 is typical).
+
+```{r t_byhand, echo = TRUE}
+# continuing the above code
+
+# the t-statistic standardizes the coefficient
+tstats <- beta / se
+
+# the p value characterizes how extreme the t statistic is under the null
+pvals <- ( 1 - pt(abs(tstats), df = nrow(X) - ncol(X)) ) * 2
+
+reg_table <- data.frame(estimate = beta, 
+                        stderr = se,
+                        tstat = tstats, 
+                        pval = pvals)
+
+round(reg_table, 4)
+```
+
+## Null hypothesis tests
+
+```{r, fig.height=8, fig.align='center'}
+curve(dt(x, m_trees_sum$df[2]), -4, 4, xlab=expression(paste("Values of ", beta[1])))
+abline(v=c(qt(0.025, m_trees_sum$df[2]), qt(0.975, m_trees_sum$df[2])), lty=3)
+text(-2, 0.3, "2.5 percentile")
+text(2, 0.3, "97.5 percentile")
+abline(v=m_trees_sum$coefficients[2] / sqrt(diag(vcov(m_trees)))[2], col="red")
+text(2.5, 0.2, expression(paste(beta[1])), col="red")
+abline(v=-m_trees_sum$coefficients[2] / sqrt(diag(vcov(m_trees)))[2], col="red")
+text(-2.5, 0.2, expression(paste("-", beta[1])), col="red")
+```
+
+## Example
+
+```{r}
+library(carData)
+summary(BEPS)
+```
+
+## Example
+
+```{r}
+m_beps <- lm(Europe ~ age + gender + economic.cond.national + economic.cond.household + political.knowledge, data = BEPS)
+summary(m_beps)
+```
+
+## Testing against another value {.scrollable}
+
+Sometimes we may wish to test a null hypothesis that $\beta_k = b$, where $b$ is some specific value not equal to 0 - this is easy!
+
+-   just subtract out the value of interest ($b$), and you are back to a standard null hypothesis test
+
+```{r, echo = TRUE}
+# test whether polknow coef is diff from -0.5
+B <- coef(m_beps)["political.knowledge"]
+se <- sqrt(diag(vcov(m_beps)))["political.knowledge"]
+df <- m_beps$df.residual
+test_value <- -0.5
+
+# the t-statistic standardizes the coefficient
+tstat <- (B - test_value) / se
+
+# the p value characterizes how extreme the t statistic is under the null
+pval <- (1-pt(abs(tstat), df = df))*2
+
+table <- data.frame(estimate = B, 
+                    stderr = se,
+                    tstat = tstat, 
+                    pval = pval)
+
+round(table, 4)
+```
+
+## Confidence intervals
+
+Thinking back to last semester: what's the frequentist interpretation of a confidence interval?
+
+. . .
+
+Confidence interval is a statement about the *estimator*
+
+-   Under repeated sampling, this interval will contain the population parameter X% of the time
+
+(When assumptions underpinning the estimator are met!)
+
+## Lower and upper bounds
+
+For an X% confidence interval:
+
+::: incremental
+-   The upper bound is the value of $\beta_k$ such that estimates greater than $\hat{\beta}_k$ would occur $\frac{100-X}{2}$% of the time
+-   The lower bound is the value of $\beta_k$ such that estimates less than $\hat{\beta}_k$ would occur $\frac{100 - X}{2}$% of the time
+-   These are just the respective quantiles of the relevant t distribution centered on $\hat{\beta}_k$, multiplied by the SE
+:::
+
+## Calculating 95% CIs
+
+```{r echo=TRUE}
+# from our previous example
+B <- coef(m_beps)
+df <- m_beps$df.residual
+se <- sqrt(diag(vcov(m_beps)))
+
+# calculate 95% CI for age coef
+B["age"] + qt(c(0.025, 0.975), df) * se["age"]
+
+# compare
+confint(m_beps)
+```
+
+## Talking about CIs
+
+A lot is made of the distinction between Bayesian and frequentist confidence intervals
+
+-   freq: % of time interval will capture true value
+-   Bayesian: confidence that interval contains true parameter
+
+. . .
+
+[(OPINION)]{.alert} I find this to be a bit silly...
+
+-   The point of inference is to make claims about beliefs
+-   The argument against probabilistic statements for frequentist seems weak
+-   Frequentist interval is essentially Bayesian interval with uninformative priors
+
+## Example
+
+```{r echo=TRUE}
+# brms = Bayesian regression modeling with stan
+#library(brms)
+
+# estimate trees with lm
+confint(lm(Volume ~ Height + Girth, trees))
+
+# estimate trees with brms (uninformative priors)
+#summary(brm(Volume ~ Height + Girth, trees))
+
+# Regression Coefficients from brms:
+#           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+# Intercept   -57.91      8.97   -75.57   -40.63 1.00     3867     3303
+# Height        0.34      0.14     0.07     0.60 1.00     3284     2584
+# Girth         4.71      0.28     4.15     5.25 1.00     3127     2482
+
+```
+
+## Testing for differences between parameters
+
+The above tests null hypotheses with respect to specific coefficients, which is *often* but not *always* what we're interested in doing.
+
+. . .
+
+Example: $y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + \beta_3x_{3i} + u_i$
+
+-   $H_0: \beta_1 = \beta_2$
+-   $H_1: \beta_1 > \beta_2$
+
+## Testing for differences between parameters
+
+Why *can't* we do the following, using $\hat{\beta_2}$ as the test value?
+
+$$
+\frac{\hat{\beta}_1 - \hat{\beta}_2}{se(\hat{\beta}_1)}
+$$
+
+. . .
+
+There is uncertainty in *both* $\hat{\beta}_1$ *and* $\hat{\beta}_2$
+
+-   using $\hat{\beta}_2$ as the test value is like assuming we know its true value for sure
+
+-   instead, we need to calculate a SE based on the *combined* variance of both estimators
+
+## Testing for differences between parameters
+
+Example: $y = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_3 + u$
+
+-   $H_0: \beta_1 = \beta_2 \equiv \beta_1 - \beta_2 = 0$
+-   $H_1: \beta_1 > \beta_2 \equiv \beta_1 - \beta_2 > 0$
+
+. . .
+
+Our test statistic is then:
+
+$$
+t = \frac{\hat{\beta}_1 - \hat{\beta}_2}{\sqrt{\text{Var}(\hat{\beta}_1 - \hat{\beta}_2)}}
+$$
+
+</br>
+
+-   where, $\text{Var}(\hat{\beta}_1 - \hat{\beta}_2) = \text{Var}(\hat{\beta}_1) + \text{Var}(\hat{\beta}_2) - 2\text{Cov}(\hat{\beta}_1, \hat{\beta}_2)$
+
+## Example
+
+Is the coefficient for national economic conditions significantly different from the coefficient for household economic conditions?
+
+```{r}
+summary(m_beps)
+```
+
+## Example
+
+</br>
+
+```{r echo=TRUE}
+# get relevant variances and covariances from var-cov matrix of coefficients
+var_N <- vcov(m_beps)["economic.cond.national","economic.cond.national"]
+var_H <- vcov(m_beps)["economic.cond.household","economic.cond.household"]
+cov_NH <- vcov(m_beps)["economic.cond.national","economic.cond.household"]
+
+# var and standard error of linear combination
+var_NH <- var_N + var_H - 2*cov_NH
+se_NH <- sqrt(var_NH)
+
+# calculate test stat
+( coef(m_beps)["economic.cond.national"] - coef(m_beps)["economic.cond.household"] ) / se_NH
+```
+
+## Short-cut for this simple case
+
+```{r echo=TRUE}
+m_beps_NH <- lm(Europe ~ age + gender 
+                + economic.cond.national 
+                + I(economic.cond.national + economic.cond.household) 
+                + political.knowledge, data = BEPS)
+summary(m_beps_NH)
+```
+
+## Joint hypotheses
+
+A joint null claims that some *set* of parameters are *all* zero (or some test value)
+
+-   for example:
+
+$$
+\beta_1 = \beta_2, ..., = \beta_K = 0
+$$
+
+-   Rejecting the null tells you *only* about the significance of the *set*, not the individual parameters
+
+## Joint hypotheses
+
+Why can't we just take sets of parameters out and check whether/how fit changes?
+
+. . .
+
+-   Removing parameters *always* decreases model fit in-sample
+
+-   Question is whether model fit decreases *more* than would be expected simply by adding degrees of freedom
+
+## F statistic
+
+An [F stat]{.alert} compares residual SS of [restricted]{.alert} and [unrestricted]{.alert} models
+
+$$F = \frac{(SSR_{r} - SSR_{ur}) / q}{SSR_{ur} / (N - K - 1)}$$
+
+::: incremental
+-   $F \sim F(q, N-K-1)$, where $q$ is \# restrictions
+
+    -   the F distribution is formed from ratios of $\chi^2$ distributions divided by degrees freedom
+    -   Because $\chi^2$ distributions are always positive, F distributions will be too
+:::
+
+## Example
+
+Compare intercept-only model to model with all predictors (both models must be estimated w/ same data! Beware list-wise deletion!)
+
+```{r echo=TRUE}
+# estimate restricted and unrestricted models
+m1_r <- lm(Europe ~ 1, data = m_beps$model)
+m1_ur <- m_beps
+
+# summary
+summary(m1_ur)
+```
+
+## F test by hand
+
+```{r echo=TRUE}
+# difference in sum of squared residuals
+SS_diff <- sum(m1_r$residuals^2) - sum(m1_ur$residuals^2)
+
+# difference in degrees of freedom
+df_diff <- m1_r$df.residual - m1_ur$df.residual
+
+# SS resid for unrestricted model
+SS_ur <- sum(m1_ur$residuals^2)
+
+# degrees of freedom (unrestricted)
+df_ur <- m1_ur$df.residual 
+
+# calculate F stat
+Fstat <- (SS_diff/df_diff) / (SS_ur/df_ur)
+
+# p-value
+cbind(F = Fstat, p = 1 - pf(Fstat, df_diff, df_ur))
+```
+
+## F test using `anova`
+
+`stats::anova()` will do this for you
+
+```{r echo=TRUE}
+anova(m1_r, m1_ur)
+```
+
+. . .
+
+This lets us say that all predictors are *jointly significant* -- still need to interpret unrestricted model to make claims about any predictor on its own
+
+## `lm` default F test
+
+```{r}
+summary(m_beps)
+```
+
+## For subsets of predictors
+
+```{r echo=TRUE}
+anova( update(m_beps, . ~ . - age - gender, data = m_beps$model),
+       m_beps
+)
+```
+
+-   F test is significant, but coefficient for `gender` is not!
+-   Again, this is a *joint test*!
+
+## `car` package's `linearHypothesis`
+
+The `car` package has a convenient function for testing linear combinations of OLS coefficients
+
+-   syntax puts an `lm` model object in first slot, and a linear combination in the second slot (assumes 0 if no explicit equality provided)
+
+```{r echo=TRUE}
+linearHypothesis(m_beps, "age = 0")
+```
+
+## `car` package's `linearHypothesis`
+
+```{r echo=TRUE}
+linearHypothesis(m_beps, c("age = 0", "gendermale=0"))
+```
+
+## `car` package's `linearHypothesis`
+
+```{r echo=TRUE}
+linearHypothesis(m_beps, "economic.cond.national = -0.5")
+```
+
+## `car` package's `linearHypothesis`
+
+```{r echo=TRUE}
+linearHypothesis(m_beps, "economic.cond.national - economic.cond.household = 0")
+```
+
+## `car` package's `linearHypothesis`
+
+```{r echo=TRUE}
+linearHypothesis(m_beps, "economic.cond.national - 2*economic.cond.household = 0")
+```
+
+## Reminder! Need same observations
+
+These tests *require* using the *same* observations for both restricted and unrestricted models
+
+::: incremental
+-   Invalid otherwise
+-   Matters for data with missing values (listwise deletion is the default with most software)
+-   When missing data is possible, and you *add* variables (as you do in these kinds of tests), there is a decent chance you will lose data
+:::
+
+## Thoughts on null hypothesis testing [(OPINION)]{.alert}
+
+Null hypothesis testing is the norm, but it shouldn't be
+
+-   Do we ever actually believe $\beta_k = 0$?
+
+-   If not, what are we actually testing? (sample size?)
+
+-   NHT also shifts focus away from the estimates themselves and the information we have about them
+
+    -   e.g., should our interpretation drastically change when $p$ changes from 0.051 to 0.049?
+
+## A better approach [(OPINION)]{.alert}
+
+It is better, IMHO, to focus on:
+
+-   Interpretation of the substantive meaning of the coefficient estimates
+-   Our uncertainty in those estimates, typically characterized by a confidence interval (or two)
+-   Even insignificant coefficients provide information! Just be precise about how much

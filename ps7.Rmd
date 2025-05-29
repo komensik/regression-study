@@ -1,0 +1,89 @@
+---
+title: "PS7"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 7` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 21 March, by 10:00 EST*. Name your files `lastname_ps07` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Data for Problem 1
+
+You will use the data file `chile.csv`. These are data on citizen characteristics and public opinion in Chile in 1988. The variables of interest are as follows:
+
+-   *age*: age, in years
+-   *population*: population size of respondent's community
+-   *statusquo*: higher values = more support for the status quo, standardized to have mean zero and standard deviation of one
+-   *income*: monthly income, in pesos
+-   *education*: 3 levels: primary only (P), post-secondary (PS), secondary (S)
+-   *sex*: factor variable with two levels, female (0) and male (1)
+
+a.  Load the data and save it in an object named `chile`
+b.  Create a new variable, `income_1000`, that measures `income` in thousands of pesos
+c.  Create a new variable, `educ_num`, that is numeric, with increasing values representing increasing amounts of education (use values 0, 1, and 2)
+d.  Create a new variable, `pop_1000`, that measures `population` in thousands of people
+
+## Problem 1
+
+$$
+\text{statusquo}_i = \beta_0 + \beta_1\text{age}_i + \beta_2\text{sex}_i + \beta_3\text{income_1000}_i + \beta_4\text{educ_num}_i + \\ \beta_5\text{population_1000}_i + \beta_6(\text{income_1000}_i)(\text{educ_num}_i) + u_i
+$$
+
+a.  Estimate the model above using `lm`, store it in object `m1`, and report your OLS regression results in a professional looking table.
+
+b.  What is the p-value for the estimate for $\beta_6$ and what does it tell you about its associated null hypothesis test? Write a sentence that interprets this test substantively. Be specific with respect to the variables involved: what does this null test mean for the variables and their relationships to the DV?
+
+c.  Write (using Latex) the equation for the conditional marginal effect of education on support for the status quo.
+
+d.  Use this formula to calculate the set of conditional marginal effects across the range of values of income in these data (income from min to max). Plot these conditional marginal effects in a professional-looking figure.
+
+e.  Use the analytic formula for the standard error of the conditional marginal effect to calculate 95% confidence bounds by hand for the estimates you calculated in part c., and add these to your plot. (show using `echo=T`)
+
+f.  Write a substantive interpretation of the plot. What does the data tell you about the effect of education and how it is conditioned by income?
+
+g.  Use the `marginaleffects` package to check your work for c. and d. Make sure you get the same result by hand and using `marginaleffects`.
+
+h.  By hand, calculate bootstrapped standard errors for the coefficients on the two constituent terms of the interaction and for the interaction term itself. Calculate 95% confidence intervals for each using the percentile method.
+
+i.  Do the same thing as in h., but using the `marginaleffects` package function `inferences()` and the bootstrap options therein.
+
+j.  Now use the `boot` package to calculate 95% confidence intervals for $\hat{\beta_3}$ using the accelerated bias-corrected approach (bca).
+
+## Data for Problem 2
+
+We will use the following variables in the dataset `contribupdate.csv`:
+
+-   `age`: Age (years)
+-   `female`: 1=female, 0=male
+-   `faminc`: Household income (in \$1,000 U.S. dollars);
+-   `given`: Campaign contributions over the past year (in U.S. dollars).
+
+a.  Load the data and name it `contrib`.
+b.  Create two new variables that are the natural log transform of `faminc` and `given`, and name them `ln_faminc` and `ln_given`, respectively.
+
+## Problem 2
+
+$$
+ \ln(\text{given}_i) = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{female}_i + \beta_3 \ln(\text{faminc}_i) + u_i
+$$
+
+a.  Estimate the model above using `lm` and store it in the object `m2`.
+
+b.  Calculate the following quantities by hand (show using `echo=T`):
+
+    -   The predicted *percent* change in `given` for a 10-year increase in `age`
+    -   The difference in the expected values of `given` for females versus males, holding `age` and `faminc` at their respective means.
+    -   The average marginal effect of `faminc` on `given`.
+
+c.  Use simulation (use `sim` function in `arm` package) to get 95% confidence bounds for each of the quantities you calculated in part b. (show using `echo=T`)
+
+d.  Write a short substantive interpretation of the results for each of these quantities and their respective confidence intervals.

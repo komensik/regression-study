@@ -1,0 +1,79 @@
+---
+title: "PS4"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 4` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 14 February, by 10:00 EST*. Name your files `lastname_ps04` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Data
+
+In this problem set, we will work with data collected for David Card and Alan Krueger's seminal study of fast food chains in New Jersey and Pennsylvania.[^1] Like Kathryn Graddy,[^2] we will use these data to examine whether five fast food chains charged higher prices in areas with a higher proportion of black residents.[^3]
+
+[^1]: Card, D., & Krueger, A. B. (1994). Minimum wages and employment: a case study of the fast-food industry in New Jersey and Pennsylvania. *American Economic Review*, 84 *(4)*, 772-93.
+
+[^2]: Graddy, K. (1997). Do fast-food chains price discriminate on the race and income characteristics of an area? *Journal of Business & Economic Statistics*, 15 *(4)*, 391-401.
+
+[^3]: A major benefit of studying this industry is that the products and services are known to be identical in different areas.
+
+The relevant variables from `fastfood.csv` are:
+
+-   `pentree`: The price of an "entrée" (in this case, a burger or chicken meal; USD);
+-   `prpblck`: The proportion of residents in the community that are black;
+-   `lincome`: The community's median family income (USD), logged;
+-   `crmrte`: Crime offenses per person in the community;
+-   `ldensity`: Number of people per square mile in the community, logged.
+-   Indicators for the chain the store belonged to: `BK` for Burger King, `KFC` for KFC, and `RR` for Roy Rogers (if all three indicators are 0, then the store is a Wendy's!)
+-   `NJ`: indicator for state: 1 if in New Jersey, 0 if in Pennsylvania
+
+**Load the data and name it** `fastfood`
+
+## Problem 1
+
+You are going to estimate a bivariate regression of entree prices on the proportion of residents in a community that are black.
+
+a.  Write, in `LaTeX`, a formal statement of the null hypothesis ($H_0$) that *entree prices are independent of the proportion of black people in the community*.
+
+b.  Test $H_0$ by conducting a two-tailed t-test BY HAND. Specifically, do the following: (1) estimate a bivariate linear regression of entree prices on proportion black, by hand, using OLS (HINT: you need to first remove any observations with missing values on these 2 variables to do this); (2) calculate the standard errors of the coefficient estimates (do not use `vcov`, calculate the var-cov matrix by hand); (3) calculate the relevant t statistic and its associated two-tailed p-value; (4) write a summary statement for the hypothesis test. **Show your code in your html document, `echo=TRUE`.**
+
+c.  Write a substantive interpretation of the coefficient for `prpblck`.
+
+## Problem 2
+
+A seminar participant suggests that your model suffers from omitted variable bias because it fails to account for community-level income: higher incomes increase firms' labor costs and rents. Assuming she is right, and without running any regressions, do you think your initial model over- or under-estimated discriminatory pricing, and was the coefficient in your initial model biased towards or against a null result? Explain why you think what you do.
+
+## Problem 3
+
+a.  Using `lm`, estimate an OLS regression of `pentree` on `prpblck` and `lincome`. Store the model in an object called `m1`.
+
+b.  Print a professional looking table with betas, standard errors, t-statistics, p-values for two-tailed tests, and fit statistic(s) of your choice.
+
+c.  Are your results consistent with your answer in Problem 2 above - in other words, is the coefficient on `prpblack` smaller (closer to zero) or larger than in the regression in Problem 1, and what does this say about the direction of the bias when omitting community income?
+
+d.  Create a figure that plots the predicted price of an entree as a function of the proportion of the community that is black. Plot three separate lines: one each, holding logged community income at its 10th, 50th, and then 90th percentiles in the population of all communities. Make sure your figure is journal-submission-worthy!
+
+e.  Calculate the 95% confidence intervals for all three estimated coefficients, by hand. Then calculate them again using `confint`. Then calculate 80% confidence intervals using `confint`. Show your code in your html document, `echo=TRUE`.
+
+f.  Interpret the 95% confidence interval for `prpblck` in words.
+
+## Problem 4
+
+A different seminar participant suggests that population density also belongs in the model, pointing out that real estate costs more in areas with high population density. This may have an impact on the prices of entrees as a result. Occupancy costs may also be driven by potential losses from theft. As such, another participant argues that the crime rate should be included, rather than population density.
+
+a.  Using `lm`, estimate a new model regressing `pentree` on `prpblck`, `lincome`, `ldensity` and `crmrte`, and save it in an object named `m2`.
+
+b.  Write a substantive interpretation of the estimated coefficient for `crmrte`.
+
+c.  Conduct an F-test BY HAND to determine if logged population density and crime rate should *jointly* be included in the model (above and beyond the variables in `m1`). There are missing values in these data! Be sure to deal with that appropriately! (HINT: `m2$model` will give you the dataset used to estimate the unrestricted model) Show your code in your html document, `echo=TRUE`.
+
+d.  Interpret the F-test result in words in the context of the seminar participants' claims.

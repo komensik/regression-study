@@ -1,0 +1,339 @@
+---
+title: "Lab 10"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Data
+
+For this lab, we’ll work with a (slightly modified version of) the dataset on smoking habits (originally
+collected by John Mullahy).
+
+- educ : years of schooling
+- white : =1 if white, 0 otherwise
+- age : in years
+- income : annual income, in dollars
+- cigs : cigs. smoked per day
+- married : =1 if person is married, 0 otherwise
+
+Let's first load the data as `cigs` and re-code `income` to be in 1,000s of dollars:
+
+```{r}
+# load data
+cigs <- read.csv("data/smoking.csv")
+
+# re-code income to 1000s
+cigs$income <- cigs$income / 1000
+```
+
+# Heteroskedasticity 
+
+Visualize: Regress `cigs` on `income` and plot the regression line in the same plot with the data points. 
+
+```{r}
+# model
+m1 <- lm(cigs ~ income, data=cigs)
+
+# plot reg line
+plot(cigs$income, cigs$cigs, xlab="Income", ylab="Cigarettes per day")
+abline(lm(cigs ~ income, data=cigs))
+```
+
+Based on this plot, do you think there is an issue with heteroskedasticity? 
+
+Calculate heteroskedasticity-robust standard errors for this model. 
+
+```{r}
+library(sandwich)
+
+HC0_sw <- sqrt(diag(vcovHC(m1, type="HC0")))
+HC3_sw <- sqrt(diag(vcovHC(m1))) # default is HC3
+
+round(data.frame(EST = coef(m1), 
+                 SE = summary(m1)$coef[,2],
+                 HC0 = HC0_sw,
+                 HC3 = HC3_sw), 5) 
+```
+
+HC3 penalizes high-leverage observations by inflating their error variance estimate. In other words, it adjusts the estimated covariance matrix of the residuals ($\hat{\Sigma}$) by scaling the squared residuals ($\hat{u}^2$) based on how influential the observation is ($\hat{u}^2$), where $h$ is its leverage. 
+
+$$HC3: \hat{\Sigma} = \frac{\hat{u}^2}{(1-h)^2}I$$
+
+## Leverage and Influence 
+
+*Leverage* is a measure of how unusual each observation is relative to other observations. 
+
+Diagonal of the projection (hat) matrix gives each observation’s leverage. 
+
+$$P = X(X^TX)^{-1}X^T$$
+```{r}
+# sum of hats = K + 1
+sum(hatvalues(m1)) 
+length(coef(m1))
+
+sort(hatvalues(m1), decreasing = TRUE)[1:3] 
+```
+
+*Influence* is a measure of how much each observation changes the estimate when removed. High leverage points can substantially affect estimates because OLS minimizes squared errors. 
+
+Cook’s D: sum of squared differences in predicted values with and without the observation standardized by the mean squared error of the regression. Cut off at greater than 1 or greater than 4/N. 
+
+```{r}
+sort(cooks.distance(m1), decreasing = TRUE)[1:3]
+```
+
+Looking at the plot again, do you think any of the observations might have high influence? Label the three most influential observations with their ID number in your plot. 
+
+```{r}
+# three most influential observations
+top_points <- cigs[order(cooks.distance(m1), decreasing = TRUE),][1:3,]
+
+# label in plot
+plot(cigs$income, cigs$cigs, xlab="Income", ylab="Cigarettes per day")
+abline(lm(cigs ~ income, data=cigs))
+text(top_points$income, top_points$cigs, labels = rownames(top_points), pos=c(2,3,2))
+
+library(ggplot2)
+# install.packages("ggrepel")
+library(ggrepel)
+
+ggplot(cigs, aes(x = income, y = cigs)) +
+  geom_point() +
+  geom_text_repel(data = top_points, aes(label = rownames(top_points))) +
+  geom_abline(intercept = coef(m1)[1], slope = coef(m1)[2])
+```
+
+## Robustness 
+
+Re-estimate the model without the three most influential observations. Compare coefficients. 
+
+```{r}
+m1r <- lm(cigs ~ income, data=cigs[-c(as.numeric(rownames(top_points))), ])
+
+HC3_m1 <- sqrt(diag(vcovHC(m1))) 
+HC3_m1r <- sqrt(diag(vcovHC(m1r))) 
+
+round(data.frame(m1_est = coef(m1), 
+                 m1_se = HC3_m1,
+                 m1r_est = coef(m1r),
+                 m1r_se = HC3_m1r), 5)
+```
+
+Robust SEs correct the SEs, but do not make OLS most efficient. An alternative estimator, generalized least squares (GLS), is more efficient.
+
+## Feasible Generalized Least Squares
+
+GLS minimizes the weighted sum of squared residuals, where the weights are $1/w_i$.
+
+$$\sum_{i=1}^{N}\frac{(y_i - x_i\beta)^2}{w_i} $$
+
+In feasible generalized least squares (FGLS), we estimate $w_i$ from the data: 
+
+$$\hat{w}_i = e^{x_i\hat{\delta}}$$
+We can estimate $\delta$ using OLS and the observed residuals:
+
+$$ln(\hat{u_i}^2) = x_i\delta + \epsilon_i$$
+
+```{r}
+# regress logged squared residuals on predictors
+m1_res <- lm(log(m1$residuals^2) ~ m1$model[,2])
+
+# estimate wls with exp(y-hat) as weights
+m1_wls <- lm(m1$model[,1] ~ m1$model[,2], 
+             weights = 1 / exp(m1_res$fitted.values))
+summary(m1_wls)
+
+# robust standard errors 
+HC3_wls <- sqrt(diag(vcovHC(m1_wls))) 
+
+round(data.frame(ols_est = coef(m1), 
+                 ols_se = HC3_m1,
+                 wls_est = coef(m1_wls),
+                 wls_se = HC3_wls), 5)
+```
+
+# Endogeneity
+
+Imagine we have a system of equations:
+
+$$
+y_{1i} = 2y_{2i} + 1x_{1i} + u_{1i} \\
+y_{2i} = 1z_{1i} + 1x_{1i} + u_{2i}
+$$
+
+$y_1$ and $y_2$ are *endogenous* (causally downstream of $x_1$)
+
+$x_1$ and $z_1$ are *exogenous* (independent variables)
+
+Let's assume the error terms and exogenous variables are standard normal, and create a function that generates simulated data from this system of equations. 
+
+```{r echo=TRUE}
+## function for simulations
+sims <- function(N=1000, B_y2z1=1, B_y2x1=1, B_y1y2=2, B_y1x1=1){
+
+# exog vars
+z1 <- rnorm(N)
+x1 <- rnorm(N)
+u1 <- rnorm(N)
+u2 <- rnorm(N)
+
+# endog vars
+y2 <- B_y2z1*z1 + B_y2x1*x1 + u2
+y1 <- B_y1y2*y2 + B_y1x1*x1 + u1
+
+out <- data.frame(z1, x1, u1, u2, y1, y2)
+return(out)
+}
+
+data <- sims() # dimensions? 
+```
+
+## Omitted Variable Bias 
+
+Now, imagine we estimate the model for $y_1$, but we exclude $x_1$. $x_1$ is correlated with $y_1$ and $y_2$, so it is an omitted variable. 
+
+The coefficient on $y_2$ will be biased because omitting $x_1$ leads to correlation between $y_2$ and the error term. 
+
+Let's estimate the model for 1000 simulated data sets and compare the average coefficient estimate to the true one: 
+
+```{r echo=TRUE}
+# for loop 
+betas <- NA
+
+for (i in 1:1000){
+  data = sims() # simulate data 
+  betas[i] <- coef(lm(y1 ~ y2, data))[2] # estimate coef
+}
+
+# sapply 
+betas <- sapply(1:1000, function(x) coef(lm(y1 ~ y2, data=sims()))[2])
+
+# compare to known coef of 1
+mean(betas)
+hist(betas)
+```
+
+## Instrumental Variables 
+
+The instrumental variable ($z_1$) has two key properties: 
+
+- Relevance: it provides information about $y_2$ 
+- Exclusion Restriction: it does not provide information about $y_1$ after accounting for $y_2$ (uncorrelated with the omitted variable/error term) 
+
+The instrumental variable estimator for the bivariate case:
+(biased but consistent)
+
+$$\beta_1 = \frac{Cov(y_{1i},z_{1i})}{Cov(y_{2i},z_{1i})}$$
+
+```{r}
+betas <- c()
+for (i in 1:1000){
+  data <- sims()
+  betas[i] <- cov(data$y1, data$z1) / cov(data$y2, data$z1)
+}
+mean(betas)
+```
+
+## Two Stage Least Squares 
+
+Two-stage least squares (2SLS) allows for instrumental variables estimation in multiple regression, with multiple instrumental variables and multiple endogenous variables. 
+
+Stage 1: Purge (residualize) the endogenous independent variable ($y_{2i}$) of variance correlated with $u_i^*$ by regressing it on all available exogenous and instrumental variables. 
+
+Stage 2: Use the fitted values ($\hat{y}_{2i}$) from stage 1 as the instrument for $y_{2i}$ in the original regression model. 
+
+```{r echo=TRUE}
+betas <- c()
+for (i in 1:1000){
+  data <- sims()
+  stage1 <- lm(y2 ~ z1, data=data) # regress y2 on z1 
+  stage2 <- lm(data$y1 ~ stage1$fitted.values) # regress y1 on predicted y2
+  betas[i] <- coef(stage2)[2] # instrumental variable estimates
+}
+mean(betas)
+```
+
+Stage 2 provides instrumental variable estimates, but the standard errors are incorrect. Matrix representation is important for calculating standard errors. 
+
+$$\beta_1 = [X'Z(Z'Z)^{-1}Z'X]^{-1}X'Z(Z'Z)^{-1}Z'y_1$$
+
+Where $X$ is the design matrix for the exogenous and endogenous variables in the model for $y_{1i}$ and $Z$ is the design matrix for the exogenous variables in the model for $y_{1i}$ and the instrumental variables for $Y_2$. 
+
+```{r}
+betas <- c()
+
+for (i in 1:1000){
+  data <- sims()
+  X <- as.matrix(cbind(1, data$y2))
+  Z <- as.matrix(cbind(1, data$z1))
+  y <- as.vector(data$y1)
+  betas[i] <- ( solve(t(X)%*%Z %*% solve(t(Z)%*%Z) %*% t(Z)%*%X) %*% t(X)%*%Z %*% solve(t(Z)%*%Z) %*% t(Z)%*%y )[2]
+}
+
+mean(betas)
+```
+
+2SLS Variance Assuming Homoskedasticity 
+
+```{r}
+# pull it out of the for loop
+X <- as.matrix(cbind(1, data$y2))
+Z <- as.matrix(cbind(1, data$z1))
+y <- as.vector(data$y1)
+
+SLS2 <- solve(t(X)%*%Z %*% solve(t(Z)%*%Z) %*% t(Z)%*%X) %*% 
+        t(X)%*%Z %*% solve(t(Z)%*%Z) %*% t(Z)%*%y
+
+# sample size
+N <- nrow(data)
+
+# calculate sigma^2 hat
+s2_hat <- (1 / (N - ncol(X)))*sum( (y - X%*%SLS2)^2 )
+
+# calculate estimated covariance matrix
+VB <- solve( t(X)%*%Z %*% solve(t(Z)%*%Z) %*% t(Z)%*%X ) * s2_hat
+
+sqrt(diag(VB))
+```
+
+Correcting for Heteroskedasticity 
+
+```{r}
+# calculate sigma^2 hat vector
+s2_hat <- diag( as.vector((y - X%*%SLS2)^2) )
+
+# calculate Omega
+Om <- t(Z) %*% s2_hat %*% Z
+
+# additional component matrices
+tXZ <- t(X)%*%Z # X'Z
+tZZi <- solve(t(Z)%*%Z) # (Z'Z)^-1
+tZX <- t(Z)%*%X # Z'X
+
+# calculate estimated covariance matrix
+VB <- solve( tXZ %*% tZZi %*% tZX )   %*%  
+  ( tXZ %*%  tZZi %*%  Om %*% tZZi %*% tZX )  %*%   
+  solve( tXZ %*% tZZi %*% tZX)
+
+sqrt(diag(VB))
+```
+
+IVREG Package will include diagnostics along with instrumental variables estimates
+
+- A Hausman test compares the 2SLS estimates to OLS (significant difference implies endogeneity)
+- A Sargan test can examine the validity of the set of instrumental variables (rejecting the null implies at least one endogenous instrument)
+
+```{r}
+#install.packages("ivreg")
+library(ivreg)
+
+m_iv <- ivreg(y1 ~ 1 | y2 | z1, data=sims(), method="OLS")
+summary(m_iv, vcov = sandwich::vcovHC) 
+```
+

@@ -1,0 +1,883 @@
+---
+title: "Heteroskedasticity"
+subtitle: "POLSCI 630: Probability and Basic Regression"
+format: clean-revealjs
+html-math-method:
+  method: mathjax
+  url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+date: 3/25/2025
+embed-resources: true
+---
+
+## Homoskedasticity assumption
+
+5.  $\text{Var}(\boldsymbol{u}|\textbf{X}) = \sigma^2\textbf{I}$ ([Spherical errors]{.alert})
+
+-   variance of error term is a constant (we can treat as a constant)
+-   variance of unobserved error u, co
+-   
+
+. . .
+
+This implies:
+
+-   [Homoskedasticity]{.alert} (no correlation of error variance with IVs, which is called [heteroskedasticity]{.alert})
+
+    -   if there is a correlation, hetero
+
+    -   not talking about correlation of error term, but error variance + IV *big difference!*
+
+-   No [autocorrelation]{.alert} (no correlation of residuals among observations, e.g., adjacent units in space or time)
+
+    -   corr between error terms of individual observations, the off-diagonal of the variance matrix;
+
+    -   if obs nested in clusters, more correlated with each other (think kids in schools) causes problems
+
+## Consequences of violation
+
+1.  Estimator for $\text{Var}(\hat{\boldsymbol{\beta}})$ is biased (Var = variance covariance matrix)
+
+2.  All things based on $\text{Var}(\hat{\boldsymbol{\beta}})$ are wrong (all inferential statistics)
+
+    -   SEs and confidence intervals
+    -   t-tests
+    -   F-tests
+
+3.  OLS is not best (linear unbiased estimator)
+
+    1.  no longer "BLUE" – not the Best bc not the most efficient when this assumption fails
+
+-   oft thoughht to be less severe then endogeneity
+
+-   recap:
+
+-   note Gary King paper – always misspecification problem; structural problem = heterosed.
+
+    -   but! HS could be theoretically interesting
+
+    -   ex: ambivalence people: variability of your responses will be higher when ambivlaent
+
+    -   can in more adv models add a model for the error term of the variance
+
+## Derive variance-covariance matrix of $\boldsymbol{\beta}$ {.scrollable}
+
+$\hat{\boldsymbol{\beta}} = \mathbf{I}\boldsymbol{\beta} + (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u}$
+
+-   start w rep for b hat
+
+. . .
+
+$\text{Var}(\hat{\boldsymbol{\beta}}) = \text{Var} \left((\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\boldsymbol{u} \right)$
+
+. . .
+
+$=(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T}(\text{Var}(\boldsymbol{u}))\boldsymbol{[(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\mathbf{X}^T]^T}$
+
+. . .
+
+$=(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T}(\text{Var}(\boldsymbol{u}))\boldsymbol{\mathbf{X}}\boldsymbol{(\mathbf{X}^T\mathbf{X})^{-1}}$
+
+-   this were we got to wen derive vcov for bhhat
+
+. . .
+
+[assume $\text{E}(\boldsymbol{u}\boldsymbol{u}'|\mathbf{X}) = \text{Var}(\boldsymbol{u}|\mathbf{X}) = \sigma^2\mathbf{I}$]{.alert}:
+
+$=(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T}(\sigma^2\mathbf{I})\boldsymbol{[(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\mathbf{X}^T]^T}$
+
+\^5th OLS assumption
+
+. . .
+
+$=\sigma^2(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T} \boldsymbol{\mathbf{X}}\boldsymbol{(\mathbf{X}^T\mathbf{X})^{-1}}$
+
+. . .
+
+$=\sigma^2\boldsymbol{(\mathbf{X}^T\mathbf{X})^{-1}}$
+
+\^vcov matrix for OLS, standard
+
+...now we're saying, what if assumption doesn't hhold
+
+## Variance w/ heteroskedasticity
+
+What if we *don't* assume $\text{E}(\boldsymbol{u}\boldsymbol{u}'|\textbf{X}) = \sigma^2\textbf{I}$?
+
+\*use a package called "sandwich"
+
+. . .
+
+$$
+\text{Var}(\hat{\boldsymbol{\beta}}) = (\textbf{X}'\textbf{X})^{-1}\textbf{X}' \text{E}(\boldsymbol{u}\boldsymbol{u}' | \mathbf{X}) \textbf{X} (\textbf{X}'\textbf{X})^{-1}
+$$
+
+. . .
+
+$$
+= (\textbf{X}'\textbf{X})^{-1}\textbf{X}' \bf{\Sigma} \textbf{X} (\textbf{X}'\textbf{X})^{-1}
+$$
+
+. . .
+
+-   general solution to problem will be to estimate sigma – one thing we don't know. tihs is what ppl are talking about when they say:
+
+"robust", "Huber", "Huber-White", "heteroskedasticity-consistent" (HC), "cluster-robust", etc., standard errors...(all means estimating sigma and plugging it back in to eq. above)
+
+-   use an estimate of $\bf{\Sigma}$ to adjust the SEs and get appropriate uncertainty estimates
+
+## "Robust" (Huber-White) SEs
+
+One way to estimate sigma: "HZ0"?
+
+-   dont worry yet about situations where clustering, just deal with problem of heterosked.
+
+-   treat sigma as diagonal matrix , assume all off-diag are 0
+
+    -   looking for an estimate of that diagonal
+
+Consistent estimator for arbitrary heteroskedasticity with *independent* errors (i.e., $\bf{\Sigma} = \boldsymbol{\sigma}^2 \bf{I}$)
+
+-   where $\boldsymbol{\sigma}^2 = \begin{bmatrix} \sigma_1^2 & \sigma_2^2 \dots \sigma_N^2 \end{bmatrix}$
+
+. . .
+
+To est diagonal, use residuals from each obs, take squared residuals + plug into diag –\> sigma hat; then can estimate standard errors
+
+QUESTION: where
+
+$\hat{\text{Var}}(\hat{\boldsymbol{\beta}}) = (\textbf{X}'\textbf{X})^{-1}\textbf{X}' \bf{\hat{\Sigma}} \textbf{X} (\textbf{X}'\textbf{X})^{-1}$
+
+-   where $\mathbf{\hat{\Sigma}} = \boldsymbol{\hat{u}}^2 \bf{I}$
+
+-- estimators are c
+
+. . .
+
+In words: substitute a diagonal matrix where the entries are each observation's squared residual
+
+## Example
+
+```{r}
+# data
+BEPS <- carData::BEPS
+BEPS$gender <- ifelse(BEPS$gender == "female", 1, 0)
+
+# estimate model
+m1 <- lm(Europe ~ I(age/10) + gender + economic.cond.national + economic.cond.household, data = BEPS)
+summary(m1)
+```
+
+## Example {.scrollable}
+
+\*this is process we could go through if didn't have software
+
+```{r echo=TRUE}
+library(sandwich)
+
+# adjust SEs
+N <- nrow(m1$model)
+K <- summary(m1)$df[1]
+X <- cbind(rep(1, N), m1$model[,-1])
+colnames(X)[1] <- "Intercept"
+X <- as.matrix(X)
+
+# default standard error
+se_default <- sqrt(diag((sum(m1$residuals^2) / m1$df.residual) * (solve(t(X) %*% X))))
+
+*here's robust formula we just talked about'
+# robust standard error (plug squared residuals in)
+se_robust <- sqrt(diag( 
+                      solve(t(X) %*% X) %*% t(X) %*%
+                      diag(m1$residuals^2) %*% 
+                      X %*% solve(t(X) %*% X)
+                      )
+)
+
+# print
+round(data.frame(coefficient = coef(m1), 
+           se.default = se_default, 
+           se.robust = se_robust,
+           se.robust.sandwich = sqrt(diag(sandwich::vcovHC(m1, type = "HC0")))), 
+      5)
+```
+
+## Different types
+
+::: incremental
+1.  **HC0**: previous slides
+    1.  plugging in residuals; don't use this bc inferior
+2.  **HC1**: finite-sample adjustment, (N/N-K) \* HC0
+    1.  uses FSA to get FS estimates of SE
+3.  **HC2**: $\mathbf{\hat{\Sigma}} = \boldsymbol{\frac{\hat{u}^2}{1-\boldsymbol{h}}} \mathbf{I}$, correcting squared residuals for $h_i$ is the [leverage]{.alert} for unit $i$
+    1.  maximum
+4.  **HC3**: $\mathbf{\hat{\Sigma}} = \boldsymbol{\frac{\hat{u}^2}{(1-\boldsymbol{h})^2}} \mathbf{I}$
+:::
+
+::: incremental
+-   All asymptotically equivalent
+-   HC2 and HC3 better than HC0 and HC1
+-   HC2 is unbiased under *homo*skedasticity, while HC3 is conservative
+-   HC3 may perform best in "small" samples (N \< 500; see [HERE](https://doi.org/10.2307/2685594))
+-   HC2 and HC3 affected by observations with very large leverage
+    -   if you new for sure data was homoSK, you'd want to use HC2, but if not hc3 not unbiased, better in small samples.
+    -   Chris would default to HC3 as a default
+:::
+
+## Projection matrix
+
+For outcome $y$ and fitted values $\hat{y}$, there is a *projection* matrix $\mathbf{P}$ such that $\hat{y} = \mathbf{P}y$.
+
+$$
+\begin{align}
+\hat{y} &= \mathbf{X}\hat{\boldsymbol{\beta}} \\
+\hat{\boldsymbol{\beta}} &= (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^Ty \\
+\mathbf{P} &= \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T
+\end{align}
+$$
+
+. . .
+
+Sometimes called the "hat matrix" because "$\mathbf{P}$ puts the hat on $y$."
+
+## Leverage {.scrollable}
+
+$\mathbf{P} = \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T$
+
+Diagonal gives each observation's [leverage]{.alert}
+
+::: incremental
+-   normalized vector length: measure of how unusual each observation is relative to other obs
+-   larger leverage means higher potential to influence regression line (think leverage in physical terms / torque)
+-   HC2 and HC3 penalize high-leverage obs by inflating their error variance estimate
+-   $0 \leq h_i \leq 1$, $\sum_N h_i = K+1$
+:::
+
+## Leverage calculation {.scrollable}
+
+```{r echo=TRUE}
+# sum of hats = K + 1
+sum(hatvalues(m1))
+length(coef(m1))
+```
+
+. . .
+
+```{r hatvalues, echo = TRUE}
+# if all hatvalues were equal
+alleq <- length(coef(m1)) / length(hatvalues(m1))
+
+# hatvalues gives leverage for all obs
+sort(round(hatvalues(m1), 3), decreasing = TRUE)[1:20] / alleq
+```
+
+. . .
+
+```{r echo=TRUE}
+# boxplot
+bp <- boxplot(hatvalues(m1), ylim=c(0,0.02))
+
+# list top 5 leverage observations
+text(x = 1.1, y = 0.015 - (1:5)*0.001, 
+     labels = names(bp$out[order(bp$out, decreasing = T)][1:5]), cex = 0.7)
+```
+
+## Using `sandwich`
+
+```{r echo=TRUE}
+library(sandwich)
+
+# calculate HC0 and HC3 using sandwich
+HC0 <- sqrt(diag(vcovHC(m1, type="HC0")))
+HC3 <- sqrt(diag(vcovHC(m1))) # default is HC3
+
+# compare
+table <- cbind(coef(m1), sqrt(diag(vcov(m1))), se_robust, HC0, HC3)
+colnames(table) <- c("B","SE","HC0 by hand","sandwich HC0","sandwich HC3")
+round(table, 3)
+```
+
+## Using `car`
+
+```{r echo=TRUE}
+library(car)
+
+# calculate HC0 and HC3 using car
+HC0 <- sqrt(diag(hccm(m1, type="hc0")))
+HC3 <- sqrt(diag(hccm(m1, type="hc3")))
+
+# compare
+table <- cbind(coef(m1), sqrt(diag(vcov(m1))), se_robust, HC0, HC3)
+colnames(table) <- c("B","SE","HC0 by hand","car HC0","car HC3")
+round(table, 3)
+```
+
+## Robust test statistics
+
+1.  Robust t-tests for regression coefficients use robust SEs
+
+2.  In general, hypothesis tests require the adjusted covariance matrix of the coefficients, with test statistics asymptotically distributed chi-squared
+
+## Example: marginal effects
+
+```{r echo=TRUE}
+# sandwich
+cbind(coef(m1), sqrt(diag(sandwich::vcovHC(m1))))
+```
+
+. . .
+
+```{r echo=TRUE}
+# margins, robust
+library(marginaleffects)
+options(marginaleffects_print_omit = c("s.value", "contrast"))
+avg_slopes(m1, vcov = "HC3")
+```
+
+## Example: conditional MEs
+
+```{r echo=TRUE}
+# include interaction
+m1_b <- lm(Europe ~ I(age/10) + gender + economic.cond.national + economic.cond.household*political.knowledge, data=BEPS)
+
+# conditional MEs for ego retrospections
+slopes(m1_b, 
+       variables = c("economic.cond.household"), 
+       newdata = datagrid(political.knowledge = seq(0, 3, 1)),
+       vcov = "HC3")
+```
+
+## Alternatives {.scrollable}
+
+Simulation:
+
+```{r, echo = TRUE}
+# draw your sims using robust vcov and mvnorm
+sims <- MASS::mvrnorm(1000, mu=coef(m1_b), Sigma=sandwich::vcovHC(m1_b))
+```
+
+Resampling
+
+::: incremental
+-   Jackknife approximates HC3
+
+-   Simple bootstrap asymptotically equivalent to HC estimators, but may be poor in small samples
+
+-   Wild bootstrap better choice w/ heteroskedastic data (and approximates HC0)
+
+    -   Can use transformations of residuals to mimic HC2 and HC3 (i.e., divide each by $\sqrt{1 - h}$ or $1 - h$)
+:::
+
+<!-- ## Wald test -->
+
+<!-- A [Wald test]{.alert} is a null hypothesis test for a set of linear restrictions, represented by a $q \times (K+1)$ matrix $R$ -->
+
+<!-- $$ -->
+
+<!-- \begin{aligned} -->
+
+<!-- W &= (\mathbf{R}\hat{\boldsymbol{\beta}} - \boldsymbol{r})' [\mathbf{R}(\hat{\mathbf{V}})\mathbf{R}']^{-1} (\mathbf{R}\hat{\boldsymbol{\beta}} - \boldsymbol{r}) \\ -->
+
+<!-- W / q &\approx F(q, N - K - 1) \\ -->
+
+<!-- W &\rightarrow_{d} \chi^2(q) -->
+
+<!-- \end{aligned} -->
+
+<!-- $$ -->
+
+<!-- Each row represents a linear combination of the coefficient vector $\hat{\beta}$, which is tested against a set of null values contained in the $q \times 1$ vector $r$ (using the variance-covariance matrix $\hat{V}$) -->
+
+<!-- ## Example -->
+
+<!-- ```{r} -->
+
+<!-- summary(m1) -->
+
+<!-- ``` -->
+
+<!-- ## Example: Wald test -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- # Define values -->
+
+<!--   # coefficients to restrict -->
+
+<!-- R <- matrix(c(0,0,0,1,0, -->
+
+<!--               0,0,0,0,1),  -->
+
+<!--             2, 5, byrow = T) -->
+
+<!-- r <- c(-.71,-.15) # restriction values -->
+
+<!-- q <- length(r) # how many restrictions -->
+
+<!-- N <- nrow(m1$model) # observations -->
+
+<!-- K <- length(coef(m1)) # parameters -->
+
+<!-- # calculate Wald stat -->
+
+<!-- W <- t(R %*% coef(m1) - r) %*% # (R\hat{beta} - r)' -->
+
+<!--   solve(R %*% vcov(m1) %*% t(R)) %*% # R(\hat{V})R' -->
+
+<!--   (R %*% coef(m1) - r) # (R\hat{beta} - r) -->
+
+<!-- # calculate F and chi-sq p-values -->
+
+<!-- cbind(W / q, 1 - pf(W / q, q, N - K)) -->
+
+<!-- cbind(W, 1 - pchisq(W, q)) -->
+
+<!-- ``` -->
+
+<!-- ## Using `linearHypothesis` -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- library(car) -->
+
+<!-- linearHypothesis(m1,  -->
+
+<!--                  c("economic.cond.national = -0.71", "economic.cond.household = -0.15"),  -->
+
+<!--                  test = "F") -->
+
+<!-- ``` -->
+
+<!-- ## Using `linearHypothesis` -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- linearHypothesis(m1,  -->
+
+<!--                  c("economic.cond.national = -0.71", "economic.cond.household = -0.15"),  -->
+
+<!--                  test = "Chisq") -->
+
+<!-- ``` -->
+
+<!-- ## Example: Wald test w/ robust SEs -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- # robust covariance matrix for beta -->
+
+<!-- vcovHC_m1 <- vcovHC(m1, type="HC3") -->
+
+<!-- # calculate Wald stat -->
+
+<!-- W <- t(R %*% coef(m1) - r) %*%  -->
+
+<!--   solve(R %*% vcovHC_m1 %*% t(R)) %*% # insert robust covariance matrix -->
+
+<!--   (R %*% coef(m1) - r) -->
+
+<!-- # calculate F and chi-sq p-values -->
+
+<!-- cbind(W / q, 1 - pf(W / q, q, N - K)) -->
+
+<!-- cbind(W, 1 - pchisq(W, q)) -->
+
+<!-- ``` -->
+
+## Using `linearHypothesis`
+
+HC3 adjustment:
+
+```{r echo=TRUE}
+library(car)
+
+linearHypothesis(m1, 
+                 c("economic.cond.national - economic.cond.household = 0"), 
+                 white.adjust = "hc3")
+```
+
+## Testing for heteroskedasticity
+
+Homoskedasticity means that the variance of $u_i$ is independent of the $x_{ki}$
+
+::: incremental
+-   We can use the squared residuals, $\hat{u}_i^2$, as an estimate of $\text{Var}(u_i)$ and check the extent to which they can be explained by $\boldsymbol{x}_i$
+
+-   A [Breusch-Pagen test]{.alert} regresses the $\hat{u}_i^2$ on the $\boldsymbol{x}_i$
+
+-   A modified [White test]{.alert} regresses the $\hat{u}_i^2$ on $\hat{y}_i$ and $\hat{y}_i^2$
+:::
+
+## Example, F-test
+
+```{r echo=TRUE}
+# calculate squared residuals from m1
+res <- m1$residuals^2
+
+# regress squared residuals on predictors
+m1_res_1 <- lm(res ~ m1$model[,2] + m1$model[,3] + m1$model[,4] + m1$model[,5])
+summary(m1_res_1) # use F-stat + p-value
+```
+
+## Example, B-P test
+
+```{r echo=TRUE}
+
+# B-P test, use chi-squared test chi2 = N*R2, on K df
+1 - pchisq(q = summary(m1_res_1)$r.squared * sum(summary(m1_res_1)$df[1:2]), 
+           df = summary(m1_res_1)$df[1] - 1)
+
+# use lmtest package
+library(lmtest)
+bptest(m1)
+```
+
+## Example, White test
+
+```{r echo=TRUE}
+# use lmtest package, specify function for variance
+y_hat <- predict(m1)
+bptest(m1, varformula = ~ y_hat + I(y_hat^2))
+```
+
+## Clustering
+
+[Clustering]{.alert} arises when observations are drawn from a relevant subpopulation not captured by the predictors in the model
+
+::: incremental
+-   Schools, countries, congressional districts, time points, etc.
+-   Non-independence --\> errors are correlated for observations that share a group
+-   As with heteroskedasticity, clustering leads to biased SEs (and hypothesis tests, etc.)
+:::
+
+## Non-diagonal covariance matrix for $u_i$
+
+To this point, we have dealt with situations where $u_i \perp\!\!\!\!\perp u_j$
+
+::: incremental
+-   Clustering implies $\text{Cov}(u_i, u_j) \neq 0$
+-   In which case, $\text{Var}(\boldsymbol{u}_i)$ is not diagonal
+-   The off-diagonal elements are the covariances of the errors between each pair of observations
+:::
+
+## "Fixed effects"
+
+One common (and easy) solution is to estimate a model with [fixed effects]{.alert} for groups
+
+::: incremental
+-   This just means that each group (except one) gets a binary variable in the estimated model
+-   The indicator for group $j$ gives the difference in average $\hat{y}_i$ comparing group $j$ to the excluded (baseline) group
+-   Since we have removed what is shared across observations within groups, the errors are now independent, and SEs are unbiased
+:::
+
+## Example: Vocabulary
+
+```{r}
+vocab <- carData::Vocab
+summary(vocab)
+```
+
+## Example fixed effects {.smaller}
+
+::::: columns
+::: {.column width="30%"}
+```{r echo=TRUE}
+m2_a <- lm(vocabulary ~ 
+             education + 
+             as.factor(year), 
+           data = vocab)
+
+m2_naive <- lm(vocabulary ~ 
+                 education, 
+               data = vocab)
+```
+:::
+
+::: {.column width="70%"}
+```{r echo = FALSE}
+modelsummary::modelsummary(list(naive = m2_naive, fixed_effects = m2_a))
+```
+:::
+:::::
+
+## Example fixed effects
+
+```{r echo=TRUE}
+m2_b <- lm(vocabulary ~ 0 + education + as.factor(year), data = vocab)
+summary(m2_b)
+```
+
+## "Clustered SEs"
+
+$\text{Var}(\hat{\boldsymbol{\beta}}) = (\textbf{X}'\textbf{X})^{-1}\textbf{X}' \bf{\Sigma} \textbf{X} (\textbf{X}'\textbf{X})^{-1}$
+
+A generalization of robust standard errors
+
+::: incremental
+-   Assume $\text{Var}(u_i)$ is "block-diagonal": unrestricted within clusters, but diagonal across clusters
+-   Estimate $\hat{\bf{\Sigma}}_c = \hat{\boldsymbol{u}}_{c} \hat{\boldsymbol{u}}_{c}'$
+-   Calculate $\textbf{X}' \hat{\bf{\Sigma}} \textbf{X} = \sum_{i=1}^C \textbf{X}_c' \hat{\bf{\Sigma}}_c \textbf{X}_c$
+:::
+
+## Example clustered SEs {.smaller}
+
+$\textbf{X}' \hat{\bf{\Sigma}} \textbf{X} = \sum_{i=1}^C \textbf{X}_c' \hat{\bf{\Sigma}}_c \textbf{X}_c$
+
+```{r echo=TRUE}
+# estimate model
+m2 <- lm(vocabulary ~ education, data = vocab)
+
+# clusters
+groups <- unique(vocab$year)
+
+# estimate cluster-specific X' Sigma X
+XSX <- list()
+X <- as.matrix(cbind(1, m2$model[,-1]))
+for (i in 1:length(groups)){
+  X_c <- X[vocab$year == groups[i], ]
+  e <- as.matrix(m2$residuals[vocab$year == groups[i]])
+  XSX[[i]] <- t(X_c) %*% (e %*% t(e)) %*% X_c
+}
+
+# calculate variance of beta
+VB <- solve(t(X) %*% X) %*% Reduce("+", XSX) %*% solve(t(X) %*% X)
+
+# HC1 adjustment
+VB_h1 <- (nrow(m2$model - 1) / (nrow(m2$model - length(coef(m2))))) * VB
+
+df <- data.frame(estimate = coef(m2),
+                 se_default = sqrt(diag(vcov(m2))),
+                 se_clust_h1 = sqrt(diag(VB_h1)))
+round(df, 3)
+```
+
+## Variations
+
+As with HC estimators, clustered SEs have a few variations:
+
+::: incremental
+-   The ordinary version from previous slides (no further adjustements)
+-   Ordinary with finite-sample adjustment (similar to HC1; Stata default with `cluster` option, `sandwich` default): $\left( \frac{N-1}{N-K} \right) \left( \frac{G}{G-1} \right)$
+-   "CR3": similar to HC3 robust estimator (and is also conservative; can take a while to estimate)
+:::
+
+## Using `sandwich`
+
+```{r echo=TRUE}
+library(sandwich)
+
+# cluster by year with HC1 adjustment
+m2_cov <- vcovCL(m2, cluster = ~ year, type = "HC1")
+
+# cluster by year with HC3 adjustment
+#m2_cov <- vcovCL(m2, cluster = ~ year, type = "HC3")
+
+# ses
+cbind(lm = sqrt(diag(vcov(m2))), cluster = sqrt(diag(m2_cov)))
+```
+
+## Leverage and influence
+
+::: incremental
+-   An [influential observation]{.alert} is one which, when removed, changes the estimate substantially
+-   High leverage points can substantially affect estimates because OLS minimizes *squared* errors
+:::
+
+## Hypothetical example
+
+```{r}
+# generate hypothetical data from normal(0,1)
+N <- 25
+set.seed(8)
+data <- MASS::mvrnorm(N-1, c(0,0), matrix(c(1,0.85,0.85,1), 2, 2))
+
+# add an outlier
+data <- rbind(data, c(-3,2))
+
+# run lm with and without outlying case
+par(mar=c(5,4,1,1))
+plot(data)
+points(data[N,1], data[N,2], pch=19, col="blue")
+abline(lm(data[,2] ~ data[,1]), col="blue")
+abline(lm(data[1:(N-1),2] ~ data[1:(N-1),1]), col="red")
+legend("bottomright", c("With outlier","Without outlier"), lty=1, col=c("blue","red"), bty="n")
+```
+
+## Studentized residuals
+
+The residual for an observation based on a regression line estimated from all data *except* the observation
+
+```{r, echo = TRUE}
+# use car package to test for outliers using studentized residuals
+car::outlierTest(lm(data[,2] ~ data[,1]))
+```
+
+```{r fig.align='center'}
+par(mar=c(5,4,1,1))
+plot(data)
+points(data[N,1], data[N,2], pch=19, col="blue")
+abline(lm(data[,2] ~ data[,1]), col="blue")
+abline(lm(data[1:(N-1),2] ~ data[1:(N-1),1]), col="red")
+legend("bottomright", c("With outlier","Without outlier"), lty=1, col=c("blue","red"), bty="n")
+
+```
+
+```{=html}
+<!--
+
+## Leverage
+
+$\hat{\boldsymbol{y}} = \bf{H} \boldsymbol{y}$, where $\bf{H} = \bf{X} (\bf{X}' \bf{X})^{-1} \bf{X}'$
+
+-   $\bf{H}$ is called the [hat matrix]{.alert}
+
+-   The main diagonal of $\bf{H}$ gives the [leverage]{.alert} of each observation: a measure of distance between the observation and the mean of $\bf{X}$
+
+-->
+```
+
+## Measures of influence
+
+-   [Cook's D]{.alert}: sum of squared differences in predicted values with and without the observation standardized by the mean squared error of the regression
+
+-   [DFFITS]{.alert}: difference in predicted value for focal observation standardized by standard error of regression (without focal observation) multiplied by leverage of focal observation
+
+-   Cut offs, as always, are contentious, but...
+
+    -   Cook's D: \> 1 or \> 4 / N
+
+    -   DFFITS: \> 2(sqrt(K / N))
+
+## Influence calculations {.smaller}
+
+```{r echo=TRUE}
+# cook's distance
+cook <- round(cooks.distance(lm(data[,2] ~ data[,1])), 3)
+
+# dffits
+dfit <- round(dffits(lm(data[,2] ~ data[,1])), 3)
+
+# table
+inf_tab <- cbind(cook, cook > 4 / N, dfit, dfit > 2*sqrt(1 / N))
+colnames(inf_tab) <- c("Cook's D", "> 4/N ?", "DFFITS", "> 2*sqrt(K/N) ?")
+inf_tab
+```
+
+## Dealing with outliers and influence
+
+::: incremental
+-   Omit high-leverage observations
+    -   Typically requires theoretical rationale
+-   Change loss function
+    -   Least absolute deviation instead of least squares
+-   Change distributional assumptions
+    -   t with low df
+    -   mixture models
+:::
+
+## Generalized (Weighted) least squares
+
+Violation of OLS assumption 5 means that OLS is no longer the most efficient unbiased estimator
+
+-   Robust SEs correct the SEs, but do not make OLS most efficient
+
+-   An alternative estimator, [generalized least squares]{.alert} (GLS), is more efficient
+
+## GLS definition
+
+GLS minimizes the weighted sum of squared residuals, where the weights are $1 / w_i$, $w_i = w(\boldsymbol{x}_i)$, and $w$ is a function that maps $\boldsymbol{x}_i$ to $\text{Var}(u_i)$
+
+-   Specifically, we find the values of $\boldsymbol{\beta}$ that minimize:
+
+$$
+\sum_{i=1}^N \frac{(y_i - \boldsymbol{x}_i \boldsymbol{\beta})^2}{w_i}
+$$
+
+## GLS definition
+
+In matrix form, where $\mathbf{\Omega}$ is an $N \times \it{N}$ weighting matrix, with the $w_i$ on the main diagonal
+
+$$
+\hat{\boldsymbol{\beta}}_{GLS} = (\mathbf{X}' \mathbf{\Omega}^{-1} \mathbf{X})^{-1} (\mathbf{X}' \mathbf{\Omega}^{-1} \boldsymbol{y})
+$$
+
+## Feasible GLS
+
+We rarely know the $w_i$ with certainty, so they must be estimated from the data - this results in [feasible generalized least squares]{.alert}, where we assume:
+
+$$
+\text{Var}(u_i | \boldsymbol{x}_i) = \sigma^2 e^{\boldsymbol{x}_i \boldsymbol{\delta}}
+$$
+
+-   This means that the errors are a non-linear function of the predictors in the original regression model
+
+## Feasible GLS
+
+If we don't know $\boldsymbol{\delta}$ (which is almost always the case), we can estimate it using OLS and the observed residuals:
+
+$$
+\text{ln}(\hat{u}_i^2) = \boldsymbol{x}_i \boldsymbol{\delta} + \epsilon_i
+$$
+
+::: incremental
+-   log because we're estimating $e^{\boldsymbol{x}_i \boldsymbol{\delta}}$
+-   squared because $\text{Var}(u_i | \boldsymbol{x}_i) = \text{E}(u_i^2 | x_i) - \left( \text{E}(u_i|x_i) \right)^2 = \text{E}(u_i^2 | x_i)$
+:::
+
+. . .
+
+Then, $\hat{w}_i = e^{\boldsymbol{x}_i \boldsymbol{\hat{\delta}}}$
+
+## Example {.smaller}
+
+```{r echo=TRUE}
+# regress logged squared residuals on predictors
+m1_res_3 <- lm(log(m1$residuals^2) ~ m1$model[,2] + m1$model[,3] 
+               + m1$model[,4] + m1$model[,5])
+
+# estimate weighted least squares with exp(y-hat) as weights
+m1_wls_1 <- lm(m1$model[,1] ~ m1$model[,2] + m1$model[,3] 
+               + m1$model[,4] + m1$model[,5], 
+             weights = 1 / exp(m1_res_3$fitted.values))
+summary(m1_wls_1)
+```
+
+## Example {.smaller}
+
+You can also use the White version (instead of B-P) via the fitted values and their squares:
+
+```{r echo=TRUE}
+# regress logged squared residuals on predictors
+m1_res_4 <- lm(log(m1$residuals^2) ~ m1$fitted.values + I(m1$fitted.values^2))
+
+# estimate weighted least squares with exp(y-hat) as weights
+m1_wls_2 <- lm(m1$model[,1] ~ m1$model[,2] + m1$model[,3] + m1$model[,4] + m1$model[,5], 
+             weights = 1 / exp(m1_res_4$fitted.values))
+summary(m1_wls_2)
+```
+
+## Properties of FGLS
+
+::: incremental
+1.  Biased, but consistent, but only under the more stringent assumption of $\text{E}(u_i | \boldsymbol{x}_i) = 0$
+2.  Asymptotically more efficient than OLS
+3.  Test statistics (e.g., F tests) require use of same weights for restricted and unrestricted models
+:::
+
+## Misspecification
+
+If the model for the variance is misspecified:
+
+::: incremental
+1.  SEs from WLS are incorrect, but this can be solved with robust SEs, same as for standard OLS
+2.  WLS is not guaranteed to be asymptotically more efficient than OLS, but may often be in practice
+:::
+
+<!-- ## Prediction intervals -->
+
+<!-- Standard errors and confidence bounds on predictions for individual cases ($\hat{y}_i$) are a combination of variance in $\hat{\boldsymbol{\beta}}$ and $Var(u_i)$ -->
+
+<!-- -   The latter typically requires estimation of the variance function ($w$), in which case there is no analytical solution for the SEs -->
+
+<!-- -   This requires propagating the error for $\hat{\boldsymbol{\beta}}$ and $\hat{\boldsymbol{\delta}}$ -->
+
+<!-- -   As always, we can use bootstrapping to get approximate intervals -->

@@ -1,0 +1,259 @@
+---
+title: "Lab 8"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#library(haven)
+#data <- read_dta("data.dta")
+#write.csv(data,"~/path/data.csv", row.names = FALSE)
+raw_resume <- read.csv("data/resume.csv")
+```
+
+# Data 
+
+Resume data is from an experiment that manipulated attributes in fictitious resumes, which they sent out to employers, and measured whether the resumes received a call. 
+
+- `call` is the dependent variable of interest (did the employer call the fictitious applicant for an interview) (binary) 
+- `black` is the treatment variable in the data set (whether the resume has a "Black-sounding" name) (binary) 
+- `yearsexp` years of experience (integer; 1 - 44)
+- `female`gender (binary) 
+- `computerskills` computer skills (binary) 
+- `ofjobs` number of previous jobs (integer; 1 - 7)
+- `education` applicants education level (categorical; 0-4) 
+  - 0: Education not reported
+  - 1: High school dropout
+  - 2: High school graduate
+  - 3: Some college
+  - 4: College graduate or higher
+  
+Bertrand, M., & Mullainathan, S. (2004). Are Emily and Greg more employable than Lakisha and Jamal? A field experiment on labor market discrimination. American economic review, 94(4), 991-1013
+
+```{r, warning=F}
+#install.packages("fastDummies")
+library(fastDummies)
+
+resume <- dummy_cols(raw_resume, select_columns = 'education')
+```
+
+# Categorical Variables 
+
+Estimate a model, using OLS, that regresses `call` on `black`, `yearsexp`, `education`, and `female`.
+```{r}
+m1 <- lm(call ~ black + female + factor(education) + yearsexp, raw_resume)
+
+summary(m1)
+
+m1 <- lm(call ~ black + female + education_1 + education_2 + education_3 + education_4 + yearsexp, resume)
+
+summary(m1)
+```
+
+# F Tests
+
+Compares the residual SS of the restricted and unrestricted models.
+
+$$
+F = \frac{SSR_r - SSR_{ur} / q}{SSR_{ur} / (N-K-1)}
+$$
+Where q is the number of restrictions. The F-statistic measures the ratio of explained variance to unexplained variance.A high F-statistic suggests that the additional parameter(s) significantly improve the model.
+
+Conduct an F-test to see if `ofjobs` has an effect on the dependent variable
+
+```{r}
+# unrestricted 
+ur <- lm(call ~ black + female + education_1 + education_2 + education_3 + education_4 + yearsexp + ofjobs, resume)
+
+# estimate restricted model on unrestricted data
+r <- update(ur, . ~ . - ofjobs, data = ur$model)
+
+# SSR, for restricted and unrestricted models
+ssr_r <- sum(r$residuals^2)
+ssr_ur <- sum(ur$residuals^2)
+
+# df unrestricted
+df_ur <- ur$df.residual
+
+# df difference, # restrictions
+q <- r$df.residual - ur$df.residual
+
+# F stat
+Fstat <- ((ssr_r - ssr_ur) / q) / (ssr_ur / df_ur)
+
+# p value
+pf(Fstat, q, df_ur, lower.tail=F)
+
+# compare to anova
+stats::anova(r, ur)
+```
+
+Conduct a hypothesis test to test the null hypothesis that the effect of having a 'Black-sounding' name, compared to having a 'White-sounding' name, is equal to the effect of having a 'female-sounding' name, compared to having a 'male-sounding' name. 
+
+```{r, warning=F}
+library(car)
+car::linearHypothesis(m1, "black - female = 0")
+```
+
+# Bootstrapping 
+
+Calculate bootstrapped 95% confidence intervals for `black`. Use the standard bootstrap approach of taking random draws, with replacement, from the rows of your model’s data matrix. Use the percentile method to calculate the confidence bounds. 
+
+```{r}
+# number of bootstrap samples
+boots <- 1000
+
+# number of regression coefficients (K+1)
+#ncoef <- summary(m1)$df[1] 
+ncoef <- 1
+
+# initialize array to store coefs
+boots_beta <- array(NA, c(boots, ncoef))
+
+# iterate over samples
+for (i in 1:boots){
+  
+  # sample rows of data w/ replacement
+  new <- sample(1:nrow(m1$model), nrow(m1$model), replace = T) 
+  
+  # run model with bootstrap sample
+  boots_beta[i, ] <- coef(lm(formula(m1), data = m1$model[new, ]))[2] 
+}
+
+# calculate SE for `black`
+boots_se <- apply(boots_beta, 2, sd) 
+sd(boots_beta)
+
+# calculate CI 
+lci <- coef(m1)[2] - qt(0.975, m1$df.residual)*boots_se
+uci <- coef(m1)[2] + qt(0.975, m1$df.residual)*boots_se
+
+print (c(lci, uci))
+```
+
+Now calculate confidence intervals with the BCa method. 
+
+```{r, warning=F}
+# boot package 
+library(boot)
+
+boot_fn <- function(data, indices) {
+  d <- data[indices, ]  # subset data by randomly generated vector of row indices (w replacement)
+  fit <- update(m1, . ~ ., data = d)
+  B <- coef(fit)[2]
+  se <- sqrt(diag(vcov(fit)))[2] 
+  return(c(B, se))
+}
+
+# boot call
+m_boot <- boot(data = m1$model, statistic = boot_fn, R = 10000)
+
+# use boot.ci to get CIs
+boot.ci(m_boot, type = "bca")
+```
+
+# Interactions 
+
+Estimate a new model, using OLS, that regresses `call` on `black`, `yearsexp`, and the interaction between them. 
+
+```{r}
+m2 <- lm(call ~ black*yearsexp, resume)
+summary(m2)
+```
+
+# Marginal Effects 
+
+Make a plot that shows how the expected value of the dependent variable changes across years of experience (`yearsexp`), with separate lines for the two race treatment conditions (`black`). 
+```{r}
+# range of years experience  
+range_yearsexp <- seq(min(resume$yearsexp), max(resume$yearsexp), 1)
+
+# race values 
+values_black <- c(0,1)
+
+new_data <- expand.grid(yearsexp = range_yearsexp, black = values_black)
+
+#predict call back based on years experience and race
+predicted_call <- predict(m2, newdata = new_data)
+
+#combine new dataset with predicted volume 
+predicted_df <- cbind(new_data, call = predicted_call)
+
+# install.packages("ggplot2")
+library(ggplot2)
+
+# ggplot 
+ggplot(predicted_df, aes(x = yearsexp, y = predicted_call, color = factor(black))) +
+  geom_line() +
+  scale_color_manual(values = c("blue", "red"),
+                     labels = c(paste("White"), 
+                                paste("Black")),
+                     name = "Race") +
+  labs(x = "Years Experience", y = "Predicted Call Back",
+       title = "Predicted Call vs. Years Experience") +
+  theme_minimal()
+```
+
+Use the marginaleffects package and the delta method to calculate 95% confidence bounds for the conditional marginal effect of `black` at each value of `yearsexp`. 
+
+```{r}
+library(marginaleffects)
+options(marginaleffects_print_omit = c("s.value"))
+?marginaleffects::slopes # s.value = Shannon information
+
+# estimate ME of black at range of yearsexp
+cme <- slopes(m2, variables = c("black"),
+       newdata = datagrid(yearsexp = range_yearsexp))
+
+# plot ME and SE for range of yearsexp
+plot(cme$yearsexp, cme$estimate,
+     main = "CME of Black Across Years Experience",
+     ylab="CME of Black", xlab="Years Experience",
+     type = "l", ylim=c(-0.2,0.2), xlim=c(0,45))
+abline(h=0, lty=3)
+lines(cme$yearsexp, cme$estimate + 1.96*cme$std.error) 
+lines(cme$yearsexp, cme$estimate - 1.96*cme$std.error) 
+```
+
+# Chow Test 
+
+The Chow test is a special form of F-test used to test the null hypothesis that a linear model is identical across groups
+
+$$
+F = \frac{SSR_{pooled} - (SSR_{male} + SSR_{female})}{SSR_{pooled}} \cdot \frac{N - 2(K+1)}{K+1}
+$$
+
+Estimate the same model but for male and female respondents. Conduct a Chow test of the null hypothesis that the two groups (for each category of gender) can be combined into a single model (i.e., that the true model is the same across these two groups).
+
+```{r}
+# male <- subset(resume, female == 0)
+male <- resume[resume$female == 0, ]
+
+# female <- subset(resume, female == 1)
+female <- resume[resume$female == 1, ]
+
+# models (pooled, male, female) 
+m2p <- lm(call ~ black * yearsexp, data = resume)
+m2m <- lm(call ~ black * yearsexp, data = male)
+m2f <- lm(call ~ black * yearsexp, data = female)
+
+ssr_p <- sum(m2p$residuals^2)
+ssr_m <- sum(m2m$residuals^2)
+ssr_f <- sum(m2f$residuals^2)
+
+n <- nrow(m2p$model)
+k <- as.numeric(length(m2p$coefficients))
+
+# chow
+chow <- ( (ssr_p - (ssr_m + ssr_f)) / ssr_p ) * ( (n - 2*(k+1)) / (k+1) )
+
+# p value
+pf(chow, df1 = k, df2 = (n - (2 * k)), lower.tail =F)
+```
+

@@ -1,0 +1,88 @@
+---
+title: "PS1"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 1` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 24 January, by 10:00 EST*. Name your files `lastname_ps01` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Data
+
+In this problem set, we will work with the 2020 American National Elections Study `anes_timeseries_2020_csv_20220210.csv`.
+
+We are interested in three variables: (1) respondents' feelings toward conservatives relative to feelings toward liberals, (2) their age, and (3) their family income.
+
+We begin with the raw data downloaded from the [ANES website](https://electionstudies.org/data-center/2020-time-series-study/). You may need to use the [codebook](https://electionstudies.org/wp-content/uploads/2022/02/anes_timeseries_2020_userguidecodebook_20220210.pdf) to clean the data for analysis and to interpret your results.
+
+We will use the following variables:
+
+-   `V202164`: feeling thermometer toward conservatives (name: `con_feel`)
+-   `V202161`: feeling thermometer toward liberals (name: `lib_feel`)
+-   `V201507x`: respondent age (name: `age`)
+-   `V202468x`: family income (name: `income`)
+
+First, do the following:
+
+1.  Store the data in an object called `anes`.
+2.  Create one new variable in `anes` for each of the four variables above; name each new variable using the names provided above.
+3.  Recode each new variable so that any all negative values, and any responses of `998` or `999`, are coded as missing (`NA`).
+4.  Create a new variable called `libtocon`, which is equal to `con_feel` minus `lib_feel`.
+5.  Create a new data frame, `anes_clean`, which includes only these variables, and which removes all observations in the data with missing values on any of the variables above.
+
+## Problem 1
+
+$$\text{libtocon}_i = \beta_0 + \beta_1 \text{age}_{i} + u_i$$
+
+a.  Find ordinary least squares estimates of $\beta_0$ and $\beta_1$, "by hand"; that is, without using canned functions like `lm` (you can of course use basic math functions like `solve`). Show your code for this one (`echo=T`).
+
+b.  What is the estimated slope and what is the estimated intercept? Interpret each substantively; that is, explain in words what each of these estimates means in the context of these specific variables. Is the value of the intercept substantively meaningful as a prediction about the dependent variable here? Why or why not?
+
+c.  Fill in the blanks (do it "by hand", do not use `predict`, show your work in the code):
+
+    -   A 50-year-old respondent's predicted value of the dependent variable is \_\_\_\_\_\_.
+    -   A 27-year-old respondent's predicted value of the dependent variable is \_\_\_\_\_\_.
+    -   A 12-year increase in age is associated with a change of \_\_\_\_\_\_\_\_\_ in the dependent variable.
+
+d.  This model *assumes* a linear relationship between `libtocon` and `age`. Explain what this means. Do you think it is a reasonable assumption? Why or why not?
+
+## Problem 2
+
+a.  Create a scatter plot depicting the relationship between `libtocon` and `age` (with `age` on the x-axis). Make sure the plot looks nice, and has proper labeling.
+
+b.  Add the estimated regression line to the scatter plot (HINT: `abline` (base), `geom_abline` (ggplot)).
+
+c.  Estimate the predicted value of `libtocon` when age is 65, plot the relevant point on the regression line (make sure we can see it!), and add horizontal and vertical dashed lines associated with this point to the figure.
+
+## Problem 3
+
+$$\text{libtocon}_i = \beta_0 + \beta_1 \text{age}_{i} + \beta_2 \text{income}_{i} + u_i$$
+
+a.  Estimate the new model above, using OLS, in two ways: (1) "by hand" using linear algebra, and (2) using the `lm` function. Store the `lm` output in an object named `m_3` (you can then use `m_3` for the remaining tasks below). Show your code for this one (`echo=T`).
+
+b.  Report the coefficient estimates from `m_3`, along with their standard errors, t-statistics, and two-tailed p-values, in a professional looking table. Interpret each of the estimated coefficients substantively (remember that there are now two independent variables in the model!).
+
+c.  Create a figure that plots the predicted value of `libtocon` as a function of `income` at three different values for `age`: the 5th percentile, the 50th percentile, and 95th percentile. Use the `predict` function to do it. You should have one plot with three lines. Make sure your lines can be distinguished and add a legend so the reader knows which is which.
+
+d.  Explain why the lines in your figure are parallel.
+
+e.  Standardize all three variables (give them means of 0 and standard deviations of 1; you can use the `scale` function for this). Estimate the same regression model using the standardized variables. Interpret all three coefficient estimates in words.
+
+f.  Re-estimate the model with only `age` and the model with both `age` and `income` using `lm` and the data frame `anes` (instead of `anes_clean`). Now compare your $N$ (number of data points) for the two models. You have lost respondents! Why? And why might this be a problem for your estimates?
+
+## Problem 4
+
+Calculate, "by hand", the following measures of fit for the model you estimated in Problem 3 (stored in `m_3`). For each quantity, explain what it means, statistically. Finish with a summary statement of model fit, taking into account the three quantities. Show your code for this one (`echo=T`).
+
+a.  $R^2$
+b.  mean squared error
+c.  adjusted $R^2$

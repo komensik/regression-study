@@ -1,0 +1,920 @@
+---
+title: "Functional Form and Interactions"
+subtitle: "POLSCI 630: Probability and Basic Regression"
+format: clean-revealjs
+html-math-method:
+  method: mathjax
+  url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+date: 2/18/2025
+embed-resources: true
+---
+
+## Non-linear relationships
+
+We can model non-linear relationships using linear regression
+
+-   Logarithms
+-   Polynomials
+-   Interactions
+
+. . .
+
+But! Interpretation gets trickier in these cases.
+
+# Part 1. Logs
+
+## ln and exp()
+
+Useful to remember:
+
+::: incremental
+-   $\text{exp}(a+b) = e^{a+b} = e^ae^b$
+-   $\text{exp}(a-b) = e^{a-b} = \frac{e^a}{e^b}$
+-   $\text{ln}(a) + \text{ln}(b) = \text{ln} \left( ab \right)$
+-   $\text{ln}(a) - \text{ln}(b) = \text{ln} \left( \frac{a}{b} \right)$
+:::
+
+## Additional Intuition for Log Models {.scrollable}
+
+This section builds on the basic properties of logarithms and exponentials introduced earlier, and elaborates on how to interpret coefficients when modeling log-transformed variables (see "ln and exp()" slide).
+
+-   A **log transformation** on the dependent variable models **multiplicative** or **percentage** effects.
+
+-   A **unit change in** $x$ leads to a **percentage change in** $y$, not a fixed dollar change.
+
+```{r}
+log(100) - log(10)         # same diff as log(1000) - log(100)
+log(1000) - log(100)
+log(10000) - log(1000)
+```
+
+::: {.callout-note title="Interpretation"}
+Each is an order-of-magnitude increase in $y$, resulting in a constant difference in $\log(y)$.
+:::
+
+## Log Transform Example: Why use log(y)?
+
+```{r}
+# simulate small example
+y_1 <- exp(11)    # ~$60,000
+y_2 <- exp(12)    # ~$162,000
+
+# both get a 0.1 increase in log(y)
+exp(11.1) - exp(11)
+exp(12.1) - exp(12)
+```
+
+```{r}
+# but the ratio is constant:
+exp(11.1)/exp(11)
+exp(12.1)/exp(12)
+exp(0.1)           # ~1.105 => 10.5% increase
+```
+
+## Simulation: Why $\mathbb{E}[e^u] \ne 1$ even when $\mathbb{E}[u] = 0$
+
+```{r}
+u <- rnorm(10000, 0, 1)
+mean(exp(u))
+exp(0.5)   # ~= 1.648
+```
+
+::: {.callout-note title="Key point"}
+Even if $u \sim N(0, \sigma^2)$, $\mathbb{E}[e^u] \ne e^{\mathbb{E}[u]}$
+:::
+
+## Table: Log Model Types and Interpretations {.scrollable}
+
+This table summarizes three common types of log models and the appropriate interpretation of their coefficients. It's useful for selecting the right model based on your research question: whether you're interested in modeling percentage changes in $y$, changes in $y$ given percentage changes in $x$, or a combination of both.
+
+| Model | Formula | Interpretation |
+|------------------------|------------------------|------------------------|
+| Log-Level | $\log(y) = b_0 + b_1x$ | 1-unit increase in $x$ =\> % change in $y$ |
+| Level-Log | $y = b_0 + b_1\log(x)$ | \% change in $x$ =\> unit change in $y$ |
+| Log-Log | $\log(y) = b_0 + b_1\log(x)$ | \% change in $x$ =\> % change in $y$ |
+
+## Compare: Raw vs Log-Transformed Salary Model
+
+```{r}
+library(carData)
+raw_mod <- lm(salary ~ yrs.since.phd + sex + discipline, data = Salaries)
+predict(raw_mod, newdata = data.frame(yrs.since.phd = 10, sex = "Male", discipline = "A"))
+```
+
+```{r}
+log_mod <- lm(log(salary) ~ yrs.since.phd + sex + discipline, data = Salaries)
+log_pred <- predict(log_mod, newdata = data.frame(yrs.since.phd = 10, sex = "Male", discipline = "A"))
+smearing <- mean(exp(log_mod$residuals))
+exp(log_pred) * smearing
+```
+
+## First Difference vs Marginal Effect {.scrollable}
+
+When interpreting results from a log-level model, it can be useful to compare the marginal effect and the first difference. The marginal effect shows the instantaneous rate of change (a derivative), while the first difference shows the discrete change in predicted outcome for a 1-unit increase in the independent variable. Differences between the two can be small when changes in $x$ are small, but can grow larger with bigger changes or nonlinearity.
+
+```{r}
+# first difference
+low <- data.frame(yrs.since.phd = 10, sex = "Male", discipline = "A")
+high <- data.frame(yrs.since.phd = 11, sex = "Male", discipline = "A")
+pred_low <- predict(log_mod, newdata = low)
+pred_high <- predict(log_mod, newdata = high)
+
+# back to level
+fd <- exp(pred_high) * smearing - exp(pred_low) * smearing
+fd
+```
+
+```{r}
+# marginal effect
+B1 <- coef(log_mod)["yrs.since.phd"]
+exp_val <- exp(pred_low) * smearing
+me <- B1 * exp_val
+me
+```
+
+## Back-of-the-envelope approximation {.scrollable}
+
+-   Coefficients in a log-level model (log(y) \~ x) can be approximated as % changes:
+
+```{r}
+B1 <- coef(log_mod)["yrs.since.phd"]
+100 * B1   # Roughly: 1% increase in salary per year since PhD
+```
+
+-   Better approximation:
+
+```{r}
+(exp(B1) - 1) * 100  # percent change
+```
+
+::: note
+This is usually close to `100 * B1` when B1 is small. For small coefficients (e.g., \< 0.1), the approximation holds well.
+:::
+
+## Logarithmic functional forms {.scrollable}
+
+A constant (linear) effect in log of $x$ is non-linear in $x$ itself
+
+. . .
+
+-   Consider the following model: $\text{ln}(y_i) = 10 + x_i + u_i$
+-   Every unit increase in $x_i$ is associated with a 1-unit increase in $\text{ln}(y_i)$
+
+. . .
+
+But a 1-unit increase in $\text{ln}(y_i)$ implies a non-constant effect in $y_i$ itself
+
+-   *Order of magnitude* increases in $y_i$ are associated with constant increases in $\text{ln}(y_i)$
+
+. . .
+
+```{r echo=TRUE}
+# order of mag in y constant in ln(y)
+log(100) - log(10)
+log(1000) - log(100)
+log(10000) - log(1000)
+
+# ln(x) - ln(y) = ln(x / y)
+log(10000 / 1000)
+log(10)
+```
+
+## Example data {.scrollable}
+
+As an example, let's explore the salaries of professors in the US using `carData::Salaries`
+
+```{r}
+summary(carData::Salaries)
+```
+
+It is reasonable to think that the effect of a variable (e.g., years of service) on salary is *increasing in salary*, but constant in a multiplier of salary
+
+. . .
+
+```{r echo=TRUE}
+# 2 salaries in log units: 11 and 12
+exp(11)
+exp(12)
+```
+
+. . .
+
+```{r echo=TRUE}
+# let's say for every 2 years of service each gets a raise of 0.1 in log-income
+exp(11.1) - exp(11)
+exp(12.1) - exp(12)
+```
+
+. . .
+
+```{r echo=TRUE}
+# ratio is constant
+exp(11.1) / exp(11)
+exp(12.1) / exp(12)
+exp(0.1)
+```
+
+## Log-level model
+
+Let's say we have the following model: $\text{ln}(y_i) = \boldsymbol{x}_i' \boldsymbol{\beta} + u_i$
+
+. . .
+
+$y_i = e^{\boldsymbol{x}_i' \boldsymbol{\beta}} e^{u_i}, \quad \text{E}(y_i) = \text{E}(e^{\boldsymbol{x}_i' \boldsymbol{\beta}} e^{u_i})$
+
+. . .
+
+$= e^{\boldsymbol{x}_i' \boldsymbol{\beta}} \text{E}(e^{u_i})$
+
+. . .
+
+If $u_i \sim N(0, \sigma^2), \quad \text{E}(e^{u_i}) = e^{\frac{\sigma^2}{2}}$
+
+. . .
+
+$\text{E}(y_i) = e^{\boldsymbol{x}_i' \boldsymbol{\beta}} e^{\frac{\sigma^2}{2}}$
+
+Mean-zero error doesn't drop out!
+
+## Example log-level
+
+```{r echo=TRUE}
+m1 <- lm(log(salary) ~ yrs.since.phd + sex + discipline, 
+         data = carData::Salaries)
+summary(m1)
+```
+
+## $\text{E}(y_i)$ assuming normality
+
+Let's calculate the expected value of $y$ for a male professor, 10 years from PhD, from "theoretical" departments (dept = A)
+
+. . .
+
+```{r pred1, echo=TRUE}
+
+```
+
+. . .
+
+```{r echo=TRUE}
+# expected value of y
+exp(m1_p1) * exp(summary(m1)$sigma^2 / 2)
+```
+
+## $\text{E}(y_i)$, not assuming normality (smearing)
+
+What if we do not assume normality in the original errors?
+
+-   A consistent estimator of $\text{E}(e^{u_i})$ is $\frac{\sum_{i=1}^N e^{\hat{u}_i}}{N}$
+
+. . .
+
+```{r echo=TRUE}
+exp(m1_p1) * (sum(exp(m1$residuals)) / nrow(m1$model))
+```
+
+. . .
+
+-   smearing estimate is relatively efficient, but less so as error variance increases
+-   but normal estimator may also be quite sensitive to departures from normality
+
+::: footnote
+[Duan (1983). "Smearing Estimate"](https://people.stat.sc.edu/hoyen/PastTeaching/STAT704-2022/Notes/Smearing.pdf)
+:::
+
+## Interpreting $\beta$
+
+Let's use a simple example:
+
+$\text{ln}(y_i) = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + u_i$
+
+. . .
+
+$\text{E}(y_i) = e^{\beta_0}e^{\beta_1x_{1i}}e^{\beta_2x_{2i}}\text{E}(e^{u_i})$
+
+. . .
+
+What is the expected change in $y_i$ for a $\Delta$ change in $x_{1i}$?
+
+::: incremental
+-   What happens to $\text{E}(y_i)$ when
+
+    -   $e^{\beta_0}e^{\beta_1x_{1i}}e^{\beta_2x_{2i}}\text{E}(e^{u_i})$ changes to
+    -   $e^{\beta_0}e^{\beta_1(x_{1i} + \Delta x_{1i})}e^{\beta_2x_{2i}}\text{E}(e^{u_i})$
+:::
+
+## Interpreting $\beta$
+
+Let's take the ratio
+
+$$\frac{e^{\beta_0}e^{\beta_1(x_{1i} + \Delta x_{1i})}e^{\beta_2x_{2i}}\text{E}(e^{u_i})} 
+       {e^{\beta_0}e^{\beta_1x_{1i}}e^{\beta_2x_{2i}}\text{E}(e^{u_i})} = \frac{e^{\beta_1(x_{1i} + \Delta x_{1i})}}{e^{\beta_1x_{1i}}} = e^{\beta_1(\Delta x_{1i})}$$
+
+</br>
+
+::: incremental
+-   A 1-unit change in $x_{1i}$ [multiplies]{.alert} $\text{E}(y_i)$ by $e^{\beta_1}$
+-   $100(e^{\beta_1(\Delta x_{1i})} - 1)$ gives a % change $\text{E}(y)$
+:::
+
+## Example
+
+```{r echo=TRUE}
+# FACTOR CHANGE in y for 1-unit change in x (yrs.since)
+
+exp(coef(m1)[2])
+```
+
+. . .
+
+```{r echo=TRUE}
+# PERCENT change in y for 1-unit change in x
+
+(exp(coef(m1)[2]) - 1)*100
+```
+
+. . .
+
+```{r echo=TRUE}
+# PERCENT change in y for 5-unit change in x
+
+(exp(5*coef(m1)[2]) - 1)*100
+```
+
+## Derivatives for marginal effects
+
+</br>
+
+Useful to remember:
+
+-   first derivative of $\text{ln}(x)$ is $\frac{1}{x}$
+-   first derivative of $e^{ax}$ is $ae^{ax}$
+
+## Marginal effects in $y_i$
+
+$\text{E}(y_i) = e^{\boldsymbol{x}_i' \boldsymbol{\beta}} \text{E}(e^{u_i})$
+
+. . .
+
+Notice that the marginal effect of $x_1$ is *not* constant anymore:
+
+. . .
+
+$\frac{\partial \text{E}(y_i)}{\partial x_{1i}} = \beta_1 e^{\boldsymbol{x}_i' \boldsymbol{\beta}} \text{E}(e^{u_i}) = \beta_1\text{E}(y_i)$
+
+. . .
+
+</br>
+
+-   This partial derivative gives the slope in $y_i$ units with respect to $x_{1i}$
+-   The key point is that the slope is **conditional** on $\boldsymbol{x}_i \boldsymbol{\beta}$
+
+## Implications of conditionality
+
+Since the marginal effect is conditional on the levels of the $\boldsymbol{x}_i$:
+
+::: incremental
+-   The marginal effect changes when we hold the $\boldsymbol{x}_i$ at different values
+-   There are different marginal effects for each observation
+-   More generally, there is a different marginal effect for all possible combinations of IVs
+:::
+
+## Strategies for reporting
+
+If we want to report the marginal effect of a variable with a single number, there are two common strategies:
+
+::: incremental
+-   Fix all IVs to central tendencies
+
+-   Calculate the [average marginal effect]{.alert} across observations
+
+    -   Calculate the marginal effect for each observation (fixing all variables at the values for that observation)
+    -   Calculate the mean over these individual MEs
+:::
+
+## Example: fix to central tendencies
+
+```{r echo=TRUE}
+# B1
+B1 <- coef(m1)["yrs.since.phd"]
+
+# exp(X_B)
+eXB <- exp(predict(m1, 
+                   newdata = data.frame(yrs.since.phd = mean(carData::Salaries$yrs.since.phd),
+                                        sex = "Male",
+                                        discipline = "B"
+                                        )
+                   )
+)
+
+# calculate estimate of E(exp(u))
+E_eu <- sum(exp(m1$residuals^2)) / nrow(m1$model)
+
+# calculate ME for each observation
+B1 * eXB * E_eu
+```
+
+## Example: average marginal effect
+
+```{r echo=TRUE}
+## ME_i = B1 * exp(X_iB) * sum(exp(res_i^2)) / N
+
+# B1
+B1 <- coef(m1)["yrs.since.phd"]
+
+# exp(X_B) [generate predicted values for all observations]
+eXB <- exp(predict(m1))
+
+# calculate estimate of E(exp(u))
+E_eu <- sum(exp(m1$residuals^2)) / nrow(m1$model)
+
+# calculate ME for each observation
+mes_yrs <- B1 * eXB * E_eu
+
+# calculate mean of MEs
+mean(mes_yrs)
+```
+
+## Example: ME of years since PhD
+
+Let's say you want to see how the marginal effect of years since PhD changes as a function of itself (e.g., from 1 year to 20)
+
+::: incremental
+-   But there are also two other variables in the model which impact the ME
+-   Each is binary, so there are actually 4 distinct MEs at each possible value of years since PhD
+:::
+
+## Example: ME of years since PhD
+
+```{r echo=TRUE}
+# B1
+B1 <- coef(m1)["yrs.since.phd"]
+
+# "expand grid" to get all values of X vars cross w/ each other
+values <- expand.grid(1:20, c("Female", "Male"), c("A","B"))
+
+# exp(X_B) [generate predicted values for all observations, but vary]
+eXB <- exp(predict(m1, 
+                   newdata = data.frame(yrs.since.phd = values[, 1],
+                                        sex= values[, 2],
+                                        discipline = values[, 3])
+                   )
+)
+
+# calculate estimate of E(exp(u))
+E_eu <- sum(exp(m1$residuals^2)) / nrow(m1$model)
+
+# calculate ME for each observation
+mes_yrs <- B1 * eXB * E_eu
+```
+
+## Example: ME of years since PhD
+
+```{r fig.height=6}
+par(mar=c(5,4,1,1))
+plot(1:20, mes_yrs[1:20], xlab="Years since PhD", ylab="Marginal effect of years since PhD", 
+     type="l", lty=1, lwd=2, col="blue", ylim=c(500, 1500))
+lines(1:20, mes_yrs[21:40], lty=2, lwd=2, col="orange")
+lines(1:20, mes_yrs[41:60], lty=3, lwd=2, col="red")
+lines(1:20, mes_yrs[61:80], lty=4, lwd=2, col="green")
+legend("topleft", c("Female/A", "Male/A", "Female/B", "Male/B"), lty=1:4, col=c("blue","orange","red","green"), bty="n")
+```
+
+<!-- ## The meaning of $\beta$ itself -->
+
+<!-- $\text{E}(y_i) = e^{\boldsymbol{x}_i' \boldsymbol{\beta}} \text{E}(e^{u_i})$ -->
+
+<!-- . . . -->
+
+<!-- $\frac{\partial \text{E}(y_i)}{\partial x_{1i}} = \beta_1 e^{\boldsymbol{x}_i' \boldsymbol{\beta}} \text{E}(e^{u_i}) = \beta_1\text{E}(y_i)$ -->
+
+<!-- . . . -->
+
+<!-- $\frac{\frac{\partial \text{E}(y_i)}{\partial x_{1i}}}{\text{E}(y_i)} = \frac{\beta_1 e^{\boldsymbol{x}_i' \boldsymbol{\beta}} \text{E}(e^{u_i})}{\text{E}(y_i)}= \frac{\beta_1 e^{\boldsymbol{x}_i' \boldsymbol{\beta}} \text{E}(e^{u_i})}{e^{\boldsymbol{x}_i' \boldsymbol{\beta}} \text{E}(e^{u_i})} = \beta_1$ -->
+
+<!-- . . . -->
+
+<!-- Coefficients represent the proportionate change in expected value of $y$ for a one-unit change in $x$ -->
+
+<!-- ## Example -->
+
+<!-- ```{r echo=TRUE} -->
+
+<!-- summary(m1) -->
+
+<!-- coef(m1)[2]*100 -->
+
+<!-- ``` -->
+
+## First differences for $y_i$
+
+First difference gives difference in expected values of $y_i$ for a discrete change in $x_{1i}$
+
+-   The change will again depend on all variables in the model
+
+. . .
+
+Different options here
+
+::: incremental
+-   Move focal variable from a particular value to another particular value (e.g., 10 to 11)
+
+    -   Fix all other variables to central tendencies
+    -   Calculate average FD allowing each obs to keep its own values of other vars
+
+-   Move focal variable by a fixed amount, allowing obs to keep own values of all vars
+:::
+
+## Example: holding other vars at central tendencies
+
+```{c}
+
+# calculate estimate of E(exp(u))
+E_eu <- sum(exp(m1$residuals^2)) / nrow(m1$model)
+
+# calculate FD
+eXB_high * E_eu - eXB_low * E_eu
+```
+
+## Example: everyone with their own values
+
+```{r echo=TRUE}
+# XB low (original values)
+eXB_low <- exp(predict(m1))
+
+# XB high (+1 from original values)
+newdata <- m1$model
+newdata$yrs.since.phd <- newdata$yrs.since.phd + 1
+eXB_high <- exp(predict(m1, newdata = newdata))
+
+# calculate estimate of E(exp(u))
+E_eu <- sum(exp(m1$residuals^2)) / nrow(m1$model)
+
+# calculate average FD
+mean(eXB_high * E_eu - eXB_low * E_eu)
+```
+
+## Level-log model
+
+$$y_i = \beta_0 + \beta_1 \text{ln}(x_{1i}) + \beta_2 \text{ln}(x_{2i}) +u_i$$
+
+. . .
+
+$\frac{\Delta y_i}{\Delta x_{1i}} = \beta_1 \text{ln}(x_{1i}+\Delta x_{1i}) - \beta_1 \text{ln}(x_{1i}) = \beta_1 \text{ln}(\frac{x_{1i} + \Delta x_{1i}}{x_{1i}})$
+
+</br>
+
+::: incremental
+-   Expected change in $y$ for $p$% change in $x$ is $\beta \text{ln}(\frac{100+p}{100})$
+-   Since $\text{ln}(1.01) \approx 0.01$, for every 1% change in $x$, we expect approximately a $\frac{\beta_1}{100}$-unit change in $y$
+:::
+
+## Example level-log
+
+```{r echo=TRUE}
+m2 <- lm(salary ~ log(yrs.since.phd) + sex + discipline,
+         data = carData::Salaries)
+
+summary(m2)
+```
+
+## Example level-log
+
+```{r echo=TRUE}
+# expected change in y for 10% change in x
+# log(1.10) = log(110/100) = log(1.1/1)
+coef(m2)[2]*log(1.10)
+```
+
+. . .
+
+```{r echo=TRUE}
+# expected change in y for 50% change in x
+coef(m2)[2]*log(1.50)
+```
+
+## Log-log model
+
+The log-log model combines the previous two, and so all of the above applies!
+
+$$\text{ln}(y_i) = \beta_0 + \beta_1 \text{ln}(x_{1i}) + \beta_2 \text{ln}(x_{2i}) + u_i$$
+
+## Interpreting $\boldsymbol{\beta}$ {.scrollable}
+
+$\text{E}(y_i) = \text{E}(e^{\beta_0 + \beta_1 \text{ln}(x_{1i}) + \beta_2 \text{ln}(x_{2i}) + u_i})$
+
+. . .
+
+$\frac{e^{\beta_0}e^{\beta_1 \left(\text{ln}(x_{1i} + \Delta x_{1i}) \right)} e^{\beta_2 \text{ln}(x_{2i})}\text{E}(e^{u_i})} {e^{\beta_0}e^{\beta_1 \left(\text{ln}(x_{1i}) \right)}e^{\beta_2 \text{ln}(x_{2i})}\text{E}(e^{u_i})} = e^{\beta_1 \text{ln} \left(\frac{x+\Delta x_{1i}}{x_{1i}} \right)}$
+
+::: incremental
+-   The factor change in $y$ for a $p$% change in $x$ is $e^{\beta \text{ln}(\frac{100+p}{100})}$
+
+-   We can thus roughly interpret $\beta$ as the % change in $y$ for a 1% change in $x$
+
+    -   Works best for values close to 1, approximation is worse as move away from 1
+:::
+
+. . .
+
+```{r echo=TRUE}
+exp(log(1.01))
+exp(1*0.01)
+exp(5*0.01)
+exp(50*0.01)
+```
+
+## Example log-log
+
+```{r echo=TRUE}
+m3 <- lm(log(salary) ~ log(yrs.since.phd) + sex + discipline,
+         data = carData::Salaries)
+
+summary(m3)
+```
+
+## Example log_log
+
+```{r echo=TRUE}
+# factor change in y for 10% change in x
+exp(coef(m3)[2]*log(1.10))
+```
+
+. . .
+
+```{r echo=TRUE}
+# % change in y for 10% change in x
+(exp(coef(m3)[2]*log(1.10)) - 1)*100
+```
+
+. . .
+
+```{r echo=TRUE}
+# % change in y for 50% change in x
+(exp(coef(m3)[2]*log(1.50)) - 1)*100
+```
+
+# Part 2. Polynomial functions
+
+## Polynomial functions of $\boldsymbol{x}$
+
+A non-linear relationship can also be specified via a [polynomial]{.alert} function for IVs, e.g.:
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{1i}^2 + \beta_3x_{2i} + u_i$$
+
+-   The model is still linear in the parameters, but the relationship of $x_{1i}$ to $y$ now depends on $x_{1i}$ itself
+
+## Plot
+
+```{r}
+curve(1*x + 1*x^2, -2, 2, ylim=c(-5,5), ylab = "E[y]", xlab="x_1")
+curve(1*x + 0.5*x^2, -2, 2, add=T, lty=2)
+curve(1*x + -1*x^2, -2, 2, add=T, lty=3)
+legend("topleft", c("1(x1) + 1(x1^2)","1(x1) + 0.5(x1^2)","1(x1) + -1(x1^2)"), lty=1:3, bty="n")
+```
+
+## Marginal effect, quad
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{1i}^2 + \beta_3x_{2i} + u_i$$
+
+The marginal effect of $x_{1i}$ is the first partial derivative:
+
+. . .
+
+$$\frac{\partial y_i}{\partial x_{1i}} = \beta_1 + 2\beta_2x_{1i}$$
+
+. . .
+
+-   it is a linear function of itself
+
+## Marginal effect, cubic
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{1i}^2 + \beta_3x_{1i}^3 + \beta_4x_{2i} + u_i$$
+
+The marginal effect of $x_{1i}$ is the first partial derivative:
+
+$$\frac{\partial y_i}{\partial x_{1i}} = \beta_1 + 2\beta_2x_{1i} + 3\beta_3x_{1i}^2$$
+
+-   it is a quadratic function of itself
+
+## First difference
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{1i}^2 + \beta_3x_{2i} + u_i$$
+
+The first difference is:
+
+$\frac{\Delta y_i}{\Delta x_{1i}} = \left( \beta_1(x_{1i} + \Delta x_{1i}) + \beta_2(x_{1i} + \Delta x_{1i})^2  \right) - \left( \beta_1(x_{1i}) + \beta_2(x_{1i})^2  \right)$
+
+. . .
+
+$= \beta_1(\Delta x_{1i}) + \beta_2(\Delta x_{1i}^2 + 2x_{1i}\Delta x_{1i})$
+
+## Example (vars scaled 0-1)
+
+```{r echo=TRUE}
+# load Lucid pub opinion data
+lucid <- read.csv("data/Lucid_Data.csv", 
+                  stringsAsFactors = F)
+
+# estimate regression of left-right economic policy prefs on IVs
+m4 <- lm(econ_mean ~ age_scale + I(age_scale^2) + 
+           male + educ_scale + income_scale, 
+         data = lucid)
+summary(m4)
+```
+
+## Plot conditional marginal effect
+
+Marginal effect of `age_scale` is $\beta_1 + 2\beta_2age$
+
+```{r echo = F, fig.align='center'}
+par(mar=c(5,4,1,1))
+curve(coef(m4)[2] + 2*coef(m4)[3]*x, 0, 1, 
+      xlab="Age", ylab="Marginal effect of age", 
+      ylim=c(-0.2,0.2))
+abline(h=0, lty=3)
+```
+
+## Plot expected values {.smaller}
+
+```{r echo=F, fig.align='center'}
+p_age <- predict(m4, 
+                 newdata = data.frame(age_scale = seq(0,1,0.05), # varying age (and age^2)
+                                     # holding other variables at their central tendencies
+                                      male = median(lucid$male, na.rm = T), 
+                                      educ_scale = mean(lucid$educ_scale, na.rm = T),
+                                      income_scale = mean(lucid$income_scale, na.rm = T)))
+par(mar=c(5,4,1,1))
+plot(seq(0,1,0.05), p_age, 
+  type="l", 
+  xlab="Age", ylab="Predicted value of econonomic preferences", 
+  ylim=c(.25,.5))
+```
+
+# Part 3. Interactions
+
+## Interactions
+
+An interaction is a situation in which the relationships of each of two IVs to a DV depend on each other
+
+::: incremental
+-   e.g., the relationship of policy support to vote choice may depend on political knowledge
+-   We capture interactions with multiplicative terms: $x_{ki}x_{li}$
+-   Typically important to include the [constituent terms]{.alert} of the interaction as predictors (R will do this by default)
+:::
+
+## Constituent terms
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + \beta_3x_{1i}x_{2i} + u_i$$
+
+::: incremental
+-   $\beta_1$ and $\beta_2$ are not "main effects" of their respective variables
+-   They are the conditional effects of these variables when the moderator is set to 0
+-   They are the intercept of the marginal effect equation
+:::
+
+## MEs and FDs
+
+$$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + \beta_3x_{1i}x_{2i} + u_i$$
+
+. . .
+
+The marginal effect of $x_{1i}$ is the first partial derivative:
+
+$$\frac{\partial y_i}{\partial x_{1i}} = \beta_1 + \beta_3x_{2i}$$
+
+. . .
+
+The first difference is:
+
+$$\frac{\Delta y_i}{\Delta x_{1i}} = \beta_1\Delta x_{1i} + \beta_3\Delta x_{1i}x_{2i}$$
+
+## Example (all vars scaled 0-1)
+
+```{r echo=TRUE}
+# estimate regression of left-right economic policy prefs on IVs
+m5 <- lm(econ_mean ~ age_scale + I(age_scale^2) + male + educ_scale + 
+           income_scale*know_mean, 
+         data = lucid)
+summary(m5)
+```
+
+## Example (standardized)
+
+```{r echo=TRUE}
+# standardized
+m5_s <- lm(econ_mean ~ age_scale + I(age_scale^2) + male + educ_scale + 
+           scale(income_scale)*scale(know_mean), 
+         data = lucid)
+summary(m5_s)
+```
+
+## Expected values of `econ_mean`
+
+```{r echo=TRUE, eval=FALSE}
+Ey <- predict(m5, newdata = data.frame(
+  
+  # set non-focal variables at central tendencies
+  age_scale = mean(lucid$age_scale, na.rm = T), 
+  male = median(lucid$male, na.rm = T), 
+  educ_scale = mean(lucid$educ_scale, na.rm = T),
+                                       
+  # vary two interacting variables across reasonable values of each
+  income_scale = rep(seq(0, 1, 0.05), 3),
+  know_mean = c(rep(0, 21), rep(0.5, 21), rep(1, 21))
+  )
+)
+```
+
+## Expected values of `econ_mean`
+
+```{r, echo=FALSE, fig.align='center', fig.height=6}
+Ey <- predict(m5, newdata = data.frame(
+  
+  # set non-focal variables at central tendencies
+  age_scale = mean(lucid$age_scale, na.rm = T), 
+  male = median(lucid$male, na.rm = T), 
+  educ_scale = mean(lucid$educ_scale, na.rm = T),
+                                       
+  # vary two interacting variables across reasonable values of each
+  income_scale = rep(seq(0, 1, 0.05), 3),
+  know_mean = c(rep(0, 21), rep(0.5, 21), rep(1, 21))
+  )
+)
+
+par(mar=c(5,4,1,1))
+plot(seq(0,1,0.05), Ey[1:21], 
+     type="l", col="blue",
+     xlab="Income", ylab="Predicted value of econonomic preferences", ylim=c(.1,.7))
+lines(seq(0,1,0.05), Ey[22:42], col="orange")
+lines(seq(0,1,0.05), Ey[43:63], col="red")
+legend("topleft", c("know=0","know=0.5","know=1"), lty=1, col=c("blue","orange","red"), bty="n")
+```
+
+## Marginal effect
+
+Marginal effect of `income_scale` is $\beta_6 + \beta_8 \text{know_mean}$
+
+```{r echo = F, fig.align='center'}
+par(mar=c(5,4,1,1))
+curve(coef(m5)[6] + coef(m5)[8]*x, 0, 1, xlab="Political knowledge", ylab="Marginal effect of income", ylim=c(0,0.2))
+```
+
+## Another example
+
+```{r echo=TRUE}
+m1_a <- lm(log(salary) ~ discipline + yrs.since.phd*sex, 
+         data = carData::Salaries)
+summary(m1_a)
+```
+
+## And more complicated...
+
+```{r echo=TRUE}
+m1_b <- lm(log(salary) ~ yrs.since.phd*discipline + yrs.since.phd*sex, 
+         data = carData::Salaries)
+summary(m1_b)
+```
+
+## Control variables and interactions
+
+Alternative moderators of an interactive relationship need to be included as interactions
+
+::: incremental
+-   e.g., interaction of policy preferences with political knowledge may need to control for interaction with education
+-   If moderator is categorical, can estimate separate models for each level with controls
+-   If non-categorical, need to include other interactions
+:::
+
+## Linearity assumption
+
+A simple interaction between two variables implies a linear function for the conditional marginal effect:
+
+$$\frac{\partial y_i}{\partial x_{1i}} = \beta_1 + \beta_3x_{2i}$$
+
+::: incremental
+-   This may be a bad assumption!
+-   And/or the estimate for $\beta_3$ (the interaction term) may extend to regions of $\bf{X}$ with little to no [support]{.alert}
+-   see package `interflex`
+:::
+
+## Example
+
+![https://doi.org/10.1093/poq/nfac004](images/trent_me_binned.png)
+
+## Higher-order interactions
+
+$$
+\begin{aligned}
+y_i = \beta_0 &+ \beta_1x_{1i} + \beta_2x_{2i} + \beta_3x_{3i} \\ 
+&+ \beta_4x_{1i}x_{2i} + \beta_5x_{1i}x_{3i} + \beta_6x_{2i}x_{3i}\\
+&+ \beta_7x_{1i}x_{2i}x_{3i} \\
+&+ u_i
+\end{aligned}
+$$
+
+. . .
+
+In practice, need strong theory and a *lot* of data to warrant.
+
+$$\frac{\partial y_i}{\partial x_{1i}} = \beta_1 + \beta_4x_{2i} + \beta_5x_{3i} + \beta_7x_{2i}x_{3i}$$

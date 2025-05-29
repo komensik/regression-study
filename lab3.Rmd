@@ -1,0 +1,78 @@
+---
+title: "Lab 3"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# Simulating Data
+
+$$
+y_i = 0 + 5x_{i1} - 3x_{i2} + u_i \\
+\quad u_i \sim N(0,1) \\
+\boldsymbol{x}_i \sim N \left ([0,0], \begin{bmatrix} 1 & 0.5 \\ 0.5 & 1 \end{bmatrix} \right)
+$$
+
+Write **a function** that takes as input a value for the number of simulations to execute, the sample size for each simulation, values for the three coefficients of the regression model above, and the correlation between $x_1$ and $x_2$. The function should do the following:
+
+(1) Take $N$ independent samples each from the distributions for $\boldsymbol{x}_i$ and $u_i$
+(2) Generate the model-implied values of $y_i$ for each set of sampled values (given the assumed values of the three coefficients)
+(3) Calculate the OLS regression coefficients (by "hand") for the model using the simulated data you just generated
+(4) Store the three estimated coefficients in a row of a matrix
+(5) Repeat this process for the number of simulations requested, appending the matrix with the new row of coefficient estimates after each sim
+(6) Return the final matrix of coefficient estimates for all simulations
+
+```{r}
+# 0. what are the inputs of the function? 
+
+# 1. what (canned) function can we use to take independent samples from a normal distribution?
+
+# 2. what is the equation for the "model-implied" values of y_i?  
+
+# 3. what is the (matrix multiplication) equation for the OLS coefficients? 
+
+# 4. how do we store values into a new row (subset) of a matrix? 
+
+# 5. what code do we use to repeat/iterate a process? 
+
+# 6. what is the structure of the (output) object we want to initialize? 
+```
+
+# Unbiasedness
+
+Execute your function for 100 simulations with a sample size of 100 for each simulation, storing the output in a new object called s1. Assume the coefficient values given above. Calculate the mean coefficient estimate across the simulations for each coefficient in the model. What do you find?
+
+Do the same thing again, but use 1,000 simulations instead. What do you find?
+
+```{r}
+# before you do this, what do you expect to find? 
+
+# how do you expect the mean coefficient estimate across 100 simulations to differ from the mean coefficient estimate across 1000 simulations? 
+```
+
+# Calculating SE
+
+1.  Simulate 100 observations for the model above
+2.  Estimate an OLS regression for these 100 observations
+3.  Calculate the standard errors for the three coefficients by hand
+
+Hint: The standard errors are square root of the diagonal of the variance-covariance matrix
+
+```{r}
+# 1. simulate 100 observations (steps 1 and 2 from above)
+
+# 2. estimate an OLS regression (step 3 from above)
+
+# 3. what are the steps for calculating the standard errors? 
+```
+
+$$
+Covariance \space Matrix = \sigma^2 (X'X)^{-1} \\
+\sigma^2 \approx \frac{\hat{u}'\hat{u}}{N-K-1} \\
+\hat{u_i} = y_i - X \hat{\beta}
+$$
