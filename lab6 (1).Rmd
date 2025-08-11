@@ -10,15 +10,15 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Log Interpretation  
+# Log Interpretation
 
-In this lab, we will return to the CEO salaries data set. 
+In this lab, we will return to the CEO salaries data set.
 
-  - `salary`: 1990 compensation ($1000s)
-  - `lsalary`: 1990 compensation ($1000s) logged 
-  - `profits`: 1990 profits ($ millions)
-  - `lprofits`: 1990 profits ($ millions) logged 
-  
+-   `salary`: 1990 compensation (\$1000s)
+-   `lsalary`: 1990 compensation (\$1000s) logged
+-   `profits`: 1990 profits (\$ millions)
+-   `lprofits`: 1990 profits (\$ millions) logged
+
 ```{r}
 ceosalary <- read.csv("data/ceosalary.csv")
 
@@ -26,10 +26,9 @@ ceosalary$lsalary <- log(ceosalary$salary)
 ceosalary$lprofits <- log(ceosalary$profits)
 ```
 
-## Log-Level Model 
+## Log-Level Model
 
-$$ ln(y_i) = \beta_0 + \beta_1 x_{1i} + u_i$$
-Precise: 1 unit change in $x_1$ is associated with a $100(e^{\beta_1\Delta x_1} - 1)$ *percent* change in $E(y)$.
+$$ ln(y_i) = \beta_0 + \beta_1 x_{1i} + u_i$$ Precise: 1 unit change in $x_1$ is associated with a $100(e^{\beta_1\Delta x_1} - 1)$ *percent* change in $E(y)$.
 
 Approx: 1 unit change in $x_1$ is associated with a $100\beta_1$ *percent* change in $E(y)$.
 
@@ -44,10 +43,9 @@ summary(m2)
 100 * coef(m2)[2] 
 ```
 
-## Level-Log Model 
+## Level-Log Model
 
-$$ y_i = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
-Precise: p *percent* change in $x_1$ is associated with a $\beta_1 ln(\frac{100 + p}{100})$ unit change in $E(y)$.
+$$ y_i = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$ Precise: p *percent* change in $x_1$ is associated with a $\beta_1 ln(\frac{100 + p}{100})$ unit change in $E(y)$.
 
 Approx: 1 *percent* change in $x_1$ is associated with a $\frac{\beta_1}{100}$ unit change in $E(y)$.
 
@@ -62,12 +60,11 @@ coef(m3)[2] * log(1.01)
 coef(m3)[2] / 100
 ```
 
-## Log-Log Model 
+## Log-Log Model
 
-$$ ln(y_i) = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
-Precise: p *percent* change in $x_1$ is associated with a $100(e^{\beta_1 ln(\frac{100+p}{100})} - 1)$ *percent* change in $E(y)$.
+$$ ln(y_i) = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$ Precise: p *percent* change in $x_1$ is associated with a $100(e^{\beta_1 ln(\frac{100+p}{100})} - 1)$ *percent* change in $E(y)$.
 
-Approx: 1 *percent* change in $x_1$ is associated with a $\beta_1$ *percent* change in $E(y)$.  
+Approx: 1 *percent* change in $x_1$ is associated with a $\beta_1$ *percent* change in $E(y)$.
 
 ```{r}
 m4 <- lm(lsalary ~ lprofits, ceosalary)
@@ -80,21 +77,20 @@ summary(m4)
 coef(m4)[2]
 ```
 
-# Conditional Marginal Effects 
+# Conditional Marginal Effects
 
-When the effect is polynomial or there is an interaction with another independent variable, the marginal effect is conditional. 
+When the effect is polynomial or there is an interaction with another independent variable, the marginal effect is conditional.
 
-To find the conditional marginal effect, we take the first partial derivative with respect to $x_1$. 
+To find the conditional marginal effect, we take the first partial derivative with respect to $x_1$.
 
-## Quadratics 
+## Quadratics
 
 Let's try a simple example with a quadratic using the `trees` data.
 
-$$volume_i = \beta_0 + \beta_1height_i + \beta_2(height_i)^2 + u_i$$
-Conditional Marginal Effect of Height on Volume: 
-$$
+$$volume_i = \beta_0 + \beta_1height_i + \beta_2(height_i)^2 + u_i$$ Conditional Marginal Effect of Height on Volume: $$
 \frac{\partial volume_i}{\partial height_i} = \beta_1 + 2\beta_2height_i
-$$ 
+$$
+
 ```{r echo=TRUE}
 # load data
 trees <- datasets::trees
@@ -118,9 +114,10 @@ plot(height, cme_height,
 abline(h=0, lty=3)
 ```
 
-Predicted Volume by Height:  
+Predicted Volume by Height:
 
 $$volume_i = \beta_0 + \beta_1height_i + \beta_2(height_i)^2 + u_i$$
+
 ```{r}
 height <- data.frame(Height = height)
 volume <- predict(m, newdata = height)
@@ -137,10 +134,10 @@ $$
 volume_i = \beta_0 + \beta_1 girth_i + \beta_2 height_i + \beta_3 girth_i * height_i
 $$
 
-Predicted Volume by Height at Different Girths: 
+Predicted Volume by Height at Different Girths:
 
-- This is the same code you've been practicing since PS1. 
-- Will the lines be parallel? 
+-   This is the same code you've been practicing since PS1.
+-   Will the lines be parallel?
 
 ```{r}
 # estimate interaction model
@@ -175,4 +172,3 @@ ggplot(predicted_df, aes(x = Height, y = Volume, color = factor(Girth))) +
        title = "Predicted Volume vs. Height at Different Girth") +
   theme_minimal()
 ```
-
