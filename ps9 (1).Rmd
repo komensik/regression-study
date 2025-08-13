@@ -16,27 +16,25 @@ Create a new markdown document where you will answer all questions. Submit (1) y
 
 All submitted work must be your own.
 
-
 ## Problem 1
 
 Use the data `highway.csv`. These are data that record the **accident rate per million vehicle miles** for 39 distinct sections of highway. The unit of observation is highway section. The variables of interest for each section are as follows:
 
--   *rate*: accident rate per million vehicle miles (# accidents per million miles)
+-   *rate*: accident rate per million vehicle miles (\# accidents per million miles)
 -   *acpt*: number of vehicle access points per mile
 -   *slim*: speed limit in miles per hour
 -   *sigs1*: number of signals (e.g., traffic light intersections) per mile
 -   *shld*: width in feet of shoulder of road
 
-
-a. Estimate the following model using `lm` and name it `m1`:
+a.  Estimate the following model using `lm` and name it `m1`:
 
 $$
 rate_i = \beta_0 + \beta_1acpt_i + \beta_2slim_i + \beta_3sigs1_i + \beta_4shld_i + u_i
 $$
 
-b. For each coefficient (but not the intercept), make a decision about statistical significance for a two-tailed test, with a null hypothesis of zero, and with $\alpha=0.05$.
+b.  For each coefficient (but not the intercept), make a decision about statistical significance for a two-tailed test, with a null hypothesis of zero, and with $\alpha=0.05$.
 
-c. For each coefficient (but not the intercept), make a decision about statistical significance for a *one*-tailed test with $\alpha=0.05$ and **null hypotheses** defined as follows:
+c.  For each coefficient (but not the intercept), make a decision about statistical significance for a *one*-tailed test with $\alpha=0.05$ and **null hypotheses** defined as follows:
 
 $$
 H_0: \beta_1 \leq 0 \\
@@ -45,14 +43,13 @@ H_0: \beta_3 \geq 0 \\
 H_0: \beta_4 \geq 0
 $$
 
-d. Interpret all coefficients substantively (including the intercept).
+d.  Interpret all coefficients substantively (including the intercept).
 
-e. Interpret the $R^2$ and adjusted $R^2$.
+e.  Interpret the $R^2$ and adjusted $R^2$.
 
-f. Calculate, by hand, 95% confidence intervals for each coefficient (but not the intercept). Explain how these confidence intervals relate to the $p$ values in the table above.
+f.  Calculate, by hand, 95% confidence intervals for each coefficient (but not the intercept). Explain how these confidence intervals relate to the $p$ values in the table above.
 
-g. Calculate heteroskedasticity-robust standard errors (HC3) for each coefficient and create a professional-looking table that includes each coefficient estimate, the robust SEs, and the associated t-statistics, and p-values for (robust) two-tailed tests against zero. You can use any packages you wish for this.
-
+g.  Calculate heteroskedasticity-robust standard errors (HC3) for each coefficient and create a professional-looking table that includes each coefficient estimate, the robust SEs, and the associated t-statistics, and p-values for (robust) two-tailed tests against zero. You can use any packages you wish for this.
 
 ## Problem 2
 
@@ -64,25 +61,23 @@ Use the dataset `chile.csv`. These are data on citizen characteristics and votin
 -   *education*: factor variable with 3 levels: primary only (baseline), post-secondary (PS), secondary (S)
 -   *sex*: factor variable with two levels, female (baseline) and male (M)
 
-a. Create a new variable called `income_1000` which transforms `income` so that it is measured in thousands of pesos. Then estimate the following model (name it `m2`):
+a.  Create a new variable called `income_1000` which transforms `income` so that it is measured in thousands of pesos. Then estimate the following model (name it `m2`):
 
 $$
 voteyes_i = \beta_0 + \beta_1sexM_i + \beta_2educationPS_i + \beta_3educationS_i + \\ \beta_4income1000_i + \beta_5statusquo_i + \\ 
 \beta_6(statusquo_i)(educationPS_i) + \beta_7(statusquo_i)(educationS_i) + u_i
 $$
 
-When we estimate a linear model for a binary dependent variable, as we do above, it is called the "Linear Probability Model" (LPM). Since the dependent variable is binary (0 or 1 only), we can interpret the expected value of the dependent variable in terms of the **probability** that the variable is equal to 1 (the expected value of a Bernoulli trial is the probability of 1, or $p$). So in this context, predicted and expected values are interpreted as probabilities of voting "Yes" (for Pinochet), and marginal effects and first differences are interpreted in terms of changes in the probability of voting "Yes" (for Pinochet). 
+When we estimate a linear model for a binary dependent variable, as we do above, it is called the "Linear Probability Model" (LPM). Since the dependent variable is binary (0 or 1 only), we can interpret the expected value of the dependent variable in terms of the **probability** that the variable is equal to 1 (the expected value of a Bernoulli trial is the probability of 1, or $p$). So in this context, predicted and expected values are interpreted as probabilities of voting "Yes" (for Pinochet), and marginal effects and first differences are interpreted in terms of changes in the probability of voting "Yes" (for Pinochet).
 
-Now answer the following questions: 
+Now answer the following questions:
 
-b. Interpret the intercept: what is the substantive interpretation? Is it meaningful in this case? Why or why not? Remember what we said above about how to think about the expected value of the dependent variable when it is binary!
+b.  Interpret the intercept: what is the substantive interpretation? Is it meaningful in this case? Why or why not? Remember what we said above about how to think about the expected value of the dependent variable when it is binary!
 
-c. Substantively interpret the coefficients for education ($\beta_2$ and $\beta_3$) and sex ($\beta_1$). Remember what we said above about how to think about first differences when the dependent variable is binary!
+c.  Substantively interpret the coefficients for education ($\beta_2$ and $\beta_3$) and sex ($\beta_1$). Remember what we said above about how to think about first differences when the dependent variable is binary!
 
-d. Substantively interpret the coefficients for `statusquo` ($\beta_5$) and `income_1000` ($\beta_4$). Remember what we said, etc.
+d.  Substantively interpret the coefficients for `statusquo` ($\beta_5$) and `income_1000` ($\beta_4$). Remember what we said, etc.
 
-e. Substantively interpret the interaction terms ($\beta_6$ and $\beta_7$). Remember what we said, etc.
+e.  Substantively interpret the interaction terms ($\beta_6$ and $\beta_7$). Remember what we said, etc.
 
-f. Use any approach or package you wish to calculate the conditional marginal effects of `statusquo` at each category of education. Plot these three estimates with 95% confidence bounds, and make sure the 95% confidence bounds are based on a heteroskedasticity-consistent variance-covariance matrix (i.e., that they are adjusted for heteroskedasticity)!
-
-
+f.  Use any approach or package you wish to calculate the conditional marginal effects of `statusquo` at each category of education. Plot these three estimates with 95% confidence bounds, and make sure the 95% confidence bounds are based on a heteroskedasticity-consistent variance-covariance matrix (i.e., that they are adjusted for heteroskedasticity)!
