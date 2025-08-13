@@ -1,0 +1,417 @@
+---
+title: "Final Topic List"
+format: html
+editor: visual
+---
+
+## Final Exam Topic List
+
+## Basic estimation theory
+
+1.  What is an estimator?
+
+2.  What does it mean for an estimator to be unbiased? …consistent? …efficient? Why are these properties valuable?
+
+```{r}
+#| echo: true
+
+model <- lm(y ~ x1 + x2, data = dataset)
+summary(model)
+
+```
+
+## Basic theory of the linear regression model
+
+1.  Be able to read and understand the various ways of writing the model down (in terms of notation)
+
+2.  Be able to interpret the coefficient estimates from an estimated model!
+
+    1.  What is the intercept/constant and how should it be interpreted?
+
+    2.  What are the regression coefficients/slopes and how should they be interpreted? 
+
+3.  What is the error term, conceptually?
+
+4.  What is a marginal effect, conceptually?
+
+5.  What is a first difference? And how is it different from a marginal effect (at least in principle, if not always in practice)?
+
+### Hypothesis testing for coefficients
+
+**t-statistic**: t = (β̂ - β₀)/SE(β̂), where β₀ is hypothesized value (usually 0)
+
+**p-value**: Probability of observing a test statistic as extreme as the one calculated, assuming the null hypothesis is true. For two-tailed test against H₀: β = 0, reject if p \< α.
+
+### Confidence intervals
+
+95% CI: β̂ ± t₀.₀₂₅,df × SE(β̂)
+
+Interpretation: If we repeated sampling many times, 95% of such intervals would contain the true parameter value.
+
+### F-tests
+
+Used to test joint hypotheses about multiple parameters. Compares restricted and unrestricted models:
+
+F = \[(SSRr - SSRur)/q\] / \[SSRur/(n-k-1)\]
+
+Where q is number of restrictions. Tests whether excluded variables jointly improve model fit.
+
+## Theory of ordinary least squares
+
+1.  What are the Gauss-Markov assumptions and what do they mean? What do these assumptions “buy” us in terms of properties of our estimator? Put another way, know the properties of the OLS estimator under the various possible assumptions we have discussed, and what we lose when they are violated.
+
+2.  What is the variance-covariance matrix of Beta and how is it typically estimated? what do the entries in this matrix mean, conceptually? where do the standard errors for beta_hat come from and how are they calculated?
+
+```{r}
+model <- lm(y ~ x, data = mydata)
+vcov(model)                 # Shows estimated variance-covariance matrix
+sqrt(diag(vcov(model)))     # Extracts standard errors
+
+```
+
+3.  What are “asymptotic” properties of an estimator? What are the asymptotic properties of OLS? Under what conditions do we rely on these properties instead of finite sample properties and with what implications (what do we lose / what changes)?
+
+## Basics of inference
+
+1.  Be able to perform basic null hypothesis tests for coefficients (including calculating t-stats, finding p-values from t-stats, etc.) and to interpret them.
+
+    Null: H0: beta = beta0 (0)
+
+    t test
+
+```{r}
+### t-Tests and p-values
+#To test 
+
+# Extract coefficient and standard error
+beta_hat <- coef(model)[2]  # coefficient of interest
+se_beta <- sqrt(diag(vcov(model)))[2]  # standard error
+
+# Calculate t-statistic (testing H₀: β = 0)
+t_stat <- beta_hat / se_beta
+
+# Degrees of freedom
+df <- model$df.residual
+
+# Two-tailed p-value
+p_value_two <- 2 * pt(abs(t_stat), df, lower.tail = FALSE)
+
+# One-tailed p-values
+p_value_upper <- pt(t_stat, df, lower.tail = FALSE)  # H₁: β > 0
+p_value_lower <- pt(t_stat, df, lower.tail = TRUE)   # H₁: β < 0
+```
+
+1.  Be able to calculate and interpret confidence intervals (e.g., 95%, 80%, etc.) for coefficients.
+
+```{r}
+# 95% confidence interval
+alpha <- 0.05
+t_critical <- qt(1 - alpha/2, df)  # two-tailed critical value
+ci_lower <- beta_hat - t_critical * se_beta
+ci_upper <- beta_hat + t_critical * se_beta
+
+cat("95% CI: [", ci_lower, ",", ci_upper, "]\n")
+
+# Alternative using confint()
+confint(model, level = 0.95)
+```
+
+## Functional form and interactions
+
+1.  When would we use models with interactions or polynomials? What good are they?
+
+2.  Be able to calculate and interpret coefficients, marginal effects, first diffs, etc., for models with interactions and polynomials.
+
+```{r}
+# Calculate conditional marginal effect
+cme_x1 <- coef(model)["x1"] + coef(model)["x1:x2"] * x2_values
+
+# Plot predicted values for different groups
+ggplot(predicted_df, aes(x = x1, y = predicted_y, color = factor(x2))) +
+  geom_line() +
+  labs(title = "Predicted Y vs X1 at Different Values of X2")
+```
+
+For quadratic model: y = β₀ + β₁x + β₂x² + u
+
+Marginal effect: ∂y/∂x = β₁ + 2β₂x
+
+The effect of x depends on the value of x itself. The relationship can be U-shaped (β₂ \> 0) or inverted U-shaped (β₂ \< 0).
+
+calculating marginal effects
+
+```{r}
+# Predicting marginal effect of educ on income
+library(marginaleffects)
+marginaleffects(model_inter1, variables = "educ", newdata = data.frame(income = 40))
+
+#polynomials
+# Evaluate marginal effect of x at x = 10
+b1 <- coef(model_poly)["x"]
+b2 <- coef(model_poly)["I(x^2)"]
+x <- 10
+mfx <- b1 + 2 * b2 * x
+
+
+#first dif
+predict(model_poly, newdata = data.frame(x = 10)) -
+predict(model_poly, newdata = data.frame(x = 5))
+
+#plotting with itneraction
+library(marginaleffects)
+plot_predictions(model_inter1, condition = "income", interval = TRUE)
+plot_slopes(model_inter1, variables = "educ", condition = "income")
+
+
+```
+
+# **New material in second half of course**
+
+Advanced strategies for inference
+
+1.  Be able to explain the advantages and limitations of generating standard errors or confidence bounds using various approximate methods, including:
+
+    1.  Simulation Used to estimate confidence intervals or uncertainty when analytical forms are hard.Often applies when a parameter is a nonlinear function of estimated coefficients.
+
+    2.  Delta method first-order Taylor expansion to approximate the variance of a nonlinear function of parameters.CI is calculated via delta method by default. Assumes asymptotic normality.
+
+    3.  Bootstrapping (just in general, I won’t ask about specific methods of bootstrapping, e.g., Wild)Resample the data (with replacement) many times → estimate the model each time → examine the variability. Nonparametric — makes fewer assumptions than delta method.
+
+    When analytical solutions are difficult, simulate from the sampling distribution of coefficients. Draw from multivariate normal distribution using estimated coefficients and variance-covariance matrix.
+
+    | Method | Good For | Limitations |
+    |----|----|----|
+    | Simulation | Complex nonlinear functions, good intuition | Still needs model assumptions |
+    | Delta Method | Quick, works if function is smooth | Less accurate for non-linear cases |
+    | Bootstrapping | Very general, few assumptions | Computationally intensive |
+
+```{r}
+
+library(arm)
+sims <- sim(model, n.sims = 1000)
+# Calculate quantity of interest for each simulation
+results <- apply(sims@coef, 1, function(x) your_calculation(x))
+# Get confidence intervals
+quantile(results, c(0.025, 0.975))
+
+```
+
+Qualitative information
+
+1.  Be able to understand and interpret coefficients (dummy variables) for categorical variables in regression models (e.g., religious identification, race/ethnicity), and generate predicted values of y for specific categories.
+
+2.  Why do we typically exclude one category of a categorical variable and include the rest as J-1 dummies? What would change if we did NOT exclude one category? avoid perfect multicolinearity -- excluded group becomes the reference category
+
+3.  Be able to understand and interpret interactions involving categorical variables, and the meaning of estimating entirely separate models for distinct categories
+
+    \
+    **Example model with categorical interaction**:
+
+    ```{r}
+    # Model: y = β₀ + β₁x + β₂D + β₃(x×D) + u
+    # Where D is binary (0/1) categorical variable
+    model <- lm(y ~ x + D + x:D, data)
+    # OR equivalently:
+    model <- lm(y ~ x*D, data)
+
+    # Marginal effect of x when D=0: β₁
+    me_baseline <- coef(model)["x"]
+
+    # Marginal effect of x when D=1: β₁ + β₃
+    me_treatment <- coef(model)["x"] + coef(model)["x:D"]
+
+    cat("Effect for baseline group:", me_baseline, "\n")
+    cat("Effect for treatment group:", me_treatment, "\n")
+    cat("Difference in effects:", coef(model)["x:D"], "\n")
+    ```
+
+plots with interactions
+
+```{r}
+# Create range of x values
+x_range <- seq(min(data$x), max(data$x), length.out = 100)
+
+# Create prediction data for both groups
+pred_data <- expand.grid(x = x_range, D = c(0, 1))
+
+# Generate predictions
+pred_data$predicted <- predict(model, newdata = pred_data)
+
+# Plot with different lines for each group
+library(ggplot2)
+ggplot(pred_data, aes(x = x, y = predicted, color = factor(D))) +
+  geom_line(size = 1) +
+  labs(title = "Predicted Y by X for Different Groups",
+       x = "X Variable", y = "Predicted Y",
+       color = "Group") +
+  scale_color_manual(values = c("blue", "red"),
+                     labels = c("Baseline (D=0)", "Treatment (D=1)"))
+```
+
+multiple categories
+
+```{r}
+# If education has 3 levels: HS (baseline), College, Grad
+# Model: y = β₀ + β₁x + β₂College + β₃Grad + β₄(x×College) + β₅(x×Grad) + u
+model_multi <- lm(y ~ x * factor(education), data)
+
+# Marginal effects for each education level:
+me_hs <- coef(model_multi)["x"]  # High school (baseline)
+me_college <- coef(model_multi)["x"] + coef(model_multi)["x:factor(education)College"]
+me_grad <- coef(model_multi)["x"] + coef(model_multi)["x:factor(education)Grad"]
+```
+
+separate models vs interactions
+
+```{r}
+# Split data by categories
+hs_data <- subset(data, education == "HS")
+college_data <- subset(data, education == "College")
+grad_data <- subset(data, education == "Grad")
+
+# Estimate separate models
+model_hs <- lm(y ~ x, data = hs_data)
+model_college <- lm(y ~ x, data = college_data)
+model_grad <- lm(y ~ x, data = grad_data)
+
+# Extract slopes for each group
+slope_hs <- coef(model_hs)["x"]
+slope_college <- coef(model_college)["x"] 
+slope_grad <- coef(model_grad)["x"]
+```
+
+test whether seperate models are needed (chow)
+
+```{r}
+# Chow test: Are separate models necessary?
+# H₀: Same model for all groups vs H₁: Different models needed
+
+# Pooled model (restricts coefficients to be same)
+model_pooled <- lm(y ~ x + other_vars, data)
+
+# Separate models for each group
+model_group1 <- lm(y ~ x + other_vars, data = subset(data, group == 1))
+model_group2 <- lm(y ~ x + other_vars, data = subset(data, group == 2))
+
+# Calculate F-statistic
+ssr_pooled <- sum(model_pooled$residuals^2)
+ssr_separate <- sum(model_group1$residuals^2) + sum(model_group2$residuals^2)
+
+n <- nrow(data)
+k <- length(coef(model_pooled))  # number of parameters
+
+# Chow test statistic
+f_stat <- ((ssr_pooled - ssr_separate) / ssr_separate) * ((n - 2*k) / k)
+p_value <- pf(f_stat, df1 = k, df2 = n - 2*k, lower.tail = FALSE)
+
+cat("Chow test F-statistic:", f_stat, "\n")
+cat("p-value:", p_value, "\n")
+```
+
+Heteroskedasticity\
+
+1.  Know what heteroskedasticity is and what assumption it violates, including how that assumption and its violation are written in terms of notation, and how we can understand it in terms of the variance-covariance matrix of the error term
+
+2.  What are the consequences of heteroskedasticity for OLS estimation?
+
+3.  What are the HC0-HC3 methods for correcting the error covariance matrix in the presence of heteroskedasticity? How do they differ and which ones would we typically want to use?
+
+4.  What is “clustering” in the context of the covariance matrix of the errors, and how does it violate the relevant OLS assumption?
+
+5.  What does it mean to include “fixed effects” for a grouping factor in a regression model, and how does that help remove clustering of errors?
+
+6.  What are “clustered” standard errors? Be able to describe their calculation conceptually.
+
+7.  What is “leverage”? What is “influence”?
+
+8.  What are the properties of Generalized Least Squares and feasible GLS, and when and why might we want to use them as an alternative to OLS?\
+    \
+
+Endogeneity\
+
+1.  Know what endogeneity is and what assumption it violates, including how that assumption and its violation are written in terms of notation, and the ways in which it can arise in linear regression models.
+
+2.  What are the consequences of measurement error in the dependent variable? In one or more independent variables?
+
+3.  What is a “proxy variable”, how does it help in cases of omitted variable bias, and what assumptions are required for a “good proxy”?
+
+4.  What is an “instrumental variable”, how does it help in cases of omitted variable bias, and what assumptions are required for a “good instrument” (including in cases of multiple regression and with multiple (potential) instrumental variables)? 
+
+5.  What is two-stage least squares?
+
+    1.  Be able to describe, conceptually, the process of generating 2SLS estimates using the actual 2-step procedure (i.e., why is it called 2SLS?)
+
+    2.  What are the properties of the “one-step” 2SLS estimator (i.e., the one we actually use in practice)?
+
+        1.  What does it mean to have “weak” instruments and what are the consequences?
+
+        2.  What are the consequences of partially endogenous (imperfect) instruments?
+
+    3.  Be able to understand and interpret 2SLS regression output, including the standard set of diagnostic hypothesis tests: weak instruments, Hausman, Sargan
+
+    \
+
+Bias-Variance tradeoff
+
+1.  Why is there generally a tradeoff in reducing bias and minimizing variance in estimation? Why might increasing model “flexibility” also increase the variance of the estimator and its predictions about the outcome variable?
+
+2.  What is the difference between “training” and “test” mean squared error? Why is the latter typically a better way to measure model fit? What is the standard decomposition of the test MSE and what does it tell us?
+
+3.  What is cross-validation as a method for assessing model fit?
+
+    1.  What is K-fold CV?
+
+Splits data into training and validation sets to estimate test error: K-fold CV: Divide data into K parts, train on K-1, test on 1, repeat K times
+
+```         
+2.  What is leave-one-out CV?
+```
+
+Leave-one-out CV: Special case where K = n
+
+```         
+3.  What are the tradeoffs we face as K -\> N?
+```
+
+4.  What is penalized regression?
+
+    1.  Be able to recognize, understand, explain the general form for the penalized regression model, as described in our slides and the readings
+
+    Add penalty to loss function to shrink coefficients:
+
+    2.  What are ridge regression and LASSO, the form of their penalty functions, and their properties? When might we choose one over the other?
+
+Ridge regression: Penalty = λΣβⱼ² (L2 penalty) LASSO: Penalty = λΣ\|βⱼ\| (L1 penalty) LASSO can set coefficients exactly to zero (variable selection), Ridge cannot. Tuning parameter λ controls penalty strength - choose via cross-validation.
+
+```         
+3.  What is the “tuning” parameter and how do we typically choose it?
+
+4.  What kinds of problems are these methods best suited for, and when might they be less useful?
+```
+
+Panel data
+
+1.  What is the “differences-in-differences” estimator for the causal effect of an intervention applied to some groups but not others across time? What are the key assumptions needed to identify the DiD as a causal effect of an intervention?
+
+Differences-in-differences (DiD) Estimates causal effect by comparing treatment and control groups before and after treatment: DiD estimate = (Y_treat,after - Y_treat,before) - (Y_control,after - Y_control,before) Key assumption: Parallel trends - treatment and control groups would have followed same trend absent treatment.
+
+2.  Be able to calculate and/or interpret the DiD estimate in the canonical 2 x 2 intervention context.
+
+Two-way fixed effects estimator For panel data with multiple groups and time periods: y_it = α_i + λ_t + βD_it + ε_it Where α_i are unit fixed effects, λ_t are time fixed effects, D_it is treatment indicator.
+
+```{r}
+rlibrary(fixest)
+# Two-way fixed effects
+model <- feols(y ~ treatment | unit + time, data = panel_data)
+
+# Clustered SEs by unit
+model <- feols(y ~ treatment | unit + time, 
+               data = panel_data, 
+               vcov = cluster ~ unit)
+```
+
+3.  Be able to recognize and describe the two-way fixed effects estimator for the more general case of DiD with multiple groups and time periods.
+
+4.  What are the implications of the Goodman-Bacon decomposition of the two-way fixed effects estimator when applied to data with staggered treatments for multiple groups across time?
+
+With staggered treatment timing, two-way fixed effects estimator is weighted average of all possible 2×2 DiD comparisons. Some comparisons use already-treated units as controls, which can bias results if treatment effects vary over time. Problem: "Forbidden comparisons" where treated units serve as controls for later-treated units, potentially causing negative weights and biased estimates.
