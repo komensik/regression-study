@@ -1,0 +1,244 @@
+---
+title: "Mensik_PS4"
+output:
+  html_document:
+    theme: united
+    toc: true
+    toc_float:
+      collapsed: true
+  pdf_document:
+    toc: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(purrr)
+library(car)
+library(sandwich)
+library(xtable)
+
+highway <- read.csv("highway.csv")
+chile <- read.csv("chile.csv")
+```
+
+## Problem 1
+
+-   *rate*: accident rate per million vehicle miles (\# accidents per million miles) \*num
+-   *acpt*: number of vehicle access points per mile
+    -   num
+    -   min 2.20, max 53, mean 12.16
+    -   "unit increase" means one additional vehicle access point per mile
+-   *slim*: speed limit in miles per hour
+    -   int (40-70)
+    -   min 40, max 70, mean 55
+    -   "unit increase" means + 1 mph
+-   *sigs1*: number of signals (e.g., traffic light intersections) per mile
+    -   num
+    -   min 0.04545, max 2.78933, mean 0.5
+    -   "unit increase" means one additional traffic light per mile
+-   *shld*: width in feet of shoulder of road
+    -   int
+    -   min 1, max 10, median 8
+    -   "unit increase" means one additional foot in width of road shoulder
+
+### 1A.
+
+$$
+rate_i = \beta_0 + \beta_1acpt_i + \beta_2slim_i + \beta_3sigs1_i + \beta_4shld_i + u_i
+$$
+
+```{r, echo=FALSE}
+
+m1 <- lm(rate ~ acpt + slim + sigs1 + shld, data = highway) 
+
+
+summary(m1)
+confint(m1)
+
+par(mfrow=c(2,2))
+plot(m1)
+par(mfrow=c(1,1))
+library(lmtest)
+bptest(m1)
+```
+
+### 1B
+
+**acpt**: 0.09081; change in the rate of accidents per million miles for one additional access point per mile, holding other road features constant
+
+-   *interpretation*:
+
+    -   an additional access point per mile is associated with a 0.09 increase in accidents/million miles, and this effect is statistically significant at the 1% level (bc p value is less than 0.01), where the confidence interval is [0.028, 0.154].
+
+**slim**: -0.10408; change in the rate of accidents per million miles for unit (+5mph) increase in the speeding limit
+
+-   *Interpretation*: An additional unit (1 mile per hour) increase in the speed limit is associated with a 0.10408 fewer accidents per million miles. This effect is not statistically significant at the 95% confidence level, because although the probability of getting a t-statistic as "extreme" as \|1.765\| if the coefficient were 0 is fairly low (there's an 8.7% chance we'd see a t-stat as extreme as 1.765), the confidence interval is [-0.2239, 0.015] – crosses 0, and the t value is less than acpt's.
+
+**sigs1**: 0.77379; change in the rate of accidents per million miles for unit increase in traffic light per mile
+
+-   An additional traffic light per mile is associated with 0.77 more accidents per million miles. This effect is statistically significant at the 95% confidence level ([0.05, 1.49] confidence interval, probability of getting a t-stat as extreme as 2.175 if beta were 0 is 3.6%).
+
+**shld**: 0.02452; change in the rate of accidents per million miles for unit increase in shoulder road width
+
+-   An additional foot in shoulder width is associated with 0.02452 accidents per million miles. This effect is not statistically significant – 95% CI [-0.16, 0.211] includes 0.
+
+### 1C.
+
+```{r, echo=FALSE}
+
+confint(m1, level = 0.90)
+
+```
+
+For each coefficient (but not the intercept), make a decision about statistical significance for a *one*-tailed test with $\alpha=0.05$ and **null hypotheses** defined as follows:
+
+$$
+H_0: \beta_1 \leq 0 \\
+H_0: \beta_2 \geq 0 \\
+H_0: \beta_3 \geq 0 \\
+H_0: \beta_4 \geq 0
+$$
+
+**acpt:** The positive effect of access points on accident rates is still significant using a 1-tailed test. We can reject the null that additional access points do not increase accidents.
+
+-   Interested in positive direction (beta greater than 0), null is that it's negative
+
+-   Half of p value 0.005 is still positive, so valid
+
+-   half the p value is also still less than 0.05, so I reject the null
+
+-   but on a 90% [0.39, 0.14] interval
+
+**slim:** Where the negative effect of a mile-per-hour increase in the speed limit on accidents per million miles was *not* significant with a two-tailed test, it *is* significant with a 1-tailed test, allowing us to reject the null (that an additional MPH speed limit does not have an effect on accidents).
+
+-   intersted in negative direction (beta less than 0), null is that it's positive, and slim coeff is negative
+
+-   half the p value is 0.04329, which is positive, so valid
+
+-   half the p value is also less than 0.05 (tho cutting it a bit close), so we can reject the null
+
+-   now 90% confidence interval [-0.2038, -0.0043], doesn't cross 0
+
+**sigs1:** the positive effect of traffic lights on traffic accidents is significant with a 1-tailed test CI [0.17, 1.37], so we can reject the null that an additional traffic light per mile does not increase accidents.
+
+**shld:** the effect of an additional foot of shoulder width is still not statistically significant at the 1-tailed test.
+
+### 1D.
+
+Interpret all coefficients substantively (including the intercept).
+
+First, it may be worth noting that an n of 39 and k of 4 makes for a fairly small degrees of freedom (34), the significance tests rely on the normality of residuals assumption more than asymptotic properties of large samples.
+
+The **intercept** tells us that when there are no vehicle access points, a 0 mph speed limit, 0 turn signals, and no road shoulders, the rate of accidents per million miles is about 8. In other words, perhaps, an unmarked, unofficial country road is still predicted to have 8 accidents per 1 million miles – whether such a million mile road exists seems dubious, so taken literally this doesn't seem meaningful, and also this predictor and the others set to 0 is outside of the support of the data (ie, mph starts at 40 in this data).
+
+```{r}
+hist(highway$acpt)
+plot(density(highway$acpt))
+```
+
+**acpt:** One additional access point per mile is associated with 0.09 more accidents per million miles, and this effect is statistically significant at the 1% level with both a 1 and 2 tailed test.
+
+**slim:** Speed limit has a negative effect on accidents per million miles, but it's only significant with a one-tailed test (at the 5% level for a two-tailed p=0.087).
+
+**sigs1:** An additional traffic light per mile is associated with 0.77 additional accidents per million miles, and this effect is significant. The effect of an additional foot in **shoulder width**, **shld** is a 0.02 more accidents per million miles, but this isn't statistically significant.
+
+*Scale* in this case is confusing, though, in part because a change per million miles of road in a context where the longest highway I know of in the US is \~3k miles is out of my intuitive purview.
+
+Trying to get more concrete with acpt for example, I say then that a 10-access point increase per mile of road leads to almost 1 more accident per million miles, but that becomes meaningless given the distribution of access points per mile in the dataset (acpt the range is 2.2 to 53 access points per mile of road, but clustered between \~7 and \~15 access points per mile, making that substantively a-typical. Maybe the best way to "scale" it is to use the IQR, or say that moving from the 25th percentile to the 75th percentile in access points per mile is associated with roughly 0.7 more accidents per mile, which is associated with about a 9% increase relative to the average accident rate (but that's using an intercept that isn't super meaningful).
+
+### 1E.
+
+The model explains a good deal of variation in accident rates across roads (63-67%) and the \~4 point drop suggests that at least one of th predictors in the model is explaining less than it's change in k (is useless). That is probably shld.
+
+### 1F.
+
+Calculate, by hand, 95% confidence intervals for each coefficient (but not the intercept). Explain how these confidence intervals relate to the $p$ values in the table above.
+
+```{r}
+
+B <- coef(m1)
+df <- m1$df.residual
+se <- sqrt(diag(vcov(m1)))
+
+#95% conf interval
+B["acpt"] + qt(c(0.025, 0.975), df) * se["acpt"]
+
+B["slim"] + qt(c(0.025, 0.975), df) * se["slim"]
+
+B["sigs1"] + qt(c(0.025, 0.975), df) *se["sigs1"]
+
+B["shld"] + qt(c(0.025, 0.975), df) *se["shld"]
+```
+
+The following confidence intervals relate to the coefficients' p values in that both are constructed from the same sampling distribution, which so far we're applying GM assumptions/asymptotics to assume is normally distributed around the true values of beta; and from the same standard error (square root of the diagonal of the vcov matrix).
+
+The two-sided (in this case) 95% confidence intervals are basically the set of plausible values/null hypotheses that wouldn't be rejected at a 5 percent significance. If 0 is outside of the confidence intervals, the two-tailed p values will be less than 0.05; if inside, the p values will be more than 0.5. Perhaps the strong point is that the spherical errors assumption is wrong, then standard errors are wrong and confidence intervals are also wrong (tho separate ways to ask the same question, their answers are constructed based off the same value/assumption).
+
+Acpt's CI [0.0289, 0.1526]
+
+slim [-0.2239, 0.01577]
+
+sigs1: [0.0509, 1.4966]
+
+shld: [-0.1621, 0.2112]
+
+### 1G.
+
+Report the heteroskedasticity-robust standard errors (HC3) for each coefficient, each coefficient estimate, and the associated t-statistics, and p-values for (robust) two-tailed tests against zero.
+
+```{r}
+# first, HC3 SE's:
+HC3 <- sqrt(diag(hccm(m1, type = "hc3")))
+
+#t-vals
+t_vals <- m1$coefficients/HC3
+
+#p-vals
+p_values <- 2* (1-pt(abs(t_vals), m1$df.residual))
+
+round(data.frame(coefficient = coef(m1),
+                 se.robust = HC3,
+                 t.value = t_vals,
+                 p.value = p_values), 5)
+
+table1 <- data.frame(coefficient = coef(m1),
+                 se.robust = HC3,
+                 t.value = t_vals,
+                 p.value = p_values)
+
+print(xtable(round(table, 5)), type = "latex")
+```
+
+## Problem 2
+
+Use the dataset `chile.csv`. These are data on citizen characteristics and voting intentions in the 1988 Chilean plebiscite. The variables of interest are as follows:
+
+-   *vote_yes*: 1=will vote yes for Pinochet, 0=will vote no against Pinochet
+-   *statusquo*: higher values = more support for the status quo, standardized to have mean zero and standard deviation of one
+-   *income*: monthly income, in pesos
+-   *education*: factor variable with 3 levels: primary only (baseline), post-secondary (PS), secondary (S)
+-   *sex*: factor variable with two levels, female (baseline) and male (M)
+
+a.  Create a new variable called `income_1000` which transforms `income` so that it is measured in thousands of pesos. Then estimate the following model (name it `m2`):
+
+$$
+voteyes_i = \beta_0 + \beta_1sexM_i + \beta_2educationPS_i + \beta_3educationS_i + \\ \beta_4income1000_i + \beta_5statusquo_i + \\ 
+\beta_6(statusquo_i)(educationPS_i) + \beta_7(statusquo_i)(educationS_i) + u_i
+$$
+
+When we estimate a linear model for a binary dependent variable, as we do above, it is called the "Linear Probability Model" (LPM). Since the dependent variable is binary (0 or 1 only), we can interpret the expected value of the dependent variable in terms of the **probability** that the variable is equal to 1 (the expected value of a Bernoulli trial is the probability of 1, or $p$). So in this context, predicted and expected values are interpreted as probabilities of voting "Yes" (for Pinochet), and marginal effects and first differences are interpreted in terms of changes in the probability of voting "Yes" (for Pinochet).
+
+Now answer the following questions:
+
+b.  Interpret the intercept: what is the substantive interpretation? Is it meaningful in this case? Why or why not? Remember what we said above about how to think about the expected value of the dependent variable when it is binary!
+
+c.  Substantively interpret the coefficients for education ($\beta_2$ and $\beta_3$) and sex ($\beta_1$). Remember what we said above about how to think about first differences when the dependent variable is binary!
+
+d.  Substantively interpret the coefficients for `statusquo` ($\beta_5$) and `income_1000` ($\beta_4$). Remember what we said, etc.
+
+e.  Substantively interpret the interaction terms ($\beta_6$ and $\beta_7$). Remember what we said, etc.
+
+f.  Use any approach or package you wish to calculate the conditional marginal effects of `statusquo` at each category of education. Plot these three estimates with 95% confidence bounds, and make sure the 95% confidence bounds are based on a heteroskedasticity-consistent variance-covariance matrix (i.e., that they are adjusted for heteroskedasticity)!
