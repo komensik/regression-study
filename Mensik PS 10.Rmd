@@ -30,6 +30,10 @@ library(marginaleffects)
 
 ```{r}
 
+abs_data <- read.csv("abs_data.csv")
+
+view(abs_data)
+
 ```
 
 
