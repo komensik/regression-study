@@ -1,0 +1,118 @@
+------------------------------------------------------------------------
+
+title: "R Notebook - Regression" output: html_notebook
+
+# Regression Coefficient Testing Workflow (Flashcard Template)
+
+### Step 1. Coefficient Estimate
+
+-   **What:** $\hat\beta$
+
+-   **Meaning:** the estimated effect of a one-unit change in the predictor, holding others constant.
+
+-   **Report:** units, direction, size.
+
+-   **Flashcard phrasing:** “What does the estimate mean in plain language?”
+
+------------------------------------------------------------------------
+
+### Step 2. Standard Error (SE)
+
+-   **What:** $\text{SE}(\hat\beta)$
+
+-   **Meaning:** the typical sampling fluctuation of the estimate under repeated samples, in the same units as $\hat\beta$
+
+-   **Use:** ingredient for CI and t.
+
+-   **Flashcard phrasing:** “SE tells me the expected wiggle in the estimate under the null model.”
+
+------------------------------------------------------------------------
+
+### Step 3. t-statistic
+
+-   **Formula:** $t=\frac{\hat\beta - \beta_0}{\text{SE}}$ usually with $\beta_0 = 0$.
+
+-   **Meaning:** “How many SEs away from the null is my estimate?”
+
+-   **Intuition:**
+
+    -   small ∣t∣≈0\|t\| \approx 0∣t∣≈0: estimate is close to null relative to its noise → consistent with null.
+
+    -   large ∣t∣\|t\|∣t∣: estimate is far out in the tails if null were true → evidence against null.
+
+-   **Flashcard phrasing:** “t is the distance from the null, in standard error units.”
+
+------------------------------------------------------------------------
+
+### Step 4. p-value
+
+-   **What:** probability, under H0H_0H0​, of seeing a t as extreme (≥\|observed t\|).
+
+    **Decision rule (α=0.05):**
+
+    -   p \< .05 → reject H0H_0H0​.
+
+    -   p ≥ .05 → do not reject H0H_0H0​.
+
+    -   **Flashcard phrasing:** “p = how surprising my t is if the null is true.”
+
+------------------------------------------------------------------------
+
+### Step 5. Confidence Interval (CI)
+
+-   **Formula (95%):** β^±t∗×SE^\hat\beta \pm t\* \times SEβ\^​±t∗×SE (critical t from df).
+
+-   **Meaning:** range of plausible values for true β consistent with data at 95% level.
+
+-   **Decision link:** If CI excludes 0 → same as p \< .05.
+
+-   **Flashcard phrasing:** “CI shows the plausible range; crossing 0 means not significant.”
+
+------------------------------------------------------------------------
+
+### Step 6. Report & Interpret
+
+-   Typical APA / econ style:
+
+    -   “acpt = 0.091 (SE = 0.030), t(34)=2.98, p=0.005. Interpretation: each additional access point per mile is associated with \~0.09 more accidents per million miles. Significant at 1%. 95% CI: [0.028, 0.154].”
+
+------------------------------------------------------------------------
+
+🌟 **Meta-Flashcard (connect the steps):**
+
+> “Coefficient is the signal, SE is the noise scale, t is signal-to-noise, p is probability of seeing that signal-to-noise under the null, CI is the range of plausible signals given the noise.”
+
+```{r}
+# Load needed packages
+library(broom)      # for tidy output
+library(dplyr)      # for data wrangling
+
+# Fit your model (example)
+m1 <- lm(rate ~ acpt + slim + sigs1 + shld, data = highway)
+
+# Critical value for 95% CI
+crit <- qt(0.975, df = df.residual(m1))
+
+# Tidy up results
+results <- broom::tidy(m1) %>%
+  mutate(
+    # 95% CI bounds
+    conf.low  = estimate - crit * std.error,
+    conf.high = estimate + crit * std.error,
+    # Plain-English template for flashcards / write-ups
+    template = paste0(
+      term, ": β̂ = ", round(estimate, 3),
+      " (SE = ", round(std.error, 3), 
+      "), t(", df.residual(m1), ") = ", round(statistic, 2),
+      ", p = ", signif(p.value, 3),
+      ". 95% CI [", round(conf.low, 3), ", ", round(conf.high, 3), "]."
+    )
+  )
+
+# Remove intercept row if you don't want it
+results_no_intercept <- results %>% filter(term != "(Intercept)")
+
+# View nicely
+print(results_no_intercept)
+
+```

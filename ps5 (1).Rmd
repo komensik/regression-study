@@ -10,6 +10,19 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r}
+
+knitr::opts_chunk$set(echo = FALSE)
+getwd()
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(marginaleffects)
+
+```
+
+
+
 ## Instructions
 
 Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 5` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 21 February, by 10:00 EST*. Name your files `lastname_ps05` (`.html` and `.Rmd`).

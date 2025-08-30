@@ -1,0 +1,326 @@
+---
+title: "PS6"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+## Instructions
+
+Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 6` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 28 February, by 10:00 EST*. Name your files `lastname_ps06` (`.html` and `.Rmd`).
+
+All submitted work must be your own.
+
+## Data
+
+For these problems, we will use a dataset of campaign contributions: `contribupdate.csv`.
+
+We will use the following variables:
+
+-   `age`: Age (years);
+-   `faminc`: Household income (in \$1,000 U.S. dollars);
+-   `given`: Campaign contributions over the past year (in U.S. dollars).
+
+a.  Load the data and store it in `contrib`.
+
+```{r, echo=FALSE}
+library(marginaleffects)
+library(ggplot2)
+
+contrib <- read.csv("contribupdate.csv")
+
+summary(contrib)
+```
+
+a.  Create two new variables in `contrib` that are the natural log of `faminc` and `given`. Name them `lfaminc` and `lgiven`, respectively.
+
+```{r, echo=FALSE}
+
+contrib$lfaminc <- log(contrib$faminc)
+  
+contrib$lgiven <- log(contrib$given)
+
+```
+
+## Problem 1
+
+a.  You suspect that age has a non-linear relationship with campaign contributions. You decide to model this with a quadratic term for age. Estimate the following model and store it in an object `m1`.
+
+$$
+ \text{given}_i = \beta_0 + \beta_1\text{age}_i + \beta_2 (\text{age}_i)^2 + u_i
+$$
+
+```{r, echo=FALSE}
+
+m1 <- lm(given ~ age + I(age^2), data = contrib)
+
+#looking for evidence of a quadratic relationship between age and given
+
+summary(m1)
+
+```
+
+b.  Is there evidence for a quadratic relationship between `age` and `given`? Explain why or why not.
+
+The intercept of 96.09 means the predicted giving at 0 years old (not substantively meaningful) is 0.
+
+The coefficient estimate for age is 4.34 Because this is a quadratic model, the coefficient of age isn't the constant effect of a one-unit (ie one year) increase in age – its the linear component of the effect. The actual marginal effect is the CME equation.
+
+The coefficient estimate for age squared (-0.227) for I(age\^2) – since it's negative, it tells us the curvature would be concave down. However, age squared's p value (0.2053) is much greater than 0.05, suggesting the relationship may be due to chance – ie there isn't strong evidence of a quadratic relationship between age and given.
+
+b.  Formula for the conditional marginal effect of `age` on `given`.
+
+$$\frac{\partial given_i}{\partial age_i} = \beta_1 + 2\beta_2age_{i}$$
+
+b.  At what value of age does the conditional marginal effect of age reach zero? Show your work using an R code block (`echo=T`). The CME of age on contributions reaches zero at 97.93.
+
+```{r, echo=TRUE}
+
+ turning_point <- -4.34239/(2*-0.02217)
+ 
+turning_point
+```
+
+b.  Plot the conditional marginal effect of `age` on `given` across values of `age`. Make sure your figure is properly labeled and looks professional. Briefly interpret the plot substantively.
+
+```{r, echo=FALSE, fig.align='center'}
+options(marginaleffects_print_omit = c("s.value"))
+
+# deal with nas
+age_min <- min(contrib$age, na.rm = TRUE)
+age_max <- max(contrib$age, na.rm =TRUE)
+age_grid <- seq(from = age_min, to = age_max, by = 0.1)
+
+# issues so trying extract as numeric
+age_num <- as.numeric(coef(m1)["age"])
+agesq_num <- as.numeric(coef(m1)["I(age^2)"])
+
+#cme
+cme_age <- age_num + 2 * agesq_num * age_grid
+
+# using range(cme_age) I get that the range of CME is 0.1748 to 3.5443. In the plot below, I add a approx 0.5 buffer to these values for the ylim
+
+# plot cme
+plot(age_grid, cme_age,
+     main = "Conditional Marginal Effect of Age Across Values of Age",
+     ylab = "CME of Age on Given", xlab = "Age", type = "l",
+     xlim = c(age_min, age_max), ylim = c(-0.5, 4))
+abline(h=0, lty=3)
+```
+
+This shows us that the instantaneous rate of change or the slop of age's effect on contributions decreases as people get older, although it (the effect of age on campaign contributions) is always positive (increases annual campaign contribution amounts, holding all else equal. For some examples. we see that at about 18-20, an additional year of age on average increases annual campaign contribution amounts by \$3.5, but at 60, that's closer to \$2, and by \~90 an additional year is almost nothing.
+
+b.  Plot the predicted values of `given` across values of `age`. Briefly interpret the plot substantively.
+
+```{r, echo=FALSE, fig.align='center'}
+
+# age grid over observed support is age_grid
+
+#predict 1 yr contrib ammount at each age
+p_given <- predict(m1,
+                   newdata = data.frame(age = age_grid))
+
+plot(age_grid, p_given,
+     type = "l",
+     xlab = "Age",
+     ylab = "Year Contribution\nTotal ($)",
+     main = "Quadratic Predicted Annual\nCampaign Donations x Age")
+
+```
+
+## Problem 2
+
+a.  You suspect that the impact of household income on campaign contributions is conditional on the age of an individual. Estimate the following model and store it in `m2`.
+
+$$
+ \text{given}_i = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{faminc}_i + \beta_3 \text{age}_i \times \text{faminc}_i + u_i
+$$
+
+```{r, echo=FALSE}
+
+m2 <- lm(given ~ age*faminc, data = contrib)
+
+summary(m2)
+
+```
+
+b.  What are the marginal effects of family income on campaign contributions for individuals who are 30, 50, and 70 years old, respectively? Use the coefficients from the regression table to calculate the marginal effects and show your work using `echo=T`.
+
+Marginal effect of faminc on campaign contrib is:
+
+$$\frac{\partial given_i}{\partial faminc_i} = \beta_2 + \beta_3age_{_i}$$
+
+```{r, echo=TRUE}
+
+#marginal effects of faminc on campaign contributions at 30 means 
+
+beta_faminc <- -0.75625
+beta_x <- 0.04987
+
+me_faminc_30 <- beta_faminc + beta_x * 30
+me_faminc_50 <- beta_faminc + beta_x * 50
+me_faminc_70 <- beta_faminc + beta_x * 70
+
+me_faminc_30
+me_faminc_50
+me_faminc_70
+
+#oops/also via slopes
+slopes(m2,
+       variables = "faminc",
+       newdata = datagrid(age = c(30, 50, 70)))
+
+```
+
+The conditional marginal effect of a one unit increase in family income at 30 is 74 cents, at 50 is \$1.74, at 70 is \$2.73, holding all else constant.
+
+b.  Create a plot that shows the marginal effect of family income at each value of age. Make sure your figure is properly labeled and looks professional. Briefly interpret the plot substantively.
+
+```{r, echo=FALSE}
+#plot of marginal effect of family income at 30
+
+m_income <- slopes(m2,
+       variables = "faminc",
+       newdata = datagrid(age = c(30, 50, 70)))
+
+
+ylimits <- range(c(m_income$estimate, m_income$conf.low, m_income$conf.high), na.rm = TRUE)
+
+plot(m_income$age, m_income$estimate,
+     xlab = "Age",
+     ylab = "Additional Contrib Amount ($)",
+     main = "ME of Family Income\nat 30, 50, 70",
+     xlim = range(m_income$age, na.rm = TRUE),
+     ylim = ylimits,
+     pch = 16, cex = 1.2)
+     
+arrows(m_income$age, m_income$conf.low,
+       m_income$age, m_income$conf.high,
+       angle = 90, code = 3, length = 0.2)
+
+```
+
+b.  Create a plot that displays the predicted contributions across the range of values of family income, with age fixed at three different values: 30, 50, and 70. That is, the plot should display predicted values across income in three separate lines, each representing a different value of age. Briefly interpret the plot substantively.
+
+```{r}
+
+#ranges
+inc <- seq(min(contrib$faminc, na.rm = TRUE),
+           max(contrib$faminc, na.rm = TRUE),
+           length.out = 200)
+
+ages <-c(30, 50, 70)
+
+#all combos
+new_data <- expand.grid(faminc = inc, age = ages)
+
+#predicted contrib for each combo
+new_data$predicted_contrib <- predict(m2, newdata = new_data)
+
+#plot
+ggplot(new_data, aes(x = faminc, y = predicted_contrib, color = factor(age))) + 
+  geom_line(linewidth = 1.1) +
+  labs(
+    x = "Family Income (Thousands $)",
+    y = "Predicted Annual Contribution ($)",
+    color = "Age",
+    title = "Predicted Contributions x. Family Income\nat 50, 50, 70") +
+  theme_minimal(
+  )
+
+```
+
+## Problem 3
+
+a.  You now think you are better off modeling the relationship of contributions to family income as non-linear. Estimate the following model and store it in `m3`.
+
+$$
+ \ln(\text{given}_i) = \beta_0 + \beta_1 \text{age}_i + \beta_2 \ln(\text{faminc}_i) + u_i
+$$
+
+```{r}
+m3 <- lm(lgiven ~ age + lfaminc, data = contrib)
+summary(m3)
+```
+
+b.  Write a sentence that interprets the estimate for $\beta_2$ as an elasticity. Don't do any calculations, just use the coefficient estimate from `m3`.
+
+$\beta_2$ is 0.594 meaning a 1 percent increase in family income is associated with a \~0.60% increase in the expected value of annual campaign contributions, holding all else constant.
+
+c.  Calculate the percentage change in `given` for a 10-year increase in `age` (use `echo=T`). Write a sentence that describes the result.
+
+```{r, echo=TRUE}
+
+perc_change <- 100*(exp(coef(m3)["age"]*10)-1)
+perc_change
+
+```
+
+On average, a 10-year increase in age increases annual campaign contributions by 13%.
+
+c.  Calculate the expected value of `given` for a 40-year-old with \$90,000 in family income (i.e., `faminc = 90`). Remember that this is expected for `given` NOT `log(given)`. Use `echo=T`
+
+```{r, echo=TRUE}
+
+
+age40 <- 40
+
+faminc40 <- 90
+
+df_40 <- data.frame(age=age40, lfaminc = log(faminc40))
+
+#predict on log scale
+predicted_40 <- predict(m3, newdata = df_40, se.fit = TRUE)
+pred_level <- exp(predicted_40$fit)
+
+pred_level
+#smearing correction
+
+sigmasq <- summary(m3)$sigma^2
+pred_level_sigma <- exp(predicted_40$fit + 0.5 *sigmasq)
+
+```
+
+Predicted value of campaign contributions for a 40 year old with \$90k in family income is \$98.2 dollars that year.
+
+c.  Calculate the change in the expected value of `given`, for a 60-year-old, when `faminc` changes from 50 to 100. In other words, calculate the first difference in `given` for a change in `faminc` from 50 to 100 holding `age` at 60. Use `echo=T`. Write a sentence that describes the result.
+
+For a 60 year old, a \$50k to \$100k jump in family income is on average associated with an estimated \$42 increase in campaign contributiond.
+
+```{r, echo=TRUE}
+
+#shorter way
+#data frame
+lastdf <- data.frame(
+  age = 60,
+  lfaminc = log(c(50,100))
+)
+
+#back transofm
+log_vers <- predict(m3, newdata = lastdf)
+level_vers <- exp(log_vers)
+first_dif<-level_vers[2]-level_vers[1]
+
+first_dif
+
+
+
+#OLD:
+#make a row for age 60 faminc 50, "" faminc 100
+bot1 <- data.frame(age=60, lfaminc = log(50))
+bot2 <- data.frame(age = 60, lfaminc = log(100))
+
+#scale - to log, exponentiate for dollar
+bot1_level <-exp(bot1)
+bot2_level <- exp(bot2)
+
+#first difference
+first_dif <- bot2_level- bot1_level
+
+first_dif
+```

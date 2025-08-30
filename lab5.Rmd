@@ -8,16 +8,17 @@ output:
       collapsed: true
 editor_options: 
   chunk_output_type: console
+  markdown: 
+    wrap: 72
 ---
 
-# Logs and Exponents 
+# Logs and Exponents
 
-## Inverse Functions 
+## Inverse Functions
 
-$$ln(e^x) = x$$
-$$e^{ln(x)} = x$$
-Note: the `log()` function computes natural logs by default. 
-The `exp()` function computes natural exponential functions. 
+$$ln(e^x) = x$$ $$e^{ln(x)} = x$$ Note: the `log()` function computes
+natural logs by default. The `exp()` function computes natural
+exponential functions.
 
 ```{r}
 x <- 10
@@ -25,12 +26,11 @@ log(exp(x))
 exp(log(x))
 ```
 
-## Helpful Rules 
+## Helpful Rules
 
 $$ exp(a + b) = e^{a + b} = e^ae^b $$
 $$ exp(a - b) = e^{a - b} = \frac{e^a}{e^b} $$
-$$ ln(a) + ln(b) = ln(ab)$$
-$$ ln(a) - ln(b) = ln(\frac{a}{b})$$
+$$ ln(a) + ln(b) = ln(ab)$$ $$ ln(a) - ln(b) = ln(\frac{a}{b})$$
 $$\frac{d}{dx} ln(x) = \frac{1}{x}$$
 
 ```{r}
@@ -47,10 +47,11 @@ round(log(a) - log(b)) == round(log(a/b))
 D(expression(log(x)), "x")
 ```
 
-## 1-Unit Change  
+## 1-Unit Change
 
-A 1-unit increase in ln(x) implies a non-constant effect in x. 
-Constant increases in ln(x) are associated with *order of magnitude* increases in x. 
+A 1-unit increase in ln(x) implies a non-constant effect in x. Constant
+increases in ln(x) are associated with *order of magnitude* increases in
+x.
 
 ```{r}
 log(10*x) - log(x) 
@@ -62,33 +63,33 @@ log((10*x)/x)
 log(10)
 ```
 
-# Log Transformations 
+# Log Transformations
 
-In this lab, we will return to the CEO salaries data set. 
+In this lab, we will return to the CEO salaries data set.
 
-  - `salary`: 1990 compensation ($1000s)
-  
-  - `profits`: 1990 profits ($ millions)
+-   `salary`: 1990 compensation (\$1000s)
+
+-   `profits`: 1990 profits (\$ millions)
 
 ```{r}
 ceosalary <- read.csv("data/ceosalary.csv")
 ```
 
-Create a variable `lsalary` that takes the log of salary in dollars. 
-Create a variable `lprofits` that takes the log of profits in dollars. 
+Create a variable `lsalary` that takes the log of salary in dollars.
+Create a variable `lprofits` that takes the log of profits in dollars.
 
-What type of data will be lost in this transformation? 
+What type of data will be lost in this transformation?
 
 ```{r}
 ceosalary$lsalary <- log(ceosalary$salary * 1000)
 ceosalary$lprofits <- log(ceosalary$profits * 1000000)
 ```
 
-# Interpreting Logs 
+# Interpreting Logs
 
-## Level-Level Model 
+## Level-Level Model
 
-1 unit change in $x_1$ is associated with a $\beta_1$ unit change in y. 
+1 unit change in $x_1$ is associated with a $\beta_1$ unit change in y.
 Remember: units of x (millions) and units of y (thousands)!
 
 ```{r}
@@ -96,12 +97,13 @@ m1 <- lm(salary ~ profits, ceosalary)
 summary(m1)
 ```
 
-## Log-Level Model 
+## Log-Level Model
 
 $$ ln(y_i) = \beta_0 + \beta_1 x_{1i} + u_i$$
 
-Factor Change: 1 unit change in $x_1$ multiplies $E(y)$ by $e^{\beta_1}$. 
-Percent Change: 1 unit change in $x_1$ is associated with a $100(e^{\beta_1(\Delta x_1)} - 1)$ *percent* change in $E(y)$.
+Factor Change: 1 unit change in $x_1$ multiplies $E(y)$ by
+$e^{\beta_1}$. Percent Change: 1 unit change in $x_1$ is associated with
+a $100(e^{\beta_1(\Delta x_1)} - 1)$ *percent* change in $E(y)$.
 
 ```{r}
 m2 <- lm(lsalary ~ profits, ceosalary)
@@ -114,11 +116,12 @@ exp(coef(m2)[2])
 100 * exp(coef(m2)[2] - 1)
 ```
 
-## Level-Log Model 
+## Level-Log Model
 
 $$ y_i = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
 
-Unit Change: A 1 *percent* increase in $x_1$ is associated with a $0.01 \beta_1$ unit increase in $E(y)$.
+Unit Change: A 1 *percent* increase in $x_1$ is associated with a
+$0.01 \beta_1$ unit increase in $E(y)$.
 
 $$ y_i = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
 
@@ -130,11 +133,12 @@ summary(m3)
 0.01 * coef(m3)[2]
 ```
 
-## Log-Log Model 
+## Log-Log Model
 
 $$ ln(y_i) = \beta_0 + \beta_1 ln(x_{1i}) + u_i$$
 
-Percent Change: 1 *percent* change in $x_1$ is associated with a $\beta_1$ *percent* change in $E(y)$.
+Percent Change: 1 *percent* change in $x_1$ is associated with a
+$\beta_1$ *percent* change in $E(y)$.
 
 ```{r}
 m4 <- lm(lsalary ~ lprofits, ceosalary)
@@ -144,7 +148,7 @@ summary(m4)
 coef(m4)[2]
 ```
 
-# Hypothesis Testing 
+# Hypothesis Testing
 
 $$ ln(salary_i) = \beta_0 + \beta_1 ln(profits_i) + u_i$$
 $$ H_0: \beta_1 = 0 $$
@@ -191,7 +195,7 @@ uci <- B + qt(0.975, df)*se
 knitr::kable(round(data.frame(beta=B, se=se, tstat=t, p=p, lci=lci, uci=uci, row.names = c("Intercept","Logged Profits")), 3))
 ```
 
-How do we interpret the values in the table? 
+How do we interpret the values in the table?
 
 ## F test
 
@@ -201,9 +205,10 @@ $$
 F = \frac{SSR_r - SSR_{ur} / q}{SSR_{ur} / (N-K-1)}
 $$
 
-Where q is the number of restrictions. 
-The F-statistic measures the ratio of explained variance to unexplained variance.
-A high F-statistic suggests that the additional parameter(s) significantly improve the model. 
+Where q is the number of restrictions. The F-statistic measures the
+ratio of explained variance to unexplained variance. A high F-statistic
+suggests that the additional parameter(s) significantly improve the
+model.
 
 ```{r}
 # unrestricted
@@ -232,5 +237,3 @@ pf(Fstat, q, df_ur, lower.tail=F)
 # compare to anova
 anova(m5_r, m5)
 ```
-
-

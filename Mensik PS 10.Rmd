@@ -1,0 +1,321 @@
+---
+title: "Mensik - PS10"
+output:
+  html_document:
+    theme: united
+    toc: true
+    toc_float:
+      collapsed: true
+editor_options:
+  chunk_output_type: console
+date: "2025-08-18"
+---
+
+```{r setup, echo=FALSE, warning=FALSE,message=FALSE}
+     
+library(ivreg)
+library(ggplot2)
+library(dplyr)
+library(purrr)
+library(car)
+library(sandwich)
+library(knitr)
+library(kableExtra)
+library(broom)
+library(marginaleffects)
+library(lmtest)
+library(stargazer)
+
+```
+
+## Problem 11
+
+###1a.
+
+```{r, echo=FALSE}
+abs_data <- read.csv("abs_data.csv")
+
+#inspecting data
+class(abs_data$water1860)
+
+
+#converting water to factor ?????
+
+
+#convert state.abb to factor from chr
+
+abs_data$state.abb_af <- factor(abs_data$state.abb)
+
+#table(abs_data$state.abb_af)
+
+#levels(abs_data$state.abb_af)
+
+#natural log of coarea00
+abs_data$ln_coarea00 <- log(abs_data$coarea00)
+
+summary(abs_data)
+
+# latitude and longitude
+
+abs_data$latitude_sq  = abs_data$latitude^2
+abs_data$longitude_sq = abs_data$longitude^2
+```
+
+```{r, echo=FALSE}
+#belatedly coming in to clean NAs -> put in new dataset
+
+clean_abs <- c("resent", "pslave1860", "ln_coarea00" , "rugged" , "latitude"  , "longitude" , "latitude_sq" , "longitude_sq" , "water1860" , "state.abb_af", "sample.size", "cottonsuit")
+
+cleaned_abs <- abs_data[complete.cases(abs_data[clean_abs]),]
+
+
+
+
+```
+
+
+
+
+
+
+```{r, echo=FALSE}
+#wls model
+
+m1 <- lm(resent ~ pslave1860 + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af, data = abs_data, weights = sample.size)
+
+summary(m1)
+#confint(m1, "state.abb_afWV", level = 0.95)
+
+sum(is.na(abs_data$state.abb_afWV))
+
+```
+
+** account for weights in below
+weighted by sample size in county -- samples from counties with fewer respondents given less weight because they have higher variance
+
+###1b.
+
+Coefficient for pslave1860 is 0.1523... a one unit or 10% increase () in the proportion of a county's 1860 population that was enslaved is associated with a 0.01523 percentage point increase in anti-Black attitudes today, holding all else constant, but the relationship isn't statistically significant (95% CI includes 0, p = 0.13). Because of fixed effects for states, this reflects estimates of within-state comparisons.
+
+Note on scale: -1 unit change in pslave1860 means +1 proportion, so +100percentage points (0 to 1) but that's nonseniscal, so a 1 percentage point increase (beta times 0.01) gives a 0.001523 percentage point on resentment.
+
+###1c. Coefficient for water1860 is -0.05510.
+
+All else constant, counties with access to navigable water have an average of 0.055 lower levels of racial resentment today than those without, holding all else equal. This, however, is also not statistically significant (95% CI includes 0, p = 0.094)
+
+###1d. Alabama was excluded as the baseline, WV = 0.02606
+
+All else constant, counties in West Virginia have 0.369 higher levels of racial resentment today compared to those in Alabama - this would be surprising given the author's hypotheses since West Virginia had a smaller enslaved population. This appears statistically significant (95% CI (0.04, 0.69) is narrow and doesn't cross 0, p = 0.026).
+
+**Should I use robust standard errors?** 
+*Could test for need (hetero) first, by:*
+- looking at both weighted and unweighted models
+
+unweighted model
+```{r}
+
+m0 <- lm(resent ~ pslave1860 + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af, data = abs_data)
+
+bptest(m0)
+```
+
+#residuals - used squared residuals as an estimate of the Var(ui) and check extent to which they can be explained by x_i 
+```{r}
+
+```
+
+
+```{r}
+#B-P Test
+
+library(lmtest)
+
+bptest(m1)
+
+```
+B-P Test results:
+
+	studentized Breusch-Pagan test
+
+data:  m1
+BP = 36881, df = 21, p-value < 2.2e-16
+
+```{r}
+#White Test -- uses fitted values and their square
+
+#unweighted by 'hand'
+e2   <- residuals(m0)^2
+yhat <- fitted(m0)
+aux  <- lm(e2 ~ yhat + I(yhat^2))          # auxiliary regression
+LM   <- nobs(aux) * summary(aux)$r.squared # LM statistic
+p    <- pchisq(LM, df = 2, lower.tail = FALSE)
+c(statistic = LM, df = 2, p.value = p)
+
+
+#below not working
+#bptest(m0, varformula = ~ fitted(m0) + I(fitted(m0)^2))
+
+```
+
+F-Test
+```{r}
+
+m1_res_1 <- lm(m1$residuals^2 ~ m1$model[,2] + m1$model[,3] + m1$model[,4] + m1$model[,5] + m1$model[,6]+ m1$model[,7] + m1$model[,8] + m1$model[,9] + m1$model[,10]+ m1$model[,11])
+
+summary(m1_res_1)
+
+```
+
+
+
+
+(a) looking at plot of
+
+```{r}
+
+mtest <- lm(pslave1860 ~ cottonsuit, data = abs_data)
+
+plot(abs_data$cottonsuit, abs_data$pslave1860, xlab = "x", ylab = "y",)
+abline(lm(pslave1860 ~ cottonsuit, data = abs_data))
+
+```
+
+```{r}
+
+
+```
+
+## Problem 2
+
+###2a.
+
+```{r, echo=FALSE}
+m2 <- ivreg(resent ~ pslave1860 + ln_coarea00 + rugged + latitude + longitude  + longitude_sq + water1860 + state.abb_af | + ln_coarea00 + rugged + latitude + longitude  + longitude_sq + water1860 + state.abb_af + cottonsuit, data = abs_data, weights = sample.size)
+summary(m2)
+
+confint(m2, "pslave1860", level = 0.95)
+```
+
+Now without NAs
+
+
+###2c. 
+pslave1860 interpretation 
+- 0.666 in 2SLS, v. 0.1523 in WLS alone
+
+A one unit or 10% increase in the proportion of a county's 1860 population that was enslaved is associated with a 0.666 percentage point increase in anti-Black attitudes today, holding all else constant.
+
+..the relationship isn't statistically significant (95% CI includes 0, p = 0.17). Because of fixed effects for states, this reflects estimates of within-state comparisons.
+
+The coefficient for pslave 1860 is produced from using soil cotton suitability as an instrument. 
+
+
+-This means that cotton suitability was regressed on pslave1860 and all predictors. 
+-This assumes that soil cotton suitability affects contemporary levels of county racial resentment through and only through the amount of slavery (measured as proportion of population in that county enslaved in 1860). 
+- This assumption could be problematic, if the suitability of soil for growing cotton impacts contemporary racial resentment via other channels. 
+
+
+###2d. two-stage approach
+
+```{r}
+#for endogenous variable in the model, regress it on all exogenous independent variables and all instruments. generate predicted values from those first stage regressions.  
+mS01 <- lm(pslave1860 ~ cottonsuit
+          + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af , data = cleaned_abs, weights = sample.size)
+
+#Include predicted values as substitute predictors for the original exogenous version.
+
+mS02 <- lm(resent ~ mS01$fitted.values
+          + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af, data = cleaned_abs, weights = sample.size)
+
+summary(mS02)
+
+
+
+```
+
+
+PROCEED - does two-stage approach get the same as ivreg 2SLS
+```{r, echo=FALSE}
+
+m02 <- ivreg(resent ~ ln_coarea00 + rugged + latitude + longitude  + longitude_sq + water1860 + state.abb_af | + ln_coarea00 + rugged + latitude + longitude  + longitude_sq + water1860 + state.abb_af | pslave1860 | cottonsuit, data = cleaned_abs, weights = sample.size)
+summary(m2)
+
+
+
+
+```
+
+
+
+###2b. Construct a professional looking table that includes the results for both the WLS and the 2SLS results. The table should be labeled appropriately so that a reader can understand what they are looking at (e.g., titles, variable labels, any notes they might need, sample size, etc.). Construct the table as-if you were submitting this to a journal.
+
+me trying stargazer slowly
+
+```{r}
+
+#simple per model
+stargazer(m1, type = "text", out = "models.txt" )
+
+
+stargazer(m2, type = "text", out = "models.txt" )
+
+
+#seperate first stage so cottonsuit gets reported
+firststage <- lm(
+  pslave1860 ~ ln_coarea00 + rugged + latitude + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af + cottonsuit, data = abs_data, weights = sample.size
+)
+
+#simple table now with m1 m2 and first stage of m2
+
+stargazer(
+  m1, m2, firststage,
+  type = "text",
+  out = "models.txt",
+  column.labels = c("Model 1 - OLS", "Model 2 - 2SLS", "First Stage"), dep.var.labels = c("resent", "resent", "pslave1860"),
+  model.numbers = FALSE,
+  
+  keep = c(
+    "pslave1860",
+    "ln_coarea00",
+    "rugged",
+    "latitude$",
+    "longitude$",
+    "latitude_sq",
+    "longitude_sq",
+    "water1860",
+    "cottonsuit"
+  ),
+  covariate.labels = c(
+    "1960s Proportion Enslaved",
+    "County Area (log)",
+    "Land Ruggedness Index",
+    "Latitude",
+    "Longitude",
+    "Latitude Squared",
+    "Longitude Squared",
+    "Water Access 1860 (Y/N)",
+    "Cotton Suitability Score (Instrument)"
+  ),
+  
+  add.lines = list(
+    c("State Fixed Effects", "Yes", "Yes", "Yes"),
+    c("Excluded Instrument", "", "cottonsuit", "cottonsuit")
+  ),
+  notes.append = FALSE
+)
+
+#test joint
+
+
+stargazer(m1, m2, type = "text", 
+           out = "models.txt")
+
+```
+
+interpretation of table 514pm
+
+1960s proportion enslaved
+
+-   OLS coefficient 0.152 tells us that a unit change in the proportion of the enslaved population in a county in 1860, holding everything else fixed, is associated with a a 0.01523 percentage point increase in anti-Black attitudes today. the standard error reported
+
+###2e. no Sargan here because with only one instrument for one endogenous regressor, the model is exactly identified (no over-identification, so no Sargan over-id test is applicable)

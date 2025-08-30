@@ -77,7 +77,7 @@ $=(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T}(\text{Var}
 
 $=(\boldsymbol{\mathbf{X}^T\mathbf{X}})^{-1}\boldsymbol{\mathbf{X}^T}(\text{Var}(\boldsymbol{u}))\boldsymbol{\mathbf{X}}\boldsymbol{(\mathbf{X}^T\mathbf{X})^{-1}}$
 
--   this were we got to wen derive vcov for bhhat
+-   this were we got to when derive vcov for bhat
 
 . . .
 
@@ -184,7 +184,7 @@ X <- as.matrix(X)
 # default standard error
 se_default <- sqrt(diag((sum(m1$residuals^2) / m1$df.residual) * (solve(t(X) %*% X))))
 
-*here's robust formula we just talked about'
+#here's robust formula we just talked about'
 # robust standard error (plug squared residuals in)
 se_robust <- sqrt(diag( 
                       solve(t(X) %*% X) %*% t(X) %*%
