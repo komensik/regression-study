@@ -302,7 +302,7 @@ tbl_tbl %>%
   )
 ```
 
-### 2c. Interpretation: pslave1860  
+### 2c. Interpretation: pslave1860
 
 A one unit or 10% increase in the proportion of a county's 1860 population that was enslaved is associated with a 0.666 percentage point increase in anti-Black attitudes today, holding all else constant.
 
