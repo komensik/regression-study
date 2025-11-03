@@ -38,9 +38,7 @@ abs_data <- read.csv("abs_data.csv")
 #inspecting data
 class(abs_data$water1860)
 
-
 #converting water to factor ?????
-
 
 #convert state.abb to factor from chr
 
@@ -67,9 +65,6 @@ abs_data$longitude_sq = abs_data$longitude^2
 clean_abs <- c("resent", "pslave1860", "ln_coarea00" , "rugged" , "latitude"  , "longitude" , "latitude_sq" , "longitude_sq" , "water1860" , "state.abb_af", "sample.size", "cottonsuit")
 
 cleaned_abs <- abs_data[complete.cases(abs_data[clean_abs]),]
-
-
-
 
 ```
 
