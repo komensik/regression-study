@@ -1,0 +1,36 @@
+
+
+Variables:
+
+-   variable id (respondent ID) (noted only 200 length)
+
+-   time = 10 time periods
+
+-   treat - treated cases when equal to 1
+
+-   y - measured outcomes
+
+Treatment:
+
+-   DiD with entry at treatment (treated units only enter dataset when they receive treatment, controls are the counterfactual trend)
+
+-   treat is time-invariant: each unit has same treatment status across all observed periods
+
+    -   controls (0) are observed for all 10 periods
+
+    -   treated (1) only observed for periods 6-10
+
+-   timing: not staggered, but
+
+    -   control: 1902 observed (full panel)
+
+    -   treated: 98 observed (only 6-10)
+
+    -   treatment happens at time 6 for all units simultaneously
+
+Panel
+
+-   unbalanced – control units = 19,020 observations (1902 x 10)
+
+    -   treated = 490 observations (98 x 5)
+

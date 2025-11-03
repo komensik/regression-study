@@ -1,0 +1,330 @@
+---
+title: "Assignment 2"
+output: 
+  html_document:
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, setup, echo=FALSE, warning=FALSE}
+
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+
+
+
+```
+
+```{r, read_data, echo=FALSE}
+
+data <- readRDS("/Users/kristinamensik/Library/Mobile Documents/com~apple~CloudDocs/Documents/Duke/2024-2025/causal inf/assignment_materials/did-assignment.Rds")
+
+length(unique(data$id))
+
+```
+
+## 1. DID I
+
+### **Outcome Means by Time**
+
+```{r, groupmeansbytime, echo=TRUE}
+
+means <- data %>%
+  group_by(time, treat) %>%
+  summarise(
+    ymean = mean(y, na.rm = TRUE),
+    yse = sd(y, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = 'drop'
+  ) 
+
+```
+
+```{r, setup_plot, echo=TRUE}
+
+did_plot <- ggplot(means, aes(x = time, y = ymean,
+                              color = factor(treat),
+                              group = factor(treat))) + 
+  geom_line(size = 1.1) + 
+  geom_point(size = 2) +
+  geom_vline(xintercept = 6, linetype = "dashed", alpha = 0.5)+
+  annotate("text", x = 5.5, y = Inf, label = "treatment start",
+           vjust = 2, hjust = 1.1, size = 3.5, alpha = 0.7) +
+  scale_color_manual(values = c("0" = "gray", "1"= "maroon"),
+                     labels = c("Never Treated", "Treated from 6")) +
+  scale_x_continuous(breaks = 1:10)+
+  labs(
+    title = "DiD Treatment",
+    subtitle = "Entry at Treatment (Time 6)",
+    x = "Time Periods",
+    y = "Avg. Grp. Outcome",
+    color = "Group"
+    )+
+  theme_minimal()+
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 10, face = "italic")
+  )
+  
+print(did_plot)
+
+```
+
+### Estimate for the Treatment
+
+```{r, didtreatment_se, echo=TRUE}
+
+did_means <- data %>%
+  mutate(post = ifelse(time >= 6, 1, 0)) %>%
+  group_by(treat, post) %>%
+  summarise(
+    ymean = mean(y, na.rm=TRUE),
+    n=n(),
+    .groups = 'drop'
+  )
+
+```
+
+```{r, controlmeans_prepost, echo=TRUE}
+pre_control <-did_means %>% filter(treat ==0, post ==0) %>% pull(ymean)
+post_control <-did_means %>% filter(treat==0, post == 1) %>% pull(ymean)
+```
+
+```{r, treatedpostmean,  echo=TRUE}
+
+post_treat <- did_means%>%filter(treat==1,post==1)%>%pull(ymean)
+
+```
+
+```{r, didest, echo=TRUE}
+
+didest <- post_treat - post_control
+
+```
+
+```{r, didest_se,  echo=TRUE}
+
+data <- data %>%
+  mutate(post = ifelse(time >= 6, 1, 0))
+
+m1 <- lm(y~treat+post + treat:post, data=data)
+
+#treatment effect is the treat coefficient?
+did_est <- coef(m1)["treat"]
+
+did_se <- summary(m1)$coefficients["treat", 2]
+
+did_tstat <- summary(m1)$coefficients["treat",3]
+
+did_pval <- summary(m1)$coefficients["treat",4]
+
+#Cis
+cil<-did_est - 1.96*did_se
+ciu<-did_est + 1.96*did_se
+```
+
+### Results
+
+```{r, report, echo=FALSE}
+
+cat("Treatment Effect: ", round(did_est, 4), "\n")
+cat("Std Error: ", round(did_se, 4), "\n")
+cat("T-Stat: ", round(did_tstat, 4), "\n")
+cat("pVal:", round(did_pval, 4), "\n")
+cat("CI: [", round(cil, 4), ", ",round(ciu, 4), "]\n")
+```
+
+### Discussion
+
+Choices -- After realizing this is a DiD structure where the treated units are only in the sample upon being treated, the average treatment effect is captured by the "treat" coefficient estimate (it's collinear with the interaction, and a change in unit of the treatment variable implies the same change in the post treatment variable (both from 0 to 1)).
+
+Results -- The treatment effect (1.34) means that the outcomes (y) those individuals who got the treatment are on average 1.34 units greater than those outcomes of individuals who did not get the treatment, after the treatment.
+
+Substantively, I find the setup (no pre-treatment treated but parallel trends test) confusing. Its possible I'm just doing this wrong/missing something glaring. Otherwise, the issue is that we're making an assumption about how the treated would have behaved before being treated, without being able to know what was up pre-treatment. In other words, it seems that to interpret this causally requires an assumption that the treated were like the untreated, before the 6th time period.
+
+## 2. DiD II
+
+```{r, echo=FALSE}
+
+data2 <- readRDS("/Users/kristinamensik/Library/Mobile Documents/com~apple~CloudDocs/Documents/Duke/2024-2025/causal inf/assignment_materials/did-assignment2.Rds")
+
+
+```
+
+### Patterns + Suggestions from the Data
+
+```{r, data2look_structure, echo=TRUE}
+stru <- data2 %>%
+  group_by(id) %>%
+  summarise(
+    treat_group = max(treat),  
+    ever_treated = max(D),     
+    when_treated = ifelse(max(D) == 1, min(time[D == 1]), NA),
+    gender = first(X)
+  )
+
+#str(data2)
+#dim(data2)
+#nrow(data2)
+
+```
+
+```{r, confirmtreatstart, echo=TRUE}
+
+tstart <- data2 %>%
+  filter(D == 1) %>%
+  group_by(time) %>%
+  summarise(n_treated = n()) %>%
+  arrange(time)
+
+#print(tstart)
+
+```
+
+```{r, panelbalance, echo=TRUE}
+
+# x time units
+balance <- data2 %>%
+  count(id, treat) %>%
+  count(n, treat)
+
+#print(balance)
+
+```
+
+```{r, did_plot, echo=TRUE}
+did_means <- data2 %>%
+  group_by(time, treat) %>%
+  summarise(
+    mean_y = mean(Y, na.rm = TRUE),
+    se_y = sd(Y, na.rm = TRUE) / sqrt(n()),
+    n = n(),
+    .groups = 'drop'
+  )
+
+treatment_start <- min(data2$time[data2$D == 1])
+
+did_plot <- ggplot(did_means, 
+                   aes(x = time, y = mean_y, 
+                       color = factor(treat),
+                       group = factor(treat))) +
+  geom_line(size = 1.2) +
+  geom_point(size = 3) +
+  geom_vline(xintercept = treatment_start - 0.5, 
+             linetype = "dashed", alpha = 0.5) +
+  geom_errorbar(aes(ymin = mean_y - 1.96*se_y,
+                    ymax = mean_y + 1.96*se_y),
+                width = 0.2, alpha = 0.3) +
+  scale_color_manual(values = c("0" = "gray50", "1" = "maroon"),
+                     labels = c("Never Treated", "Eventually Treated")) +
+  scale_x_continuous(breaks = 1:7) +
+  annotate("text", x = treatment_start - 0.5, 
+           y = max(did_means$mean_y) * 0.95,
+           label = "Treatment\nbegins", 
+           hjust = 1.1, size = 3.5) +
+  labs(title = "DiD DataSet 2",
+       subtitle = paste("Treatment begins at time unit 5", treatment_start),
+       x = "Observation Point",
+       y = "Outcome (Y)",
+       color = "Group") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+print(did_plot)
+```
+
+```{r, partrends, echo=TRUE}
+#testing to test for parallel trends
+pre_treatment_data <- data2 %>%
+  filter(time < treatment_start)
+
+
+  # Test for parallel trends
+  pt_model <- lm(Y ~ factor(time) * treat, data = pre_treatment_data)
+  summary(pt_model)
+  
+  pre_means <- pre_treatment_data %>%
+    group_by(time, treat) %>%
+    summarise(mean_y = mean(Y), .groups = 'drop')
+  
+  pt_plot <- ggplot(pre_means, 
+                     aes(x = time, y = mean_y, 
+                         color = factor(treat))) +
+    geom_line(size = 1.1) +
+    geom_point(size = 3.5) +
+    scale_color_manual(values = c("0" = "gray50", "1" = "maroon")) +
+    labs(title = "Pre-Treatment Trends",
+         x = "Obs Point", y = "Outcome") +
+    theme_minimal()
+  
+  print(pt_plot)
+
+```
+
+```{r, covbalance, echo=TRUE}
+cb <- data2 %>%
+  group_by(treat, X) %>%
+  summarise(n = n_distinct(id), .groups = 'drop') %>%
+  pivot_wider(names_from = X, values_from = n,
+              names_prefix = "gender_")
+
+#print(cb)
+
+# Chi-square
+gender_treatment_table <- table(stru$treat_group, 
+                                stru$gender)
+chisq.test(gender_treatment_table)
+
+```
+
+### Discussion
+
+In this second dataset, we have a balanced panel where treated and untreated (including the control of never treated individuals) are observed for all time periods, culminating in equal numbers in the ultimately-treated and control groups. Moreover, because treatment starts at time 5, the four preceeding pre-treatment periods allow for parallel trends with empirical evidence rather than via assumption, as in the previous dataset.
+
+I noticed two potential issues to pay attention to. First, a Chi-squared test shows a fairly large gender imbalance that could confound results/confuse interpretation: the control is 75% men, but the treatment is nearly 70% women.The solution is to control for gender in the DiD. Also, since time coefficients aren't even, and there might have been selection into treatment generally, I should use fixed effects.
+
+This also may be a me-error, but the treated group is already above the never-treated in the pre-treatment period. However, that the difference looks fairly stable in this pre-preiod (times 1-4) and after the treatment period (times 6 and 7) suggests there's still something meaningful afoot with the treatment period at time 5. Yet, it suggests there may be a confounder at work -- something that would explain a not-significant amount of the effect of the treatment on the treated. In other words, I ask whether the untreated may have responded differently to the treatment than did the treated, if they had been treated. But -- testing for parallel trends can help clear this up.
+
+Now having done the DiD, some further discussion:
+
+Across the non-parellel trends DiD models (basic interaction/DiD, with fixed effects, controlling for gender) I find a stable treatment effect of 2.106. However, some of my aforementioned suspicions panned out:
+
+-   controlling for gender shows that the raw difference between groups was largely driven by gender rather than treatment. The coefficient on treat flips from +1.39 to -047).
+
+-   the parallel trends test shows the parallel trends assumption is violated because the treated units had a steeper slope pre treatment (0.328).
+
+Thus, while the treatment has an effect, its size is likely over estimated. A confounder could be selection-into-treatment by women.
+
+### DiD Analysis
+
+```{r, dids, echo=TRUE}
+
+data2 <- data2 %>% mutate(post = ifelse(time >= 5, 1, 0))
+
+did_1 <- lm(Y ~ treat*post, data = data2)
+
+did_fixed <- lm(Y ~ treat*post + factor(time), data = data2)
+
+did_controlg <- lm(Y ~ treat*post + X + factor(time), data=data2)
+
+```
+
+```{r, ptrends, echo=TRUE}
+
+pre_d <- data2 %>% filter(time<5)
+p_test <- lm(Y ~ treat*time, data = pre_d)
+
+#summary(did_1)
+#summary(did_fixed)
+#summary(did_controlg)
+#summary(p_test)
+
+```

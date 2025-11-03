@@ -12,7 +12,7 @@ date: "2025-08-18"
 ---
 
 ```{r setup, echo=FALSE, warning=FALSE,message=FALSE}
-     
+
 library(ivreg)
 library(ggplot2)
 library(dplyr)

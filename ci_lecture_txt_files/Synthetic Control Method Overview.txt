@@ -1,0 +1,537 @@
+Unknown Speaker  0:14  
+China residents,
+
+Unknown Speaker  0:32  
+Talking about
+
+Unknown Speaker  0:54  
+Taking some I
+
+Unknown Speaker  1:26  
+All righty,
+
+Speaker 1  1:33  
+you. Now, in the past, I used to stop here and then told you, like, you know, anything else you want you read on your own, or you have to come to my office hours and talk about it. But I decided to add at least a bunch of slides on this. I think that has some has some value in understanding things. Also quite promising in terms of innovations in the area. A lot of papers being written, too many for me talk to center. But this is an interesting idea that
+
+Speaker 1  2:19  
+core idea here is pretty it's pretty straightforward, as many good ideas are, right when I tell you the idea, let's just recap what we know, to some degree, what some of our issues were with each approach. If you remember, when we discuss difference in differences, parallel trends, or at least conditioning, they have to be parallel right now that we have been thinking about synthetic control, we've been thinking about, well, maybe different units along the controls who perceive different weights in difference in differences, that's not true, right? All controls get implicitly equal, right? There was nothing there. We weighted different units differently, similarly. If you think about difference in differences, where we have multiple periods, there's only there's no stagger adoptions, here is pre post. Think about putting weights on units. You could equivalently think about weights on time. What difference in differences really does is weights all the time points the same,
+
+Unknown Speaker  3:30  
+if you have parallel parallel
+
+Speaker 1  3:34  
+tree trends. Between synthetic case that's implied by difference in differences and the true case is obviously bad, even before the treatment in the pre period,
+
+Unknown Speaker  3:54  
+treat improve as I'll be able to control
+
+Speaker 1  3:59  
+quasimpotee controls is a perfect
+
+Unknown Speaker  4:11  
+fit, right? A similar truth.
+
+Speaker 1  4:20  
+Not sensitive to specification choices in practice, sometimes small differences. That's often the case for techniques that rely heavily on numerical optimization. There's no formal theory for inference, right, which means we don't know the asymptotics of the estimator confidence intervals. Some people worry of overfits or pre treatment noise. But now you have two things right that are somewhat related, and I will show you that, in fact, even more related than what I think maybe strength and weaknesses. So it stands to reason that some enterprising person would come up with the idea that, why don't we combine both of them as compliance synthetic controls and difference in differences, and we'll do this by weighting both units and time when We weight them optimally,
+
+Unknown Speaker  5:21  
+paper by invents
+
+Speaker 1  5:32  
+years ago. Frontier, you start with a balanced panel, by which we mean each unit observed for the same amount of time points. And then we essentially think of estimating a different deep pipe model. Discuss differences, differences, but we add weights to them. What kind of weights can we add two times weights for the units and waits for the time points. Conceptually walk through the mechanics. So if n units T periods, right? We have observed outcomes just before T. Then we indicated the it, and we make it equal to one unit at time. T is treated and zero. So the example we use for the synthetic controls that's very easy to see create vector d it for this case, it would be 000, right for all of the controls. For this case here the idea would be 000, then here it becomes one, used for difference in differences. You can already sense that this is probably going to work even if more than one unit is treated right. The standard simply controls really only work for one treated unit and the rest is controlled. You can see that this is easily extended to allow you a couple
+
+Speaker 1  7:24  
+how do we estimate the average treatment effect on the treatment well, we want to minimize the following expression. You can see this is pretty much a regression equation. Let's look at the regression part. First, see right? This is the sum of square residuals that we want to minimize with respect to these parameters. So what do we care about? This is the outcome. Then you subtract from it the mean regression, right? That I have a mean. And then we abstract unit effect and
+
+Unknown Speaker  8:03  
+extract or subtract times plus
+
+Speaker 1  8:15  
+i, plus capital plus the it take into account really specific differences in levels, just like we compared Pennsylvania to New Jersey in terms of Their average distance. And then these ones are the time differences, just like the compared of Pennsylvania and New Jersey, before and after the standard. In fact, that looks like a difference in difference. Now, what do we add here? Two sets of weights. Omega weights are for the units for the is the giraffe, the lambda weights are for the T's. Now it becomes the weighted two way fix the textbook. The whole game is essentially in figuring out what those weights are.
+
+Speaker 1  9:14  
+There's a small detail that you might be forgiven to miss. Looking at this already, you learn something, you recognize that as one thing here that is already a lot more flexible than what we have for synthetic controls, because we have those unit specific effects alpha this matches treatment and control cases by previous trends. Treat a trend here. Could be a control trend here, same trend as a shift in level. That shift is easily captured by alpha i This is something
+
+Unknown Speaker  10:00  
+controls cannot tolerate easily to appear
+
+Unknown Speaker  10:05  
+all right. Now the question becomes,
+
+Unknown Speaker  10:13  
+just where the address. this
+
+Unknown Speaker  10:29  
+campus,
+
+Unknown Speaker  10:45  
+anything right. If
+
+Unknown Speaker  10:47  
+you anchor something,
+
+Speaker 1  10:49  
+one of these, each has to be set to zero. If you remove the queen, you can estimate all of it for one
+
+Unknown Speaker  10:55  
+even you numerically either
+
+Speaker 1  10:59  
+one string rate is Zero or sum to zero. Constraint
+
+Unknown Speaker  11:11  
+to estimate, yes, yes. Estimate.
+
+Speaker 1  11:26  
+Okay, I will have to tell you how we get those weights right. We have to tell we have to talk about, how do we get the ome? Talk about, how do we get the Omega weights? But just for sake of comparison, right, you can rewrite that model as a difference in difference in a synthetic control estimator,
+
+Speaker 1  11:54  
+right? And you can see that the difference in difference estimation, essentially by removing the weights altogether, right? In difference in difference, what we do is we assign equal weights to all time periods and all the units through waiting going on there
+
+Speaker 2  12:14  
+versus the ending control we had W before.
+
+Speaker 1  12:21  
+Now it's written as omega, but the same thing controls, we need to find weights for the units when all the time points are weighted deeper.
+
+Unknown Speaker  12:37  
+Idea of archangelism
+
+Speaker 1  12:42  
+is simply to wait for units and time.
+
+Unknown Speaker  12:57  
+Us with you how to lambda weights you
+
+Speaker 1  13:24  
+how to estimate this in a second. In our authors who wrote this came up with the following virtualization, which I both like a dislike, but like, I'm gonna roll with it for now. But what this is supposed to show you is our California sample, once more, synthetic control is what difference in difference
+
+Unknown Speaker  13:49  
+and synthetic control look like.
+
+Speaker 1  13:54  
+Difference in difference, essentially a parallelogram you get from pre post comparison case. If you want to create it comparison, take the difference between the counterfactually implied trend. That's the product assumption, that's the observed one. That's what we infer, the counter effectualism. And you argue, if you observe trend had been like the counter effectual trend,
+
+Unknown Speaker  14:24  
+that's a difference in difference. And here
+
+Speaker 1  14:29  
+am I putting on each time period well. And the idea is, I'm putting the same weight on all of them. Controls. That's what we do, right? We try to match up, treat it and control as close as we can, and then we use the gap after the fact. Synthetic difference in differences is a combination of both. We try to find controls, difference in difference formulation, difference counter, effectual case, actual trend. End from the observed trend of the control case, and you take that difference between two,
+
+Unknown Speaker  15:19  
+how do we, instead
+
+Speaker 1  15:22  
+of using all periods of observation, weight the periods
+
+Unknown Speaker  15:27  
+in the pre period,
+
+Unknown Speaker  15:30  
+the closer they are to the example, a lot of weight
+
+Unknown Speaker  15:45  
+is being Put on the couple of
+
+Unknown Speaker  15:50  
+years closer to the creep,
+
+Speaker 1  15:56  
+trying to pick places in the pre period, assign the more weight, the closer they are To the outcome in the post period, cleaner when you rates.
+
+Unknown Speaker  16:17  
+So let's wait.
+
+Unknown Speaker  16:21  
+One would be the weights for the weights
+
+Unknown Speaker  16:26  
+for the they call it
+
+Speaker 1  16:29  
+synthetic difference in differences. They could also call it synthetic control plus whatever it would be, right? That that that part here is very similar to the idea of what controls do. I'm
+
+Speaker 1  16:44  
+not saying like, use these kind of things. Maybe that's more as illuminating than it should be on
+
+Unknown Speaker  16:59  
+the graph. So the aim here focus on
+
+Unknown Speaker  17:09  
+the treated case
+
+Unknown Speaker  17:14  
+and but instead of using
+
+Speaker 1  17:19  
+possibly use, we only focus on control units that were approximately follow a parallel trend to the treated case in The pre treatment period. You have a lot of cases. They all have they all have certain trends. You say that control problem was, I need to pick out of those units a Frankenstein case by assigning weights. This is very similar, with a slight twist, that you look at every single trend, you try to pick the ones that as close to parallel as you possibly can, and those you rate, the ones who are too
+
+Unknown Speaker  17:56  
+dissimilar. Zero. In
+
+Speaker 1  18:01  
+practice, that means the following. But first of all, there's a little intercept there. Ignore that that just allows two sets of weights that you really care about are the Omega. Is NCO, just to have some notation, it's overloaded here, that's the number of control units. And then by right, the rest
+
+Speaker 3  18:27  
+from NCO units, we take it's here,
+
+Speaker 1  18:43  
+weight together. You take the difference between the two square them. That's what you want. To minimize two parameters. You minimize that overall constant here, forget about that one. And then you want to minimize the set of weight stuff. I need to talk about in a second how they are constructed. The idea is to have as little of a difference between the treated and the control tables in the pre period
+
+Unknown Speaker  19:09  
+overall, between the
+
+Unknown Speaker  19:12  
+pre treatment human
+
+Unknown Speaker  19:34  
+set omega construction to be positive.
+
+Speaker 1  19:49  
+Weights are one over the number of treated cases for all the cases that are in the treated set being outside of the controls, partition the space into two halves, treat it and control treated cases which are sum up and divide by the number of members in that set,
+
+Unknown Speaker  20:11  
+which gets equal the
+
+Speaker 1  20:14  
+control cases. We add them up using the unit weights, omega, I just like we did in the synthetic control estimator, just this you can see can easily deal with more than one trigger
+
+Unknown Speaker  20:32  
+case. This is good to these kind of things, or his wife infected. Now, problem this way, this regularizes it.
+
+Unknown Speaker  20:52  
+You've ever done the lasso works
+
+Unknown Speaker  21:03  
+for the weights at the end of the day, that's
+
+Unknown Speaker  21:10  
+the substance is that
+
+Speaker 1  21:13  
+as possible and will choose the weights such that this is the case. Okay, what do you get out from this? You get a vector of unit weights. You get NCO, right and number of control cases. That's how many unit weights you get, such that absolute difference between control and treatment trends are minimized into pre treatment they're minimized. They don't have to be exactly the same. They just have to be as small as you
+
+Unknown Speaker  21:46  
+can possibly get. Block treatment case, right?
+
+Speaker 1  21:48  
+Not standard, easy ish extension of that. It's easily do. So what
+
+Unknown Speaker  21:55  
+happened is somewhat parallel men, but they don't have
+
+Unknown Speaker  22:02  
+zero easy allows, up and down shifts. Yeah, I brought out the
+
+Unknown Speaker  22:17  
+false multiplied by a measure of variance. Just look at it.
+
+Speaker 1  22:35  
+Now we have the unit weights. Now we also can have time weights. The idea is to focus on periods pre treatment that are more similar to the post treatment period in terms of prop 99 right? We pass a policy here, and then I study what happens after that. How much do I care what happens 20 years earlier? In terms of outcomes? Intuition here is that we find that whatever the outcome is closer in time before we instituted a policy. Maybe that's the concussion, the outcomes 10 years earlier are more comparable. Maybe we should focus more on this. Instead of making this as a sharp choice of yes versus no, you just use weights that weight the periods more highly, that are more comparable. What do I mean? More similar? Why? In the sense of the pre treatment average all selected controls and the same controls post treatment.
+
+Unknown Speaker  23:44  
+If you're gonna that's kind of I will wait.
+
+Unknown Speaker  24:33  
+It means the difference subject
+
+Unknown Speaker  24:43  
+What's the second positive
+
+Speaker 1  24:48  
+weight line, the numbers have to sum to one in the pre period and for the pause period, for all the keys in the post
+
+Unknown Speaker  24:59  
+period, equal weights for
+
+Speaker 1  25:04  
+free period, we can choose weights however we like, as long as the positive and some
+
+Unknown Speaker  25:17  
+program it yourself.
+
+Unknown Speaker  25:18  
+Need to be need to know whenever
+
+Speaker 1  25:22  
+function, essentially, of some sizes. That really doesn't matter. This is just the difference. This is the first difference, right? Delta, it delta. It is just y, I t plus one minus y, I T. So think of this as the time point here minus the time point before. That's the difference. You compare that to the average difference. The average difference is just the average of all these little differences square. Have square residuals in terms of trends,
+
+Unknown Speaker  26:01  
+that is the Penn Station. What
+
+Unknown Speaker  26:05  
+that means? Larger deviations? Which means pick
+
+Speaker 1  26:18  
+the differences in the differences in time, the trends as close, as close as we can without making it an absolute that they have to be identical.
+
+Speaker 2  26:40  
+Have, if you read this,
+
+Speaker 1  26:45  
+mostly happens here, on the unit weight side, on the time waiting side, that is sort of much more mild.
+
+Unknown Speaker  27:01  
+And that's a bit of an empirical
+
+Unknown Speaker  27:06  
+choice that can easily be changed.
+
+Speaker 4  27:13  
+Misunderstanding is the unit weight, or, sorry, the time weight that we're setting is relative to
+
+Unknown Speaker  27:23  
+difference, pre treatment, post treatment,
+
+Speaker 1  27:32  
+or, Yes, both. This is the difference is that you choose, after applying the weight, basically trying to minimize the function. When you minimize that difference, subject to the constraint that you prefer more similar trends than to the ultimate is the average in pre and post differences, but the constraint is control you.
+
+Speaker 1  28:12  
+Is this by combining trends that look like this and that and that penalization term that it increases quite a bit the larger the difference between pre and post my list subject to this constraint,
+
+Unknown Speaker  28:34  
+the previous sure that we have Parad, why
+
+Speaker 3  28:46  
+about the time weight? Because what is the difference? Be like the difference pre treatment industry?
+
+Unknown Speaker  28:53  
+Have an absolutely correctly parallel
+
+Unknown Speaker  29:02  
+trend pre treatment. You might not, yeah, you might not care. It depends how you think of maybe I want to focus on the comparison that is closer to the intervention,
+
+Speaker 5  29:28  
+pre treatment periods that are more seminal is
+
+Unknown Speaker  29:33  
+important. Instantly
+
+Speaker 1  29:36  
+over proximity to treatment, right? That's
+
+Speaker 5  29:40  
+correct, but that there's like an inferential assumption, that somehow all that matters is a similarity, but not that there will be things that affect causal identification based on the fact that it's different, closer to treatment.
+
+Unknown Speaker  30:03  
+If I really worry about this, embark
+
+Unknown Speaker  30:10  
+on the Enterprise this.
+
+Speaker 1  30:23  
+A trend in all the outcomes you should de trend analysis. Would you care more about proximity for its own sake, rather than proximity normally being a stand in for greater comparability in terms of cases, the decade of his life, this is another form of matching, radically
+
+Unknown Speaker  31:05  
+Yeah, I think I
+
+Speaker 1  32:06  
+is running out of time again. I want to show you an excellent work example, but we can quickly look at the numbers. Jump over there. Work that's really easy to estimate, because we have computer in terms of things that we actually know as often the actual work is in writing proofs for things. Political scientists like to omit this kind of things that I'm pretty sure was a lot of work for this kind of estimate, you actually have a proof that's probably normal to
+
+Unknown Speaker  32:50  
+do that. The variance the best way of
+
+Speaker 1  33:06  
+approaches to use propagation or placebos, just like we discussed before.
+
+Speaker 1  33:18  
+Probably all caveat is for bootstrap could be valid. The number of treated cases, in principle, needs to needs to be ever increasing.
+
+Unknown Speaker  33:29  
+Justification, case
+
+Speaker 1  33:36  
+the packages for this kind of stuff nonetheless, but that's because there's a difference between writing code and understanding the mathematics behind it. So I want to delete to delete that slide
+
+Speaker 2  33:54  
+drunkenly thought that stagger
+
+Speaker 1  34:06  
+out by, you look at every unique pattern of staggeredness that you get and into The analysis as many times as the event together. That's all you need to do. It Right? So if you're lucky and you get like, three or four patterns, then you make the weight specific for each pattern, yes, and you estimate them all three times and aggregate up. The nice thing here is that the asymptotics are proper under this approach. That makes it easy.
+
+Unknown Speaker  34:37  
+It. Let me show you an example.
+
+Unknown Speaker  34:39  
+It doesn't remain completely abstract.
+
+Unknown Speaker  34:48  
+Here, verbally,
+
+Speaker 2  35:01  
+the pace. Sometimes you get an
+
+Speaker 1  35:08  
+estimator, and you can say you want to boot stuff so whatever you have to bootstrap that thing itself. No, there's an
+
+Unknown Speaker  35:21  
+argument
+
+Unknown Speaker  35:29  
+quickly, because we just talked about it, even though it's the wrong order.
+
+Unknown Speaker  35:42  
+The vacation in office, one
+
+Speaker 1  35:45  
+of the authors, or at least some are connected to it, is called synthetic difference in differences, straight forward, the name implements most of the things that we have discussed. Other how do we add covariance to this? That's surprisingly not straightforward that cannot be explained to us. We haven't added this properly yet.
+
+Unknown Speaker  36:17  
+Official example again.
+
+Speaker 1  36:29  
+And as you can see, it's just equal to one. If the state is California and the year is after 19, the post period. When I pick the variables that need, I need the unit state, time, year, I need outcome, secret, sales.
+
+Unknown Speaker  36:58  
+Data Frame.
+
+Speaker 1  37:04  
+To do only two things. One is to set up the data in the format that it likes, certain
+
+Unknown Speaker  37:10  
+form only. One, six union,
+
+Speaker 1  37:20  
+specify the number of control units, the number zero, the number
+
+Speaker 2  37:25  
+of features, matrices, instead. At all. It's going to do it like
+
+Unknown Speaker  37:45  
+they're going to take seriously time. Third, they
+
+Unknown Speaker  37:57  
+unit is the state
+
+Unknown Speaker  37:58  
+times year. Outcome is significant.
+
+Speaker 1  38:08  
+Once you have that set up, right? You can see, I'm just storing it in a different easy as saying right synthetic difference in difference estimate the Y matrix, y zero,
+
+Unknown Speaker  38:31  
+without any covariance.
+
+Speaker 1  38:48  
+Asymptotic difference estimate of about minus 15 done anything to calculate standard errors, it doesn't report anything.
+
+Unknown Speaker  39:00  
+We calculate the standard error
+
+Speaker 1  39:07  
+implemented. Remember, I told you, for any object you have in R, you can always extract the variance covariance matrix. Matrix. What you can do here is this function variance. Covariance is specific the version of that. So there's now an argument that you don't normally don't have an R. It's called method.
+
+Unknown Speaker  39:31  
+And here is how you choose
+
+Speaker 2  39:38  
+Bootstrap. Since here nine,
+
+Speaker 1  39:54  
+I will try all right, the reason running you through this is that it is also quite easy spend your time at home to understand what I'm doing here, because it's just extracting stuff out of the object that's left behind. So what I'm doing here is I'm making a nice list of states. Then I'm extracting the Omega weights. We see this zero. Arkansas gets a very low weight, around against 6% Connecticut delta, where
+
+Speaker 1  40:36  
+probably also states that you can envision a pretty far in many dimensions. That
+
+Speaker 1  40:47  
+goes back to the hammers question to some degree, right, would I want to pre specify which cases are likely contenders, or you will probably say instead
+
+Unknown Speaker  40:57  
+of US state, you can see some Rhino.
+
+Speaker 1  41:07  
+I'm sure isn't but it's relatively liberal, so you can see how you build your synthetic California.
+
+Speaker 2  41:14  
+Thank it
+
+Unknown Speaker  41:29  
+more precisely. It tends to produce
+
+Speaker 1  41:34  
+standards. It's synthetic control tends to put larger weights on a small number of units, and then many of them become zero. Versus this for the same problem tends to distribute the weights. There is a function of how we weight it.
+
+Unknown Speaker  41:48  
+You'll see when I show you.
+
+Speaker 1  41:54  
+Now here's what is unique to this approach, which are the time weights, which you can extract the same way. Sorry, we're just expecting the lambda object that it leaves behind. And if you were to put this in a paper item appendix or just by description, you see how starkly This makes the choice of not Waiting anything say for the last week period
+
+Unknown Speaker  42:24  
+before 8687
+
+Speaker 1  42:36  
+and La body et al, they also mostly focus on the late 80s. When they early 70s, there was this big intuition closer to treatment matters more
+
+Unknown Speaker  42:52  
+principle, because
+
+Unknown Speaker  42:59  
+then you can plots
+
+Speaker 1  43:08  
+for these kind of things, you will probably always want to plot this. This this little package also has a plot built in. So when you say plot and then the element that you have here, that's all you have to do this. What I'm doing here is just to make it look easy to see
+
+Speaker 1  43:30  
+what was the plot that I've shown before. This is the standard plot. It reduces it shows you the tree,
+
+Unknown Speaker  43:42  
+right? Because we haven't matched up California.
+
+Speaker 1  49:41  
+Know that at least one of the people who's involved in this here does care about the finer numerical details.
+
+Speaker 1  50:09  
+Wrong at the margin of this kind of numerical problem, most of the time it doesn't go wrong. It does go wrong because it goes wrong in a nasty
+
+Unknown Speaker  50:19  
+way, reasonably flexible. Let me show
+
+Speaker 1  50:25  
+you an example of how you look implemented. So this is our California again. The only thing that we might want to do the little bit is that they programmed the estimator. They decided to ask for a specific format, namely to be everything in terms of matrices that are t by n. T is the prime points. N is the units. Recode you do whatever is convenient. This signal is convenient, this forces you to have assembled matrices of the outcomes and all the covariates. Okay, but you don't have to do it yourself. There's a different function that they provide. It's called list from law.
+
+Unknown Speaker  51:07  
+What do they mean? I do?
+
+Speaker 1  51:16  
+Only need to specify is, where's my data? In our case, here, right? All the other covariance, that's it, and it has three arguments you need. Which one is the unit variable? Well, that state right which one is the time variable that's here, and then where are the unique names? Whatever is
+
+Unknown Speaker  51:45  
+accurate. But of course, name you
+
+Speaker 1  52:01  
+once that is done, the setup is recently, need to decide what is the treated case,
+
+Unknown Speaker  52:13  
+roles, what
+
+Speaker 1  52:14  
+I'm doing here is, instead of writing out the names of all the states I'm Taking
+
+Speaker 1  52:24  
+and subtract California is an R, but now controls
+
+Speaker 1  52:48  
+need to create also for the outcomes, Why and you need to do the same matrix for the predictors.
+
+Speaker 1  53:02  
+What you do is you make it a matrix that says cigarette sales from 1970 to 1980 that's what I'm interested i You just show you the content of this, a matrix that has two rows in one club. First row is 19/72 row is 1988 that tells you start and stop. If you have long data, you
+
+Speaker 1  53:38  
+now we do the same thing for all the predictor variables, right? We make this a little matrix, either columns or the variables in the rows. We say, from example, for the variable, H,
+
+Unknown Speaker  53:56  
+70 and
+
+Speaker 1  53:58  
+for beer, I think it's missing in the 70s. I don't use 8488 i
+
+Speaker 1  54:19  
+What is the range as you use for these? You're not forced to use the same range range for all of these. That's sometimes quite useful for flexibility. You're not even used. You're not even forced to have them on the same time grid, which most other things, like packages that you don't do. This allows you to have this for example.
+
+Unknown Speaker  54:43  
+Place is for those areas, what do
+
+Unknown Speaker  54:47  
+I do with.
+

@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>mensik_assignment_1</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="mensik_assignment_1_files/libs/clipboard/clipboard.min.js"></script>
+<script src="mensik_assignment_1_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="mensik_assignment_1_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="mensik_assignment_1_files/libs/quarto-html/popper.min.js"></script>
+<script src="mensik_assignment_1_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="mensik_assignment_1_files/libs/quarto-html/anchor.min.js"></script>
+<link href="mensik_assignment_1_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="mensik_assignment_1_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="mensik_assignment_1_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="mensik_assignment_1_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="mensik_assignment_1_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">mensik_assignment_1</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="problem-1-matching-dag" class="level2">
+<h2 class="anchored" data-anchor-id="problem-1-matching-dag">Problem 1 – Matching &amp; DAG</h2>
+<p>Interpreting the DAG: The causal relationship of interest is between D and Y. (E[Y|do(D=1)]-E[Y|do(D=0)] rather than E[Y|D=1]-E[Y|D=0]).</p>
+<p>There are bidirectional correlations caused by an unobserved variable between S1 and X1, and S2 and X1. The unobserved variable might or might not be the same for S1 and X1 and S2 and X1.</p>
+<p>S1 and S2 are pre-treatment influences on D. Because they are correlated to X1, there’s a possibility they are confounders. This is connected to unconfoundedness/ignorability/selection on observables: conditioning on the right observable covariates, where we completely observe S, makes treatment assignment ‘ignorable:’ treatment assignment can behave as if random, even if it was not randomly assigned. This is written as “(Y0, Y1) [upsidedown T] D|S”: given conditioning on the right observable S, the outcomes of the treated and untreated are independent of D. Imbens &amp; Rubin write this corresponds to an ‘unconfounded assignment mechanism,’ meaning the probability of being treated does not depend on potential outcomes once we control for S. To have selection on observables in this DAG, we would need to that the only systematic reason some people receive treatment versus control is due to things we observe and can control for, but the correlation between S1&amp;2 and X1 suggests ‘selection on unobservables.’</p>
+<p>X1 and X2 are direct causes of Y. X2 is not a potential confounder, but a clean predictor of Y.</p>
+<p>Implications for ‘backdoor paths:’ - there is a backdoor path: D is influenced by S1 and S2, which are both correlated with X1 through some unobserved(s), and X1 in turn influences the outcome Y. - neither contains a collider (an endogenous variable with two+ causes pointing into it – but here, D could be a collider since it is influenced by S1 and S2, and would become correlated if D were controlled for), so they suggest non-causal association between D and Y caused by an unobserved confounding (not a collider situation). Dealing with this would require blocking them to identify the causal effect of interest (D on Y).</p>
+<section id="what-problem-of-causal-inference-do-matching-estimators-solve" class="level3">
+<h3 class="anchored" data-anchor-id="what-problem-of-causal-inference-do-matching-estimators-solve"><strong>What problem of causal inference do matching estimators solve?</strong></h3>
+<p>The fundamental problem of causal inference is the missing counterfactual problem: that, for any given unit, we can only observe one of the potential outcomes: Y1 or Y0. As consequence, we need to impute missing potential outcomes for each unit. Matching is one strategy for imputing these outcomes under assumptions about the assignment mechanism. In this DAG, we know the treatment is not randomly assigned: it depends on S1 and S2, which also influence the potential outcomes (Y0 and Y1). Imbens and Ruben put this as: the assignment mechanism is not unconfounded because the probability of receiving the treatment (D) given X is not equal to the true probability of receiving the treatment, given both observed characteristics and their potential outcomes. This means that even after we control for X, treatment assignment still depends on the potential outcomes themselves, and we can’t reasonably compare the expected value of Y given treatment and the expected value of Y given no treatment – they differ because of the open back door path.</p>
+<p>In principle, matching (one of the three classic adjustment strategies, along with stratification and regression adjustment) lets us mimic, after the fact, an ‘experiment’ (maybe not in the full lab experiment sense). It helps achieve balanced confounding variables (or distribution of observed confounders between the treated and untreated) by matching control cases to individual cases.This balance closes back-door paths.</p>
+</section>
+<section id="which-variables-would-i-match-on-this-sample-why" class="level3">
+<h3 class="anchored" data-anchor-id="which-variables-would-i-match-on-this-sample-why"><strong>Which variables would I match on this sample? Why?</strong></h3>
+<p>In this DAG, I would match treated and control cases on X1, or on S1 and S2. The back door paths generating non-causal associations are between (1) S1-X1 and D and S1-X1 and Y, and (2) S2-X1 and D and S2-X1 and Y. With an infinite sample and the assumption that I could observe the right confounders, the ‘unconfoundedness’ assumption would be conditional on the matching, every treated unit would have a comparable control so overlap would be satisfied, and the back door path would be closed, so these matching estimators would identify the causal effect (E[Y(1) - Y(0)]).</p>
+<p>However – it’s maybe worth underscoring that matching requires an assumption of unconfoundedness as I can’t guarantee there are no unmeasured confounders, flagging that I could stil unknowingly match on either a collider or a post-treatment variable and thus open a different backdoor path, and there might be an issue with failing to recover causal effects from units without overlap that would be detected but discarded with matching.</p>
+</section>
+</section>
+<section id="problem-2" class="level2">
+<h2 class="anchored" data-anchor-id="problem-2">Problem 2</h2>
+<p>Lalonde’s data for national supported work program study. take one of the matching examples we have used in class and extend it by adding pre-treatment real earnings in 1975 (re75) to the set of matching variables (note that 1975 earnings for some individuals might be 0).</p>
+<p>Big picture: fundamental problem of causal inference -&gt; don’t observe treatment effect -&gt; to estimate average treatment effect (ATE) or average treatment effect on the treated (ATT) we need to reconstruct the missing counterfactuals for each treated and control person. We can’t just compare the treated versus untreated averages because assignment is not random: in this dataset, people self-select into work programs, and that self-selection can be related to things like education, wealth, and income or pre-treatment earnings.</p>
+<p>Thus, adding pre-treatment earnings helps create a predictor of who selects into the treatment, and the outcome (1978 earnings). This improves matching in the example by adding another pre-treatment characteristic, which together help simulate a randomized experiment after the fact, and close back-door paths between treatment and outcome.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fresh_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  age educ black hisp married nodegr re74 re75     re78 u74 u75 treat
+1  37   11     1    0       1      1    0    0  9930.05   1   1     1
+2  22    9     0    1       0      1    0    0  3595.89   1   1     1
+3  30   12     1    0       0      0    0    0 24909.50   1   1     1
+4  27   11     1    0       0      1    0    0  7506.15   1   1     1
+5  33    8     1    0       0      1    0    0   289.79   1   1     1
+6  22    9     1    0       0      1    0    0  4056.49   1   1     1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(fresh_data<span class="sc">$</span>hisp[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.05945946</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(fresh_data<span class="sc">$</span>hisp[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1076923</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(fresh_data<span class="sc">$</span>educ[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">0</span>], <span class="at">bw =</span> <span class="dv">1</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">density</span>(fresh_data<span class="sc">$</span>educ[fresh_data<span class="sc">$</span>treat <span class="sc">==</span><span class="dv">1</span>], <span class="at">bw =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="mensik_assignment_1_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> treat <span class="sc">~</span> age <span class="sc">+</span> educ <span class="sc">+</span> black <span class="sc">+</span> hisp <span class="sc">+</span> married <span class="sc">+</span> nodegr <span class="sc">+</span> re75 <span class="co"># added re75 to propensity score list of vars</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#everything = integer except re75 which is numeric</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># to cal propensity scores</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ps_model <span class="ot">&lt;-</span> <span class="fu">glm</span>(f, <span class="at">data =</span> fresh_data, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"probit"</span>))</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>fresh_data<span class="sc">$</span>ps <span class="ot">&lt;-</span> <span class="fu">predict</span>(ps_model, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># look at overlap in propensity score distributions (do treatment/control occupy similar regions of estimated treatment probability)</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(fresh_data<span class="sc">$</span>ps[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">0</span>]), <span class="at">main =</span> <span class="st">"Propensity Score Overlap"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlap =</span> <span class="st">"Prop Score"</span>, <span class="at">col =</span> <span class="st">"darkgreen"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">density</span>(fresh_data<span class="sc">$</span>ps[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>]), <span class="at">col =</span> <span class="st">"maroon"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Treatment"</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"darkgreen"</span>, <span class="st">"maroon"</span>), <span class="at">lwd =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="mensik_assignment_1_files/figure-html/unnamed-chunk-1-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># common support check before matching</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>min_treat <span class="ot">&lt;-</span> <span class="fu">min</span>(fresh_data<span class="sc">$</span>ps[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>])</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>max_treat <span class="ot">&lt;-</span> <span class="fu">max</span>(fresh_data<span class="sc">$</span>ps[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>])</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>min_control <span class="ot">&lt;-</span> <span class="fu">min</span>(fresh_data<span class="sc">$</span>ps[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>max_control <span class="ot">&lt;-</span> <span class="fu">max</span>(fresh_data<span class="sc">$</span>ps[fresh_data<span class="sc">$</span>treat <span class="sc">==</span> <span class="dv">1</span>])</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"PS range treatment:"</span>, <span class="fu">round</span>(min_treat, <span class="dv">3</span>), <span class="fu">round</span>(max_treat, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>PS range treatment: 0.241 0.661 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"PS range control:"</span>, <span class="fu">round</span>(min_control, <span class="dv">3</span>), <span class="fu">round</span>(max_control, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>PS range control: 0.221 0.661 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#look at pre matching cov balance</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ps_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = f, family = binomial(link = "probit"), data = fresh_data)
+
+Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)   
+(Intercept)  6.507e-01  6.494e-01   1.002  0.31635   
+age          3.599e-03  8.843e-03   0.407  0.68406   
+educ        -4.094e-02  4.430e-02  -0.924  0.35539   
+black       -1.485e-01  2.269e-01  -0.654  0.51281   
+hisp        -5.094e-01  3.080e-01  -1.654  0.09811 . 
+married      1.100e-01  1.715e-01   0.641  0.52121   
+nodegr      -5.308e-01  1.924e-01  -2.758  0.00581 **
+re75         1.612e-05  1.991e-05   0.810  0.41817   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 604.20  on 444  degrees of freedom
+Residual deviance: 588.76  on 437  degrees of freedom
+AIC: 604.76
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># next, standardized mean differences for each covariance</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bal.tab</span>(f, <span class="at">data =</span> fresh_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Note: `s.d.denom` not specified; assuming "pooled".</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Balance Measures
+           Type Diff.Un
+age     Contin.  0.1073
+educ    Contin.  0.1412
+black    Binary  0.0163
+hisp     Binary -0.0482
+married  Binary  0.0353
+nodegr   Binary -0.1265
+re75    Contin.  0.0839
+
+Sample sizes
+    Control Treated
+All     260     185</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># next, looking at preM balance</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">love.plot</span>(f, <span class="at">data =</span> fresh_data) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Note: `s.d.denom` not specified; assuming "pooled".</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="mensik_assignment_1_files/figure-html/unnamed-chunk-1-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>First, I find good overlap with re75 added to the list of vars in propensity scores: according to the ranges, each treated unit have a comparable control with similar propensity to be treated. The graph makes me a little less confident.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>m_full <span class="ot">&lt;-</span> <span class="fu">matchit</span>(f, <span class="at">data =</span> fresh_data, <span class="at">method =</span> <span class="st">"full"</span>, <span class="at">distance =</span> <span class="st">"glm"</span>, <span class="at">link =</span> <span class="st">"probit"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_full, <span class="at">un =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+matchit(formula = f, data = fresh_data, method = "full", distance = "glm", 
+    link = "probit")
+
+Summary of Balance for Matched Data:
+         Means Treated Means Control Std. Mean Diff. Var. Ratio eCDF Mean
+distance        0.4357        0.4355          0.0013     1.0108    0.0036
+age            25.8162       26.6742         -0.1199     0.8467    0.0262
+educ           10.3459       10.2775          0.0340     1.0990    0.0099
+black           0.8432        0.8870         -0.1203          .    0.0437
+hisp            0.0595        0.0585          0.0040          .    0.0009
+married         0.1892        0.2009         -0.0299          .    0.0117
+nodegr          0.7081        0.7061          0.0045          .    0.0020
+re75         1532.0556     1373.5119          0.0492     1.0367    0.0506
+         eCDF Max Std. Pair Dist.
+distance   0.0216          0.0157
+age        0.0713          0.8270
+educ       0.0168          0.5056
+black      0.0437          0.3015
+hisp       0.0009          0.0843
+married    0.0117          0.5683
+nodegr     0.0020          0.1096
+re75       0.1120          0.5812
+
+Sample Sizes:
+              Control Treated
+All            260.       185
+Matched (ESS)  109.09     185
+Matched        260.       185
+Unmatched        0.         0
+Discarded        0.         0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">love.plot</span>(m_full, <span class="at">abs =</span> T, <span class="at">drop.distance =</span> <span class="cn">TRUE</span>, <span class="at">var.order =</span> <span class="st">"unadjusted"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Standardized mean differences and raw mean differences are present in
+the same plot. Use the `stars` argument to distinguish between them and
+appropriately label the x-axis. See `?love.plot` for details.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="mensik_assignment_1_files/figure-html/doing_matching-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m_full, <span class="at">type =</span> <span class="st">"jitter"</span>, <span class="at">interactive =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="mensik_assignment_1_files/figure-html/doing_matching-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="a.-study-covariate-balance-before-and-after-matching" class="level3">
+<h3 class="anchored" data-anchor-id="a.-study-covariate-balance-before-and-after-matching">a. study covariate balance before and after matching</h3>
+<p>Pre-matching, the clearest, strongest, and most significant predictor is nodegr: people without a degree are 0.53 points less likely to enter the treatment. Otherwise, the main variable with a significant effect is his: hispanic participants are somewhat less likely to be treated. From goodness of fit, I note that covariates reduce unexplained changes somewhat, and the AIC = 604.8 suggests modest predictive power. The balance table test suggests that the treated and control groups are reasonably comperable on most (not all) covariates.</p>
+<p>I learn from the summary of the full matched model that there’s great post-matching balance: the difference in means between the treated and untreated by collective standard deviation is 0.1; the ratio of treated/control variances is close to 1; the distance between the treated and control eCDFs is small; and the standardized mean differences are less than 0.12</p>
+</section>
+<section id="b.-does-the-number-of-matched-cases-change" class="level3">
+<h3 class="anchored" data-anchor-id="b.-does-the-number-of-matched-cases-change">b. does the number of matched cases change?</h3>
+<p>Technically, no (this is full matching). All observations were matched (looking at the sample sizes report, All for control = all for control matched, and all for treated = all for treated matched, 0 unmatched and 0 discarded).</p>
+<p>However, because of weighting, enough control units were shrunk such that the control group effectively dropped. This is good: it means the influence of weaker matches was diminished, and the influence of stronger matches boosted.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>m_full_data <span class="ot">&lt;-</span> <span class="fu">match.data</span>(m_full)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co">#for ATT</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>m_full_ols <span class="ot">&lt;-</span> <span class="fu">lm</span>(re78 <span class="sc">~</span> treat, <span class="at">data =</span> m_full_data, <span class="at">weights =</span> weights)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(m_full_ols, <span class="at">vcov.=</span>vcovCL, <span class="at">cluster =</span> <span class="sc">~</span>subclass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+t test of coefficients:
+
+            Estimate Std. Error t value  Pr(&gt;|t|)    
+(Intercept)  4229.09     483.97  8.7384 &lt; 2.2e-16 ***
+treat        2120.05     692.69  3.0606  0.002343 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">#include covariates to adjust for residual imbalance</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>m_full_ols_cov <span class="ot">&lt;-</span> <span class="fu">lm</span>(re78 <span class="sc">~</span> treat <span class="sc">+</span> age <span class="sc">+</span>educ <span class="sc">+</span> black <span class="sc">+</span> hisp <span class="sc">+</span>married <span class="sc">+</span> nodegr <span class="sc">+</span> re75, <span class="at">data =</span> m_full_data, <span class="at">weights =</span> weights)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(m_full_ols_cov, <span class="at">vcov.=</span>vcovCL, <span class="at">cluster =</span><span class="sc">~</span>subclass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+t test of coefficients:
+
+               Estimate  Std. Error t value Pr(&gt;|t|)   
+(Intercept)  -987.84671  3432.70581 -0.2878 0.773656   
+treat        2048.93590   704.08888  2.9101 0.003799 **
+age            66.87848    44.97232  1.4871 0.137710   
+educ          446.26505   200.79397  2.2225 0.026762 * 
+black       -1348.96943  1183.22137 -1.1401 0.254878   
+hisp          922.82779  1618.93427  0.5700 0.568957   
+married      -577.46697  1021.91673 -0.5651 0.572308   
+nodegr       -241.33685  1232.12218 -0.1959 0.844802   
+re75            0.20055     0.11957  1.6772 0.094214 . 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</section>
+<section id="c.-compare-resulting-att-estimate-and-explain-source-of-difference." class="level3">
+<h3 class="anchored" data-anchor-id="c.-compare-resulting-att-estimate-and-explain-source-of-difference.">c.&nbsp;compare resulting att estimate and explain source of difference.</h3>
+<p>After adjusting for covariates, the ATT moves from 2120.05 (SE of 692.69, p = 0.002) to 2048.93 (SE = 704.08, p = 0.0037).</p>
+<p>So, adjusting for covariates reduces the point estimated effect of being treated (job training) on expected earnings in 1978 by about $930. This difference reflects minor residual confounding of variables influencing both the likelihood of treatment and the outcome: matching already reduced those differences in the distribution of covariates and achieved strong balance between treatment and control groups, so adding covariates only slightly changed the ATT, thus confirming that confounding had already been largely dealt with.</p>
+<p>In terms of comparing with pre-matching differences, the treatment groups consistently had lower earnings before treatment and less education before treatment, so the raw difference in the outcome (earnings in 1978) was biased downward. After matching with pre 1975 earnings, this back-door-path got blocked (although it is possible that other factors would still influence treatment).</p>
+<p>After balancing, the ATT rises by $2k and is statistically significant: a “real” effect effectively emerges from identifying and reducing confounding, revealing a significant, substantial, and plausibly positive effect of the program at hand – an effect that was previously obscured.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

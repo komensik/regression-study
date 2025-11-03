@@ -1,0 +1,1341 @@
+Speaker 1  0:00  
+Because we're only the group sizes you can probably live with it. It's also a function of the variance in between. If you look at the expression, it is not something that is intuitive. That means you estimate an effect of something when it's not difficult.
+
+Speaker 1  0:23  
+I can also show that what this produces is usually not the ATT under only under some very, very specific situations and assumptions. I think it's fair to say,
+
+Speaker 1  0:41  
+then there was a stream of other work timing when he was published. First Martin, you can also show that if you just do a fixed effect model treatment effects are time varying. Worse, you can have can have a world where the treatment effect is the same for all groups, but just by the virtue that the weights are different than their complicated function that you don't understand, you have a weighting of different weights of the same thing. They can even be more complicated, right? You can have the weights that vary, and the treatment effect itself might be different for different groups, but it gets even more problem.
+
+Unknown Speaker  1:20  
+Pretty
+
+Speaker 1  1:22  
+active area of research. This is a very nice paper. You can read it if you care about that, because summary of what the issue is, as well as some proposals. I'll show
+
+Speaker 1  1:38  
+you one example of that, but I want to flag that there is a lot of stuff. Five years the same thing.
+
+Speaker 2  1:49  
+I had a question about what you just said, about how the weights can be the same. It makes sense to me that if the sizes are different than the weights would be different. But I just unclear if the treatment effect is the same. Doesn't matter how you weight it or
+
+Speaker 1  2:04  
+yes, because imagine you have four possible comparisons, if you're lucky, if you're not going to be but you could be lucky, the treatment effect is one in each case, sure, then what the total is is each color is going to be weighted by something, and those weights are a function of the group size as well as the variance of the field. You look at the expression of what the weights are, this is not something you will look at. Makes sense. I can live with that, right? Maybe weighted more than that. Essentially, weights that are not, I can't say they're not sensible. Express them mathematically, but it's not something two, if you enjoy, would not correspond to anything that's substantively meaning. It's almost like it's essentially just a function of how much the treatment varies, conditionally intuitive for comparison group as well as the size. That often has no substantive meaning. You wouldn't want your treatment effectively a function of, nor would you want the treatment, maybe a function of how much of your ability you happen to end up Having this quadrant, the comparison versus that.
+
+Unknown Speaker  3:17  
+All for all,
+
+Speaker 1  3:26  
+I yes four possible comparison,
+
+Unknown Speaker  3:35  
+and actually you rely on different assumption to make sure to choose which wise?
+
+Unknown Speaker  3:44  
+No, you can't.
+
+Speaker 1  3:49  
+So if the design is this, and someone goes ahead and says, I'm going to estimate the average treatment effect on the treated the point is that we don't know which one that is. This is an att. Is all ATTs, all possible comparisons you could make. And which one would you pick? A priory, you can't say
+
+Speaker 3  4:16  
+back to the Stable Two by two cases, they also, I think they also have
+
+Unknown Speaker  4:23  
+the first of the A, the B and C, right, and aVL.
+
+Speaker 1  4:36  
+You make no assumptions here. Those are all which is
+
+Unknown Speaker  4:48  
+it actually we make the pre
+
+Speaker 1  4:55  
+trainable statement? Right? This is an ATT, and in a two by two padding setting, the only thing you can define is the difference between the differences here. There's no other comparison you can possibly make that would identify just one group that receives the treatment. Later, you get four possible compatibilism. This is not a statement about how the estimator would look like, right? This is a statement of what logically you could define that makes sense. No one has made any assumptions or has said anything about what the estimate would look like a statement about how many treatment effects could I define based on the data structure
+
+Unknown Speaker  5:39  
+of the intervention
+
+Speaker 1  5:52  
+if, if one had information or information, if one, if you, if one is willing to Say, Okay, this is the comparison algorithm make, then you're good, right? And essentially ignoring later for another group willing to pretend that this exists, or you willing to remove it from the data, because one says a coronary is not something I want to do, that's that's fine. It's just usually there is no good reason to do so. And depending what the problem looks like, it might be quite problematic to draw the third or whatever it
+
+Unknown Speaker  6:34  
+might be of the sample. This
+
+Unknown Speaker  6:39  
+is the problem, right?
+
+Speaker 1  6:44  
+Just point it out. So what recruitment bacon shows is that you can estimate this easily, but you have to live with the fact that fixed effects model,
+
+Unknown Speaker  6:55  
+the estimate for delta is to complete a combination of those four possible
+
+Unknown Speaker  6:59  
+so office,
+
+Speaker 1  7:03  
+and I regret that it didn't type all the ways. It's very easy. I'll put it on the slides, but what I'm trying to make is you care about the ways, because the weights don't have a pattern that make them useful. To really understand what
+
+Speaker 1  7:28  
+let me show you one idea that people have how to do to deal with this. To some degree, it's relatively straightforward, as you will see in a second today, the bigger contribution was actually to recognize the problem. Large number. There's a sufficient enough number which is used the same model, probably general as difference in differences and estimated in the setting we have second treatment and just report one parameter. It's not that doesn't make zero sense, but it's fair to point out that you actually do not know what it is the average treatment effect on the treated. But the definition of what the treated are is somewhat arbitrary. In a world like this, where you put like different people could pick different things that they prefer, right? If you say all treated for me is going to be whoever gets worse, that's my treated groups. Late ones are the interesting ones. Maybe I don't even care about the untreated group, right? I have some exposure and then have additional exposure later. So this is the comparison I should care about.
+
+Unknown Speaker  8:29  
+So that's more arbitrary. I
+
+Speaker 1  8:43  
+to show you an example with simulated data, easier
+
+Unknown Speaker  8:49  
+a little bit.
+
+Speaker 1  8:53  
+So let's say we have four time periods and about 2000 cases.
+
+Unknown Speaker  8:59  
+We have a treated group,
+
+Speaker 1  9:00  
+more than one, actually, and they are randomly assigned to first participate in the treatment, right? So think that's the passage of time for periods. First period, I pick a random sub sample, okay, with some probability. Every case comes in the tweeted group, and time moves on. And then the untreated cases, another set of cases to make them treated, right? So I stagger them up, worse, more,
+
+Unknown Speaker  9:27  
+and we leave about units that never received treatment.
+
+Unknown Speaker  9:33  
+2000 simulated
+
+Speaker 1  9:40  
+this. There's some units that receive treatment in the first period that's interesting in itself, right? Sometimes you start a study and then the treatment has already happened, the exposure has already happened. But for our problem, that doesn't give us any information you would want, would want to have, right? Select, drop these, which means now you have a structure like this. Never treatment. First received the treatment, later received the treatment, even later,
+
+Speaker 1  10:12  
+think about what does the data generating process look like?
+
+Unknown Speaker  10:17  
+It's just so we know.
+
+Unknown Speaker  10:24  
+Treated state
+
+Speaker 4  10:26  
+intervention or disturbance. See here, that's just
+
+Speaker 1  10:31  
+a model like we have always written. This is specific to time. Eta here is specific to the group with a bunch of covariance. And this obviously substitutionary fixed effects. I wanted to note something that so far we haven't thought about if I make
+
+Unknown Speaker  10:54  
+distributed T across moves, any compatibilism levels between groups will not be
+
+Speaker 1  11:11  
+unless you happen to be in a case where the Time transcendence of the covariance is exactly the same second if you write differences first differences I take, I take now and subtract one period for
+
+Unknown Speaker  11:40  
+the first ordinate operator
+
+Speaker 1  11:42  
+applied to this here, for the potential outcome is zero state. I'm different saying the T's in time. I'm differencing the better coefficients here in time, and then I'm left with difference residual. And of course, the Epi drop out right, because if it's constant in time and difference once forward, those drop out.
+
+Unknown Speaker  12:00  
+This is my econometrics effects estimator in terms of first differences eliminate whatever distinct
+
+Speaker 1  12:14  
+states, which means the time path of the outcomes depends on covariance. That's just a fancier way of writing that if you estimate difference in difference model on a beta that follow that pattern, the assumption of parallel trends is no longer correct because the time path is in our function of the covariance. Kind of standard parallel trends assumption or unconditional parallel trans assumption is not valid, right? Unless you get incredibly lucky and the means of the covariates are identical across the groups. Or, you know, all the better coefficients are exactly the whole value. Balanced up, that's of course, infinity. So what we have now is a setup where we potentially worry about it as heterogeneity over groups, and there might be heterogeneity in the time trends as a function of some of the realistic, realistic depiction of what you might face,
+
+Unknown Speaker  13:36  
+non treatment
+
+Unknown Speaker  13:39  
+disturbance. Now, let's write
+
+Speaker 1  13:45  
+outcome, trigger state, and just writing y with G right communicate, this is a treatment for any specific G, and this is, of course, what, well, it's going to be the potential outcome state, in the untreated state, plus something on top of it, make sense, is the potential outcome stay undisturbed, a treatment happens. It's going to be this level, plus something on top of it, which is what the treatment adds. And this is what the treatment adds here,
+
+Speaker 4  14:23  
+what I'm doing here is straightforward, easy, little event indicate results t minus g and a better than a second.
+
+Unknown Speaker  14:41  
+So you count outwards. This
+
+Speaker 1  14:42  
+is minus one, minus two, minus three. This is 123, that makes sense. Here I write this
+
+Unknown Speaker  14:55  
+bit T around
+
+Unknown Speaker  14:57  
+where the event happens or the treatment happens. And what I'm
+
+Speaker 1  15:01  
+doing here is I'm just adding one. So right, whenever t is greater to the point where the treatment happens, I'm adding one, which means, as a treatment effect that is not constant in time, but that's what
+
+Unknown Speaker  15:20  
+this here, treatment switches on
+
+Speaker 1  15:26  
+right, because here is be equal zero, time point zero. And then I say in the period graph greater, I just add this plus one,
+
+Unknown Speaker  15:37  
+which means time point one. I add one time when two either another one.
+
+Unknown Speaker  15:48  
+That's just a time varying treatment
+
+Speaker 1  15:55  
+effect. That means this song conception, right? How the world could look like. So we can generally take us, which means, now, if this setup is what is going on, then you don't no longer have an average treatment effect without any further, any further qualification you have to say what you get is an average treatment effect on the treated that depends on which group I'm talking about, right? Are you the early treated group? And it depends on time?
+
+Unknown Speaker  16:49  
+Black line.
+
+Unknown Speaker  16:58  
+It's treated later and has a some
+
+Speaker 1  17:11  
+small details, which I put down here, which are not a material I can actually simulate data.
+
+Unknown Speaker  17:23  
+Showing the sample
+
+Unknown Speaker  17:25  
+in our concept.
+
+Speaker 1  17:32  
+Here's one proposal how to deal with this in the literature, and this straight forward. It is the estimated average creep effect on the treated for each possible combination of a cohort and time.
+
+Unknown Speaker  17:47  
+What do we mean? Pretty obvious. People mean by cohort
+
+Speaker 1  17:58  
+is a five year birth cohorts. Those are people who are born in the same five year interval and so forth. Here, the meaning of the word is simply the cohort. Is the group of cases that receive treatment at one given point here,
+
+Unknown Speaker  18:15  
+that never get zero.
+
+Speaker 4  18:18  
+And then this would be the cohort that receives treatment first, and then this sees and so forth,
+
+Speaker 1  18:37  
+just an application, precise issue. So you have cases of individuals right? We denote by, we denote by i from one to n, then we have time that just once index this by T, from one to t, then we have a treatment indicator, which, as often we write d, i, t, right, and that's equal to one if the treatment is switched on for a given unit or off, just like I wrote it here. Define cohorts by the cohorts G are defined by the time is treated over there, and just for housekeeping, that's by capital G substitution indicator, which is one
+
+Unknown Speaker  19:24  
+time G, right.
+
+Speaker 1  19:26  
+It just keeps track of when the change happens, right. Because if I write d, it as a treatment indicator for the cases in here, that vector looks like, what? 0000, and then 1111, right. I want to figure out where the treatment happened first, I'm going to use this chi indicator, because that's going to be zero and then one here,
+
+Speaker 2  19:50  
+box or clusters like, is it? But are you saying like everyone for the ATT, because everyone in the cohort would be treated, or is it that half are treated and half are untreated?
+
+Unknown Speaker  20:03  
+Ask me the question again.
+
+Speaker 2  20:04  
+Sorry, I just for the eight the first part where it says, estimate the ATT for each combination of the cohort in time. That's assuming that within each of the time periods being
+
+Unknown Speaker  20:16  
+people and okay, this
+
+Speaker 4  20:26  
+is generally enough, the old two ways forwardly, right,
+
+Speaker 1  20:31  
+untreated and treat it cheap comparison, which is be like that and then after that, right? But the difference here is like even giving you the single two by two cases, when you have extended to multiple time periods, you would already say, even with just one group or one cohort and one comparison core, I would not estimate an average ATT over this I would estimate for this year, this year or this time point, that time.
+
+Unknown Speaker  20:58  
+Fourth column, I
+
+Unknown Speaker  21:07  
+begins here, right? It
+
+Speaker 1  21:10  
+runs seven. It keeps running there, right, which means we have here, one time point, the second time point, third or fifth, which means I could estimate a comparison here. I can estimate a comparison there.
+
+Unknown Speaker  21:23  
+And so this
+
+Unknown Speaker  21:25  
+is true for the other cohort. I can estimate a comparison here or there,
+
+Speaker 2  21:39  
+and then, just sorry, just it's that group treatment, rather than like what we were doing a couple weeks ago, where we're matching individual cases at every given point in time, like this is we're taking Everyone's treatment effect together at different points.
+
+Unknown Speaker  21:58  
+Yes, okay, do
+
+Speaker 1  22:11  
+essentially what the idea is. What you're trying to do here is to figure out what possible comparisons Can you can you make right in the
+
+Unknown Speaker  22:22  
+right in this simple setting here,
+
+Speaker 1  22:30  
+say this is 1000 cases, right, and then
+
+Speaker 4  22:35  
+900 cases, cases, the DIT indicator.
+
+Speaker 1  22:44  
+More than ever. And you would have say 300 people for which the DIT indicator changes right, such as 0000, and then it becomes all one for them. And if you have another group, another 300 people for which you change a bit earlier from this,
+
+Unknown Speaker  23:01  
+from this, from this pattern alone, you can define the three cohorts
+
+Speaker 1  23:06  
+any given data set I give you, even if I don't tell you how many cohorts they are, you just look at the sequences of changes you see and that you identify here, You would easily see three cohorts, right, even I'm writing abstract right in practice. Of course, you will have many that look like this. A
+
+Unknown Speaker  23:41  
+into they in terms of patterns, that's if
+
+Unknown Speaker  23:51  
+there's no units that is never treated,
+
+Speaker 1  23:59  
+the theories where they're all treated? Or you wonder, what happens if you have cases that are one from the start, or, yeah, that one second from above treated in the last the last period? Yeah, what is the baseline?
+
+Unknown Speaker  24:18  
+That's so fine. Okay.
+
+Unknown Speaker  24:22  
+You worry if
+
+Speaker 1  24:24  
+what you do with those that have already experienced the treatment before your observation window opens?
+
+Unknown Speaker  24:29  
+Right? Yeah, you start studying things
+
+Speaker 1  24:33  
+is already in place. That sounds a bit tricky. Everything is treated at the end, right? A staggered rollout such that more and more get the treatment, until at the very end, it's good question.
+
+Unknown Speaker  24:53  
+Okay, all
+
+Speaker 4  25:00  
+right, right, G are denoted
+
+Unknown Speaker  25:07  
+by capital g1 identify the two that are never treated.
+
+Speaker 1  25:13  
+Anything that has to be said as you said, and I want to remind you, right, this is all assuming that once you have been treated that states the case you're not studying.
+
+Speaker 1  25:31  
+Now, one proposal is to simply estimate the average treatment effects on the treated for a given cohort G, at a given point in time. T, right? So that's the notice by theta,
+
+Unknown Speaker  25:47  
+which is now functional.
+
+Speaker 1  25:49  
+It's just another way of saying is that you told me we live in a world where you don't get the simple ATT by comparison of two groups. You tell me it's more complicated, therefore I'm going to give you more complicated estimates. There's no one ATT, left, right. We now have to admit to ourselves that the ATT might be different for different cohorts, and at points in time, that's all you say. One att. You say, Well, the ATT is now a function of what cohort you belong to. Entire
+
+Unknown Speaker  26:24  
+define this right?
+
+Speaker 1  26:27  
+That is just the expected value of what well, the potential outcome state
+
+Unknown Speaker  26:34  
+with no treatment and from
+
+Speaker 1  26:39  
+get subtracted from whatever the outcome is in the Chi state, right is a standard potential outcome notation. I just getting bored of writing subscripts. Same thing right before you would have written value of y1
+
+Speaker 4  26:58  
+minus definition of the treatment effect. Now we have
+
+Speaker 1  27:05  
+an effect which tells you like, instead of having one here, it depends on what
+
+Unknown Speaker  27:12  
+changes here
+
+Speaker 1  27:15  
+for another cohort, a change much later, two completely different that will be a different
+
+Speaker 4  27:22  
+on trouble. Notice we have little
+
+Unknown Speaker  27:25  
+T subs now, because that's because
+
+Speaker 4  27:30  
+this is we remind ourselves
+
+Speaker 1  27:33  
+so we are explicit about the fact that this treatment effect, cheap, root, specific treatment effect can vary more time
+
+Unknown Speaker  27:45  
+to condition on,
+
+Speaker 4  27:55  
+what, T, time G, if
+
+Speaker 1  28:02  
+equals cohorts. This is a potential outcome for the never treatment, and this is just equal to one. If someone belongs to over G or not, it just helps us to pick up.
+
+Unknown Speaker  28:21  
+I don't want us to not
+
+Speaker 1  28:22  
+see the forest for the trees to take a step back. What this is doing is it takes this complicated problem several time points, multiple groups with different treatments and literature that told us, like, if you just estimate this in a straightforward two by fixed effects, whatever we have learned as difference in differences.
+
+Unknown Speaker  28:42  
+Way you get
+
+Speaker 1  28:44  
+an interpretable weighted average of compatibilism? One possible solution is, is as ingenious as it is simple, which is like, then let's redefine what the ATT is, right? A problem comes from you want one att? The answer is just pickles are I'm not going to give you one att. I'm going to, I'm going to give you as many as their patterns in the data
+
+Unknown Speaker  29:07  
+cohorts. And it's your problem.
+
+Speaker 1  29:11  
+If you you're breaking this down into little two by two problems, right? Because you, you went back to what you know works two by two and a comparison, pre post one, treat a group one comparison, you just do it for different combinations of what pre and post means and what treated
+
+Unknown Speaker  29:32  
+and comparison.
+
+Speaker 4  29:40  
+You act, and you do this very, very,
+
+Unknown Speaker  29:54  
+practically back, and I see I wrote
+
+Unknown Speaker  30:01  
+our code to make that happen just based on the paper. That's not enough.
+
+Unknown Speaker  30:09  
+It's much, much easier.
+
+Speaker 1  30:12  
+What you do in the code is you just restrict the data to a sample where there are two groups, and you restrict that based on what G NT is right? Whatever comparison you want to make, you restrict the data to that group, to the two by 2t and
+
+Unknown Speaker  30:27  
+T calculation end
+
+Speaker 1  30:31  
+up doing, and all the rest around it is some sophistication. Okay, what are the groups with comparison we're
+
+Speaker 4  30:40  
+comparing one compatibilism, right between the cohorts. Other conversation, two by
+
+Speaker 1  30:54  
+two groups in two sense. The first is the comparison in space or one group will be all observations that are in cohort G, and then the other group will be defined by the control group, right, all the untreated observations
+
+Speaker 4  31:11  
+in time one group will be the data for time t, and the other time group will be the period where that specific cohort is
+
+Speaker 1  31:26  
+here, this is before and this is after for that group, This is before and this is
+
+Speaker 4  31:36  
+after. Now, listen, one is,
+
+Unknown Speaker  31:46  
+what is the control
+
+Unknown Speaker  31:52  
+on to? The fact that there's
+
+Speaker 1  31:53  
+two ways you can define what the control group is. One way you find a control group, and this is the notation for control group, like just C,
+
+Speaker 5  32:01  
+star, G, T. Control
+
+Unknown Speaker  32:09  
+be specific to the cohort, and it can be specific to time.
+
+Unknown Speaker  32:17  
+Two, not
+
+Speaker 1  32:21  
+for one is those who are never treated black line down here, right? That's a very natural control group, right? Because nothing ever happens to them. That's a good reference point. But there's also a more adaptive definition of what a control group might be. And in my mind, this is the not yet group, right? Because those are the units in cohort Qi. In a control group, you look at the cases that are not in Chi, not in your
+
+Unknown Speaker  32:59  
+cohort, at your treatment time,
+
+Speaker 1  33:03  
+was not yet intrigued for this group. This is a natural control group, but so is this right? Because they don't have enough experience between so one definition. Let me just finish this one definition. Then would be the control group is
+
+Speaker 4  33:26  
+just a cohort that never exposed the treatment. And the other one would be kind of a rolling update of what the not yet treated are. See not yet, right?
+
+Speaker 1  33:40  
+What would it be? Well, it would be the complement to whatever group indicator you have. Remember, this tells me if this which means it would pick out one minus that would just pick out the ones that have not received the treatment yet. And I multiply this by one minus the PT indicator, because that tells
+
+Unknown Speaker  33:59  
+me where the treatment gets switched off.
+
+Unknown Speaker  34:05  
+Get switched off this group
+
+Unknown Speaker  34:07  
+at this point in time, it stops being true,
+
+Speaker 4  34:11  
+another group made for the treatment for even later,
+
+Speaker 5  34:37  
+up. You can, you can make
+
+Speaker 1  34:49  
+it conditionally parallel, to be parallel conditional covariance.
+
+Unknown Speaker  35:02  
+You wouldn't need balance or any of
+
+Speaker 1  35:10  
+that, as the Dutch say, every advantage has its own disadvantage. Of course, it also goes the other way around,
+
+Unknown Speaker  35:17  
+right? Which is this,
+
+Speaker 1  35:19  
+and you worry about parallel trends, that's very maybe you can do about it. Intuitively, you have more observations in time. There's more you can exploit, but also the company. Now you're back. This is observational data analysis.
+
+Speaker 4  35:34  
+Tend to be a lot more complicated than this is the price. Usually price,
+
+Speaker 5  35:45  
+the freedom to risk
+
+Speaker 1  35:59  
+make your life slightly more complicated. Even more there's also logically two ways you can define what the face time is.
+
+Unknown Speaker  36:12  
+An obvious way to do it, which is both pre tape, pre treatment, g minus one for everyone, that's my base line, or
+
+Unknown Speaker  36:30  
+that at that difference level, cohort, the base time, the difference between making this a reference, this, this And
+
+Speaker 1  37:00  
+this, let me. Let me show you how this what kind of estimator comes out of that, because then maybe thinking back what we talked about makes a bit more sense. Let's just think about what we have observed for each unit right time we have some outcome index for an different as an outcome, y i but also in the Y time for that specific unit. I'm using a slightly more sophisticated location to point out to us that it doesn't have to be an equal space grid, because in practical data analysis, that's not always a given. You could have one observation that runs like clockwork, and the other one is like here missing and it comes back that can be principally covered by this quite easily. Then you have two sets of covariance. I'll talk about that in a second. Then you have our treatment indicator, and we have this little group indicator that we've defined before. That's all things we have in the data set. So easy to produce this by just using the right calculation.
+
+Unknown Speaker  38:01  
+Complement outcome treatment indicator.
+
+Speaker 1  38:07  
+These are pre treatment covariance in the outcome model. That statement only makes sense once you see the next slide, bear with me. And then Z would be covariance in the treatment assignment model.
+
+Unknown Speaker  38:19  
+And the variable,
+
+Speaker 1  38:27  
+again, it allows for the fact that the clock for one unit,
+
+Speaker 1  38:43  
+adjustment. Remember those two terms you have encountered before, right? There's an outcome model that's the Y regression. There was a treatment assignment model that was the E type regression, and you were. A progression and
+
+Speaker 4  39:03  
+you will now call away, right? Okay, so what is the Nanzianzus? Just need to define a bit of shorthand notation,
+
+Speaker 4  39:31  
+a bit of notation so we can keep track of and that the super script reminds us
+
+Unknown Speaker  39:41  
+we want to have
+
+Speaker 1  39:44  
+two or better, probably called comparison group, because then more as more more than one comparison you can Make.
+
+Speaker 4  39:51  
+So for the treatment group, the mean here is,
+
+Unknown Speaker  39:57  
+is Y
+
+Unknown Speaker  40:02  
+for treatment,
+
+Unknown Speaker  40:05  
+right? That means,
+
+Speaker 1  40:08  
+at any given point in time, that's just a very fancy way of saying, I pick the group that I want, pick that point in time that I like, and is the expected value of Y
+
+Unknown Speaker  40:22  
+theta group, where the Cohort
+
+Speaker 1  40:27  
+One might have defined as vector, G, capital G. Now I pick this group, and I say this point in time that
+
+Unknown Speaker  40:37  
+course, there's also a mean of
+
+Unknown Speaker  40:41  
+the comparison group,
+
+Unknown Speaker  40:48  
+whatever.
+
+Speaker 4  40:51  
+Remember we had two different ones, so quality will likely differ based on the choice you make there and again at the same Moment Time regressions, you can also define some effects.
+
+Unknown Speaker  41:16  
+You mind
+
+Speaker 1  41:29  
+that G equals to one the cohort membership indicator is equal to one condition on or function of covariance. ET
+
+Speaker 4  41:43  
+You know that thing here, propensity score
+
+Unknown Speaker  41:51  
+for cohort membership in
+
+Unknown Speaker  41:56  
+a given specific, potentially of covariance.
+
+Unknown Speaker  42:01  
+That's the propensity score
+
+Unknown Speaker  42:07  
+for covariance.
+
+Unknown Speaker  42:16  
+Attachment,
+
+Speaker 1  42:25  
+it. Now, with these in hand, you can estimate the audience.
+
+Unknown Speaker  42:37  
+Let's go into
+
+Unknown Speaker  42:46  
+I should I made my own slides
+
+Speaker 4  42:49  
+I don't have to use. I
+
+Speaker 1  43:02  
+see the obvious one is just using the progression adjustment. How does that work? Okay, so this is the ATT remember which is group or cohort specific and time specific. How they calculate it? Well, it's the out the mean in a treated group. Remember, it can always be conditional on covariance, if you would like, the treatment outcome mean of the
+
+Unknown Speaker  43:41  
+this inference So
+
+Unknown Speaker  43:53  
+you would need to calculate the mean
+
+Unknown Speaker  43:56  
+the treat. And the cohort
+
+Unknown Speaker  43:59  
+below it with a stack of treatment,
+
+Unknown Speaker  44:03  
+any combine,
+
+Speaker 4  44:06  
+which incorporate the same way. See, this is just a difference in difference in the two by two setting, but you essentially stacker it up over all the possible comparisons you can have by just the marginal value. This is just a group membership indicator.
+
+Speaker 4  44:36  
+Take the expected value. Actually calculate this, you would replace the expectation here. Of course, this
+
+Unknown Speaker  44:53  
+is definitely,
+
+Speaker 1  44:55  
+it's like, this doesn't show you how to estimate it right, because the question is, how is m gonna come from? But it will be
+
+Unknown Speaker  45:04  
+somewhat obvious to you that this regression
+
+Speaker 1  45:16  
+is here. How? Here's one idea, how you implement it,
+
+Unknown Speaker  45:23  
+zero, the time point you're
+
+Speaker 1  45:24  
+interested in, and the baseline time and remember, this can be one of two settings. You keep the baseline time point fixed and move forward in time, or you do adapt between. You move the baseline time point with you as you move through those are two choices you can make, and no one can tell you that clearly, a priori, which one you should
+
+Unknown Speaker  45:44  
+pick, specifications
+
+Unknown Speaker  45:47  
+question of how you define your control book.
+
+Speaker 1  45:51  
+Okay, that's another way of saying only the units that are either in cohort she or in the control group. Right? Once you say, this is how I define my control group, and then you can at any given cohort G you
+
+Speaker 1  46:16  
+need. Fancy way is on these new sense,
+
+Speaker 2  46:34  
+but don't like the whole, this is the whole thing,
+
+Speaker 5  46:39  
+not and this
+
+Speaker 2  46:45  
+is how this is our these are steps for estimating the entire Everything within the parentheses, the entire value
+
+Unknown Speaker  46:53  
+or the ATT,
+
+Speaker 4  46:58  
+function of G and T, right? And if you want to ask, How do I do this, look at this and say, Well, clearly what I need.
+
+Speaker 1  47:10  
+What do you know? Right? You know what G is. That's just a veracity. Take the mean of G straight forward enough, right? You know x, those are your covariance. You know the comparison group is that you have defined earlier. So what you now have NT very straightforward way to produce those would be to just use linear regression groups and in the
+
+Unknown Speaker  47:49  
+comparison
+
+Speaker 1  47:52  
+groups, and you can make this a function of pre treatment covariance, because you have
+
+Speaker 4  48:03  
+that form, you have those four means in hand. You go back and then just do the calculation
+
+Unknown Speaker  48:15  
+here, basis, which means you have a value for each case, be conditional covariates, the logic, I think
+
+Unknown Speaker  48:30  
+that's one way to do it. The other way,
+
+Speaker 1  48:37  
+just like we discussed three weeks ago, would be, you could do this by weights. What you do here is you take here the outcome y in two settings, because you want to compare a treatment state and a control state. And you do this by weighting your observations in specific ways. Right that I need to tell you what the weights are. You
+
+Unknown Speaker  49:25  
+the time where you are
+
+Unknown Speaker  49:30  
+one is the comparison that's
+
+Unknown Speaker  49:34  
+a bit more involved. This expression here
+
+Unknown Speaker  49:39  
+is search for the P
+
+Unknown Speaker  49:42  
+right here.
+
+Unknown Speaker  49:49  
+Doing
+
+Speaker 1  49:50  
+is waiting the comparison cases by using the inverse probability of the chance
+
+Speaker 1  50:07  
+model You will estimate this logic model, logic of treatment. Crem all the other terms here are known to you,
+
+Unknown Speaker  50:26  
+known to you this now you have calculated.
+
+Speaker 1  50:30  
+Take the difference here, multiply that, take the mean over both if it were sample, take the difference of the two means I'm
+
+Speaker 1  50:50  
+losing the room. So I'm gonna jump over that. But just like I showed you about two or three weeks ago, a very popular technique at the moment, slightly overhyped, But
+
+Unknown Speaker  51:07  
+matrix.
+
+Speaker 1  51:11  
+It usually runs under the name Dudley, robust. See that
+
+Unknown Speaker  51:22  
+one robot
+
+Speaker 1  51:26  
+is robust, but the idea of du robust estimator is that we combine the two right. One approach is using regression investment, the other approach is using inverse propitiating you can you can bind the two. This is essentially what that kind of estimator does. That's also why it's so expensive. You can recognize the pattern.
+
+Unknown Speaker  51:54  
+Combination of
+
+Speaker 1  52:06  
+lecture, but you really care, why? Why is it attractive? It's attractive because, why is it called doubly robust.
+
+Unknown Speaker  52:20  
+Show the progression specification.
+
+Speaker 4  52:35  
+If the tools to be specified, it's still consistent. That's an attractive probability, right?
+
+Speaker 1  52:42  
+Because it means you have two shots to get things right, to get the regression equation correct, the weight equation Correct. Both are correct. Good for you, but you just need one,
+
+Unknown Speaker  52:53  
+whereas, of course, here You need to get this point. Sure jump
+
+Unknown Speaker  53:13  
+back i
+
+Unknown Speaker  53:18  
+It's right. He's obvious. He's
+
+Speaker 1  53:32  
+correct. It's obvious, any Miss specification, correct.
+
+Speaker 5  53:36  
+Miss specification, that
+
+Speaker 1  53:50  
+takes a while, and it's at least to me, it's almost impossible to do it without just running
+
+Unknown Speaker  54:07  
+regression.
+
+Speaker 6  54:15  
+Sorry, but can you explain again why the baseline timing is denoted as g minus one?
+
+Unknown Speaker  54:27  
+No, you make that concurrence.
+
+Unknown Speaker  54:38  
+Means, like a staircase, right, right,
+
+Speaker 6  54:43  
+g minus one is simply saying that the model for the control
+
+Speaker 4  54:53  
+do this in practice, right? You can parametric model to estimate what you need, regression, adjustment.
+
+Speaker 1  55:05  
+If you use weights, you need to calculate this form, which means you could run a logistic regression on the treatment, on the Z coordinates, right, and then you go with these things. You have just calculated pulmonic equation on the previous slide, and that's it.
+
+Unknown Speaker  55:33  
+It's not you. You could ask the topically valid things. It does
+
+Speaker 1  55:41  
+ask, Well, what happens to the standard errors of the ATT if I do it this way? The answer is that is less well understood. So we just use bootstrapping. We just do it repeatedly, and this stops being an innovative concern. You
+
+Speaker 1  56:01  
+not just so we don't lose track of the larger question
+
+Unknown Speaker  56:07  
+this. Maybe
+
+Unknown Speaker  56:14  
+is value of parallelity.
+
+Unknown Speaker  56:24  
+Pre treatment, and you condition on that
+
+Speaker 1  56:29  
+unconditional parallel trans assumption, you're assuming that the trends remember one always refers to an unobserved potential outcome state, right? So the assumption is that trends are parallel, making some parallelity and potential outcomes conditional on the co variance, which is a much weaker assumption, that if you make it unconditional,
+
+Speaker 4  57:00  
+it is still an assumption of parallel, trans,
+
+Speaker 1  57:07  
+conditional covariates. Of course, you're implicitly saying that you have the right set of covariance in X some
+
+Unknown Speaker  57:30  
+cohorts or stack of treatments. I think this would be interesting.
+
+Speaker 1  57:35  
+Interested where all that machinery with the cheese subscripts and so forth goes out
+
+Unknown Speaker  57:51  
+the window, pixel
+
+Speaker 1  58:07  
+imprecations in R so you can see this leads to something that you can actually use a break and when we come back, I show you some simple
+
+Speaker 1  58:29  
+things of our code slides Always look very scary. Actually, using It is almost A August, you you.
+
+Unknown Speaker  1:05:48  
+The large enough
+
+Speaker 1  1:05:54  
+bunch of packages that we'll need, and let's start very simple. This is the raw data we back in time. This is before the break, where we live in a simple world, right? Where differences, differences means preparing exposed versus not exposed in a pre and the post period. This what I'm having. What I have here is data, raw data from the paper by karlthruber Only fast food chains exposed to minimum wage changes by example we use in Pennsylvania and New Jersey. Contrasting the two is the actual data underlies it, reading it, data format, originally reading it data table, and if
+
+Unknown Speaker  1:06:46  
+you just look at it.
+
+Speaker 1  1:06:49  
+That's how the data looks like, right? We have an indicator here for store which just just store ID number, right, which chain does it belong to, and covariates, the CO ord state variable,
+
+Speaker 7  1:07:05  
+other variables, and we have one variable that includes wages.
+
+Speaker 1  1:07:17  
+Next I'm going to just create quickly a variable that's called FTE, that's full time equivalents. Is a number of employees that work full time. These are the number of managers in the store. Those are part time people. Eventually it's just counted half
+
+Speaker 8  1:07:34  
+employment, full time equivalent employment, because that was the outcome.
+
+Speaker 1  1:07:44  
+And what I can do is we can just look at the means in the four cells, right? So there's a variable here that is state and time. Those are the two things we care about, right? New Jersey versus Pennsylvania. Time is before and after. And here I just calculate the mean the FTE variable by state and time, if you like the time or stuff, it will be group by and and you can see here, here we get the employment numbers. If you go back to the slides, those were the numbers in the four cells, mainly on New Jersey, before and after this. Before, as we discussed, if you have four cells in a two by two table, you can recover it, also using regression, if you would like, right regression of what the outcome on state times time it's data
+
+Unknown Speaker  1:08:46  
+in our
+
+Speaker 1  1:08:49  
+automatic appliance. I hope you know that from 630 but just in case you have forgotten, if I say a times b, a plus b plus a times to state that the equivalent is using a dot hash thing. Do this. I expect to see in m we expect to see four coefficients right an intercept, state coefficient, the time coefficient and the state times time coefficient for the interaction. So you've already see 12344, cells, four parameters, like we discussed on the slides. You can recover the cell means from both the slides right here, I'm extracting the coefficients, putting the neutral vector b, and they have names. Here we can recover time, and then the last one will be between the setting and agency force. That means, what
+
+Speaker 1  1:09:59  
+is it? What is what? If you wanted standard errors? In addition to those means, that's usually helpful. Ranking this by hand, quite easily. By the way, you just get the covariance
+
+Speaker 8  1:10:10  
+indicator vector. Take the square root of the two. You don't want to do it by hand.
+
+Speaker 1  1:10:19  
+Car package that has the following function here hypothesis tests, you can just write out what the terms are.
+
+Speaker 7  1:10:28  
+HT, if I function here, it's
+
+Unknown Speaker  1:10:32  
+quite useful.
+
+Speaker 1  1:10:41  
+So here I'm saying there's four contrast that I want. Right intercept, intercept plus state plus time, intercept plus state plus time is to zero, that's just how you formulate a hypothesis,
+
+Speaker 8  1:10:56  
+and what we can do here. Second argument, you tell it, what is the variance covariance matrix you're using for the calculation, and if you don't add that qualification.
+
+Speaker 1  1:11:10  
+Here, it just uses the variance covariance matrix that's stored as part of n. Here you taking a function consistent variance covariance estimations that goes there, calculates the correct variance covariance matrix feedback and he uses this
+
+Speaker 1  1:11:36  
+one originally. This is designed to do hypothesis tests, right? So you have a regression. There's three coefficients you want to test, if those coefficients are jointly zero with a bunch of dummies zero. This is one way to do it, but it's hidden in it. You can see the actual estimated values. So I'm doing here, and also has an attribute for the variance covariance matrix. I can show you that here. So what I'm doing here is I'm taking that diagonal of this. Of course, you know that the square root, the diagonal, the variance,
+
+Unknown Speaker  1:12:16  
+covariance
+
+Speaker 1  1:12:24  
+matrix, too much for your taste. There are packages that do that, the cost is that you load in the package, which you don't have to keep track of if it still lives two years down the line. That's the package I think people quite like, which is called estimator.
+
+Unknown Speaker  1:12:40  
+Somewhat, I put it there. I don't really,
+
+Unknown Speaker  1:12:47  
+I don't even
+
+Speaker 1  1:12:49  
+use it because I like to have few packages, a lot more package to do something as simple as
+
+Speaker 2  1:12:58  
+this. I was just wondering if it was possible to change if you if you're null hypothesis, you wanted it to be something else. Would you just put it instead of zero. What you're
+
+Speaker 1  1:13:09  
+testing specifically, if you were to test it against a fixed value, sure, yeah, okay. Or if you could estimate that, if you know hypothesis that two variables need to be equal, you just write the difference between the two as equal to zero. Okay, nothing. Here is difference in different specific that's just basic regression stuff. If
+
+Speaker 1  1:13:40  
+you use the Stata, Stata, you run a regression, and then the next slide, you feel min compatibilism, the same thing. This is the R equivalent of that which doesn't look as neat and short as data does. It's somewhat more powerfully then you have to pay more flexibility. You probably want to do this all the time because you want to allow standard errors
+
+Unknown Speaker  1:14:06  
+to be adjusted for cluster. Now,
+
+Speaker 1  1:14:14  
+we could just use the linear model that we had above, right, because we know what the difference in difference estimate is here, but we can also make it more explicit, right? Remember, how did we estimate it? We had y plus d plus t plus d times t. Calculate in terms of differences the first state times zero. This will be the difference the time for state one. That's delta t plus d. We can do it. Just write it like that and look at it right. The difference of the difference is just a coefficient on the interaction, like we discussed last week. The difference in difference is 2.75
+
+Speaker 1  1:14:59  
+in R, if you want standard errors that are robust or heteroscedasticity consistent, different ways to do it, but I think the canonical way is use the sandwich package, right? An easy way to do this is use the LM test package, very basic packages that will always be there, quite sure. Worry about that. An easy way to do this is you run as a function called test. See here, taking the object that you've just created, right? M is our regression object. Just run it like this. You can see you get the full table. Why not? But since we only care about this, you can pick it out, right? Which is saying, Give me this is a matrix here.
+
+Unknown Speaker  1:15:48  
+It's time.
+
+Speaker 1  1:15:50  
+Just get that one line 75 and you get a standard error at 68 it's a good idea to adjust that for clustering. And neat thing about the coefficient test function here is you can tell it don't use the variance, covariance matrix, matrix in M, right? Remember the object in our story that way is a gigantic list of information, right? So you can see it stores the coefficients, residuals, the rank of the matrix. It use values, but one what you always get is the coefficients of it and covariance matrix. But instead of taking that variance covariance matrix and calculating the standard error, you can tell it use a different variant variance covariance matrix, and it's a function from the sandwich package that gives you robust standard errors, elasticity, consistent standard error. So what this function does is what it goes to m, extracts the covariance matrix, makes the correction, because it's just two by standard errors, but it makes the correction here and then feeds it back to the coefficient as a function. And I just run both of them. You can see here, right that those are the standard errors that are not robust under heteroscedasticity. Those are
+
+Unknown Speaker  1:17:14  
+the standard errors estimates.
+
+Speaker 1  1:17:20  
+There's a dozen different ways to do heteroscedasticity consistent standard errors. That's why there's an argument to function if you have a board and try all of them That
+
+Unknown Speaker  1:17:34  
+makes
+
+Unknown Speaker  1:17:45  
+sense, alright,
+
+Speaker 1  1:17:47  
+of running a linear regression to recover the difference in
+
+Unknown Speaker  1:17:51  
+difference. Estimate two by two,
+
+Speaker 1  1:17:55  
+repeated observations. Again, if you think back to three weeks ago, fixed effects, type model.
+
+Speaker 1  1:18:07  
+Again, you can do this in several ways. It's pretty simply. Here I generated some data. Simulate it. You can see it has, it has a very simple structure. We have ID variables, and for each case, right? Look at this one, Id one. I have several observations in time. In fact, I have 10 time periods, and after the fifth period, the treatment is switched on for some and not for others. And it is captured by the treat variable here, which is what we often call EIT in our style. This is the outcome, and this is a covalent there's no stagger treatment or anything like that, right? It's zero for some of them in terms of treatment and zero switch to one for some of them, it happens only once treatment change. How would you estimate this? Packages that you can use? But this is a very naive way of doing it. If you're on a desert island without any packages. This is how you do the two basic effects, right? Tell our take the ID variable and turn it into factor, which means it creates dummy variables for each and for each level. And you do this with the ID variable. Just run this. I can show you the output. That's not something you would want to look at, right, because you see, of course, now that you
+
+Speaker 1  1:19:35  
+have your coefficient and you have a dummy variable for each ie variable, and you have a dummy variable for Each time
+
+Unknown Speaker  1:19:43  
+variable, supper here as well, there, like us. Excess.
+
+Speaker 1  1:19:50  
+So the thing to do is just do a coefficient test again, focus on the treatment variable only you can see here the estimate is point five, with the standard error, point 00, 3t value of 1.5 we know.
+
+Unknown Speaker  1:20:19  
+Now,
+
+Speaker 1  1:20:21  
+whenever you do this, what you probably would want to do is you would want to examine the pre trends right, and you want to see if they're parallel or not again. That's not a test of the assumption, but it's an easy way to rule out that you're in a situation that looks completely nonsensical. And an easy way is, of course, just to plot this right. To make this easier, what I'm doing here is I'm creating a variable, very unsophisticated way of doing it, but it's a variable z that's equal to one, if the case ever it's treated and zero, otherwise, remember, the treatment indicator changes over time, right? Because it switches from zero to one. So what I want now is another variable called Z that is zero doesn't change in time, and it's zero for those who never received treatment, and it's one for those who received treatment
+
+Unknown Speaker  1:21:15  
+later, one all the time.
+
+Unknown Speaker  1:21:24  
+And what
+
+Speaker 1  1:21:29  
+I can do is I calculate the trends. I can calculate the mean of the outcome by those two groups right, over time and by z. I put this into a new object here called Trends. You can see it has three variables, right? One is C, the element is time and v1, is the mean of Y just populated. You can just plot that by plotting one line here
+
+Speaker 8  1:21:55  
+against time and then plotting the other group against time.
+
+Unknown Speaker  1:22:09  
+Run this in check
+
+Unknown Speaker  1:22:21  
+it at home. Direction to what the distance
+
+Unknown Speaker  1:22:28  
+looks. Okay. Everything.
+
+Speaker 1  1:22:53  
+Error right where we plot it. Now is label this to make it nicer, but you can see, this is the one group. This is the other group. These are the trends before reasonably parallel to me. That's a good start to check how things behave before you even start doing if you go back to the slides I also showed you, if you ask, Well, I'm not happy enough just looking at the plot. If it.
+
+Unknown Speaker  1:23:29  
+If the question is,
+
+Speaker 1  1:23:33  
+create a straight line to this to this series and to this series, and then I want to test if the slope of those two straight lines is statistically significantly different. How would I do it again? As wanted one way to do it, but you can do it by just running the regression you already have and augmenting it with those terms. Go back to the slides. Remember the idea was we already have our C indicator variable that tells us never treat it. Ever treat it. Now we create two more variables. TT, zero, that's the pre treatment period, right? I'm just saying if time is less or equal to five, make it one zero. Otherwise TT one would be if times greater than five.
+
+Unknown Speaker  1:24:17  
+So now we have two dummy variables
+
+Speaker 1  1:24:27  
+up there. Which just indicates never before or after, where the treatment happens. And then what we had on the slide was you have the same model as before, treatment ID variables as a factor, time as a factor. And now we add this triple interaction right of time that gives me the linear time Trinity function of time, time c. What does that mean? Well, this is will be different for the 2z groups. And here I'm focusing on the pre period, and here I'm doing the same thing, time C, but I'm focusing on the post period. This is for accounting purposes. This is what you really care about, right? It's going to estimate one coefficient on this thing. That coefficient, if you remember our discussion from last week, discussion from last week, that's going to tell you the difference in the slope that parallel, the difference will be zero, or at least it would be small enough that it's not statistically statistically significant. If the difference is large in slopes, then it would be large and statistically significantly different
+
+Speaker 2  1:25:48  
+from zero. A positive value. Like, do we always take the absolute value
+
+Speaker 1  1:25:53  
+of the skills you don't. I wouldn't even care what the value is, okay? Because, you know, if you care about some some magnitude, you should drop it. Okay? This, I would only do is, I'm going to make this a hypothesis test. Null hypothesis is they're parallel acceptor object does? It doesn't make sense? I would that's a dumb answer. I know I wouldn't worry about what the difference is. Has very little meaning beyond as a device to tell you to produce tests, but it can be attending both directions.
+
+Speaker 2  1:26:31  
+And then theoretically, if we do, if we cannot reject them, whether there's a parallel trend assumption, then our takeaway is that there's some covariance that are still being embedded within the treated and
+
+Unknown Speaker  1:26:45  
+untreated.
+
+Speaker 1  1:26:46  
+So that's a good question. Now, in a simple world where you do like a standard, different setup, if you have three trends that are already not parallel, clearly, most people will be very suspicious of the whole enterprise
+
+Speaker 2  1:27:04  
+in terms of the random sampling to get the groups themselves, or just in general, the
+
+Speaker 1  1:27:08  
+assumption, the assumption you're making in terms of parallelity of trends is probably called in question for most people, if the pre trends already is already diverging quite a bit. Now that's of course, not conditioning on covariance. You can then turn around and say, Okay, I have a set of covariates that I think make it more likely that this happens, and
+
+Unknown Speaker  1:27:35  
+you make a condition on that
+
+Speaker 1  1:27:36  
+that comes with an explosion in the complexity of the model, right? Because this is a world where this is simple linear regression model with a direction or a treatment variable that changes once that's very easy to do. The other thing is, is a more complicated setup, right? Waiting? So you're changing from the simplicity of the design and the story, whether some exhaustion has changed it happens to some group and not to another, and they were the same before, but now they're not, because of the change. That's an easy story for people to believe, if they do it, and then the analysis is very simple statistically, if you no longer believe that story, then the question is, can I convince people still with an analysis that's more sophisticated statistically, but you're starting to make different trade offs, right? Because now you suddenly have to talk about regression models again. At least in the past, people pretended that this is not what that is. Very easy to find papers in political science and write about difference in differences or other techniques which are completely separate from regressions. Kind of 80s regression with lots of control, was the Boogeyman. And people do constantly friends and it becomes much more obvious that you're now using modeling techniques, not a statement that could has no existence proof you could attach to it, right? This is simply based on experience. If you show a plot like this, and people will want to see it, right, imagine if that red line would look like this already right. So there's a gap that emerges because right of that gap, This already looks like that. So in your mind, you say all the potential outcomes will probably be down here. People won't believe that setup if you then turn around as well. There's a paper question, adjustment estimator, the conditional covariance. I now tell you that the trends are parallel. You will have a hard time getting this bias. It is technically possible that after strong difference in transition, before the exposure even happens, is no longer an issue. Just
+
+Unknown Speaker  1:30:03  
+make sense the sort
+
+Speaker 1  1:30:04  
+of parallel, but is a bit of a deviation. And if you make a substantively motivated case, that is because for two or three covariates that I really know something about, I can tell what groups are different to begin with, and then you are the ones that adjust for that you think about within groups, it might become possible, but that can only be
+
+Unknown Speaker  1:30:26  
+small deity as
+
+Unknown Speaker  1:30:30  
+part of human nature, more than
+
+Unknown Speaker  1:30:34  
+statistics.
+
+Speaker 1  1:30:46  
+That means there's also no way in my mind that the paper could be written without such a thought, hopefully nicer looking than mine. But if people don't show you the data for these kind of models, all right, so how do you do this here? Well, he estimate that model
+
+Unknown Speaker  1:31:07  
+coefficients. If you want,
+
+Speaker 1  1:31:10  
+there's too many to for any reasonable human being to look at it. We have it. But what you usually would do, as I said, you would just see, test the hypothesis that this triple interaction is equal to zero, and that is just a hypothesis test for 10 such a looks a nice idea. You know, we just restrict one thing that's an F test, so that the degrees of freedom is one, right? The difference between the two is just one parameter or less. And you can see who the f statistic is. Doesn't even matter what it is. The p value of the left test is point 97 it's clearly not significant, so the rotation would be right in the paper. What would you write? We tested for parallel, free trends, for linear treatments, and we cannot reject the null hypothesis if there
+
+Speaker 1  1:32:16  
+works with two groups, more than two groups, more than the two of them
+
+Unknown Speaker  1:32:22  
+sophisticated, because
+
+Unknown Speaker  1:32:27  
+one slope and the other slope.
+
+Speaker 5  1:32:28  
+All right,
+
+Unknown Speaker  1:32:36  
+completely,
+
+Speaker 1  1:32:40  
+something I haven't put on the slides, but I wanted to add, as I was writing,
+
+Unknown Speaker  1:32:48  
+writing this this morning.
+
+Speaker 1  1:32:52  
+This morning, I added stuff I want to show you later, but actually went back to code and added these two things. I hope it's not to abstract without without slides. What happens quite often? I in details, you study your parallel tree trends, three trends, and you see
+
+Unknown Speaker  1:33:28  
+treatment happens here, and then It
+
+Unknown Speaker  1:33:33  
+works as models just do something that's there. I
+
+Speaker 1  1:33:50  
+You see this uptick, right? It looks nice and parallel up until here, but then here you have this uptick already that you don't have in the comparison group. Now, depending what you see, this might or might not be something you want want to think about right one way people sometimes treat this is kind of like, Oh, whatever. I'm going to fit my linear pretense model. If it's if it's not significantly different, I'm just going to not even talk about that. It's there. In other settings, people really start warning on what that is, and depending on what you study, this might matter or more or less, an obvious example, you study people through time. Here at the dotted line, a dash line, a policy is being introduced. The fact that the policy is going to come is somewhat common knowledge. So you worry about what some people might already change their behavior before the policy even comes, because they anticipate. In fact, it is so common in some settings that people call these
+
+Unknown Speaker  1:34:53  
+up working patient effects.
+
+Speaker 1  1:34:56  
+You know a lot more would need to be true for you to actually know that it is such as the applied literature. This can always happen, economics, government announced a policy that comes into effect next year. By the time the policy comes into effect, it usually has no effect, because everything has already been adjusted for in terms of individual behavior. But you might think, you know, you do a randomized control trial in the field, white people suddenly appear, and people have the sense that something is going on, and depending on what you measure, behavior might already have been adjusted. This is a very common worry or experience that people have now, the interesting thing is, if you want to study this in a slightly more statistical fashion, you can do that right because you have the data. There's treatment happens here and there's anticipation. That means at one period before when the anticipation happens, you should already be able to detect something. The anticipation is even longer in this period or that period, you should already be able to see some difference in the outcomes. So what you can do is you take a regression and you augment it by information as follows, you back, shift the treatment in time.
+
+Speaker 1  1:36:25  
+Another way to think about this is that you add leads to the model. Everybody knows the terminology, effects and leads is the time series
+
+Unknown Speaker  1:36:46  
+outcome, right?
+
+Speaker 1  1:36:49  
+Time series. If I go, if I pick any given point, I can do two things with it. I can shift it forwards in time, or I can shift it backwards in time, right? If I shift it forward and this implicit becomes black, right? Because if I keep that value fixed, I move my series forward. Now I have a value that's one behind. That's what I usually call next. If you shift it backwards in time and keep that fixed, now you have an observation that's actually one ahead. That's like fixing the call, fixing the hand on your clock and actually rotating the dial so leads would be one step ahead, forward values, first order lead, second order lead would be two steps ahead, third order and lacks the other way around. So what we can do here? Why does it matter? Well, remember, if there's anticipation, and I'm now at time t minus one, and count as a countdown to the treatment right zero, the treatment is going to happen. There's anticipation at minus one, some agents will already change their behavior. If that shows up in the data a lead variable, that means at time t minus one. I'm actually using the value of time at time 01, step ahead. If that already has an effect, then I would interpret this as some evidence there's
+
+Unknown Speaker  1:38:18  
+anticipation
+
+Speaker 1  1:38:22  
+of apostle polytheism, dissipation effects, but then again, change the world, but at least it is. It captures that something of the treatment that is happening in the future is already manifest now. Whatever that is, it's going to worry you make sense? So one way people tend to study this is they add leads to the model. How do we do that? We create a numeral here for this relative time. Remember, the treatment happens at time five, so just going to take time minus five. So now I have a variable that runs up to the treatment right, minus five zero, and it starts taking forwards. Just look at our time, right? You can see here, 43210, and there are functions to do this, but I wanted to make it a bit more obvious to you, right, what I'm doing here. What do I do? I take if our time is minus one being one back and the group is those who will be treated. And I create a new variable. I call this lead leg one, or lead shift one. Then I say r prime is minus two. I create this variable called lead two, and simply creating three variables
+
+Unknown Speaker  1:39:42  
+that are leads
+
+Speaker 5  1:39:49  
+here, look
+
+Speaker 1  1:40:00  
+at, look at this case here, right here is relative time, four periods before the treatment, three before the treatment, Two, one before the treatment. This is the time in treatment might need. One variable is one, one period before the treatment, zero. Everywhere else. Two variable is one, two periods before the treatment and so forth.
+
+Speaker 1  1:40:24  
+To use data table, there's a much more cool way to do it. There's a little shift operator for you to cars. If you're not familiar with it's not the end of the world to write it like this. And then we add those variables to the model, right? So here we have linear model Y treatment, and I just add my three leads, and the rest stays as it is. Then I run the coefficient test function again on this output, standard errors. You can see here, look at it, three leads. So what do we have three periods before the treatment right? Point 02, t value is point 36 I probably don't care about it. For the treatment, t value is minus point 37 I might have to take a closer look there, right? And one period before T value is minus point 84 any of these. And you can test this, if you want, by doing a linear hypothesis test and saying, This one is zero. This one is zero.
+
+Unknown Speaker  1:41:35  
+If I do this, three
+
+Speaker 1  1:41:39  
+variables restricted, right? So three degrees of freedom, and you can see that a p value of delta, and straightforward way for anticipation or anything that might foreshadow what the treatment will become. Right, if that is strong, it will show up
+
+Speaker 1  1:42:08  
+with can be willing to project where you are backwards in time. You will not be surprised at enter pricing people comes the other way around, and project forward in time, and as you add lax, and that's a very straightforward way to not only have the leads there for anticipation, but also allow for the effect to be different time points, as often in the literature, things get discovered and rediscovered. People call this kind of setup, some
+
+Unknown Speaker  1:42:44  
+prevent study,
+
+Speaker 1  1:42:48  
+some areas are very popular, just what I'm showing you here,
+
+Unknown Speaker  1:42:56  
+simulated data here,
+
+Speaker 1  1:43:01  
+simulated outcome treatment that is switched on At some point in time, and I have several periods,
+
+Speaker 1  1:43:15  
+essentially seven time periods, right? Which means, think about how the events look like, right? There's a run up period before, 3210, here's where it happens. And then 123, afterwards, just like I did before. Create an indicator it's equal to one for all the treated unions. This easy way to do it right, because treatment can either be 01 take the max for the cases where it's always zero, that's going to be zero,
+
+Unknown Speaker  1:43:45  
+which is to one,
+
+Speaker 1  1:43:48  
+and I'm going to create dummy variables for the regression. I'm going to do two things. I'm going to create indicator of dummy variables for the needs and for the
+
+Unknown Speaker  1:43:59  
+Lacks. Make
+
+Speaker 1  1:44:02  
+sense? How would you do this here? I say for R, for loop, right for R in event grid, remember, such as those two seven values, I'm going to do what r is less than zero these values, I'm going to create a new variable called an event minus and take the absolute value of r. Absolute value of minus three is going to be three variables EB minus one, two and three. Does that make sense? Variable names in R cannot be something like that. That doesn't work, right? So I'm going to call it EB minus one, or else, meaning if R rated zero, I'm just going to call it Eb, one, two or three,
+
+Unknown Speaker  1:44:52  
+and I'm going to say Here
+
+Unknown Speaker  1:44:55  
+variable, M, indicator, integer, time and C is equal quite a bunch of left environments.
+
+Unknown Speaker  1:45:13  
+Look at it. Here we have it,
+
+Speaker 1  1:45:21  
+minus three, minus two, minus one. That's 01, ahead,
+
+Unknown Speaker  1:45:25  
+two ahead, three ahead,
+
+Speaker 1  1:45:30  
+and you just add those to the regression right? So here I just write out all the names, right? We have minus three, minus two, minus 10123, and I add them to the little regression equation, which is why regress on all these variables. And then you have the factor of ID. You know the formula interface bar works.
+
+Unknown Speaker  1:45:56  
+You don't have to do it. You could just
+
+Unknown Speaker  1:45:58  
+write it out to
+
+Speaker 1  1:46:03  
+do this way. Sorry about that. This is formula. Instead of writing it all out, you can just say, paste,
+
+Unknown Speaker  1:46:13  
+paste this.
+
+Speaker 1  1:46:16  
+Paste this plus. So what r does for you is adding plus signs between them so it's a valid formula. Just saves you from having to type it out. It also means, if you use that code layer and you have nine time periods, you don't have to change it every single time. All right. Now I run my linear model, right? This is the formula I've just defined. I told where the data is. I can look at the coefficients again, which will be too many to look at, right? Because we've all the ID variables and all the time variables, but you will know that the model now includes all the lag sentence, and I'm going to run out of time, I'm going to skip what I'm doing here, and it's very straightforward vector for estimates. I'm creating a vector for standard errors and give them nice names, minus three, minus two and so forth. And I'm just writing a group say for each one, wrap the value, put it into the vector. Practice,
+
+Unknown Speaker  1:47:26  
+just run it.
+
+Speaker 7  1:47:30  
+It and I can just go plot it again, this plot i
+
+Speaker 8  1:48:01  
+i plot an estimate for each point
+
+Speaker 1  1:48:08  
+I add a confidence level based on the standard error we have seven months. This is where the treatment happened, right? So there was minus three, minus minus one, minus two, minus 30123,
+
+Unknown Speaker  1:48:19  
+forward, we get
+
+Speaker 1  1:48:22  
+you can do a test for those three testification. And these are effects that are not different in the post period. People like these things so much they call these infant know that this is different from what we will discuss in a second, where we estimate an ATT for each gene and T on the Pentateuch. Sophisticated. It's much more stringent assumption because all it does, essentially is create a separate mean for each key, no concern about who is there in some settings that sometimes all you need to make progress. As you can see, this is just a very simple linear regression, just with forward shifted variables added and backwards.
+
+Speaker 2  1:49:11  
+Different confidence intervals for the first time series unit that we have, should it always overlap with zero? Because
+
+Speaker 1  1:49:23  
+treatment is switched on here right and I at the dummy variable for treatment, yes, no. Would be one estimate, right? If I take that dummy variable and shift it backwards once in time, you get that estimate. Shift it backwards two in time, this one. You shift it back. Three in time, you get this one. And if an effect cannot happen before it actually happens, unless there is something else, anticipation or secret information inside our information support. That's what these three estimates tell you.
+
+Speaker 2  1:49:52  
+So if the confidence intervals aren't overlapping with zero before the treatment is or at before the treatment is in state, and then something went wrong in
+
+Speaker 1  1:50:03  
+terms of, that's right? No, no, that was helpful. So treatment happens here, right? Imagine, that's a good question, right? Imagine you plot this and then these are essentially up here. Okay, it doesn't really matter when the treatment happens. People already acting as if it had happened. That's weird. That's different from just plotting the outcome, right? You're shifting the treatment forward and backward in time.
+
+Speaker 1  1:50:34  
+Okay, right? You have the variables in there to do the joint pre test and so forth, if you want to, instead of adding the dummy variables for i NT right, for ID and time. Within estimators, there are packages that fixed effects. Estimation probably the package you want to use test many more, but probably live for a while. You can look at the code. It's the same thing. It doesn't really matter yet that may variable. Get sorry for running fast towards the end of it. I don't want you to leave without us having looked at this at least for a second. Everything I've discussed with you today the second half of what we discussed today is essentially based on people. They have written an R package for it. It is somewhere more new. There's always a risk, right? Two years they moved on with the likes this package might be abandoned. What I normally do is I show people, I show you how to do it by hand, then I show you how to do it as an R package. This takes a bit too long. It's not doable, but you're looking at closer to 500,000 lines, rather than two or three, as I'm not doing it here. This is the caveat package, which I should have made more explicitly. It's beautifully called Dei, or difference in differences, right? Looking at data set here that follows what I had on the slides, right? We have groups. One group that's never treated. We have one that was always treated. I dropped this one, and then a group that starts. Then there's a next group that starts as even a fourth group that starts getting, getting a treatment. So data set here that has the group indicator G as a co variant x, which we will talk about in a second. These are just ID cluster indicators. What bar doesn't show you here? All right, here we give period, any of a variable for yellow compliance, any of a variable that is the treatment indicate,
+
+Speaker 1  1:53:13  
+now there's a channel function in that package that implements exactly what I have shown you before, and this is called ATT, underscore chi NT. That's literally what we discussed, right? We have a treatment effect by group and by time, and the function expects a bunch of stuff from you, and it works as follows.
+
+Unknown Speaker  1:53:33  
+You need to tell it
+
+Speaker 1  1:53:37  
+some point. You really need to tell it where the data is right. Tell it the name of the variable y,
+
+Unknown Speaker  1:53:50  
+to tell it, period, T,
+
+Speaker 1  1:53:55  
+outcome, y, name, T, name, period, ID, name, groups, individuals need to give the group name, T, confession, the data is this is already optional. It has a default, but here I'm setting it to use what we call impression adjustment on the slides,
+
+Unknown Speaker  1:54:26  
+because my
+
+Unknown Speaker  1:54:28  
+office so there we go. So you run this,
+
+Unknown Speaker  1:54:32  
+what does that do? Too
+
+Speaker 1  1:54:34  
+much details. But remember what we discussed on the slides previously, you run this progression to get the four means formula and calculate it, and it does this 1000 times. Sample replacement of the data calculation stores it
+
+Unknown Speaker  1:54:55  
+you can options
+
+Unknown Speaker  1:55:02  
+true and as
+
+Speaker 1  1:55:05  
+an option for how many bootstrap iterations you want, the larger, the better.
+
+Unknown Speaker  1:55:15  
+Now, what is the output of that
+
+Speaker 1  1:55:19  
+chocolate test? Right? Normally, when you do any different this package, you run it, you get one scalar here you expect to see several.
+
+Speaker 1  1:55:37  
+That's what I discussed, right? That's clear, not to downplay this, but that's the simple little magic trick that they do. Right is they make it your problem. Which comparison you want to focus on. You see here, group time average treatment effects. Here you get the group. But remember, group one drops out because it's omnipresence. Second group is termed second group, second cohort, third cohort, fourth cohort. But if these come first, these come later, these are the latest, and then we have 1234, time points after the fact. So we have here time point after time point after for each group, I'll be estimating all the ATT GT compliance. And you get the ATT estimate, you get the standard errors, and you get the 95%
+
+Unknown Speaker  1:56:25  
+confidence, and
+
+Speaker 1  1:56:27  
+immediately you see that most of them seem to be positive and significant, but they vary quite look at the first cohort after the treatment is switched on, the ATT estimate is about two, and it gets larger over time. Of course, you know this to be true. I told you, I made the data right. It switch the treatment on it, and with the passage of time, it increases by one every single time. So it's not be not that surprising that it recovers. It does a decent job, right? The true value is 234,
+
+Unknown Speaker  1:56:56  
+does a pretty good job recovering it
+
+Speaker 1  1:56:59  
+pattern like significant stars. Look at this cohort here, though, right? The estimate is pretty small afterwards, in fact, not statistically different from zero, if you care about these things,
+
+Unknown Speaker  1:57:13  
+and he gets larger.
+
+Speaker 1  1:57:21  
+The authors are nice enough to do the parallel test test the prevalent pretense free. They call it pre test of parallel trends. It's a test of parallel pre trends. They do that for you, and give you the p value for it here, and that's highly significant. You know, it's violated. I simulated data such that it is by day. Doesn't make
+
+Speaker 2  1:57:47  
+sense. Like substitution, we sort of explain,
+
+Speaker 1  1:57:53  
+I will, in a second, what the authors have done, which I think is
+
+Unknown Speaker  1:57:59  
+friendly thing for you to do. Whenever
+
+Speaker 1  1:58:01  
+you run a model like this, right? You store it in some object for almost everything, you can call GG, D, ID, GG, I'm pretty sure, is short for GT, plot. And then the object, whenever you do this, it plots something
+
+Unknown Speaker  1:58:22  
+you get to look at it.
+
+Speaker 1  1:58:27  
+That is the exact same information we have in the table, just presented a bit differently, right?
+
+Unknown Speaker  1:58:33  
+What is the job with all groups? One
+
+Speaker 1  1:58:36  
+group is never treated. We don't care about that one. That's our baseline comparison, and we have three more groups, right? The one who's treated earliest, the next earliest and the latest.
+
+Unknown Speaker  1:58:48  
+Groups here, and we
+
+Speaker 1  1:58:51  
+color the estimates here by red, pre period and post period. So for the group two which is the earliest in terms of treatment, att the group where the treatment is turned on, the earliest, first period after the treatment switch on the ATT average treatment effect on the treated. More precisely, it would be average treatment effect on the treated in group two, at time point one,
+
+Unknown Speaker  1:59:25  
+the ATT is two.
+
+Speaker 1  1:59:27  
+One year as pretend as the positive time, right? One is each year. One year later, the treatment is three. One year later, the treatment is four. So it's heterogeneous in time. The treatment effect is not constant in time. It increases. Now for the group where we switch on the treatment later, that comparison is not valid. You can do it. You don't care about it, right? Because that's technically still a pre period. So here you then have the ATT estimated to be above two, the increase is it doesn't have a chance to increase up to four, because the observation period is censored, right? If you had one more year for observations, it will probably become four. And for the group that is switched on the latest, it stays zero here, right? Because they're not treated. You switch on the treatment, and I've simulated data from a world where if I turn on the treatment, it increases by one for each unit of time. And since the treatment is rolled out in a staggered fashion for these, I observe only lower values. Observe two here and observe two here, because the treatment didn't have time to unfold. Now, if you just all average this together, your picture is distorted clearly. See this because you will compare, or you would combine this group and that group. In fact, if you just run the Standard Model, as we discussed, with the treatment indicator and the time dummies and the unit dummies for data that has that format, you see what mistake you're making. You're waiting, you're weighting this together in weights that are hard to understand. That's then, I think, another really visual frcpation
+
+Unknown Speaker  2:01:12  
+of what the problem with sacrament
+
+Speaker 1  2:01:15  
+fallout of treatment is. Did I answer your question or do you want another sentence?
+
+Speaker 9  2:01:29  
+Yes. So you would, if you, if you write a paper, you would define very clearly what the comparison would be.
+
+Unknown Speaker  2:01:35  
+Instead of
+
+Speaker 1  2:01:39  
+writing group two, three and four, you would give those names you study apollinarily.
+

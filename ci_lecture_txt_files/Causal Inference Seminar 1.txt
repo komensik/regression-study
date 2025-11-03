@@ -1,0 +1,543 @@
+Speaker 1  0:03  
+Random case studies. Well, the case studies, and by the way, because I use the APS our template,
+
+Speaker 2  0:16  
+and the other bit is I printed it out, printed it and I Okay,
+
+Speaker 2  0:27  
+Ryan, we've got an action.
+
+Speaker 1  0:41  
+Yay, good. Yeah,
+
+Speaker 3  1:00  
+hey, Christina undercut
+
+Unknown Speaker  1:09  
+like scissors, no, he said. Auto.
+
+Speaker 2  1:33  
+You all understand that we're like two months out before funding she could get very soon. I
+
+Speaker 3  2:17  
+is How background,
+
+Unknown Speaker  2:27  
+which You don't Yeah,
+
+Unknown Speaker  3:02  
+So, so I and you were gonna text me and be like, are you force?
+
+Unknown Speaker  3:44  
+Then enforcement of like we agreed, we have agreed. Oh, have we all
+
+Unknown Speaker  3:58  
+right. Welcome Welcome,
+
+Unknown Speaker  4:12  
+okay, overview,
+
+Speaker 1  4:22  
+income to broader issues that have really causal inference, right? We want to start with answering the question, why is it something we care about? Can we get a working definition of what causality means, right? What they mean when you say something causes something else? I'm not interested in doing this, something like that useful for this context, but it makes sense to think about it at least a little bit, and then that will lead us immediately into the topic of potential concept and the system of mutation. But in addition, I also just want to use that opportunity to give you a quick rundown of some empirical problems or concerns that surround infant that you might not have thought about in this specific way you
+
+Speaker 1  5:23  
+not the problem of inference is well known. Any one of you has done any intro classes in statistics, or whatever else that might be, you've thought about inference, right? The problem of statistical inference quantity and underestimate a sample population. And think about what an estimator does basic sampling theory, or how we study problems, estimators underneath, but all of these are statistical problems. So what makes causal inference different from standard statistically is that a problem lies, in a sense, further down the chain becomes earlier quantity that you have, that you know you want to know, and you know what it is. And if you're a statistical problem, figure out, how can you learn about it from on the data at 10, the problem of positive comes early question first, which parameter should we want to know in first place, and is it something that you actually can know?
+
+Unknown Speaker  6:37  
+I'll give you
+
+Speaker 1  6:41  
+competitive but if you think about standard questions that you sometimes see in policy settings or crisis with the government, some action by the government, you see is we have treatment that we take an effect causally on that disease. Well, how effective is the treatment record of policing, action and using the discrimination question, is there evidence? Right? What needs to be there? Credit declare. So more broadly, right in most people's mind, change in one variable called change. So
+
+Unknown Speaker  7:40  
+no, I don't give you a history lesson here, but if you were to track methodological
+
+Speaker 1  7:50  
+and statistical textbooks in time until rather recently, those questions weren't really answered, then the training you might have received, an undergraduate you might have taken right at some point, you do linear regression
+
+Speaker 1  8:20  
+parameter you spend a lot of time thinking about properties.
+
+Speaker 1  8:36  
+You can fill whole textbooks, right? Next question is, the arrows are like this, right the head of statistic, well, what did we do regression? And there's so many topics you could fill weeks and weeks or years having to deal with that model. Now, in those same textbooks that are very precise on any technical aspect statistically, you often find a sentence. I know someone who went to one textbook and collected it. I'm not making it
+
+Speaker 1  9:22  
+up. You. Actual research, can I just regress the outcome of whatever x is, and can think of that relationship between the two of causal intuitively, nowadays, people think that the answer is no. You can call that regression. That's nonsense. It's not a property of the method. It's a property of what you're studying and how that maps to what you're doing. Specifically, it's a question, or it needs an answer to a question that says, Well, what are we actually doing when you're studying the relationship?
+
+Unknown Speaker  9:58  
+It's not the method here,
+
+Speaker 1  10:02  
+in your mind, you surely think that this is causing relationship between x and y, and that somehow what you're doing here maps to what you think exists in the world. Our intent is to make that map even more clearer, using today, the language of potential outcome next week. All
+
+Speaker 3  10:28  
+right, just my favorite. I wanted to
+
+Speaker 1  10:38  
+not mention it. I always put it on the slide, and then I mentioned it anyway, and I tell you that doesn't mention i i mentioned anyway, correlation, that's one of the things that sounds smart. It's either trivially obvious or it means nothing you can train among people other bits every time it really means correct, it has almost no content that is worth anything, nor can you derive any actionable
+
+Speaker 1  11:13  
+now, the question, though, is, why study causal effects? Right? It's not necessarily obvious that you should right? There's some sense of disability who are much more happy, which is describing how they think the world must fall. Like many historians, think that the way you should analyze things is right to map out how things are fall then. And sometimes they make statements in books that can be read possible, but I don't think they would stand up and say, Well, my job is to establish causality for time they might say, my job is to study this one event, compared to our criticism to think about the world, where they think our job is to understand fundamental causes of the world that reveal themselves to us in data, right? And our main job is not to describe what is, but it ultimately is to figure out how the relationships are between political science and other social sciences somewhere in the middle. Okay, but I think it's fair to say that for many scientific disciplines, most people are not happy. But I just described, I'm not happy with just describing what is usually asked questions. It has some form of that, right? What is the effect of smoking on lung cancer? Right? You know, you're interested in just calculating the number of people who die and have a dirty nut, right? That's good enough to get to the question, Does smoking cause what is the effect of some institutional features of behavior? Scientists not just happy describing what institutions exist in different countries and how people behave there. And if you want to say that the fact that this institution is different from that one causally relates to that
+
+Unknown Speaker  13:09  
+boring family, right class you might
+
+Unknown Speaker  13:12  
+have ever taken
+
+Speaker 1  13:14  
+that form, right? But the question is still not answered perfectly, what is the effect of education on future therapy again, you're not happy by just pointing out the fact that people who went to college earn more than you want to know, do people earn more? Because on
+
+Speaker 1  13:41  
+top of that, more mature sciences usually then move on from one to have the effect to us to answer the question, why? Right, essentially, why cause has the effect they have, and how cause is transmitting itself various mechanisms. Because, then again, it might sort of shape, an example. You know how malaria can fit, right? All the theories, Mal air, right? French, that's where the name comes from. It's not that you're reading that error that makes you safe, right? But the causal effect is modification, for example. But the intervention you would design to combat malaria looks vastly different if it's airborne. Typical scientific problems that require us to establish causes relatively well, right? And then, once we have a cause in mind, you want to establish the effect of the calm and ideally in the future steps, you probably want to study description of
+
+Speaker 4  15:02  
+how how does it differ from
+
+Speaker 1  15:14  
+statistics? Let me introduce you before. Let me show you a very simple example. Citizens. Slightly contrite example you will record, we will encounter it in many different corners of statistic application, interesting little puzzle, it shows up in different places, and I've used it to teach different concepts.
+
+Speaker 1  15:47  
+Concept. This makes it easier to get right into the read without having to explain concepts.
+
+Unknown Speaker  15:58  
+But imagine you have a drug,
+
+Speaker 1  16:02  
+and you're interested in that drug effect on some disease. You take a bunch of patients that are sitting and you offer them that novel
+
+Speaker 1  16:20  
+and then you compare those who took it. took the truck. Those who did run, and you see that the outcome for those. for those who took the.
+
+Speaker 1  16:43  
+Take the mean of that and then put it here. I take the mean of that row
+
+Unknown Speaker  16:50  
+here
+
+Speaker 1  16:52  
+and so forth, right, and for each discrete value of x, I get the mean right. I can go ahead and plot that logic. X
+
+Speaker 3  17:03  
+is zero, I have some value 812, I
+
+Unknown Speaker  17:14  
+can draw a line,
+
+Speaker 1  17:23  
+agree the center to summarize the data. Intuitively, what most political scientists or social scientists would do if you give them the data, it would run a regression.
+
+Speaker 1  17:38  
+Run a regression of y on x. You take different data point, which means exit, continuous, bigger line.
+
+Unknown Speaker  17:57  
+How many parameters does that use? Two?
+
+Speaker 5  18:03  
+Right, one. Intercept. One.
+
+Speaker 4  18:05  
+Intersect, one struck. So now, now we have two models,
+
+Unknown Speaker  18:14  
+one that uses two parameters and one that uses 10
+
+Unknown Speaker  18:19  
+which one's better? I completely undefined.
+
+Speaker 1  18:30  
+Well, the answer is depending on what you care about. If you want your answer to not depend on the model. This doesn't make a lot of sense, because you need to be sure that the relationship is linear, constant. You don't make that assumption, right? It could be something like, well, it might be generally upward sloping, but that you might find there's a bit of a bump for some year, indication that maybe something connected to how likely are the internships or might be connected to what kind of person leaves the labor market and they get extra training,
+
+Speaker 1  19:19  
+spend too much time on that again, the different courses, when we only worry about this kind of fundamental way this analysis, you will turn non parametric. You don't making any parametric. You don't make any form assumptions. Whereas this one would be parametric, of course, they're not. It's not an either or, right? I can move this closer to that. For example, erratic term, I could have added a cubic term. I have more and more parameters because I have the same number of parameters between the two. But traditionally, right, if you don't make any assumptions about functional forms, you refer to parametric
+
+Speaker 1  20:05  
+statistic. Implications, like the number of parameters to the data,
+
+Speaker 1  20:16  
+then the question is, why not always do it non parametric? Right? Here we make an assumption that it's usually not based on any substantive field. It's usually just a convenient convenience. Why don't always do that?
+
+Speaker 1  20:37  
+Say we have another variable, t founder control or control or adjust for, and it's The brand of social cost or social spending seven categories.
+
+Speaker 1  21:10  
+Rows you haven't really adjusted for it. What you need to do is, you think of that table. You need to copy that table seven times. You have that table, or when z is one, if that table is two, and then you need to calculate, make the calculation 70 times, then you have non parametrically taken. You can see where this will go, right? I add a couple of more control variables, three or four each with a couple of categories. You have so many that very quickly you will end up with cells in these tables that
+
+Unknown Speaker  21:42  
+are empty. So
+
+Speaker 1  21:43  
+this shows up in many parts of modeling, the
+
+Unknown Speaker  21:51  
+curse of dimensionality.
+
+Speaker 1  21:55  
+Bigger, you quickly run out of data. You're lucky enough to live in a world, and the ride is always a concern. Now, if I wanted to adjust for z in the linear regression setting, then I would literally add it as a control regression and three parameters more sophisticated and negative direction. But if I pick the linearity assumption, I will reduce four parameters so you see what the attractiveness comes from. In the past, people were very happy with that attractiveness, and maybe thought a little bit about quadratic sometimes or not. That's usually the extent where it went. If you think more from the perspective of causal inference, that takes on a slightly different tone, because we would say, This is what the data makes, this is what the model does. Why am I doing? What allows me to say that everything runs in straight line? What allows me to say that the interaction of the only operates
+
+Unknown Speaker  22:50  
+in straight lines?
+
+Unknown Speaker  22:54  
+People start to get bothered more?
+
+Speaker 5  23:04  
+Just one just
+
+Speaker 1  23:17  
+I believe that I will get back to that. All right, why don't we take a break potential outcomes? Because I want to take the cover today to some degree, 10 hands again.
+
+Speaker 6  23:56  
+We're all Taking a trip. Yeah,
+
+Speaker 4  24:25  
+Yeah, the on my Okay, well, I don't know either. I also don't Know you.
+
+Unknown Speaker  25:21  
+Encourage You
+
+Unknown Speaker  25:23  
+already Things.
+
+Unknown Speaker  26:02  
+Israel, Yeah,
+
+Unknown Speaker  26:42  
+was To let Obviously, I
+
+Speaker 5  27:22  
+answer, but yeah, obviously, oh yeah, in order to overcome. overcome.
+
+Unknown Speaker  28:01  
+I Do go From memory.
+
+Unknown Speaker  28:38  
+Rain fall. Do or don't
+
+Speaker 4  30:54  
+He just moved I just left. Sorry
+
+Speaker 4  31:20  
+about that. I course, what are you talking about? We're Right?
+
+Unknown Speaker  31:49  
+And just frustrate myself really, on show
+
+Unknown Speaker  32:31  
+I mean, I say, I mean,
+
+Unknown Speaker  32:51  
+yeah, I mean the last time very Long Walk that we were both in
+
+Unknown Speaker  32:59  
+the Same lifetime. Hi,
+
+Unknown Speaker  33:52  
+this I'm
+
+Unknown Speaker  34:07  
+to YouTube.
+
+Speaker 7  34:20  
+Yeah, for I
+
+Speaker 2  34:28  
+get to decide.
+
+Speaker 2  34:35  
+I feel like exactly four people are dominating and voting. Oh, I Voted those people. I nominated
+
+Speaker 7  34:50  
+you, I nominated you.
+
+Unknown Speaker  35:01  
+They were all
+
+Speaker 2  35:02  
+justified. All right, let's go back to understand what we mean when we say counterfactual. And then I want to
+
+Speaker 1  35:10  
+introduce a notation that connects that notion to a more concrete, statistical or mathematical object. So going back to the notion of causality, books have been filled with discussing but for us, it's enough to notice a bunch of key features, right? The first is that causality is asymmetrically structured, right? Normally, you say X causes Y, and you don't think that Y causes X in return between this direction, almost implicit when people think about causing x. Now, using that kind of thinking, that's a very simple definition of counterfactual that you can use, which says P is a cause of y if y would not have occurred if D had not been present. I mean, you say D cause is y, you then think that Y would not have occurred at D being absent. Then you describe the causal relationship, right? And you define it counterfactually, right? Because whatever state of the world you start with, if the state of the world is d and y, then you say, not D, not y. Or you can start to be from the other state of the world, where it is not D and not y, if the world is ever D,
+
+Speaker 1  36:37  
+a bit closer, in terms of definitions to what people think of regression sense, right? Sometimes people think of the cost effect on D, on y, is the change in y that is due to the continuous version of the same thing. Makes it harder to recognize that this is a contextual statement as well. It is a bit less obvious, right, because much more tied to the slope of regression line, which can lead to which can lead to a strike a little bit, but you can recognize that what you're essentially saying is, what if I were to shift D by some amount one expect to change y, and that's, of course, it felt counterfactual, because you could Define that quantity even in the absolute negative. Okay, so
+
+Unknown Speaker  37:26  
+talk about this.
+
+Unknown Speaker  37:29  
+I leave the slide
+
+Speaker 1  37:32  
+maybe, if my knowledge boring, this is mostly, if you go back in time there have, there has been a period in the social sciences, but there were a lot of papers written, either in the title or in the abstract, where the title was the determinants of something, right, the determinants of social capital. And then you get this beautiful, gigantic regression table like this examples program. Sometimes they spend two pages. As an example from the American Journal of Sociology, where it spends four pages. That's how many variables, right there, right? Because the idea is to exhaustively explain why, why varies y in the outcome, right? You have some outcome that you want to study. It's different for different people, or it's different for different countries, and you want to know what the determinants of its army. You have some sense of there's variability. I want to understand why that variability there what I better get going and find all the things that can potentially affect determinants of the very common brain of doing it. And there's value to that
+
+Unknown Speaker  38:35  
+as well. But
+
+Speaker 1  38:37  
+the folks interested in causal inference would have told you is when your model is an outcome and bunch of potential
+
+Unknown Speaker  38:56  
+determinants. Linference
+
+Speaker 8  39:01  
+for folks would say, take one that you care about and then study that.
+
+Speaker 1  39:07  
+And if these are additive to each other, you can ignore that. You can zoom in on extra to understand what happened. Exchange this on that. And I don't expect, I don't care what the rest is, unless something else is going on. If you want a slogan, some people like slogans, but for a while, people move it around. I want to know the effect of this, and that is, I don't want to know. I don't want the list of all the things.
+
+Speaker 1  39:49  
+In the case, if I remember correctly, it were individuals. So no, it was still at that I
+
+Speaker 1  40:01  
+guess. This can work right. Our technology nowadays is much better. I remember that paper. It was literally at least 20 variables,
+
+Unknown Speaker  40:10  
+additively, separately edit
+
+Unknown Speaker  40:13  
+directions. We now know how to do
+
+Unknown Speaker  40:15  
+directions. Even
+
+Speaker 1  40:19  
+20 years ago, we would have known how to use the NASA to select the right ones. And you just want to maximize the determinant of you just want to soak up all the variance of an outcome with the technology to do it. Inference. Literature would point out to you is like, that's often not that insightful. Often it's scientifically much more interesting to answer the question, what is the cause and effect? Which is a separate question from Can I explain the variation of this in its totality? If your objective is to predict y as well as you can know where the enemy is going to attack a two dimensional grid, then you better figure out the whole variation, and you probably don't care that much. But for most questions of the of the sort that we have enumerated before, which are, what if questions that is the wall.
+
+Speaker 1  41:18  
+And look, they're more slogans here. I don't subscribe to any of them, by the way, like Ron Ruben, statistician famously never asked, why? Right? When you ask, What if I don't think the correct that way? But in the heyday of when causal inference came along, there was the sea change, right? People wanted to move away from this many variable regressions. And the point would be, don't ask why the outcome is the way it is. Ask, what if? What if I change x by one unit? How does y change? That's the right question to ask. Now that has a clear implication, and this is how many of you now write, which is you write a paper that focuses on one or two things as key drivers of outcome, you investigate how this contributes to that, and you don't tend to write papers anymore. I want to understand the variation of quality across people.
+
+Unknown Speaker  42:21  
+You I'm teaching you the party line here, the
+
+Speaker 1  42:25  
+best way to go. Okay? Now, given that this is what you want to know. Now we're going to finally talk about, okay, do we have the language to encode these ideas, right if I want to formally state causal relationships, so that we can talk about false relationships and problems that we might face to empirically implement them, we want to be able to make statements without talking about models. What do we need? We need a different language. I would say it would be a shit state of the world if the operation is as follows, I give you a list of received wisdom, right? Regression, not good, if and if somewhat good. Aren't you very good, right? That's how it often happens when I talk to master students courses where people write the paper that sounds super interesting. I don't think the results are caught. Why do you think the problem I doesn't use a causal network that doesn't exist, right? There no causal methods. Causality is exists in two ways, right? It might exist in the real world. We assume this to be the case, right? We assume there's a world out there where one thing causes another. Next problem, rust becomes. Are there ways for us to figure out if this is true, right? Are there ways for us to learn about how the world war and for that we need to be able to describe the difference between what might be I
+
+Speaker 2  1:31:20  
+you if one switch is on and above, but if I observe y, the switch is on
+
+Unknown Speaker  1:31:29  
+and in the control group y, the other way around.
+
+Speaker 7  1:31:34  
+And with the point being that we then illustrating the potential outcome in F. Come,
+
+Unknown Speaker  1:31:42  
+I see, yes.
+
+Unknown Speaker  1:31:51  
+The point is simply maybe help not to
+
+Unknown Speaker  1:31:56  
+be creed about it, right?
+
+Speaker 1  1:32:02  
+Was just an obvious way for me to measure things. Right. What really matters is that you define a state y that is indexed by D, right? So this is the state of Y when D is one, and this is the state of Y when D is equal to zero. That's what we do. And this is not defined for cells, even though there's only two observations, that's the real contribution of potential outcome you're thinking because for every whatever D currently is observed, this is what you can see. It's
+
+Unknown Speaker  1:32:38  
+accessible
+
+Speaker 1  1:32:42  
+to envision both states. This is a treatment in let's say I administer a drug certain dose, and then why it's a measure that is easily accessible, and I then if the treatment is administered, I can, I can, I can think of what the white blood cell count would be in the treatment state, but I can also think about what the right blood cell count could be in the state of the treatment have not similarly for Another patient who currently is not getting your treatment, you could envision what, what the white blood cell count would have been had that patient gotten the treatment, and you also have the white blood cell count at The patient.
+
+Speaker 1  1:33:39  
+First, the key thing to to to note is that these are potential states, right? And in two of the four, in the simple, discrete case, in two of the four potential states, the potential states are the same thing as what you can measure and observe, but the other two are not.
+
+Unknown Speaker  1:34:08  
+And once more,
+
+Speaker 1  1:34:11  
+the causal effect can only be defined by comparing these two states if you currently administer treatment. Currently in a machine where all your patients get the treatment, there's no one who doesn't get you can still define the causal effect, right? Because you can say, all my people get the treatment, what would they look like? Would they not get the treatment? The difference between those two states of how they would look like, then is the causal effect. You can envision that effect even if there's no data on it. It's a purely logical operation. And similarly, if no one were to get the treatment, you can sit and dream and think, Well, what would they if they had if they were to get the treatment? That's what I would measure. In terms of whatever I measure. We can define these quantities in terms of random variables in this variables index to the state of the
+
+Unknown Speaker  1:35:05  
+attribute. All right, let's
+
+Unknown Speaker  1:35:22  
+the same thing
+
+Unknown Speaker  1:35:24  
+for a little
+
+Speaker 1  1:35:27  
+bit. The fundamental problem of inference is any given unit is either zero, you either
+
+Unknown Speaker  1:35:35  
+hit by a car or not
+
+Speaker 3  1:35:39  
+an envision how you like without it,
+
+Speaker 1  1:35:48  
+why I zero the observed outcome, or y on one different units can have different outcomes and so forth. For the same unit, you only observe one of two, which means, again, what you actually observe as a measure, y is a little switching function of the potential outcomes. Right? The potential outcome exposed state is switched on when you are actually exposed. The potential outcome in the non exposed state is switched on if you actually not exposed. That's how you simplify, right? There's four possible realizations the world could take. Which one you get to see for any given union is a function of
+
+Speaker 1  1:36:33  
+what happens and again, right in this notation, the treat and effect, the cause and effect of the change in E for any given unit y is the difference between the two potential and that's, of course, something you cannot observe because we don't get to see the same unit, which means all the causal effects you see in the literature and in papers, they cannot be that right. It must be some version of that.
+
+Speaker 3  1:37:07  
+Fun to read paper. It is a bit very exciting in the beginning. I
+
+Unknown Speaker  1:37:18  
+of investigation,
+
+Speaker 1  1:37:22  
+he goes quite overboard. Right? Logical conclusion from this is like, I can only learn about causality if I can manipulate D This doesn't mean for the logical discussion. Basically, it's still fun to read it Essentially, almost there in the
+
+Unknown Speaker  1:37:53  
+mind.
+
+Speaker 1  1:38:01  
+What are the costs or quantities that you see in paper? We'll do more of that later in more detail, but I just want to point out some of those things relate the probably most well known one. In fact, it is so common that people sometimes forget to say that this is what they estimated. To say. We show you the causal effect of this or that, because the effect is no defined phrase. Often what people mean is the average treatment effect. What is this? Well, it's just the expected down your delta,
+
+Unknown Speaker  1:38:35  
+right? So if you think about
+
+Speaker 1  1:38:44  
+a high right? If you simply treat an event, if you don't think I have any units and cases population, for simplicity, if you take the mean treatment facts conceptually, the expected value, that's the average treatment. What is this? Well, conceptually, that means it's the expected value of the difference between the two random variables in population, and you might recognize that it simply comes down to the expected value of a PI one. It's still conceptual describing data analysis is for the average treatment. My preferred way to write this down is to envision this
+
+Speaker 5  1:39:33  
+is it might look like this.
+
+Speaker 1  1:39:42  
+Population. So you say we have 1000 units, 1000 unit treatment effects, density distribution, the he would be so concept. But you immediately notice that in that framework, it's not easy for us to understand that there are some units for which the treatment effect is very small, and there's some for which it is very large. The at doesn't care. It gives you the simple tendency
+
+Speaker 1  1:40:20  
+the efficacy of drugs, this is all that you care about, right? On average. Does it make you better off? Yet,
+
+Speaker 1  1:40:33  
+a more fancy way to put production down here is remember that delta is a random variable, not necessarily constant in from the population to commit this to your language,
+
+Speaker 1  1:40:55  
+two other quantities that are often of interest, because very obvious to define conditional versions of that right? If you condition on D being equal to one, to take the expected value of delta for only one group, then you get the average treatment. And if you condition equal to zero, then
+
+Unknown Speaker  1:41:17  
+you get treatment.
+
+Speaker 1  1:41:20  
+And remember, treatment is just shorthand for B, equal to one control,
+
+Unknown Speaker  1:41:27  
+just shorthand.
+
+Speaker 1  1:41:32  
+Remember, without potential outcomes, you couldn't even say these things, right? Because without putting outcomes, you would have data where D is, you know, 0001, and they have some outcome y that takes on certain values. If you say, what is the treatment effect in that group? We can't even define it. It's all it's all zero. There's no difference. You can take same here, right? What difference do you want me to take these or what's the fact that we can express? There's a difference in that group and a difference in that group, if not, if you think about potential outcomes, that works.
+
+Speaker 1  1:42:16  
+That's not all you can do. I have it in gray. Other quantities can be fine, right? You might be interested in median rather than the mean, quantiles of the distribution and so forth. There's no limit to what you can define
+
+Unknown Speaker  1:42:38  
+in more advanced work. People,
+
+Speaker 1  1:43:05  
+in the Netherlands, every advantage has a complete disadvantage. The potential outcomes approach is pretty neat, and there's a good reason it has gotten so popular. There's a price to be paid for that simplicity, if you find this overwhelming function calling it simple, but compared to how bad it could be, this is pretty simple. It kind of gains that elegance by making an assumption that it's very fundamental but somewhat hidden. And even worse, it tends not to be obviously stated in a lot of technical writing. It's the
+
+Speaker 3  1:43:45  
+assumption that it has got the technical name, the
+
+Unknown Speaker  1:43:50  
+stable unit treatment value.
+
+Speaker 1  1:43:55  
+Again, there's a very nice the same paper by Holland has a comment on it by John warning, which case to re get that break,
+
+Speaker 1  1:44:11  
+stable unit treatment. No one knows what that means by intuition alone term neck
+
+Speaker 1  1:44:21  
+and metrics you should call is no interaction among agents to people who immediately, emotionally, immediately assess just how, how terrible it can be, for very obvious reasons, stuck with super technique. Something we get back to this at some points further down the line. But for now, let me just walk you quickly through what it means. We assume
+
+Unknown Speaker  1:44:53  
+that a potential output, not what you can observe a potential
+
+Speaker 5  1:44:59  
+output, can observe. The potential of an individual
+
+Speaker 1  1:45:06  
+unit, a are not affected by the potential. Potential changes in the treatment exposure of unit. Outcomes of one unit are independent of the potential doesn't have to be observed potential changes. Ruben writes it in the following way. I paraphrased in
+
+Unknown Speaker  1:45:35  
+one paper the value of y,
+
+Speaker 1  1:45:38  
+not ideal means potential outcome doesn't mean data, the value of y for a unit, when exposed to a treatment will be the same, no matter first, what mechanism is used to assign the treatment to the unit, specifically part of what that phrase and What treatments do other units. Now, in an experiment that is usually somewhat straightforwardly satisfied, and you randomly put people in two groups.
+
+Unknown Speaker  1:46:30  
+Simple. We have a
+
+Unknown Speaker  1:46:38  
+very simple experiment, right? You have three individuals,
+
+Speaker 1  1:46:44  
+and you want to assign them to treatment and control groups as two different assignment rules. For example, here, we use the design assignment rule. We want to treat one three people, and we assign them to treatment or control. One gets assigned to treatment, the other two. How could we do it? Well, first person is treatment, the next two are control, or the first one is control, the next one is treatment, the third control or, and then you can have the potential outcomes here in the treat in the treatment state and the control state, 1c
+
+Speaker 1  1:47:27  
+if you rather have two cases treated and one as a control. Again, we can follow three individuals. We can think about how the assignment will work out right before three, and if it turns out to be that, in this case, they all come under treatment to zero.
+
+Unknown Speaker  1:47:56  
+That violates super
+
+Speaker 1  1:48:01  
+potential. Outcomes. Here are a function of the treated assignment
+
+Unknown Speaker  1:48:07  
+package that cannot
+
+Unknown Speaker  1:48:19  
+be somewhat abstract.
+
+Unknown Speaker  1:48:21  
+We will get back to it in when
+
+Speaker 1  1:48:25  
+we talk about different techniques later, it tends to be easier to think about how the violation of Super Duty segment, but more abstractly, more broadly, because what can you do if you think that just how you deal with the fact that this is a common assumption that sometimes, well, the first thing is, you should be explicit about it, right? And it's good to bring the application to reason through what potential violations would look like. And it helps people to assess what the input is. Another way to think about it again. It comes from the idea of thinking about in your mind, thinking about it as new. PDA, right, macro effects. I intervene in a certain region, and I pick some households and others that general effect on the economy. I'm getting dangerous with those.
+
+Speaker 1  1:49:29  
+Now, there's alternative approaches that don't have that often, because you could try to model the impossible techniques implicitly as a function of treatment that is work that has been done, but it's generally hard in all capital, and that is because now you find yourself writing assignment, each assignment straight out. Those tend to be not that they not doable, but statistically sophisticated technical sense. And part of the appeal of Lin Prince literature was to go away
+
+Unknown Speaker  1:50:07  
+from models to
+
+Unknown Speaker  1:50:12  
+comparison and so forth. That ends there was
+
+Speaker 1  1:50:22  
+again, it doesn't it doesn't leave it too far. There's an old book that I really like.
+
+Unknown Speaker  1:50:39  
+A nutrition theory data, simple
+
+Speaker 1  1:50:47  
+chapter where he reasons a little bit in 1961 maybe he wasn't thinking about this beautiful line. We will buy information with assumptions. It's a very mature way of looking at the world for the 60s, and it's still true now, to embrace this right to some degree, for a lot of the causal infants, techniques you use, you sort of buy some of your strengths by using that assumption. There's a price.
+
+Unknown Speaker  1:51:23  
+Right? So I will not okay. I will
+
+Unknown Speaker  1:51:36  
+do that early next week. Whatever
+
+Unknown Speaker  1:51:41  
+you depending
+
+Speaker 1  1:51:52  
+on what courses you have taken, you might but there are courses that you will be missing data, sciences if you take in those courses, you'd have learned about a problem of missing data. Hey, it's table y x1 x2 x3 and some cells missing for x1 cells missing text. The different techniques we use to fill these in. And in the past, people just put in the lead. And that doesn't work. Stupid things like just taking number and carry it forward, those are terrible. Literature has emerged. What people do fill in those missing numbers, and that is sort of a good idea, but still, it isn't because you're uncertain about what a very famous technique, very well known. It was called multiplication. All literature that writes down conditions that need to be true for you to be able to go into detail, but it conditions for you trying to figure out, why is the data missing? Is amazing at random, God coming here and taking away some of your data purely at random, then you can probably feel it very safely. If it's not exactly missing at random, I might want the function of something else depends on what that something else is. If it's something that they measure, I can make it work. The person who's responsible for that innovation is done moving the same person who brought you the potential outcomes. And in fact, once you spend some time thinking about it, you might realize that this is a this is a missing data problem. The techniques you learn completely at random. Missing and random is a very known concept. They map very, very, very cleanly to cause a problem. Let me just jump back here. This is a missing data problem, if you think about it that way. If these one, I observe this, but not that. If these zero, I observe this, but not that. If I had these, then I could establish causality, because I need to take the difference if I had some magic device that would make these observable for me, then all across the problem, there is no magic device. There's no Oracle, but we have techniques that get us closer. It's the same thing as trying to find missing data, right? And in some sense, many of the techniques I will discuss with you in this class, maybe in the back of your mind, you can think about these essentially just techniques of giving in missing information. If you think about it this way, sometimes it's a lot clearer why some things are not as great as people make them. Now it's
+
+Unknown Speaker  1:54:39  
+called it's called
+
+Speaker 1  1:54:41  
+now, but you made up data in very concrete ways that that's what you're doing. That's all there is to it in different settings. It's more or less convincing. It's good to keep this fundamental problem. We cannot solve this problem of missing information that we need to produce somehow, some assumptions. And the hope is that with that language, and next week, with radical models, it's a bit easier for us to express, What assumptions do
+
+Unknown Speaker  1:55:08  
+we make? The whole that's hard
+
+Speaker 1  1:55:12  
+that you're able to say, what is it that we assume to get from this thing that we cannot observe ever in principle to whatever you're doing in your paper, whatever method you're using to be able to say what assumptions
+
+Unknown Speaker  1:55:31  
+pet talk or I use My
+
+Unknown Speaker  1:55:33  
+sad hands of it.
+
+Speaker 3  1:55:34  
+See you next week. You You, you.
+

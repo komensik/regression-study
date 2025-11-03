@@ -1,0 +1,642 @@
+Unknown Speaker  0:00  
+Kids, but yeah,
+
+Unknown Speaker  0:06  
+they this has been broken for one and a half years.
+
+Unknown Speaker  0:16  
+If you
+
+Unknown Speaker  0:23  
+to be on the means this thing
+
+Speaker 1  0:26  
+refuses to work. What point does he just take it down and put the one that works? That one probably has to be closer given The side of the lens you
+
+Unknown Speaker  0:47  
+up in sales, heart,
+
+Speaker 2  1:08  
+I'm telling you, gray. No, no, it's, I mean, I had to wait all day for someone who could like and the amount of like shit that I have in my hair to try and make it not like
+
+Unknown Speaker  1:25  
+literally falling
+
+Unknown Speaker  1:32  
+apart, strong emergency. Zoom, primary emergency. So we try to set up zoom so you
+
+Unknown Speaker  1:44  
+can see The screen. See if that works. I can Say you
+
+Unknown Speaker  2:32  
+it so nice.
+
+Unknown Speaker  2:57  
+One. Okay, it works.
+
+Unknown Speaker  3:17  
+Alrighty.
+
+Speaker 1  3:21  
+Welcome back today. Since we're bit more compressed in terms of time, I want to accomplish the following one. I prepared a quick example that goes back to regression adjustment, which we discussed last week, sure that this has sunk in in terms of what it is, then I'll show you some examples of implementing matching in our data smoothly to get you acquainted with a straightforward way of implementing some things we have discussed last week, and now I'll spend some time talking a little bit more about prophetic discourse and regression, if you will, because that sets the kind of foundation for some of the more advanced modern techniques that exist in econometrics and elsewhere. In a couple of weeks, if we have time left, I'll start talking about difference in differences. But if not, I'm also very happy to push this into next week,
+
+Unknown Speaker  4:25  
+depending on how it goes.
+
+Speaker 3  4:28  
+Do you think you could say, like, for a minute about the midterm structure? Because if it's being pushed into next week, is the midterm part of the lecture? Like, is it half the class for the midterm? I'll spend like
+
+Unknown Speaker  4:40  
+40 minutes. Good point.
+
+Speaker 1  4:50  
+There's Olin perfect timing. Hello. So the midterm is as follows, perfect time for you to arrive. The midterm is as follows. I have a bunch of questions in the beginning that are purely multiple choice, that's just for speed, and they refer to basics of the material, understanding graph. And I ask you, which one is the vector path this one, at that point, reasonably straightforward. The reason I'm doing not all multiple choice is that, empirically, multiple choice is a hard judge, right? Something like that. Multiple choice and then I have one or two, probably two
+
+Speaker 4  5:44  
+questions that way you can like free text that captures more understanding of the material.
+
+Speaker 1  5:54  
+You don't have to do any strict, strictly speaking, compilations or deprivations when it's much more general term. I'm not asking you to write code or pseudo code, although, for some answers, sometimes people outline how they go about estimating it, but it's not strictly required, so it doesn't
+
+Unknown Speaker  6:15  
+I'm not checking if you remember certain pieces of article and
+
+Speaker 1  6:24  
+expect the time to completion is probably 25 to 30 minutes. 45 just to have a buffer, but depending on what the questions are, easy now, 35 minutes in class and then we go back to work. Okay. Now, if you if you remember last week our discussion we had on regression adjustment, one way to make this more concrete than we had on the slides and discussing abstract is to look at, look at some data. So I'll broad you. I'm just gonna load this quickly all my libraries to the right here. And I brought you data from a few famous example that comes from, exist in many places. But this wasn't taken from the paper Neo Econometrica, and this is data famously on on the birth weight of children. You have the birth weight of the baby, then you have information, marriage, race, alcohol, usage, all kinds of stuff. The right age,
+
+Speaker 5  7:46  
+first child, one
+
+Unknown Speaker  7:56  
+is continuous.
+
+Speaker 1  8:00  
+Interest is if you smoke when you were pregnant, right? So that if you're interested in the outcome, for it, interested in the effect of smoking, which would be D, and then you have lots of confounders that you work, right? So covariance that you can
+
+Speaker 1  8:33  
+think of, very standard way one would analyze. This would be one well you could imagine you run a measure of growth rate. Shift on that variable here, and it's a slope, it's a 01, variable, and you have a bunch of controls that you could think of. So if I were to analyze this using regression adjustment, like we discussed last week, what would you do? I'm not asking you to write a code for me on the fly, but what would you do in terms of an analysis, what steps would you take?
+
+Speaker 1  9:21  
+I assume you've done it, distributions of the covariates, the outcome controls want to include. But how would you specify the regression? Regression adjustment?
+
+Speaker 3  9:40  
+We do it on both treatment and covariates, to start birth
+
+Unknown Speaker  9:48  
+weights, right? Yeah,
+
+Speaker 3  9:52  
+and then smoking, and then, I guess you could put in as many covariance as you want, and then data said, yeah,
+
+Unknown Speaker  10:08  
+yeah, thank you. Thank you for
+
+Unknown Speaker  10:12  
+I agree.
+
+Speaker 5  10:20  
+That, all right?
+
+Speaker 1  10:25  
+That is just a regression. That is not what regression adjustment is. So you haven't missed something that is my fault. That's just a regression. So you're regressing the outcome on this or that, and then you will interpret the coefficient on this as the effect, right? That's how you condition. That is not what regression adjustment was sitting there last week and say, Well, I know shit. I know how regression works. Big mistake. That's a standard regression. Regression adjustment is a different strategy. Slide, Slide. You remember how we expressed it right? What we need to model is, remember we wrote it as y, z or y, d, although you would write it right, we said we estimate a model for each that is not estimating a model. So what would the regression adjustment procedure look like? Well, first you need to go ahead and you need to split the sample in half, D being equal to zero or one. In our simple case, it would be for the group, for small int. Equals zero, and for the group where
+
+Unknown Speaker  11:50  
+equals one, right, and for each of the groups, you would run your regression right? So
+
+Speaker 1  12:10  
+and for each what you get, you get an outcome, the average those two outcomes together, that is the regression. You can see what is implicitly different. Two things.
+
+Speaker 1  12:33  
+Told you last week, this is equivalent, short on the slides, it's easy to miss on the slides. I wrote, This is equivalent for linear model and having an interaction with D. So you know that if I have smoking, this is D, then you would have to be what smoking, right times X. Reason. If you add five covariates, you would have to have a model where you have y on D, birth weight, on smoking, plus all the interactions with the covariates. If you don't want to bother with all the interactions, think about the model this way, because if I estimate a regression here and a regression there, the better ways can be different. Therefore it can have a different influence of some of the covariates.
+
+Speaker 1  13:20  
+Show you this in code, it's not very difficult to do it because it's just by conceptually understanding what happens. So our option one is having a symbol, a single model here, regression, smoking. You can see here, I'm multiplying this with the full set of covariance, which is ours way of saying, like, give me the interaction of this, plus all the individual terms of this and small summary directions in our pockets. You can also write it down a few more. And what, what is the treatment effect of smoking? It is not the coefficient on that right, because you want the average comparison between the treated and the control group. And since you have all these interactions, those get in the way you can do is you would calculate a marginal effect, marginal effects calculating average comparison. Here, I'm asking for different standard error, and here's our estimate, which is about 390 keep this in the back of your mind. I actually want to run through the other example here. That makes it even more so I'm taking the data. There it is, and I'm going ahead. You can see here I am creating two new data set algorithm right here I'm taking the treatment off status, non smokers. I create a new data frame, or data table called that zero. And here the smokers. So or look
+
+Speaker 1  15:25  
+at this here. This is my attempt to illustrate this a little bit. If this is too hard to see, I can draw it over there. But here we have the treatment being off, that's non smoking, right? And here's the treatment Equal to On. Which also means, if you think about this in terms of potential outcomes, not smoking, the Y zero outcome, we observe that right because that's the outcome in the zero group, the smoking outcome, the smoking potential outcome, we observe that because that's the outcome here, what we don't observe is these two and what regression adjustment does is it fits the model in that group and that group, and then predicts the missing cells, or the missing means. And then once we have these, we can take the difference in means average together, then we have the average. So let's do that pretty straightforward. Is a linear model worth weight on bunch of controls you might want to use, and here see we use the data for that zero regression among non smokers. This is the regression among smokers just using observation to fit a linear model. But what we're doing now is predicting the missing potential outcomes quickly and then look, let's look what is happening here. This is just a group of non small parts. I create a new variable birth weight zero, which is just the observed birth weight, right? And in the group of smokers, I create a numerical birth weight under scope one, that's, of course, just the observed birth weight. And now you know what the missing parts are, right? Because the birth weight outcome, one, y1, in the non smoking group, missing, and birth weight zero, y zero in the smoking group, missing. How do you get those missing values? Well, I take the model that I've estimated and just predict the responses that you would otherwise have seen in that group in the notation of the slides last week, that's what you called I think I brought zero right zero as a function of x. Now, once that is predicted, you can see how we can calculate the average treatment effect, right? Because the definition of the treatment effect is the difference between the two potential outcome states, which you can never see under the assumption you made here. I'm confronted as an overlap. You can right, because you can see now there will be a birth weight zero in a zero group, and there will now be a birth weight zero into one group and vice versa. Let's do that rearranging, and we run the predicted optical progression so we get the predicted values. And I'll just combine these two things in one data set. So
+
+Speaker 1  18:45  
+else here observation producing one and what's the average treatment effect? Well, it would just be the difference between 1.10 across the groups, because now we have the value each of those variables. I create a new variable for the TE take the difference between the two. There you go. If I take the mean over this and get the average treatment effect. If I'm interested in the average treatment effect among the treated well, I will take the mean of the TE variable only for those who smoke. That's different
+
+Speaker 1  19:30  
+from a regression right in a simple linear model, you can get there with a single, single shelf regression by doing the right interactions. But imagine if you're not happy with running a linear model, and you want something more non linear, semi parametric, you could do that easily. You can run whatever model you like, as long as you generate sensible predictive values from it. Values things are missing, cells, calculate the difference. That's our individual treatment effect. Estimate average up so
+
+Speaker 3  20:02  
+now, isn't all the papers that don't do the interaction with the treatment. Term is wrong.
+
+Speaker 1  20:10  
+Yes. Now, if you just say, I'm running a regression, I'm controlling for x, that's what you've done, but then you have not done a regression adjustment. The term has a specific meaning. It doesn't mean adjusting for covariance, right? You say, I've done a piece of regression adjustment as a strategy, as in, you know, pooling all the way back in the 70s, y equals t plus x1, to x, 10 is not the right model. So then,
+
+Speaker 6  20:35  
+like those models would give you only the correlation and not the causal
+
+Speaker 1  20:43  
+under the assumption we are making right if you want to recover the cause effect under unconfusedness, that's the way to do it. That will not get you there unless the circumstances are very fortuitous. For example, that if you write out an equation and have various involve the outcome equations, if they're exactly identical and so forth, then you can work out just in practice, it tends not in many practical applications. The difference between the two will not be gigantic, depending on your problem, but if you think about it logically, what the approach requires that makes sense. The standard regression equation does not exist for a regression adjustment procedure, reducing regression adjustment.
+
+Speaker 1  21:36  
+Share this script class, but I did not have a especially since I spent so I was going to end there you can see what the downside here is, right? Because you don't get a standard error in this kind of procedure. Just to make the to make the point a bit more obvious. If you wanted to send an error, that's a good way to do it, delta method, but a very straightforward way is to bootstrap the whole process. Just so you have seen how I would do it. All we need to do is we need to write a little function. That function has two inputs. One input is the data, and the other is index. We can call this whatever it wants. Second argument, you can see, I've just copied and pasted the code from above. Right. We take the data, and then we take all the observations. I It's going to be a vector observations to take. And you see, we put it into that zero, that one, we run the linear model, calculate the missing
+
+Speaker 5  22:45  
+outcomes, combine the data together, one that's
+
+Speaker 1  22:51  
+my treatment effect, and I take the mean of that here, and then I return that, put it into a little
+
+Speaker 4  23:02  
+vector here that has two numbers and a return. That's just a little function.
+
+Unknown Speaker  23:09  
+Here we go, and there's a package in R called
+
+Speaker 1  23:18  
+Strapping, what requires. Requires is a little function which we have just written help file. It generates boost replicates of the office statistics apply to data. Way to do it and so forth, but the easiest way to do it is you tell it where the data is. You tell it what statistics that could be as simple as a mean. Here we just want to bootstrap the whole function and what it will do without you having to do it explicitly. It will create bootstrap sample data, sample with replacement data right of 1000 mothers create a sample 1000 mothers observations that will be the new data that is being passed on as an index. I to my little function right. Imagine if a data set right with numbers running from one 2000
+
+Unknown Speaker  24:16  
+look like what we sample from one 2000 so it could be vector versus 1-234-456-7889,
+
+Speaker 1  24:25  
+and so, right? You pass that along, as you saw that i vector will be picked up here, right? So we only going to keep the people that get selected in one booteration, and we run the model and returns the estimate, and the little boot function will score that away and creates a new create a new draw vector i and does it again hundreds of 1000s of times. That's how you get the distribution of estimates from that. You can figure out what the standard errors are, the standard deviation of the distribution for all kinds of things. See, the only thing I have to do is, here's my statistic. Let's do this 1999 times. Do this in parallel. That's not really needed, but since you're doing the same thing, 2000 times sequence, right? I'm doing eight in parallel.
+
+Unknown Speaker  25:19  
+Works. Number works nowadays.
+
+Speaker 1  25:28  
+It even does all the work for you to summarize what has happened, right? It gives you the original estimate that was
+
+Unknown Speaker  25:36  
+the 82 measure. 90.
+
+Unknown Speaker  25:48  
+How is it generating a bias statistic
+
+Speaker 1  25:52  
+that's the bias compared to what you would do if you were just doing normal approximation, loss, different ideas, just for function that's built in a
+
+Speaker 1  26:22  
+to do it by hand, if you wanted to, I can show you objects that have The samples in it, part of the output are the actual draws. Easily create your own confidence in the boss by just looking at the 200 quantile intervals of the at so it's easy to do it by hand, but there's some kind of bias corrected confidence levels, and you take the quantile and have a natural adjustment factor. All of this is usually available function.
+
+Speaker 1  27:14  
+All right, that's regression adjustment. Keep that in the back of your mind. It's probably fair to say that if you do an observational data analysis, but probably unconfoundedness doesn't just exactly hold, but if you making the argument anyway, that is almost always a better bet than a standard regression, right? Because imagine more complicated regressions, it gets pretty problematic pretty quickly to keep track of everything you're doing a doesn't end there, right? One of the controls would be H enter it linear. There's no good reason to expected control three or
+
+Speaker 1  27:57  
+four polynomial terms. Now you need to form interactions with the four polynomials. And there's an elegance that I personally prefer, which is just I'm going to write the model for the two outcomes specified as I like this, before I would do the calculation here, I would probably also inspect what the predicted values are right to get a sense of something for this, I like the more manual approach, by the way, there's a term I should have explained to you last week, just always defined. People give these things names because they're interested. Enough interesting enough in themselves. They call them po NS potential outcome, right? The means of the potential outcomes, especially the ones
+
+Unknown Speaker  28:52  
+you cannot see. Happen, look at things related to matching second half.
+
+Speaker 1  29:16  
+There are many ways to matching the problem with the problem with very well known techniques and established techniques is that there are many different ways to do it, a bunch of packages around that you could use can't guide you that much of what to choose you probably want to choose something that has been around for a long time is likely to be around for a long time. Code rots fast. You don't have the package that within a year is no longer maintained. It's probably true for a format and the rest
+
+Unknown Speaker  29:51  
+are functions. But for now, let me just show you that data here, which is a very, very famous
+
+Speaker 4  30:04  
+data set that has lived in many different forms and will show up
+
+Speaker 1  30:09  
+again later. It's mostly famous because we have done experiments for the same thing. Compare estimates you get the observation, data, methods and estimates. You look at experiment and non and it's a study on training programs. Right as a bunch of workers, we observe things about them. Most notably, we observe how much they were earning in 74 earnings, inflation in 7475 and then 78 and between 75 and 78 a training program was instituted workers for training. If that training is successful, an easy way to quote, unquote, check if that has worked is to compare earnings from before or after, or maybe compare earnings of workers who have participated in the program.
+
+Speaker 4  31:16  
+All right? I in this way,
+
+Speaker 1  31:30  
+there's more information you have about workers, education in years, black or not, Hispanic or non, married or not, and as an indicator for treatment, which means, have you been treated? Have you participated in the training program once here? And if you think about this as a problem, that's immediately obvious, right? And if this is the outcome, earnings, participation training program you're worried about. Conf education, right? If higher educated folks are more likely to participate, they're also more likely to have higher earnings. There's other things. Race might matter.
+
+Speaker 1  32:30  
+The first thing you would do if you were to if you were interested in using matching as an estimator is you probably want to study the imbalance between covariance and there are automatic ways to do this, preference of not relying on packages or other things, right hand, a very easy way to start is to look at differences in means, right so here we calculate the mean of being Hispanic for those who selected to participate in the program versus those who did not. You can already see almost unreasonably far apart, right? Only 6% of people who participate in the training program are Hispanic, versus about 11% who did not are that's a large enough gap that you start to worry about, okay, so something going on to that program, folks don't show up. This a bit more sophisticated, if you would like, something works for people
+
+Unknown Speaker  33:37  
+in the room and
+
+Speaker 1  33:46  
+here would be the distribution of education in the treated group. Right line, another line, untreated group, and add A line. Improve and add the
+
+Unknown Speaker  34:10  
+lines here.
+
+Speaker 1  34:32  
+Right? See, education is somewhat well balanced or something, but there's a clear mean shift. There's also heavier tails here and this distance there.
+
+Speaker 1  34:52  
+Now you have two avenues you can take now, right? I'll take all those covariates, age, education, black, Hispanic, married, not have a degree more you could add, and I could try to balance it by matching on all that's probably still doable. You start to think that more covariance matter. You really care about the interactions between some higher order problem that emerges. So what you could do is calculate the propensity score, again, that's all built in the minute. I'll show you an R command that has all in one code for you and just how to have your sensors. The building blocks of these things are simple enough if you don't need someone else to write an R page. Let's do the following. We create F which should be our world. It's just a formula, right, tilde, right age, education. That's just a formula, regression function, just writing it here. And what I'm doing next, well, I'm going to run a generalized linear model.
+
+Speaker 5  36:22  
+I want to as is the output transforming the probability
+
+Speaker 1  36:40  
+participating in the program as a function of age dedication, remember our discussion of the propensity score. We already care about these confounding variables to the extent that they shift around the propensity score probability after the model save that model as an object, right PS model. And if I say predict in R, I say, type equals response. You say, type equals link, you get the predictions on the scale of the link function, standard normal C, standard deviation variables, same response transforms it in what the type of the outcome is. In this case, what is that? It's probability, right? You can see what that looks like our initial variables each week. Once right, you either participate in the training or you didn't. Now we have predicted probabilities given the covariance, once we have the propensity score in hand, overlap. Here I'm just running the density of the propensity score lines For the density of the propensity score treatment group. So
+
+Unknown Speaker  38:19  
+PDF
+
+Speaker 1  38:34  
+packages before you. This is the page before I estimated for the case between zero. And the blue line. You would look at this, it's overlapping recently. Well, right? There's no area of the propensity score where I have no information in one group and a lot of information, maybe here, right at the very end, almost everywhere else you seem to have coverage. For both cases. I know I have at least one red line, and then almost everything to conclude in that modification, that's an easy check to
+
+Speaker 3  39:33  
+do now, just to check the interpretation on that then it's that if it doesn't overlap, it's that either there's no confounders present, and so that's what's causing the lack of overlap, or it is that there are confounders present, but it's a different
+
+Speaker 1  39:52  
+question. Remember, working forward from assumptions, the assumption was unconfoundedness. What was that silent mechanism is ignorable condition on the set of x which are observed confounders. Now the question of which confounders are there, and which ones are there that has been set, you say, the set of these 5x these are the confounders I need, right? Some degree that's shifting the problem on you right? These are the confounders. That's assumption number one satisfied by why you say so. But the second one that people forget to investigate is overlap. So now you're asking, given this set of confounders, is there an overlap between treated and non treated cases? And the prophecy scores in this one dimensional makes it very easy to accept that. So if there's no overlap, it means that for some combination of confounders that make you select yourself in treatment or control, likely to be present, there is no coverage. Doesn't tell you anything about the confounders, distribution of outcomes within that you could figure that out by just looking at tree equal zero the covariance and coming up with plots there. The difference is the propensity score sharpens your view of it, right, because you don't care necessarily about non overlap in parts of the covariate distribution. That doesn't shift the propensity score discussion we had last week, you could have some high dimensional combinations of covariance that matter, but don't shift around the dependency score. Don't shift around if you are willing to sign up.
+
+Unknown Speaker  41:33  
+If there's imbalance, you
+
+Speaker 1  41:36  
+probably don't care about it, because it doesn't affect selection prophecy score makes this a bit sharper and easier to
+
+Unknown Speaker  41:44  
+think about
+
+Speaker 1  41:46  
+both in dimension reduction, which makes things easy because it's one dimensional, but it also sharpens what it is that we actually care about, care about converse to the extent content. I was already typing, so I find some more. I'm sure you really practice. Yeah, calculate what's the minimum and the maximum in the control group and the treated group, what's the minimum ranges from point 25 again overlap is The same as common support.
+
+Speaker 1  42:40  
+Yes, thank you. I produced that phrase before just draw a little bit too.
+
+Speaker 1  43:08  
+Lot cut off some of it here, right? But it's not sure here that this is common support
+
+Unknown Speaker  43:16  
+if the data were to look like if
+
+Speaker 1  43:31  
+image, the area of common support is really just small area
+
+Speaker 5  43:42  
+over now, if you convince yourself right
+
+Unknown Speaker  43:50  
+about overlap, proceed with matching many different ways to do it. Last week. There are many different
+
+Speaker 1  44:10  
+ways to do it, certainly all of them, but I'll show you one two examples. First one would be, what if I want to match on the propensity score, and I imagine one nearest neighbor. Remember the definition nearest neighbor would be. I take the prophetic score a treated unit, then I look at all the control unit. I'm trying to find one that is closest in terms of the increasing distance. Now, if you use the magic package, it's pretty straightforward, because we use the formula f that we have defined earlier. This is our operation I'd be interested in. Then you say, well, the data, the method I'm going to use, the nearest neighbors. And then, particular to the way the practice, the package is written, the distance you write GLM. That's just from an indirect way. Think about it, right. How did we estimate the propensity score when we did it ourselves? Linear treatment on the covariance Here, take this distance. Elasticity of model with appropriately generates the propensity score for you and then matches up a one stop shop calculate the propensity score yourself beforehand it doesn't offer you
+
+Unknown Speaker  45:40  
+behind the source.
+
+Speaker 5  45:41  
+Numerically
+
+Speaker 1  45:47  
+here the output just created a matching object. It reminds you what to use. Right one to one, nearest neighbor, matching placement, the distance is the frequency score right regression, 445, observations to begin end up in 370, because that's the amount of observations you were able to match. If you type summary in the name of the object the package, more output too much. What you get is a very helpful balance table, because you would be interested in checking balance between treatment or control anyway, by hand, if the helpful table, and you can see it split into two parts, one is summary of balance for all data. Translate this in your mind into not matched or before matching, and then summary of balance for match data. That is helpful because it makes it easier for you to compare what has happened. It's essentially convenience for you. Let's start with something simple, worse, Hispanic, because we looked at this before here. So the mean in the treated group those who selected to take the training, right? The Hispanic variable was about 6% it was about 11% in the control group. Now what you expect that after matching? That gap probably should be smaller. Let's see if that's the case. The mean of Hispanic folks in the treated group in the match data is point 595, you don't expect that to change. Right to be the state who they are. You just select out of the controls. The mean in the control group is now, well, after rounding like the
+
+Speaker 6  47:53  
+balance for all data is the same as if you regress your treatment on these covariates, but this is a proper transformation of
+
+Speaker 1  48:02  
+that the balance here is the difference in literature. Calculate the mean of these variables for the V equals one group
+
+Speaker 6  48:11  
+this substantive information, you would get the same thing if you request your treatment on these co
+
+Speaker 1  48:18  
+values, right? One by one, yes. Yeah. A gallery room, and the coefficient on the treatment would be the distance, the difference between the two, which this one doesn't show you, by the way, takes the distance and standardizes it
+
+Speaker 3  48:37  
+one by one, meaning co vary it one by one, or bind for each individual Yes.
+
+Speaker 1  48:42  
+Okay, so remember, you have a variable y, and you have to Group A D, and you want the mean of y by d. That's two ways you do package to calculate the mean of y for groups of D, or you regress y on D, and then the coefficient on these the difference between the means, that's what we're talking about here. And so you could find these things out by just running a regression of H on treatment status, and in calculating means margin means, you have to do it one by one, because if you add more covariance, the meaning changes. So what we have here, it just literally means right, means in the treated group, means the control group. Then we match the data, we throw out the cases that don't match right, and create a smaller sample here. That's why these two columns stay the same, because nothing changes. Right? No treated case here has been lost only some of the non matched ones. All right, instead of focusing on all the means and comparing them, you might be tempted to just take the difference in means, and your problem is sometimes, if a variable is between zero and one, the difference is smaller than the variable that ranges from zero to a million. Right to not trick yourself, just take the mean difference and divide it by the standard deviation difference. And again, if you compare this way, it's again easy to see right a standardized mean difference for Hispanics was minus 20. It's essentially exactly zero. Other variables, we aren't that lucky. Age
+
+Speaker 1  50:30  
+was about 13, not the greatest people with no degree point 28, standardized
+
+Speaker 1  50:51  
+other things you can look at ratio variances and so forth. And
+
+Speaker 1  51:01  
+you see here, it reminds you what the sample sizes are, right. All data before matching the 260 cases in the control group, which works just means people not signing off program. After done with matching, we have found the value for every of the 185 people here, and we discover you notice that we were not picking about what nearest means, right? You could imagine a world where you say, I'm not interested in finding a partner of the control set for everyone. I only want to find partners. Suffer age restrictions. There is no more than a distance of that you might you might end up with having treated cases where you cannot find a partner and then you discard them as
+
+Speaker 1  52:02  
+well. Easy way to look at balance after the fact is just to call a plot. Remember, R doesn't do object orientation, right? So what some functions do depend on the kind of objects you feed them, if you give it normal data, whatever this is an object of the type matching do a plot and ask for type equals jitter.
+
+Speaker 1  52:41  
+That just shows you visually what we already have discussed. The three units that we have matched. These are the control units that we managed to match their sum right where the distance might be too large for comfort, but that's fine. These are the position in space. That's a ok. We can check for overlap as well, if you if you consider in time, but if there's a lot of action, for example, here, you might want to get a book.
+
+Speaker 6  53:20  
+Can sorry, can you say that point again about checking for overlap?
+
+Speaker 1  53:27  
+Imagine you could have. This was reasonably well match,
+
+Unknown Speaker  53:33  
+but imagine you could have,
+
+Speaker 1  53:37  
+I went too fast. But what we're looking at here is the propensity score. So here you have people that we match that have a very high propensity of treatment, which we don't really have the same equivalent in the control set. If this happens a lot, you might want to go back and rethink what you did. For example, this is a function of what variables you put in that propensity score might do a better job by adding more covariance. I said I made a mistake. I meant that I went too fast.
+
+Unknown Speaker  54:17  
+One more thing for that table, here we looked at the covariance,
+
+Speaker 1  54:23  
+there's a variable here that's called distance, and that's, of course, just the prophetic score. And remember, this is the thing you match on the fact that this one Hispanic ends up with no difference in use after the fact, is a coincidence. It's a byproduct. We didn't match it should make it zero, right? We didn't minimize the distance in means between all for all of those covariates, right? We just minimize the distance on the propensity score. The fact that the output here gives you all of these is meant, is mostly meant for you to check that things have worked. The only thing you matched on is minimize the distance between treatment and control paper, because here the prophecy is for before matching in the treated group and about 40 in the control group. It's already not that imbalanced, and after matching, we got this a lot closer, right? Look at the standardized mean difference. It was about 36
+
+Speaker 3  55:42  
+like this is an intuitive question, so sorry. But does the distance have to be between zero and one?
+
+Unknown Speaker  55:49  
+The prophets score is a 01, variable.
+
+Speaker 3  55:56  
+You ask me something else. No, I think I'm just misunderstanding the distance is the prophet is the difference between the propensity score? No, the distance is literally the propensity score. Oh, okay, sorry. I think I missed that.
+
+Speaker 1  56:12  
+Not my package. I would take any responsibility for the Norman lecture, right? But imagine this is a package that can choose many, many different ways to match. One other option would be, I'm looking at all my covariates. I calculating some measure of distance between them, and then I minimize the distance measure. You have just one two continuous variables, you take the distance. That's your Euclidean distance, right? If you have more variables in a multi dimensional space that different ways you do every metrics, you can choose whichever one you want and then say, This is what I want for distance, right? So it's like one way to create a distance measure is to calculate the propensity score, because that's that's another way of thinking about distance. Whatever the distance metric is you have used, it will show up. The authors of the package know that this is a propensity score, so they could have put propensity score as a word here. It just shows
+
+Speaker 6  57:18  
+so you were only managing for all treated cases, but that will only give us the ATT, but the ATD will need the ATC as well. Yes, actually identifies the ATT So,
+
+Unknown Speaker  57:30  
+but we cannot use matching to
+
+Unknown Speaker  57:35  
+calculate the ATC, then not the way we do need to nothing
+
+Unknown Speaker  57:55  
+we're going to show you. If
+
+Speaker 1  57:59  
+you want to check the balance of covariance table, like we did here, do this by hand. Package. There's a package called cobalt covariate balance tables and plots. That sounds promising, right? We do balance tables, who doesn't like them. Plots for balance who doesn't like them. Function called Val, plot give it a matched object that we have just created and work through that now.
+
+Unknown Speaker  58:32  
+This
+
+Speaker 1  58:48  
+what we had before, already, we did it by hand. You can also get it for free after matching because you have calculated propensity score. Again, they call the distance right here and then nicer looking than the right treatment is 01 program, you can see there's a good deal of overlap between the two, safe for the very experience like those, there are some folks who are essentially never going to participate in the program, and they Just don't exist in the creative group to match. And there are also some folks who are almost always going to participate in the program. They sort of don't have an equivalent in terms of the propensity to do so. In the control we use this, we use observe covariates, right? An obvious unobservable that would invalidate the analysis, because I'm so confounder is a measure of enthusiastic. You are conscientious. You are right, I tell you, as an after school program, and hungry is the first one to enroll. And unless I have measured this right, hungry would be there, and then the rest of us out of the control set, I can't find anyone. That's not what we're modeling here, though, right? Assuming unconfoundedness difference here is simply one that, some cases, in a treated group with a very high propensity to participate, based on the combination of the covariance in the control set, I can't find anyone who has a propensity score. That is that I would not look at this, and I would be very worried. It's very easy to discard those cases out there analysis going but that's not always the case. Activity easy to have an analysis when the red group ends somewhere here group of really higher propensity,
+
+Unknown Speaker  1:00:51  
+where you have more equivalent you
+
+Speaker 1  1:01:03  
+if one wants to, one can look at the covariance individually. Even though we match on the prophets score, right? We might, might not mind getting a sense graphically of what happened with the covariates, just like we had in the table. So say plot here is the match object. Maybe want absolute values, because you don't care that much positive, right? Just that it's different. Drop Distance means don't show me the propensity score, in essence, and you can order the variables.
+
+Speaker 1  1:01:50  
+Of everything. Balance plot. What you see here is red says un adjusted before matching. Green here means adjusted after matching. So you can see like what we saw before, Hispanic, large means ignoring the sign here now, big difference in the degree with the largest of all, we made that smaller, but it's not equal Like white difference or whatever, was never big deal to begin with, married or not right age. How much should I worry about certain covariance and standardizing differences? Exception to be talking about the difference in the
+
+Speaker 6  1:02:42  
+conditional probabilities of being assigned to treatment or control given the covariance.
+
+Unknown Speaker  1:02:47  
+That's what it prophets use for it's
+
+Speaker 1  1:02:59  
+conditional in the sense of conditional treatment status into
+
+Unknown Speaker  1:03:12  
+more directly the
+
+Speaker 1  1:03:17  
+difference between people who select into the program versus who do not. In terms of age is about half
+
+Unknown Speaker  1:03:30  
+standardized, if you want to put it more as a kind
+
+Speaker 1  1:03:39  
+of probability of selecting into the program versus not is higher for people, the problem is that I'm ignoring the signs. I wouldn't want to say higher, because it could be lower, right? You can say you can get rid of the absolute part in the code, and you would have both sides imputation. Most people just talk about the difference in means, and they would assume that the reader would understand that this translates into different probabilities of keeping the program versus not doing so. If you just look at this right for the people we have here, I'm mostly worried right, that there's a big difference between people with no degree to participating or not participating in the program. Similarly, there seems to be something that either makes Hispanic folks more or less likely to select the program. What's going on with the program? But that would work, apparently, whatever is going on here doesn't affect black,
+
+Unknown Speaker  1:04:47  
+ordinary folks. But remember, we did not intend to minimize the distance, right? We didn't intend to push this as far towards zero,
+
+Speaker 1  1:05:03  
+you only minimize the propensity score. And remember, if you're as strong proponent, some people are propensity score. They might point out to you that there might be some differences in not having a degree in terms of age that might matter for the outcome, but it doesn't shift around the propensity score, probability of equal is equal to one that difference, if it's left over, I don't mind it. I only want, I only mind the difference that affects the selection. That's the prophecies. Everybody is such a strong proponent of that.
+
+Speaker 1  1:05:48  
+Is an example of the flexibility you have. I want to make two points. There's some people annoying and useful about matching right. Annoying part is like there's an unlimited amount of techniques you can use to mesh. It's often easy to give guidance. What is better, better for what conditions and simulation studies you take, change the simulation setup. There was all subject different. I don't think there's any good advice of what to choose by recognize the good news is that what you're interested in is balancing out covariance between however you get there is really not a great concern. Analysis we matched on the propensity score. I'm not happy with the balance I see between covariance. Let's try something completely different. Maybe I don't measure the propensity score, it matching on the covariance directly. As long as you're happy with what you see in terms of balance at the end, that's fine. That's not that's not the same as looping around the significant variable that's just minimizing balance. That's the objective function you're trying to minimize. It's completely fine to find a way together. The nice thing about the magic package and two or three other packages that work similar is that its structure stays almost completely the same. The only thing you change is the model. For example, here matching formula. This is the data. We still going to use the propensity score, but now we're going to use optimal match run it. It submarine and you can drop like we did before, to compare what we get in terms of the covariate balance.
+
+Speaker 1  1:08:07  
+Then this also tells you what this is, right? This is mostly just a front end for other most specialist matching packages, from interface towards them, the more reduced feature set I
+
+Speaker 1  1:08:30  
+it just create the same covariance balance. Again, you can see here, as soon as I check yes, my editor will update. Some things are different. Some things are the same degree.
+
+Unknown Speaker  1:08:44  
+We seem to mean, for example, in terms of age, now a much better job.
+
+Unknown Speaker  1:08:55  
+Remember, like for age, here you do better job. There you might
+
+Speaker 1  1:09:06  
+find yourself in a situation where, if you're lucky, you start with one and then you try another one, you try another it gets progressively better. You should probably also played another E, right? What might also happen is, you start with one and you do another one. It's kind of it's different, but the same. Another one, I thought that looks better. Another one, you get all excited, until you notice that, oh, now I'm doing worse for one variable,
+
+Speaker 1  1:09:36  
+meaning that the unmatched sample has a larger difference than the matched sample. Is a pattern we see here. But there's no guarantee that this has to be the case. It could be that, after matching of seven or eight covariates, you now do better use the difference in means control group. They could be that, for one you're getting worse the human being that prevents that from happening for you, empirically, you have to try Different techniques, and
+
+Unknown Speaker  1:10:18  
+that's that's very similar to full matching.
+
+Speaker 7  1:10:28  
+So for Progress score, actually you want to minimize the distance however, means like the progressive score is like, given the probability of taking the treatment,
+
+Unknown Speaker  1:10:49  
+so it's Like, we'll have, if for awareness, there's no yes, so how you match those
+
+Unknown Speaker  1:11:10  
+would just Be discard. Way to think about this is imagine if
+
+Speaker 1  1:11:20  
+imagine vector here, and you're looking at control observations, right for one of the variables, there's just no one in the treatment group that's that's a variable that, if you knew it, or if you had done your homework looking at the data, you wouldn't even have included it as a control. You can't launch a measure if the outcome doesn't vary. But imagine you hadn't noticed. You run the prophecies for a model completely right, or it would have coefficients transparently change the matching strategy sometimes, like one
+
+Speaker 3  1:11:58  
+variable might get really far, yeah, is, is there a price, a prioritization of, if we run, like, if one of the co variance is a higher predictor in the regression generally, then should we be trying to match that first and then going down the list? Or not? That I'm aware?
+
+Speaker 1  1:12:29  
+Not that I'm aware of everything as a confounder idea. There's no real sense of that. I'm really happy about this, as opposed to that in an algorithmic sense,
+
+Unknown Speaker  1:12:45  
+you can decide it for you, right? I'm not going to proceed if I can, if I can get there.
+
+Speaker 3  1:12:54  
+So if the Hispanic variable switches from being like, if we run a pilot and we say, oh, there is actually all this interesting variation, then that for the next round would be removed from our covariate balance, because it's no longer covariate. Okay, sorry, I just needed,
+
+Unknown Speaker  1:13:17  
+okay,
+
+Speaker 1  1:13:22  
+spoon matching. There's a subtle difference between two ways. Let me just show you what you would do once that is done, because once the matching, once you've convinced yourself that I'm going to choose, I
+
+Unknown Speaker  1:13:51  
+once you have convinced
+
+Unknown Speaker  1:13:56  
+yourself kind
+
+Speaker 1  1:14:01  
+of General Schwarzkopf. He used this beautiful line. I think it's my duty to let people know if I don't like some it reminds me of
+
+Speaker 1  1:14:21  
+it okay, once you've convinced yourself that this is the matching you pick right one of the three.
+
+Unknown Speaker  1:14:31  
+Try all of them,
+
+Speaker 1  1:14:33  
+what is the logical next step is and do the actual analysis with the meshed data. Now you can imagine one could write a package where this is all being done in one go. The authors of that package decided not to do it right. Because if you jump back to the very beginning, remember what our equation here was the outcome. Here was not the actual outcome. We're interested in the outcome here, of course, was the treatment. It's a bit regressing D on the covariance. That's our matching problem. That's what we find our entity score, which means, after you've matched your data, you just simple function. It's called match dot data, and you give it the match object. If you run that, the resulting object, which I call 1d here, has two classes, right? You remember there is a mesh data, but it's also walk standard data used to you also notice that it has fewer other two.
+
+Speaker 1  1:15:50  
+That's the same variable. The only difference here is now information that comes with the matching process.
+
+Unknown Speaker  1:16:00  
+So now the obvious next step is, once you have the match data,
+
+Speaker 1  1:16:07  
+estimating the ATT is as easy as running a regression of the outcome on the treatment variable and nothing else, right, because you've convinced yourself that you have balanced the data as best as you can the way this works here is there's a variable for the weights, and you're just going to use that variable as weight, as a weighted regression, which in R is very easy to do, the formula where the data is, and then you specify the weights. Show you the summary of the weights.
+
+Speaker 1  1:16:50  
+Now is there are one Why are they all one? Because we have matched one by one, right? It was one to one matching every case, one body and everything.
+
+Unknown Speaker  1:17:02  
+And for other matching
+
+Speaker 1  1:17:10  
+estimators matching, instead of matching one to one, you would have matched one to five, if you can then the weights would have to be non zero. You run it regression. Here you go. You run it, you put that into an object. You can see, this is the treatment effect that we estimate, dollars right, somewhat sizable. But before we talk about this further, what you want to do then is you would calculate the standard errors for these and of course, you could get this straight
+
+Unknown Speaker  1:17:42  
+forwardly from R here, but what you
+
+Speaker 1  1:17:45  
+should do after matching for this thing, it doesn't matter for other matters, it's a good idea to just get in the habit of always doing that. You should calculate standard errors that adjust for clustering,
+
+Unknown Speaker  1:17:59  
+subclass again, here.
+
+Speaker 1  1:18:02  
+Here here doesn't matter, because it just tells you the straight eye has generated. If you do one to one matching, they're all just one one element. Once you start doing one to five matching, for example, then I have multiplied essentially, five times the role of treatment. Does that make sense? There was one data point before another body. If I do five bodies, I have to copy that one, and then I put the weights. But now I'm explaining the number of cases. The easy way to cheat in your regression, 100 cases, but multiply those cases by 10. Now I have 1000 too small, because this is necessary. What you're accounting for, the clusters. R unlike, unlike theta doesn't allow you to just say comma robust robots. There are different ways to do it. I think the more standard way,
+
+Speaker 1  1:19:04  
+package called sandwich, right? Which gives you the sandwich estimators things you've done, 630 you probably remember why it's called a sandwich. Peculiar formula, right? Here's the transform, here's the middle, bus covariance
+
+Speaker 1  1:19:30  
+matrix estimation second there's a very useful package in our LM test allows you to
+
+Unknown Speaker  1:19:40  
+do the model tests
+
+Unknown Speaker  1:19:49  
+here, because
+
+Speaker 1  1:19:51  
+you say, give me a test of coefficients. You tell it the regression object that has created what that function does. It literally just gives you the coefficients and the standard error loss, which in this case, it's just repeating what the regression has already done. But imagine you had a regression where you want the sum of two coefficients. You can do that here. That's the sum of the coefficient and so forth. So I'm not misusing it, but I'm using it as a trick here, because one argument of the function is doing. You tell it like this is a regression object. You can go to that object and ask, you ask for the coefficients.
+
+Unknown Speaker  1:20:35  
+Coefficients that way right. I can also get
+
+Speaker 1  1:20:41  
+right and I take the diagonal, because there's an argument in that function here, coefficient test that says, instead of using the variance, covariance matrix model, use a different one,
+
+Unknown Speaker  1:20:56  
+that is cluster robust. Choose the cluster. The function that does it goes there,
+
+Speaker 1  1:21:04  
+then adjusts it for clustering and then uses that one to calculate by hand forward the same coefficient that we had there. If you were to take the square root of this, you would see that slightly different. That would be the uninterested standard error, two, right, 3.4 What's the inverse? Interpretation? Average treatment effect on the treated mesh sample that I have created is about $2,200 plus minus 600
+
+Unknown Speaker  1:22:02  
+the same other mesh data right, and see what difference it
+
+Unknown Speaker  1:22:14  
+makes that
+
+Speaker 1  1:22:16  
+data set right? So I'm running a regression on other mesh data set again. That's in line what we probably should expect if matching goes reasonably well yesterday, here $2,000 plus minus six. This is probably not dramatically different, right? We wouldn't change your scientific product. You can change the hypothesis conclusion of your paper based on that, but it's also obvious that we're missing about $170
+
+Speaker 1  1:22:51  
+that difference is purely due to how well you have balance the covariates With a different edge, more matching methods you
+
+Unknown Speaker  1:22:58  
+can get. Quite
+
+Speaker 1  1:23:03  
+use matching for anything in the paper, either as an estimator or just to balance your data before you run other things. So it's
+
+Unknown Speaker  1:23:13  
+a good idea to do at least two or three,
+
+Speaker 1  1:23:17  
+just for your peace of mind, just to guard yourself against a large difference in results shows up immediately, then you know that your murky territory. Often it will not be the case. Very often you see variation. If there
+
+Speaker 6  1:23:34  
+were dramatic differences, could you pick the one with the lower standard error?
+
+Speaker 1  1:23:41  
+No, I would pick the one with the best balance. I would not work from the results. It makes total sense to summarize a complicated matching problem. Say, for example, this is the range of estimates communicate uncertainty on that's fine. But if you think about what I would not work for the outcome, the problem would be the definition of best is not, is not duly dimensional. Best is the definition of lowest average distance between treatment and control in terms of the propensity score. That's easy to pick. But if the best one were a model, when you look at the covariance balance, Hispanic mean difference of zero now has a mean difference five that might only be more.
+
+Speaker 1  1:24:35  
+These are empirical techniques, no clearly defined a solution right? Complex, different trade offs emerge. Just have to live with. I think the only thing you should not do is have papers that says I used matching with on a propensity score with three nearest neighbors. Neighbors. Maybe they difference. I also tried some other form, close to five.
+
+Speaker 1  1:25:15  
+Let me just make 2.1 is maybe somewhat under appreciated, which is, we say you match. We match on the Prophet because we care about the covariance, right, because we also saw in our results that some imbalance remains. What does that mean? On the end of the day, there's a component of selecting into the program versus not selecting the program. That is probably to do with h we haven't completely arranged it right, but if it's not the case, it's pretty natural to think that. Well, then let's just control for h in the outcome refresh. That's completely fine. So the alternative point one strategy is you run the model, this is the outcome, this is the treatment variable, and then you include the vector of covariance. Again, remember, this is not the original data. That's the mesh. Data.
+
+Unknown Speaker  1:26:30  
+You do that,
+
+Unknown Speaker  1:26:31  
+then you run the same function here again that we had before.
+
+Speaker 1  1:26:39  
+Remember, before was about 2186 then the next one was about 2000 difference between the two. Now the difference between the two, it looks dramatic, right? Because you can see that if you look at them, h as a t value estimates, not compared to the estimates investigate,
+
+Unknown Speaker  1:27:13  
+compared to The treatment not advanced to achieve the matching papers, run
+
+Unknown Speaker  1:27:23  
+one analysis with just a treatment, add one more column to your table.
+
+Speaker 1  1:27:29  
+Equation. You don't have to put the coefficients, because some of them are very weird. You don't think right, even appendices, or if for yourself, study these coefficients, because some might give things that you might want to think about. Black folks learned that in masks in the original table, but now it shows up with the coefficient that equals the treatment I would spend time believing.
+
+Unknown Speaker  1:28:09  
+Second point I wanted to make is you do not have
+
+Speaker 1  1:28:13  
+to use the propensity score, right? We can use the propensity scores completely. Now it is a distance equal to GLM, just means estimated Shannon's linear model, China's linear model, but look at the prophecy score. Use the propensity score if as the argument to distance you don't say that, and just mention an existing distance calculation, distance metric, one dimension to multiple dimensions adjust the CO variation. It's just now the
+
+Speaker 1  1:29:00  
+matching problem has changed. It's problem has changed. Instead of minimizing the distance between control on the prophetic score, you're trying to minimize the demand, which is the multivariate summary, age, education, life is having
+
+Unknown Speaker  1:29:32  
+Summary. Here, it's just
+
+Speaker 7  1:29:42  
+the batch data sum of the distance
+
+Speaker 1  1:29:47  
+has become a lot a lot smaller, right? We have 25 years here. Their education was closer, but you can see now, see Hispanics are not as tightly balanced as before. Essentially brought the distance down to zero. Now it's just
+
+Unknown Speaker  1:30:12  
+fun. Progression one more time
+
+Unknown Speaker  1:30:13  
+with our new data, and
+
+Unknown Speaker  1:30:18  
+you get a treatment effect of 900 test. It's
+
+Speaker 1  1:30:29  
+the same point I made twice now I'm going to make a third time. Let you go right different matching techniques, all designed to achieve as much balance as you can.
+
+Unknown Speaker  1:30:42  
+Which one take.
+
+Unknown Speaker  1:30:44  
+So you have to lift the effects.
+
+Speaker 1  1:30:54  
+These were my paper. I would probably use that, because it's so few covariates. The problem is not too difficult, right? It's five dimensional, six dimensional, space of covariance. Once you have 20 or 30 covariates that will either just not convert away, or you will get very efficient solutions, weight balance and some covariance,
+
+Unknown Speaker  1:31:17  
+then you're probably better off
+
+Speaker 1  1:31:22  
+as I'm some people who argue that you should not match on the propensity score ever, like King and others, that are fine. But then the question is always, then one, if you have few covariance, it probably doesn't make a difference. So it doesn't matter if you have many. Well, then what you do propensity score, it's okay. Which probably fair to say. This open debate,
+
+Unknown Speaker  1:31:50  
+another way of techniques that work really well,
+
+Speaker 4  1:31:52  
+if you have high dimensional controls, where matching works
+
+Speaker 1  1:31:57  
+really well. Okay, my original plan was to talk a little bit more about the propensity score in a kind of formal setting and how propensity score regression would look like, because I want to prepare your mind for a future where we talk about inverse probability weighting estimators propensity score showing up there. Since I promise to end at five, I'm also very happy to just anybody having had a session where you just talk about how to do things. So next week, I'll talk always sort of 15 minutes in the finished score, and then we spend the rest of our time enjoy whatever you celebrate, all the rest of your
+
+Unknown Speaker  1:32:47  
+week. Bye Holly.
+

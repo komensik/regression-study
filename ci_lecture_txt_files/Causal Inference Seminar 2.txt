@@ -1,0 +1,756 @@
+Speaker 1  0:00  
+It's mean, Okay, I
+
+Speaker 2  0:40  
+I don't know why it slanted. Can you live with that? I
+
+Speaker 3  1:22  
+It's all right, nothing, all right, finally, okay. What I want to do today is finish up something we left open last week. And then once that is done, we'll talk about graphical models, or directed Pacific graphs, which is, as I told you, an alternative way of thinking about causal structures. It's also something that is a pretty active area of research should be at least, basically, we should be familiar with basic terms. Active work is happening both in terms of how to use it and use it to think about causality. But also a lot of work is happening around pushing that approach forward, to make it easier to think about possible relationships in a systematic fashion. And to some degree, that's the overall dream, at least to some, to automate some of the causal discovery that might
+
+Unknown Speaker  2:48  
+Okay, large enough go back and zoom again. Before we do
+
+Speaker 3  3:00  
+that, recall what we discussed last week, and I want to just run with you through a quick example of something you're intimately familiar with, which is you have Some outcome, you have some variable you consider the causal, causal factor of interest, treatment. That treatment is not distributed or sprinkled randomly across the population, right? It's taken by some and not by others. And then you run a regression that simply regresses the outcome of treatment. And you may get some controls if you think about standard regression analysis you might have seen in papers. And it's often, either intuitively or just by conventional clear to some or all of you that this is probably not revealing the causal effect of the treatment on the outcome. Right? It has gone so far that people think non regression will yield the causal effect of the treatment, which is, of course, nonsense. So if this is a state of affairs that bothers you, it has bothered me. The question is, then, like, how can we tell like, right? Why does it not work? And once that is being said, we tend to make a more precise statement that says, Well, under which condition would it work? You, of course, know one word would work. Simple random assignment design is a coin flip assign two groups in the treatment and control. You can then request y on the treatment assignment variable that will everything goes well and will be the cause of effect coming out of your regression. Finally, fiber question. People intuitively know if it's not an experiment, it is not necessarily revealing the causal effect, but it's much harder to precisely say why that it's unless you think that everything that is not an experiment could never conceivably reveal to you the causal effect, which is also a slightly sensitive decision to take. So now, with the aim of the causal language, we discovered last week, potential outcome framework, you will see that this helps us think through the problem slightly more clearly. We can express our problem in structural terms and expresses the problem abstract being avoid from data, and then we can compare what the data does compared to what the ideal definition of the cause and effect would be.
+
+Speaker 3  5:46  
+So before we even start, right, we said, Some individuals can be cases. In some cases take the treatment. Some don't, right? And you know this by pi, right? So we have a proportion pi of cases of individuals who take the treatment, which means that one minus pi dot, and this is a population parameter, just for ease of exposition, right? So I is fixed in the population, right? Why is it fixed in a population? Because it's simply the sum of individual choices, right? Imagine have a population made up of 1000 people, and I tell them, like, here's the treatment, you can take it or you don't take it, and then 600 people decide to take it, 400 decide not to take it. Pi is a population parameter, right? Six but let's pretend it is unknown to us, right? Make sense? Something that is a characteristic of a population, but it's not known to an impurity observer, that is a crazy statement to make, right? A lot of political problems or economic problems look like this, right? You offer, you offer a training program to workers. You find out afterwards that 40% have taken it, 60% have not taken it. It's not too difficult to conceptualize that there might be in your population, the true parameter pi, that is the propensity of each worker to take. We probably estimate that pi by just taking the fraction of people we've taken it. But those are two different things, right? One would be estimate the population parameter. And, yeah, population parameter itself, pi is our population. Now what we do is we go to our population and take a random sample of size n, n to do, right? And now let me just introduce a bit of shorthand notation that just makes slides look more neat, right? I write the n of x, right. E would be the expected value if it were random variable, but x, here is actually a sample of that population, I just write for that sample formulation, n cases, just writing the sample an amount the same way we would write conceptual variable. That's just another way of saying typical cases, the short end of taking all the x sign in from one to n divide by n.
+
+Speaker 3  8:27  
+Now, if you knew nothing else than having data on some outcomes, y should have written what that is. Let's assume it's obvious, right? Why some measured outcome and then I
+
+Speaker 3  8:44  
+indicator D, which is equal to one, if treatment is taken, D is equal to zero if it's not taken, what would be a naive estimate of the causal effect? Why would be the difference in these right? You take a vector y i remember y i is just one observation per case, y vector as n element, take all the observations where d is equal to one, and then take the mean in common notation here, this is, take all the y i's where d is equal to one, sum them up divide by the corresponding N, and you do the same, right? So this gives you the mean in the group where treatment would be marked as on or taken minus the mean in the group work. Does that
+
+Unknown Speaker  9:36  
+make sense? Right? These were the data I would have given
+
+Speaker 3  9:44  
+you, vector y, vector d, you would have the outcomes, and then you would have and what you're doing here is just splitting by D, calculating the two means. That's the same way of difference of means. It's got the same thing. It's just regressing y on D, and then D would be the difference in these okay? And your intuition tells you that that doesn't reveal the cost effect of D on Y, whatever that true cost effect, right? That's intuitively obvious to turn one question now becomes pi. So the only way we can express that pining me right is if we can define what the cause effect would be, which you cannot do. If the only thing you can write out is empirical equations, right? That's that's the fascination or love of some people, the potential to write properly what we think is, and you know how to write it now from last week, right? What is the actual causal effect? Well, it would be expected value of y1,
+
+Unknown Speaker  10:56  
+the outcome, right? What would be the conflict? X, remember
+
+Speaker 3  11:05  
+the definition y, 1y, zero in the population is interested in the
+
+Unknown Speaker  11:19  
+average. Now, a difference in means, what does that estimate? Oh, it estimates this.
+
+Speaker 3  11:33  
+It estimate potential outcome. Y1, potential outcome under treatment for those cases where we see treatment in our data, minus expected value of Y is zero, the control outcome for those cases will be zero, which is usually not going to be the same as the causal difference we see Is
+
+Unknown Speaker  12:13  
+that obvious? You
+
+Speaker 3  12:21  
+probably knew this intuitively, right, that this is the average treatment effect, right? Like the value of the two potential outcome states, this is something else, because we clearly condition on observed states of B and zero, which is for the problem of in discussed last week on our two by two table, right? You observe potential outcome y1 is 1y. Zero is zero. You don't see the opposite like that, and we would need the opposite to define right. But what might be more interesting is trying to figure out, Okay, what does it what does that lead to? In terms of differences, color it here, right the expected value of edge outcome
+
+Speaker 3  13:11  
+effect. You can decompose this into constituent parts, because what would that be? Let's see two broad parts. The first one refers to the treated outcome. Second one refers to control outcome. Yeah, the expected value of y1 if D is one, that's something we see. And how many people will be in that state. The fraction is pi, right? Our population parameter, that's the fraction of folks who are taking the treatment. Those are the those won't be the ones for which pi, the population
+
+Unknown Speaker  13:58  
+parameter, pi, here,
+
+Unknown Speaker  14:11  
+okay,
+
+Speaker 3  14:19  
+for those People in the sample that have actually taken the treatment. Taken the treatment. What is the commensurate potential outcome under treatment? State? Well, it will still be the potential outcome under treatment. But for those who are currently, what is this going to be? Well, the number of people who are D equal to zero, it's just going to be one minus five. So now I've enumerated potential treatment outcomes. And it's two possible variants. And the same thing for the control state, zero will be equal to one. That is the potential outcome under control, under non treatment, for those who currently have the treatment, plus the potential outcome under control for those who currently these are things we see. If you look at this little equation here, you see that we have five unknowns, right? These conditional expectations, four of them, as well as pi.
+
+Unknown Speaker  15:20  
+It's fun to think about five unknowns. How many can you estimate from the data?
+
+Speaker 3  15:31  
+Right? You can estimate three. We can estimate pumping right, assuming our sample is large enough, large n. You can estimate 45 by simply taking the sample proportion right, which means, here you see my notation. You take all the PIs that are equal to one, sum them up, divide by n that converges in probability. And
+
+Unknown Speaker  16:05  
+first for the pi
+
+Speaker 4  16:07  
+example, that's conditional upon the fact that we know the correct outcome, right?
+
+Speaker 3  16:13  
+No estimate. So pi is a parameter in the population that people don't know, right? But if you have a simple random sample, you can estimate right by taking all the PIs equal to one and then sum up and divide by the total. Okay, there's a there's a parameter called PI right, and it measures the propensity of the people in your population to participate in an election, it's a parameter that's fixed, let's say, characteristic of the population. At this point in time you don't know what the parameter is. What would you do to learn about the parameter? If you do a sample survey, we simply ask if you vote yes or no, and that would be your estimate. It's not that easy in real life, so appear to pretend. So that means we have an empirical analog to price estimate of the five parameters, one to one we have now fixed a period that's the more we can pin down, because we can get the average outcome under treatment for those who are in the treatment group. This right? The empirical analog to this conceptualization of the random variables here is just the empirical analog, which is mean, make all the i's where these equal to one, sum them up like take a mean of these. In our case, we would take the mean this case, this case, this case. And it's easy to show that that converges in probability to the expected value of potential outcome by one for those who are treated
+
+Unknown Speaker  17:59  
+second part of those five unknowns, very obviously, we can do the same thing
+
+Speaker 3  18:07  
+for these here. You can see the potential outcome under control for those who are currently under control. How do we estimate it? Take all the outcomes for those where the i is equal to zero, that, of course, converges to that with five unknowns, three you have pin down, which means we're left with two. Of course, the two quantities we don't have, those are the counterfactual outcomes. Right? The counterfactual condition expectations, the expected value of the potential outcome in the treatment state for those who are actually currently in control, and then the flip side of that is potential outcome in the control state for those who are currently that's just a very fancy way of saying that for any case here we think, what would that be if d were not zero but One instead, what would the that's the part we missing.
+
+Speaker 3  19:07  
+With that in hand, we can then figure out how those two unknowns that we don't have unbiased or confound our estimation. Interested in estimating the average treatment effect. What kind of bias do you expect? Well, you can take, I can take a decomposition we have in the previous slide and rewrite it. This is what we have empirically. We're approximating empirically, which is not what we want. Right the expected value of treatment outcome in the treatment group, minus and control outcome in the control group. What is that? Well, it is composed of three parts. The first part, that's the good one. That's what we want, right? That's the a t delta, our difference between but then we have two parts which might or might not show up. Look at this for a second, right? So you have the expected value of Y zero as a potential outcome under control for those who are treated minus the expected value of control under those who currently in control. That's the difference between the potential outcome states of the control group. And I'll discuss it more in a second expression here. And then you have expected value of the treatment effect for those who are treated, minus the effective value of the treatment which would mean that is the treatment effect, the average treatment effect different between those two groups. Not too difficult to give those things nice or something names in some literature's epidemiology, for example, effectology, when we talk about models, the first thing,
+
+Speaker 3  21:14  
+dark green on my slides, this difference here, you could call the baseline difference, because what does it capture? It captures the difference in outcomes, or more precisely, potential outcomes absent the treatment and it compares those in the treatment group and the control group again, at the risk of saying the same thing 15 times you could not that statement sounds idiotic if you have not heard of potential outcomes, right? Because what am I saying is the difference between the treatment and the control group, absent treatment, that makes zero sense, right? You don't need empirical terms. You're either treated or you're not. You can talk about the difference absent treatment, you will be nothing. This is the part of treated people. This is the part of untreated people. I'm telling you, absent treatment, I'm computing the difference. It doesn't make sense. That's an empty process. It does make sense if you express it in terms of potential outcomes. That's the potential outcome without treatment. In both cases here, we're just conditioning it on those who actually, those who actually know, what is this with, right? Well, conceptually, that captures the very simple idea that, before the treatment even begins, are there systematic differences in the outcome under control between my two groups? Are you older on average? Are they more motivated? So this
+
+Speaker 3  22:45  
+that's often what people think about when they think about confounding, right? So you have run a regression, and here's your treatment, and then you forgot controls. If you had the right set of controls, you can make that difference between zero, and, of course, lifts and dies with the fact that you know the right controls. And if you know then you can measure that that is not true. The other interesting difference that poly conversion is simply differences in effects. That's hemogeneity between the groups the treatment effect is different for those in the treatment group that also
+
+Unknown Speaker  23:23  
+all things matter.
+
+Speaker 3  23:35  
+Partly this is just doesn't only show to see what the value of potential outcome framework is, it's also not too bad to think a little bit more what regression actually estimates. All
+
+Unknown Speaker  23:50  
+right, here's, here's
+
+Speaker 3  23:52  
+an example I've been using last week as well. Conceptually, it's a different obvious one, right? Education and earnings two year and more, if you go to college, that's obviously hard to answer, because you can just take a sample of the population and regress the income earnings Precisely, precisely of people, and you compare those who have gone to college and you have not gone to college, then your brain obviously immediately recognize that you probably live in a world where these terms are pretty large, right? The people go to college don't go to college, quite different, but express more precisely those who do not go the potential outcome of not going to college among those who don't go to college compared to the potential outcome of those that would have obtained had been college, because they have gone to college, but you're asking about what would the outcome have been had been, that's the interesting base. You actually don't care about the difference between college and non college people, per se, you care about the difference between what the outcome would have been conceptually, if you like to think about the other way around, it also works, right? What would the outcome have been? Let's
+
+Speaker 3  25:17  
+put some numbers there, just to make the abstract slides maintaining to look at. These are made up numbers. So here's our groups. That's what we observe. People college one. People didn't go to college, zero. So here, this would be college kids, non college kids. And at the fraction of individuals who go to college 25%
+
+Speaker 3  25:48  
+and now what you would see in your data, if you just take the mean of the college kids and the mean of the non college kids, you would find $1,000 in one group and $500 in the other group. Since this is made of data under Oracle, I can tell you what all the four cells of that table are. Right for those who go to college, expected outcome under Going to college is $1,000 but if those who are currently going to college had not gone to college, that's the control. That's the non college outcome for those who currently go to college, that's about $600 and if you look at those cases in the sample that currently do not go to college, what is their wage, or their earnings while not going to college, $500 but we can also say, What would their wage have been? Earnings? What we have been had they gone to college. That's the counterfactual state. Can
+
+Speaker 3  26:51  
+already see how this is set up. So what is the average treatment effect in this case? Let's start easy, right? What's the average treatment effect on the treated
+
+Unknown Speaker  27:12  
+right? What's the average treatment effect in the control group and the ATT? It's just those two quantities weighted by pi, right?
+
+Speaker 3  27:40  
+What is the naive estimate? If you just go there and run a difference in means what you would get, which means that estimate is biased for all three constant qualities, right? It doesn't give you the at it doesn't give you the ATT. Doesn't give you the ATC, none of the as works out. Okay? You knew that our own entertainment and we can, we can take that apart. The expected bias for the average cost and effect in this makeup example is $175 right? How does that decompose?
+
+Unknown Speaker  28:18  
+Well, 325,
+
+Speaker 3  28:21  
+that's the true causal effect. Then we have the expected outcome in the control state for those who are in treatment, expected outcome in the control state for those who actually in the control it is 600 minus 500 if we knew that we could compute it, that gives us $100 and then we have the differences in the size of the effect between the two groups. That's, of course, just 400 minus 300 weighted by the population proportions, which in total,
+
+Unknown Speaker  28:59  
+that's where our bias comes from.
+
+Speaker 3  29:03  
+The extent that you can control this, you could bring down the bias to $75 if you wanted to control that, you would have to estimate models that allow for heterogeneity. In effect. Make
+
+Unknown Speaker  29:18  
+sense. So just I will do
+
+Unknown Speaker  29:26  
+it later.
+
+Speaker 3  29:32  
+There are conditions under which you could easily identify Some things and not factor.
+
+Unknown Speaker  29:46  
+Any comments questions
+
+Speaker 5  30:01  
+between Why
+
+Unknown Speaker  30:05  
+is it bias? There's like different like you do like each of
+
+Speaker 3  30:21  
+the craving both these, if this and that term is both zero, then you can bias, right? So it's biased because you have differences.
+
+Speaker 3  30:37  
+This is what you estimate, empirically, right? And then
+
+Speaker 3  30:47  
+what you're comparing is states of the potential outcomes, some of which you can see, and some of you can write. There's four of them. Think about our little potential outcome table we did last week, and you only observe two of them. And one way to think about this is that you can either be you can get lucky or you can get unlucky, right? What would lucky be? Well, lucky would be that you're exactly so.
+
+Speaker 3  31:18  
+Here are your potential outcomes, right? This is y1 and now come by zero, and then you have the actual treatment states you want to be zero. These are the things you will observe. And these will be the things that are counterfeit, if you get lucky and in the treatment state, the difference between these two ends up being small. And it's fine that you only observe these two cells and not these cells, and simply mean the output state. If you get lucky, there's no difference here, systematically, then it doesn't matter if you only observe one or two, the extent that the difference there emerges, you're missing. That's the decomposition I did here.
+
+Speaker 3  32:09  
+This is the outcome of those who do not get the treatment. This is the potential outcome which they happens when you don't get the treatment. And that's course that maps. It's a quadrant here. But of course, you can envision that among among
+
+Unknown Speaker  32:27  
+those who currently don't get the treatment, compared to those who currently do get the treatment,
+
+Speaker 3  32:35  
+what would their outcome have been at these people not gotten it? Because if there's a difference there, then it doesn't matter that you happen to have some people in that group and not in that group. In vice versa, that bias ultimately comes from right if that expression here becomes zero, then essentially what you saying? It doesn't really matter that I observe one thing and not the other, because the other would just be the same anyway, in terms of potential outcomes to be extended, it's not
+
+Speaker 6  33:07  
+you never know, right? It's always unobserved. It's always unobserved, right?
+
+Speaker 3  33:12  
+Go back to that example here, too fast like this is what you would normally know from data alone. This is what you don't know. But you see here, those who don't go to college currently have a $500 average income, and those who go to college have that. But like comparing all the differences here, right, those who if they would go to college, they would make $800 difference those who currently in college, if they would not have gone to college. It's the difference between the two that gets you in trouble, because if they were looking if this were the same, it would have $300 for both. It doesn't really matter which group you observe of the four possible groups, to the extent there is the fact that you cannot observe one group the outcome by the hypothetical outcome for those who don't currently go to College that they would get if they would
+
+Speaker 3  34:22  
+now in empirical practice, what do people do? They add in control variables and hope for the best we could. If we were so inclined, we could go ahead and figure out what conditions need to be true for this to be not be a problem. For example, if I tell you that the expected values conditional on X tend to what zero, then if you have the right set of controls in your regression, then you want to recover the causal effect if
+
+Unknown Speaker  34:53  
+that part is also zero. But of course, if the difference
+
+Speaker 3  35:01  
+between those two quantities depends on things that are unobservable to you, then you will never
+
+Speaker 5  35:19  
+recover. So the heterogeneity term. I'm not sure why it's written as expected value of delta given D equals something, something like, why do we put
+
+Speaker 3  35:32  
+it's the treatment effect in one group and the treatment effect in the other?
+
+Speaker 4  35:36  
+Yeah. So the Delta doesn't stand in for y1 in this case,
+
+Speaker 3  35:41  
+the delta is the difference between y zero and y1 the difference in natural outcomes. Thank you for pointing that out. I think I've never bothered to properly define delta anywhere here. I shot that in line. Simplicity here, right by delta, we mean y1, meters, y1, y1, difference in potential outcomes given
+
+Unknown Speaker  36:07  
+the given the treatment, you can
+
+Unknown Speaker  36:08  
+always make that condition.
+
+Speaker 3  36:18  
+Think of it as the difference between the true causal effect in two groups. If that difference is zero, then both groups have the same effect. If the difference is non zero, then it suddenly matters. How many people sometimes precise notation can just obscure very simple things, right? But imagine that the treatment effect is the same in both groups that has nothing to worry about, right? Now, imagine the treatment effect is completely different in two groups that it matters by which proportion you mix them, right? If the treatment effect is, say, zero in one group and one in the other, if you mix them by 5050, you get a half. Mix them by 2080, right? The bias is a function of how many do you get in the
+
+Speaker 3  37:03  
+another way of putting this is simply, if you want to estimate the ATV with a regression, and you do a naive difference in means, does affect heterogeneity, and you haven't modeled the biases your results, unless you get very lucky with the distribution. Okay?
+
+Unknown Speaker  37:24  
+You have another section on regression.
+
+Unknown Speaker  37:33  
+Okay?
+
+Speaker 3  37:45  
+What we shall do now is something that is, in a strict sense, redundant, in the sense of that you can anything you would want to do thinking and writing, both intuitively and formally about causal inference you can do with a potential outcome framework that we have developed. This is an alternative way of doing it. And as I told you in week one, five to 10 years ago, it was much more rare to encounter these things in standard social science literature, if you weren't reading more specific journals on computer science, possible inference to see in economics papers interested in causality. But that has really changed in the last 10 years or so, even if you were not that interested in it. In and of itself, it is now not uncommon to read papers that switch quite linearly between internal outcome notation. And if you have seen it, I would also predict
+
+Unknown Speaker  38:56  
+that this is going to dominate the
+
+Speaker 3  38:59  
+paradigm over time, just more useful and B it has a little bit more brain power behind It being pushed.
+
+Speaker 3  39:18  
+Now, quick preface. Like this might not something you have ever seen, or you've seen it a lot, but if you ever spend the life reading all those sociology papers, it would not be uncommon to see this kind of beautiful, beautiful model with like social status, communication and income.
+
+Unknown Speaker  39:45  
+Something else.
+
+Speaker 3  39:51  
+We wrote this little like graphical depictions of causal order of things that used to be pretty common. We call this path diagrams. There are even ways to estimate these things from data. It was always very popular in psychology, psychology and in some quarters, and then it fell out the fashion, brutally hard, because people misuse those things, right? Just because you draw a causal diagram, you can estimate them using some software, doesn't mean the estimates you produce a cost. But to some degree, those things were maligned unfairly because they rest on an idea that is really that's not too crazy, right, which is, when most people think about causal structures, they usually don't think about it in terms of conditional distributions and potential outcomes. They often think about, well, I have this right, and then I have that, and if this shapes that, maybe I draw an arrow right. And if I have something else that bothers me, it's very natural to think about in terms of diagrams. The relevant insight is that those are not just diagrams, but they're mathematically equivalent. And these would be graphs, and we know how to work with graphs. Graph theory is a well developed field, so one can use some of the insights from there. So what happened is, this is the first one that has a very rich literature. It used to be very science focused, but it has essentially become much more conservative power. Very well, proponent of these Pearl he has written a bunch of books that are worth reading in the wrong place, but not less. He doesn't want to read if you really care about it hard to read this in terms of, it's hard to be the data in terms of shop. Anyway, most impressive example of thinking this fully through. It's a much more difficult week now. This is probably much more entertaining to read, possibly short statistics. That's a nice introduction, if you want more, if you want more literature, email me dozens of
+
+Speaker 3  42:13  
+what's the idea? The idea that literature is to encode causal relationships using directed acidic graphs, direct helicity graph is something as simple as direct
+
+Speaker 3  42:35  
+elasticity graphs. Graph. Those are nodes, points. Are usually called edges of vertices. They can be pointed in one direction. They can be pointed in two directions. The convention is draw arrows unidirectionally and either actually use another symbol. I'll show you in a second. Why is it a cyclic? This doesn't have a cycle, right? If b goes back to an input x, then it would be an endless cycle, a cyclic graph. Directed arrows point in a certain way. They are acyclic because there's no cycles and they're graphs. Now the cool insight is and graph theory is a very old mathematical discipline, but the interesting insight that emerged in most computer science literature is that these things can also encode probability distributions. More precisely, you can read off conditional probabilities, right? This could represent the conditional probability of B given A and X, you read that off here, what's the conditional probability distribution of a well, there isn't one, because it doesn't have any parents. Right? Probability distribution would just be P of A same here, q of x. You call it endogenous. This one is endogenous. No, it has parents, a and x. And even if the graph gets more complicated, you can read off these probability statements just on the structure of the graph.
+
+Speaker 3  44:09  
+Here's the same thing that I did. Here just be more common notation of uncommon to draw the balls circles. That would be a, that would be a random variable. B would be a random variable, and you can see that a shakes right. What you can read off here is the conditional probability that
+
+Speaker 6  44:37  
+makes sense. I have one question about this. So when it doesn't have a parent, it means in the model, right? Like it doesn't assume that A OR x that is not part of any causal relationship. It's just an in the model, in the model, except perfectly correct. This is your
+
+Speaker 3  44:55  
+depiction of the world. Would be here that both A and X shape, nothing else does. I'll come back to this a little bit somewhere. I have a sentence that says it's often more important what is not on the graph.
+
+Unknown Speaker  45:13  
+Okay?
+
+Speaker 3  45:16  
+Another construct that's important to know is double arrows, usually dotted to make the difference more obvious, because what that shows you is it has two arrows, right? So it's a and b, the same thing. That's just the shorthand way of saying that A and B are correlated, right? Or random variable A and B are related because of a third cause that you cannot see right. A more fancy way of writing that would be something a and b, and you have an unknown cause that affects both, then it's the same structure. It has become common to draw it this way because it's more it's easier now.
+
+Speaker 3  46:07  
+As I said, arrows specify conditional or unconditional probability relationships, right? You can leave them completely unspecified, right? You can just say that the probability distribution of B depends on a without saying in what way, in what form, fancy way to describe this is that this is all non parametric. If I draw a and b here, I don't imply that there's a linear relationship between B and B. It could be completely non linear. This is different from the physiology literature. They use all of these as linear regressions on each other.
+
+Unknown Speaker  46:40  
+This is just literally saying that B is a function.
+
+Speaker 3  46:48  
+And it gets more complicated here, right? Just B would be a function of A and X. And
+
+Speaker 3  46:59  
+relief is completely unspecified. You can think of some two dimensional space with some crazy shapes no restriction, a problem that matters down the line.
+
+Speaker 3  47:14  
+And the literature has become using, as it has begun, to use those diagrams to represent stable mechanisms or constant gaps, right? So the idea of drawing an arrow between A and B is then to say that, well, A is the constant B and not the other data. Again, something you cannot do by writing out the regression equation.
+
+Speaker 3  47:40  
+As we just discussed something, what is more important is what is not on the graph. I'm going to show you in two or three weeks, I think we'll discuss instrumental variable estimation. I'm going to show you how an instrumental variable analysis looks like when you write as a direct specific graph, and you will quickly see that as one arrow that just cannot be there. If it's there, the whole thing falls apart. It's sometimes very obvious and easy to express this in graphical models. But the key part here is that, just like we discussed in the first week, is that those are constructs of the mind, right? You can draw these things without any data. In fact, you can draw whatever you think the structure of the world looks like. Have you seen any data? It is not uncommon that a graph that you can guide out doesn't have empirical counterparts for each of these
+
+Speaker 3  48:41  
+elements. Imagine you wanted to study the cause and effect of A and B
+
+Unknown Speaker  48:46  
+and this function.
+
+Speaker 3  48:50  
+You want to know what the cause and effect of A and B is, there are now empirical strategies. I can easily read off from that you're able to do a non parametric regression, too hard to do. You could just do a non parametric regression of B and A X, you would ignore it doesn't bother you, right? You don't care about x. You care about a, something you can easily read off of that with the assumption that the relationship between two things is linear. You could even run a linear regression of b and a fine control for x, so you don't control for x doesn't really matter because x, x just doesn't matter, right? It shifts around B, but you don't care about that. You only care about the effective A. If this were the direct acidity graph. Now you know what to do right now. Now you know these are all linear relationships. The regression of B and A won't work this. X is called a confounder, right? It changes B, but it also changes a. So now if you need to control for x, you can get the cause effect from a regression. It would have to be a regression of B on A control b for x, you could know what x is, but if you're unlucky, you can measure it. Think of it as unobservable. Then there's no regression you can produce because you observe p and A, but not U, but you can write it down like a graph all the same. That's a pretty obvious point it doesn't hurt to be making. It allows you to encode causal relationships, not all of which necessarily might have empirical
+
+Unknown Speaker  50:36  
+complex any turns,
+
+Speaker 7  50:39  
+the dotted lines represent correlations, as opposed to causal relationships or unobservable relationships.
+
+Speaker 3  50:47  
+Correlation is a statistic concept, not a cost, right? So when we say a correlated, that just means short, that's shorthand for, there's a third cause for the tool that you cannot see.
+
+Speaker 7  51:00  
+No, I mean just the solid line versus the dotted line in the diagram represents that. Oh, we're saying that because it's unobservable. It is a correlation and not a causation. I'm just trying to understand the difference between the solid line and the dotted line in terms of
+
+Speaker 3  51:18  
+by convention, yeah, it has a correlation between
+
+Speaker 7  51:28  
+if you had a dotted line with a one headed arrow, you wouldn't Have one. Okay, yes, yeah.
+
+Speaker 3  51:41  
+It's really just a shorthand to not have to draw that A and B variable. These are conventions like, if you had x, call it something else, Z shaped A and B, you would usually draw it out. You don't want to shorthand for that because it's important enough. But this is so common, right, that things have a parent, an antecedent that is unobserved, that it seems sensible for people to figure out, figure out shorthand.
+
+Speaker 3  52:37  
+All right, that's a convention smart. It doesn't have any deeper meaning. I'm stressing that point because it tends to get worse.
+
+Speaker 3  52:54  
+Close your close your ears if you don't want to be distracted. Just to make the point, if a shakes B, but the amount of the relationship between nd depends on some third variable, M. The question it becomes, how do you encode it here? And people just come up with ideas. You draw a circle and put n there. You do it differently. Nothing in life is ever easy, right? Some things are much easier to depict, to detect as a directed graph, compared to potential outcomes. But not everything is easy. Some things you just have to look at the paper. What the convention is, the one I just just given you, then it's pretty universal, but some papers come up with their own conventions for very specific things. It doesn't really matter how you depict it, but I could draw a little star or some dragon to make sure it's careful mathematic counterpart. Okay. Now the point that Julia Pearl and others are making is that most concepts that you commonly operate with as social scientists can be expressed as graph. Think about confounding that we've just discussed here. Right selection of observables that's very easy, mediation. All of these can be easily expressed as graphs, something like an experiment. You can then inhibition as long as like graph search, what would an experiment randomly assigning cases to a to some degree, to think of it as just leading that part from u to a right, because there's random assignment here, There's no possible way that curve calls this graph search.
+
+Unknown Speaker  54:47  
+I think I will be there.
+
+Speaker 3  54:51  
+One can construct proofs that show that anything you can express as potential comes more do
+
+Speaker 3  55:05  
+you want to take a break, some water or whatever air you and then what I will do next is I'll show you a bunch of examples of typical graph structures. It's good for you to get familiar with them, because they're sort of the building blocks of bigger graphs. And so I'll try to do two things at once. While discussing those structures, I also remind you a little bit of concepts you might have forgotten. What does it mean to have a conditional random variable? What does it mean to be conditional dependent and independent? So I'll construct little plots examples for that as well. I think it makes sense to take A break. So let's Meet at 3430 We I
+
+Unknown Speaker  56:36  
+that I work. I was
+
+Unknown Speaker  56:52  
+thinking, whatever
+
+Speaker 2  57:13  
+I was thinking, the trail is, of course, those exciting last classes. Excitement
+
+Speaker 3  57:33  
+last class at The same time, trade off.
+
+Unknown Speaker  58:15  
+People are Not saying that All. It fails.
+
+Unknown Speaker  58:41  
+Oh, Wanted, I
+
+Unknown Speaker  59:00  
+needed to Change.
+
+Unknown Speaker  59:27  
+Document. Oh,
+
+Speaker 3  59:55  
+instead of
+
+Speaker 2  1:00:04  
+energy experiment. What time is
+
+Unknown Speaker  1:00:11  
+it on Tuesday, for 40 years for everyone involved,
+
+Speaker 1  1:00:22  
+He income, because you guys will Probably have
+
+Unknown Speaker  1:00:41  
+November against
+
+Speaker 1  1:00:59  
+well in Spanish, seems to me that we have a fine mile, good, if I check that, did
+
+Speaker 8  1:01:10  
+you say if our exam, our midterm, Is pushback for this?
+
+Unknown Speaker  1:01:21  
+Yeah, we haven't exam.
+
+Unknown Speaker  1:01:25  
+So what's the problematic? Date?
+
+Speaker 1  1:01:29  
+What time is your exam? I can't see or at the time, but like, is it happening? Okay, we have class. It's just like a regular glass from the syllabus.
+
+Unknown Speaker  1:01:52  
+Kenny's pretty, so we're trying to think of an alternate date, right? An alternative.
+
+Unknown Speaker  1:02:12  
+Date can be different.
+
+Speaker 1  1:02:20  
+No, it's for the exam. I'll show you.
+
+Speaker 8  1:02:28  
+Are you talking about an exam for this class? Yes. What are the dates?
+
+Unknown Speaker  1:02:35  
+Shouldn't we do?
+
+Unknown Speaker  1:02:41  
+Like it's between what?
+
+Speaker 8  1:02:51  
+But I thought that our I thought everything's getting pushed back a week. Yeah, okay. Well, if we propose a date, then ideally, everyone should be able to weigh in on like, the preferred date,
+
+Speaker 1  1:03:12  
+right two and a half hours by using the reading i
+
+Speaker 8  1:03:38  
+i Do I make a motion to if there's like a proposal of the date,
+
+Unknown Speaker  1:03:43  
+everyone should be able to weigh in. We need to
+
+Unknown Speaker  1:03:47  
+great. Should we do like a poll?
+
+Speaker 1  1:03:51  
+Yeah, maybe we should send out a doodle, a doodle. Have you ever used a doodle? Maybe that was a good idea to send out a Doodle for. Okay, well, so it doesn't say for the 26 like that. Just says that it's a graduate reading period as well as the Thanksgiving break. Because the Thanksgiving break begins on Tuesday night on the 25th
+
+Speaker 3  1:04:23  
+I didn't, and my assumption was that Duke would not put the reading period on top of the Thanksgiving break. Yes, just to be clear, what we're talking about is potential dates for the exam, because I offered that functions, right? We keep the exam where it is. Exam where it is, the makeup class afterwards, which you then can decide how motivated you are to attempt or not. No harm done if not or we do the makeup class, where currently the exam sits, and then push the exam for the round, which also gives you more time to prepare,
+
+Unknown Speaker  1:05:11  
+just to
+
+Speaker 3  1:05:18  
+happen. Anyways, I effect. So my problem is, I'm very happy to move the exam further away, but if some of you tell me I've already made travel plans or whatever, then that's fair. Now let's think about what the easiest way to figure out, by show of hands, what's the preference for moving the exam for the back of it?
+
+Speaker 4  1:05:46  
+Can you just repeat again the two options? One is the day before
+
+Speaker 3  1:05:50  
+leaving the exam where it is Yes, last class, or pushing it back towards any amount of weeks.
+
+Speaker 4  1:05:57  
+And the last class is the 18th, the 19, the 19th. Okay, so the week before Thanksgiving,
+
+Unknown Speaker  1:06:06  
+right now, I put the excitement in last
+
+Speaker 1  1:06:08  
+Yeah, so you're either doing it on the 19th, or we're coming in during Thanksgiving Day or after, or the week
+
+Unknown Speaker  1:06:14  
+after, you can do whatever you want. Yeah? We
+
+Unknown Speaker  1:06:24  
+us,
+
+Speaker 3  1:06:27  
+or something we can so I can do I can also
+
+Unknown Speaker  1:06:35  
+do it like I don't mind.
+
+Speaker 1  1:06:40  
+Do you have a prefer those class after when we come back? Would that just be like everything they cover?
+
+Speaker 3  1:06:50  
+So I don't really care either way. But that means, if I do now a doodle, actually, doodle would work. I do a doodle with same date as we have now, a bunch of later dates, if we're lucky and we have anonymity for one, that's just what we do. That makes no sense.
+
+Speaker 8  1:07:09  
+And just triple checking our mid term exam on the eighth is still on the eighth. Look, all
+
+Speaker 3  1:07:17  
+I want to do is like you're not paying money. You pay for 14 sessions I was sick for one, you'll get 14. But it's also, I'm not going to penalize you for me being not sick, right? If you planned your life on eve of the 19th as a celebration that you've done
+
+Speaker 3  1:07:41  
+most of the fall, it's an ominous anonymous, wherever he falls. I'm fine.
+
+Speaker 1  1:07:48  
+I mean, I feel like I'm falling in the camp, but I'm trying to just like, push it
+
+Speaker 3  1:07:53  
+back the past. Was that preferred genetic exam
+
+Speaker 1  1:07:57  
+later, rather than Yeah, and then you have more time to prepare for the exam.
+
+Unknown Speaker  1:08:01  
+That's why I even brought it up.
+
+Speaker 8  1:08:03  
+But we also have more material on it. At some point you probably want
+
+Speaker 7  1:08:07  
+to leave and go some petals. In fact, depends on what date we push it to. And therefore, if the poll has specific alternative dates, rather than just yeah, that would help.
+
+Speaker 1  1:08:20  
+And I think on doodle you can make it anonymous, or at least on the other one, the when to meet.com one, you can make anonymous, yeah, so doodle is not anonymous, anonymous.
+
+Unknown Speaker  1:08:34  
+I guess if you could ask you for a name, right? I mean, you could just
+
+Speaker 1  1:08:37  
+put Yeah, but in the time to meet one, yeah, you do not have to put your name, even though I will ask you for but you in
+
+Speaker 3  1:08:52  
+principle, we can do whatever we want. The only constraint is like we need to rule once we leave end of semester, we don't even need to meet on Wednesday in the morning. Again, almost everything goes anything goes up. It's conditional on us, everyone.
+
+Speaker 1  1:09:11  
+And once we settle the date, I can make sure that we'll have the room or whatever time it takes.
+
+Speaker 3  1:09:16  
+You to have an in getting a nicer room, I always just take whatever room I'm driven by the promise to be okay.
+
+Speaker 3  1:09:30  
+Let's see what the what the doodling, pooling reveals. It's straightforward. It's straightforward. If it's not, it's also cable. Be assured, my only intent is to make life easy for you, not more complicated or difficult. No harm shall come to you. Okay, as promised, what I will do now is we look at three. There's only three really minimal kind of stylized causal structures, and they involve three things, A, B and C. You ask yourself, this has almost nothing to do with what I would do in terms of research, right? I rarely have only three variables, yes, yes, that's true. But the function here is twofold. One is understand concepts that exist in the graphical model literature, because those are building blocks. But at the same time, those concepts are not just definitional, like our little arrows here, but they're pretty intimately tied to other concepts that are involved in such as confounding. You also can learn some words or terms that now show up we increase in frequency, even in papers that do not use graphic novels is one of those terms in common usage. So what we'll do is we look at three different things, and I'll talk to what they mean, how we write them out, and I'll try to create simulated data with some examples to also give you an intuitive sense what those things are. Let's just start with an obvious one. The most obvious one is just the arrow from A to B, right. Let's say this is, if this is the structure you have, right? If the variable A, which you think is a cause, and then you have variable the random variable B, which you think is a resultant, which means interesting causal effect of A on B. But if the causal structure that is true looks like this, a, shapes C and G, C in terms shapes b1, question you could ask of this structure is in a model of a question, if you want a, should you control this? That's not, that's not a crazy question, right? Like variable A, that's your treatment, that's the variable of interest in your dissertation. If your outcome be you go present it somewhere, and then still to this day, when the first question is, have you control for this with a reasonable story, it makes sense to listen, right? Because not everything makes sense as a control infant literature has done one thing, it's instilled into people's mind concept of bad controls, if nothing else. That was a good thing a period of time where people thought, the more controls, the better. That is clearly not the case, the effect of A and B, but this is how we actually call those questions. I construction question one might ask from such a structure, is it collecting for all or
+
+Speaker 6  1:12:54  
+condition? So if your condition of c,
+
+Unknown Speaker  1:13:00  
+x, b through C, so if you conditional of C,
+
+Unknown Speaker  1:13:04  
+you'll get correct.
+
+Speaker 3  1:13:11  
+This structure also has a name. Remember? I'm teaching ourselves two things at the same time. Think about conditional relationships, but also graph theoretical language that this thing has a name. People call this a mediation structure. In fact, that's also literature that is considered Media related to the same idea as you correctly said, A is not affecting B directly. A affects E, only bias. So C is a mediator. It's a mediator between A and B.
+
+Speaker 3  1:13:49  
+In case it wasn't intuitively obvious why this is the case that we constructed a made up example. Imagine you're interested in ability and money. You have a sample of people who are civil servants and another group of people who are not civil servants. It's a measure of their ability. And then
+
+Speaker 3  1:14:19  
+and assume optimistic or pessimistic, but assume the world works in the following way. A is eligibility. C is getting into the civil service. Being admitted to civil service societies have to respect ability tests to get into the civil service is the amount of money. Now, let's just take a little bit we can make those random variables more real by simulating data from them. Let's say I draw a from normal distribution that has mean zero standard in one, and I do the following, we set z equal to one, if and only if A is greater than one, and set C to zero, otherwise, that ensures that the more high ability types end up are more likely to end up in C rather than not. And then, to simulate B, I have a normal distribution with the following setup. It has a mean of zero. C is equal to zero, and if c is equal to one, I draw a mean of two. What do I have created now? I've created a setting where C solves up the liability device, and then I have created a setting where the outcome B is a function of C right. The mean is shifted two standard deviations upwards.
+
+Speaker 8  1:15:46  
+Would you say that last part again? Would you say that last part again? Yes, you've created a setting where C soaks up the more high ability types
+
+Speaker 3  1:15:57  
+end up. Right? Remember, it's a normal distribution, right? So these are anyone who's one standard deviation above the mean in terms of ability, I put into the C group all the lower down ones I put in the c zero group. Now there's always an ability differential between c and now I'm defining the outcome B as a function of c, right? Like c is equal to zero. I make that mean zero,
+
+Speaker 3  1:16:37  
+just a bunch of draws right from both A and B and I color the two groups c1, and zero by black and red. Just to give you a sense of what the pattern would be like, that's probably what you expected to see. Relationship is not too strong, probably one, 3.4 38 right? It's correlation between A and B, because, by construction, that needs to happen, right? Because we select the high ability types, we take the more money. Therefore, what happens if I take the data and subset it by C, stratify by z1 and Z zero, right? If I take, take the sample here, black dots, Z zero.so, in the red dots, and calculate the correlation. Then, well, within those in the civil service equal to one, the correlation is essentially zero. And in the next group zero, the non single service group, the correlation between B is also C, which means, if you were to condition or control or stratify whatever language you want, if you control For C, you would think that there's no relationship in processes. It's easy to understand this or to know this intuitively, right, but we also know why this is in a more technical sense, right? Because if you think about the two random variables, A and B, they are marginally dependent. Here. They're marginally correlated, marginally dependent, but they're conditionally independent, even C is if you condition on Z, you remove the dependence between
+
+Speaker 4  1:18:38  
+could you say what the counter of that would be like just breaking down the conditionally dependent. Could you just say, if we had the relationship so that A and B are more strongly correlated, when do condition per c, what would the italicized phrase? Well, they would
+
+Speaker 3  1:18:58  
+be conditionally dependent. Okay, that's the opposite you want right now.
+
+Speaker 4  1:19:01  
+Yes, yes, yes, thank you. But the marginally dependency is the same, yes, because there's still a relationship between A and B regardless. Okay, thank you.
+
+Speaker 3  1:19:19  
+Oh. Microsoft probability statements later, at some point. But also this kind of structure encodes this pretty neat. There is, there is no relationship between a and b that is not mediator channel bias. You may see a control.
+
+Unknown Speaker  1:19:47  
+But more generally,
+
+Speaker 7  1:20:00  
+maybe it's behind the projector screen. Maybe it's behind the projector screen.
+
+Speaker 3  1:20:08  
+It is not sorry. Let's keep a record of the structures. I
+
+Speaker 3  1:20:23  
+Right. Graph theory folks call this a mediation chain, right? You have a and b and c. The letters don't matter, right? You have arrows in one direction, A and B. The third thing is in between, z. What happened that part is the easy one, the biting part, I don't use my shirt ready
+
+Unknown Speaker  1:20:59  
+for the next one,
+
+Unknown Speaker  1:21:05  
+here we have a
+
+Speaker 3  1:21:07  
+and b, but you can see that C affects both A and B. Again, you could ask yourself, if I'm interested in false effect of A and B, should I condition or manipulate C also has a name. I'll get back to that name in a second. Let's just look at the made up example of traditional probabilities again, and imagine you're interested in hard work, ability and results. Ability theme here, simulation. So imagine we denote a hard work by a these results. You get results of a test, right? And Z is ability for simplicity, zero is low ability. And imagine we create the data as follows, or Z equals zero, the means of A and B. Expected values of these two random variables are minus one for the high ability types. One expected values
+
+Speaker 3  1:22:20  
+of a and b are identical in both conditions. You know that the only thing that matters here is ability. Right by construction, for each given level of ability, A and B are not correlated. I, open, R is out, draw 100 or 200 cases, and you get a picture that looks like this. Right relationship between A and B, and naively, if you do a correlation or regression of this, you could get a very strong relationship right. So you could trick yourself into thinking that any are coordinated. Relation between the two is point five. Of course, if you split the sample by C, within C, within each level of correlation between A and B, what point zero? 7.0. 6.006. That's because I we know right, A and B are marginally dependent, but they're conditionally independent.
+
+Speaker 3  1:23:35  
+Marginally dependent, condition okay? This is
+
+Speaker 4  1:23:47  
+clearly just a conceptual thing I'm struggling with. But for marginal dependence, even I thought, I think I thought that it was that if there was a question between the two variables, that's when we have marginal dependence. But it seems like in this case, there's no correlation. Could you just restate?
+
+Speaker 3  1:24:04  
+Well, there is a correlation. The correlation is point three to four. That's why they're marginally dependent.
+
+Speaker 4  1:24:09  
+Oh, sorry, but the correlation when you add C, it's okay, got it?
+
+Speaker 3  1:24:12  
+Sorry, conditional on the third random variable, yes, they're independent. Okay, unconditionally. Remember, I remember, my main reason maybe 7030 The main reason is just to introduce to these structures, right? But I want to make the point that they are not just inventions of crazy graph folks. They're related pretty intimately to problems. We tend to struggle with translation, right? What would be a typical example of this, the most classical one that in the old literature was Fisher, right, the famous statistician, but he was still debating if there's a relationship between smoking and cancer, and Fisher was convinced there isn't, because he was convinced that it's genetics, right? It's genetics that make you more likely to smoke, and it's bad genes that make you more like cancer, which means, in a regression of cancer rates on smoking, you will find a relationship, but that relationship is experienced because you control the genetics, Omni the contractors. We know that this is nonsense, good
+
+Speaker 2  1:25:19  
+reminder that of the smart people understood it. Special truth is in the that structure has a name.
+
+Speaker 3  1:25:34  
+The more fancy name in the graph theory literature, the direct to the safety graph of lenses literature is a chain of mutual dependence. It's much easier to think about it as a common cause, right? You have a and b, and you have flexible. If you want to write this out, you
+
+Unknown Speaker  1:26:16  
+make sense.
+
+Speaker 3  1:26:18  
+Gives us one more side remark. Of course, the problem in when you actually apply these things is that something is going to be like that that's not disrupted. The purity of these graphical chains is the third option. We flip the arrows right, we have a and b here and here we have C. But instead of the arrows emanating from C going to A and B, we now have that stuff that's a problem that's slightly less commonly thought of problem, right? Because the first problem, the second problem is just only the variables, and that controls that sort of intuitive, rational context. What does this capture? Right? Again, B, on a, on B. Should I? Should I control for C or not in the previous example? The answer was absolute BS. You have to let me construct, first a simulated example, and then we talk about the concept. Again, just by the way, this is usually called neutral causation. Performance. On the test, I simulate a and b as normally distributed with mean zero. I think of it as speaking and writing non distributed population. And Z is the result for the test. And we do it as follows, c is equal to one if you pass the test right. And we do it as follows, we set z equal to one if a plus b is greater than one and a half, or else we said to zero?
+
+Unknown Speaker  1:28:07  
+Well, that happens again.
+
+Speaker 3  1:28:10  
+The correlation is exactly what you have seen previously, right? This is a and b, of course, if you split this by z, get a correlation between a and b is negative 5z equals one group in the test failure group, you get a correlation that's smaller but still negative. Now the final inverse of what you originally asked before, right? Is it because A and B are marginally independent, but they are made dependent. If you control the C, they're conditional. They're conditionally dependent. If you conditional C, so you have two things that are unrelated, right? By definition, when I generated this data, I did a normal distribution for a and then completely separately, no correlation between the two by design. But if you condition on z, because they jointly determine the outcome z, if you condition it, you suddenly would find that a and b are highly significantly related. Or you would write a, I'm going to name the discipline. But why not? You write a sort of psychology paper about it's a moderating effect on Zs between A and D. They do this a lot, but it would be nonsense, right? You have created an association because you adjusted for something more precisely. You adjusted for something
+
+Unknown Speaker  1:29:40  
+that is a descendant descendant.
+
+Unknown Speaker  1:29:49  
+Okay,
+
+Unknown Speaker  1:29:50  
+that would be this form. So
+
+Unknown Speaker  1:30:08  
+Right?
+
+Speaker 3  1:30:16  
+This thing has a name. This is so specific. This is so special, extra special names. I don't know why they need to be two names for the same thing, but structurally, people call this mutual causation in the graph theory language, but giving a profile like C is such special in that relationship which you get its own name. So whenever you have a structure that looks exactly like this, the variable in the middle is called collider count. That
+
+Speaker 3  1:30:52  
+either formally, if you if you're more used to econometric slang, like any variable that's endogenous and has more than one parent or more than one parent, anywhere, any variable for which this is true that is a collider. No two ways about it. And the problem is like, if you control for a collider, you're making mistake. So
+
+Unknown Speaker  1:31:20  
+again,
+
+Speaker 3  1:31:26  
+we've done two things at the same time, confusing, but we thought about some typical problems that happen, that affect causal reasoning. This essentially has to do with what we think about conditional probability statements that essentially contrast what a naive analysis will do studying the marginal relationship between two variables, and that's conditioning on a third variable, and depending on what the true state of the world looks like, what it means in terms of causal inference changes by Essence, we have simple describe different conditional probability statements and how they map into either getting the correct answer. But at the same time, we have done this by thinking about different graph structures, right? And we have distinguished three of them and attributable patterns, which is good to come into memory, right? One is we have a third variable that intervenes in the causal chain and just sits neatly in the middle, but the causal directions is undisturbed. That's the first chain that we have, called mediation. Then we have the other thing, where there's a causal chain that doesn't go undisturbed, because you have a third variable z that moves outwards, right? So you create both B, A and B as a function of C, the common cause chain. And we have the last one that discussed, where you have the third variable z, that has two parents, A, B or two arrows emanating by pointing at Z, and that forms a collider, neutral causation chain. Those describe three different causal structures, right? If you hope they also clearly connected to typical problems of causal reasoning and decision making. So you will maybe not be surprised that we can build we can combine those together and build larger structures, and then reason through those larger structures, sounds African examples. There's another thing I want to point out, though that's maybe not that obvious, which is nothing that we have discussed here depends on parametric assumptions. But nothing here assumes an information. This is what 70s histology was, linear replacement relationships, or more formally, these all just probability. And even more importantly, like if I gave you data on A, C and D, and in fact, here I made up data on myself, right? You could not discern which of those three things you're looking at by data alone. Those are statements you make about the world that are not reflected. That's obvious, right? If you look at A and B and there's C all in either a condition on C or I don't. There's nothing in the data that tells you that, unless you know what the true structure is, you needed to control for C. In the other case, controlling for C was the worst video I've ever done. That comes from causal reason, E. It doesn't come from any technique. I Well, as I just said, I
+
+Speaker 3  1:34:50  
+don't want to belabor this too much. I want to move on to show you an example.
+
+Speaker 3  1:35:03  
+Depending on what kind of personality type you are, you find this super intuitive or annoying. But even if you like this, this idea of showing that here's a treatment, here's an outcome that I'm interested in. Z here, even
+
+Speaker 3  1:35:32  
+if you like the great reasoning or writing things down, you might have noticed that one comment that we started the class with two weeks ago, three weeks ago, and spend a lot of time discussing maybe the idea of counterfactuals that is absent. You just write down random variables, encode their relationships between them, and read off relationships between them. But what about counterfactuals? More precise, the question is, what is the equivalent in a graphical framework to complex actions,
+
+Unknown Speaker  1:36:08  
+or even more so, what's the equivalent of potential outcomes? Now look at this example here. Same thing.
+
+Speaker 3  1:36:18  
+Assume, just for simplicity, that D has two states, zero and one treatment on or off. This is a measure continuous outcome. You
+
+Speaker 3  1:36:36  
+can distinguish between two ways or two machines of how change indeed comes about. And the literature has even these names. That's just stuff that Karl came up with. I'm not sure that's going to stick around forever. I put them here just so you know. But what really matters is that's going to speak around language might not formalism. Does English two settings. One is which code calls before intervention machine. That's just another way of saying that we think there is a value of d that is determined in some fashion. And you can read this off the graph, right? You can read out the relationship. If you ask me, How does e come about? Well, here you can say that I can clearly see that E is some function of c, right? And what's implicit in these graphs you allow for notice epsilon d or something like that. Is a function C and some residual or some noise. I write F because it's an arbitrary, arbitrary function. I don't specify that's just a ray of writing what you can read off the graph, right? That's just another way of saying that these generate value c takes on whatever p, d is. If P were a treatment, maybe think back to our college and earnings example, right? These going to college y would be earnings. And this is simply the structural equation that tells you how the choice to go to college or not comes about. Something that matters here z that I can measure, there's stuff that I can measure you decide to go to college is high ability or high motivation. The reason I decide not to go is because, or maybe they have the same measure ability, right? I'm lazy and you're not. That would be captured by the epsilon, whatever the selection equation looks that's what is the
+
+Speaker 3  1:39:04  
+um, how does it help help us? Well, curl is making the point that if what you want is an intervention on that graph, graph search, sometimes call it, there needs to be something that is that is representing a change, right? That's the invention table. It's
+
+Speaker 3  1:39:35  
+not very pretentious. It's do. Maybe means you can do something. There's a correlation between how smart people are and how fancy they name their concepts. Can you give example of only fancy words in the social sciences, like harness, you're fine, which is saying we do something. Well, what matters is simply the idea is to write do V equals one or do equals to zero. What that is supposed to encode is, I go to that graph, and by force, doesn't really matter if we can do it in practice or not, right? That's a concept of conceptual statement. We say, Well, if we do one or if we do zero, that's something I can do in principle. Remember, in the first week, I drew you the little circuit with the light switch. This is the light here. This is the switch. And this is some third thing that gets in the way that conditions both the state of the switch and the brightness in the room, what it could be. But let me hear right, if the operation of sending the switch full on wants to be kind of expressed more formally, we would write in the operation of carrying the job an experiment. Which takes people at random and flips a coin and puts one into the one group and one into zero group. That's just that. Now what you can do next then is you define probability distributions for the cause effects, right? You can write think of the probability distribution of Y conditioning on 2d equals one. And if the probability distribution of Y when D is equal to zero, the difference between two, that would be the column effect. Notice that they're not the same as the probability of y given t equal to one, right? Because that's the empirical evidence. These would be the pattern you see if you shift everyone into treatment or everyone out. So one encodes a manipulation. Lastly, this one describes the quantum structure that describes, sorry, an empirical
+
+Speaker 6  1:42:10  
+was that also the conceptual potential outcomes framework was there, was there when you said you cannot have we're saying observation like D is 1v, zero,
+
+Speaker 3  1:42:23  
+yes, but conceptually similar. Once you have introduced potential outcomes, random variables, you can have them both for the same, yeah, this is the equivalent, right for each unit. Imagine I set it to one or I set it to zero. That's not getting complicated, right? Operation? Of intervening into the structure, you can do it without introducing exponent variables.
+
+Speaker 7  1:42:58  
+The idea is that a before intervention regime doesn't allow us to make causal inferences.
+
+Unknown Speaker  1:43:05  
+That's not true. Okay, it depends how correct you are
+
+Speaker 7  1:43:10  
+on whatever you do, but the idea is that we would be better placed to make causal inferences if we were the one making the sort of intervention by manipulation, because then we're sort of severing the relationship that D has with C, right? Okay, I
+
+Speaker 3  1:43:30  
+should get it myself. I dislike equating experimental because it's a mistake. I'll teach you the party line. You're correct, right? If you think about experiments as the only thing that's good what represent an experiment is if I could go here right by force, do something to D, and that's completely unrelated to C, by force, change from D. What I'm really doing is I'm removing that relationship between right? Because my two here does not take into account D versus the structure relation between the two before intervention regime. This involves Z and even worse, a bunch of
+
+Speaker 7  1:44:14  
+I was gonna say so to your point about we can make causal inferences under the before intervention regime, depending on, I guess, how good your theory is about where the arrows go, right? That's the primary difference in terms of your ability to do that in Francis.
+
+Speaker 3  1:44:31  
+Yeah, you're the class, not everyone. That's a bad example to use because of measurement. Had a little, little example of us measuring the distance of the Earth and the Moon, and we can do that because we have mirrors on the moon, and we should laser count as it comes back, smarter students, over simplification, correct, over simplified. So I got curious, because there's a lot of confounders in that relationship. The clouds while you shoot the laser is not a good idea. But it gets worse, the Earth is not perfectly round, right nine, or is the move. They don't move like that and so forth. So I looked, I was curious what the state of the art is. I found a review paper in physics two or three years old, there was a description of just what they do to correct frame the most minute. I knew that our measure was less than a centimeter precise, the distance to the earth to move. But that's no longer true in less than a millimeter precise, because every single small be played off is being accounted for. Is there a little bit of randomness, yes, but in principle, physicists have gotten to the point that there's no manipulation and there's no causal inference of the distance of the Earth to the Moon, because we can, we can move neither object around by force. So we're left with empirical observation and they're confounded. There's cloud, there's dust hit the mirror just wrong. There's dust on those things. They're getting older. The Earth is not brown bubbles out of the way, the type matters. But you account for enough you account for enough factors. And you don't do it linearly, but you do it non linearly, you get pretty close, right? So in that sense, that can happen if you sometimes sciences, and all you know is that probably dozens of things that you haven't measured, then these two will be pretty far apart. But again, right? And others would say the value of this is mostly to make it easy for you to describe or formalize what the difference between the two is. They're not meant to be prescriptive. They're meant to be descriptive of what the causal problems are. Just to finish this up, right? So under this setting, the average causal effect is increment in the bar of ET be in the definition outcome setting value two operator is our
+
+Speaker 3  1:46:56  
+equivalent outcome state notation and what's what we just discussed in regards to experiments is described here right if I go ahead and set u equal to zero, I broke in that arrow here, which means to take difference between the two settings, I have lost a confounding
+
+Speaker 3  1:47:29  
+Fortunately, These were only the preliminaries. The real thing is now, have to do it. Consider the following structure, right? Those were primitives, right? In a sense, the smallest building block. We need to talk about some of these additional independence, independence relationships. In practice, most problems look more complicated. Even look more complicated than this. But again, minimum setup I can use to show this, let's see if an outcome y, here treatment D, if there's some selection going on, right? So you have a covariate C that affects d, z does not affect y, but it does affect some other outcome. All that you also have intuitively tell me what needs to be the case. Maybe by asking you to be interested in the effect of D or y, what should you control for you could guess what the right answer is. That's not the interesting part. The more interesting part is, can we formally figure out which is, which one thing you do in your mind, I'm pretty sure you did right. Is C, something I need to control or worry for. Why do I worry about C? I would worry about C. It affects D as plus y. Does C affect D? Yes. Does C affect y? Well, not directly, but it clearly does. It this way. More formally, what you can always do is you start at a treatment, because that's what you really care about, right? If there's a variable that only affects the outcome, well, that just eats up some of the variance, but that slices the variance has nothing to do with the cosmic that you see. So you only care about variables that affect both the outcome in a treatment. Why not start at a treatment and then see if there are paths to the outcome? This is usually called the backdoor path. The backdoor path is what all C, shapes D, also shapes O, also shapes y. So that's a vector path from D to y that is not direct f1 that's what we want. The indirect one is what we don't want. That makes sense, right? Decomposition. If you're looking at the effect of D on Y, here's the one that you want. That would be the causal one. There's also an indirect path which involves things. So if the question is, well, what should I control for? Well, the answer would be any variable that closes that path, right? So you could control for C, drop down, or you could control for all, job done, control for both, but that's redundant.
+
+Speaker 9  1:50:29  
+Make sense? Would there be any problem with controlling for both, some sort of a sense of
+
+Unknown Speaker  1:50:38  
+empirically highly correlated? It's
+
+Speaker 3  1:50:48  
+a very good question, because now the next question is the rocket and I control for everything from now on, because you remember our discussion of the collide early then
+
+Speaker 3  1:51:03  
+let me give you the more precise definition. Just it truly be pretty obvious, but if you want to express it in graphic language, right? What is a vector? A vector is any cost between a causally ordered sequence of two variables. That's just saying I need to know what the order is. One thing needs to be treatment. Another thing needs to be outcome. This may be obvious, precision is helpful, and it begins with a directed edge that points to the first variable. Don't right? That's a backdrop, right? Because if this wouldn't point to D, or the edge would be the other way around. If you were to point to z, I would also be looking at, I would be looking at a completely different thing, looking at a mechanism explain why. Needs to be a directed edge that points towards the first variable in mind, first variable is the treatment.
+
+Speaker 7  1:52:22  
+Why? What is the sort of substantive difference between a chain of mediation and C being mechanism? Same thing?
+
+Speaker 3  1:52:32  
+I shouldn't, I shouldn't say most people in our world think of mediation is capturing the mechanism.
+
+Speaker 3  1:52:51  
+Well, once you've realized that you can figure out what is called the backdoor criteria, and those are literally just mechanical rules for determining for a set of variables if we should be condition one. And what's the goal? The goal is to block all vector paths. In this little example, there's exactly one here, and you want to block it, you can think of more complicated structures. You could have more than one open vector, and the role is not all. Those are the graph that generate non causal associations. And
+
+Speaker 3  1:53:38  
+I was getting late. I also want to follow you too much with this
+
+Speaker 3  1:53:47  
+refresh. Maybe before we talk about this, let me also just tell you what the dream is. If you're a computer scientist, right, the dream is that you write out a kg, no matter how complicated or how big it is. And what you then do is use a machine that wanders around that graph and figures out should be controlled for that's the goal, right? That's where that originally comes from, 80s and early 90s in machine learning on causative stuff, right? You think about, how should a robot learn about is a very environment, their environment, you end up facing profits, just like that, right? You know this, the bottle talks over. So to some degree, people were quite over optimistic in the early 90s about the ability to learn causal structures from observation at all. These were the basic models that were very popular. People got a bit more wise multitude of problems that you're facing. That being said, we're now much, much closer at learning causal structural relationships from observations using these tools depending on the problem, it is not too difficult to figure these things out in a social science context. If let's assume the graph you have written down is correct, you can just figure out the vector path and decide what you need to control for often that is quite helpful for people to think. But you can also automate this, because the rules to follow are algorithmic. They're mechanical. In a sense, if you don't need any special insight or ability, the rules are sharp enough graph you can follow a set of rules and tell us which are the controls we should include. Or if you, for example, say there's an unobservable variable here, is this a problem for identification? Would people always say, Yes, right? Doesn't have to be. If you get lucky, there's enough things you can screen off. Maybe doesn't matter. You can figure this out purely. But for this you need, we need to have a somewhat well defined conditions for things after that, two examples, but bear with me here. More formalistic, what we want to achieve is all the vector want to have broken. How do we get there? Well, write it down in more loose language, all vector paths between a positive variable and the outcome are blocked after conditioning on a set Z, because this
+
+Unknown Speaker  1:56:36  
+could be one, could be many, which will be true
+
+Unknown Speaker  1:56:43  
+if each vector path another list of
+
+Speaker 3  1:56:50  
+condition A contains the mediation chain, we know what it is like, A to Z, forward more forward motion, conflict, where z is in z set we want, or it would be less powerful. It's condition one. Or if C, the chain we're looking at, contains a mutual dependence of common cost chain. Remember how that looks like, right? You have z, where you then include Z set of controls, or you're looking at the vector R contains a neutral causation chain, A and B both affect Z. The collider with C and all of its descendants, all its children in the graph, are not in Z. You can be condition. You can control for colliding. I discussed this at length earlier on. That's condition one. Only one of these needs to be true. Second condition is that no variable in C that are descendants of the constant variable that lie on any of the directed paths, beginning at the cost variable and reaching the output. That just means not including resultants the system. This is all you need. It sounds pretty abstract, right? But let's go back to our example. Here. What structure do we have? The factor path here. Is it a mediation style path? Option, a No, right? Is it a mutual dependence type chain, E, right. Z points to d plus 2o, right. So z now goes into the set Z, you store the way, you keep moving through and you find, what about this thing? Z or D? That's just a deviation part. So overview the set, and then next step would be figure out what's the minimum set that you need. And you would easily figure out that both C and R do the job, or both of the norm that make sense. You look for those figures in this formalistic way. If this graph had hundreds of nodes and it was gigantic, for example, the graph I create by literally letting a little machine run around or your room bar mapping out your house. Robot. Robotics has that problem, then you can solve that through it's just more tedious. Write it as an algorithm. I Okay, we go until 50. I'll let you go earlier. Let me give you a slightly more realistic example. Look at this problem. Here. You have an outcome y, you have the variable x, that's what you interest. Interested in. But you know that there's a whole bunch of things going on, right? First of all, there's a confounder that affects x as well as a y indirectly, right? Because there's another variable z that shapes two, right? So you're looking at a structure where you think that there's a confounder Z that shapes both x and y, maybe the influence on x is not directed some other variable, and you think of another variable z that would be brought up immediately in the standard some variable that affects both the outcome as well as assignment treatment. The bad thing is that you can envision, or you know that this thing is also other things that are somehow related to y, z4, there has nothing to do X, Y directly. But you also realize that via this important variable that everybody knows I'm calling now. You have a literature on Z and Y, and you propose x, and then there's another literature that proposes c1 and c2 realize that, okay, if this literature is correct and this literature is correct, both things have to be true at the same time in a world where I can disentangle the is from whatever is here. If you use the rules I've given you before, and you just traverse the path, what you end up with is the following answer and identify the cause effect of y. It's just a conditional probability distribution. That's what I'm conditioning on. Both c1 and c3 it's maybe somewhat obvious, depending on how you look at it, right, this vector path, the vector path right because the edge goes towards x. So this is the vector path I condition on z, that part is closed within the other path. This is a factor. Path also reaches y a control for c4 doesn't work. Control c5 rotation on c3 that does work. There's another one you could do. You could block on c2 and c3 you
+
+Speaker 3  2:02:33  
+another example, maybe a bit more realistic, it's positive. One problem to face, very interesting x is the outcome. There's a mechanism in the middle, or something like that, right? So here, the problem with mechanisms is often that they also open the way for more, better paths. A lot of time. This was not created by social science scientists, because science is about mechanisms, right? That's true the natural sciences. But the problem is, once you start studying mechanisms, there are also now more nodes that can be affected by other things that the chance of having vector path goes up to the unfortunate side effect of these things is exactly what's happening here, right here?
+
+Unknown Speaker  2:03:14  
+X founder creating a macro path, right? Because there's also a variable that lies on the path from z2
+
+Speaker 3  2:03:27  
+to x, and unfortunately, that's correlated with x. There's another unobservable in there, there, and even worse, at least 12. Well, if you trace it through. I leave that as an exercise in your free time. But you can see, if you adjust for c2 and c3 your problems solve, right? That's the proper you can easily learn of the relationship between x and y, c2 and c3 you need c3 to plot all the other sub parts. C1 you would not condition on because that's harmless in the middle, drop it on c3
+
+Speaker 4  2:04:12  
+when you think about this in practice, if c1 is conditional, and so it's not technically in the minimal conditioning set. Does that mean that you wouldn't necessarily like if you're assigning variables and you're thinking about how you might test this, you still need to have a c1 concept. Or is it that get rid of that
+
+Speaker 3  2:04:33  
+completely? The seminar tells you, Well, then you've forgotten about c1 then the question is, what? Okay? Is this just a mediating variable? Yes, without any other statement, then the person would need to come up with a statement says, and I think that mediator is correlated with c3 then he would say, okay, but I plot on that, and you can see you would reason downward. Downwards for that. If that makes sense, it doesn't matter if you can if this were the true structure, then it doesn't matter if you measure c1 or not, right? If you didn't have a variable for it, you wouldn't care about it. Wouldn't be a problem, okay?
+
+Unknown Speaker  2:05:18  
+It wouldn't be a problem for causal inference. Giving would be incomplete if you
+
+Speaker 3  2:05:25  
+wanted to know about how much of the effect from x on y is due to c1. Of course you would need to measure c, yeah. But if you only interested in the cost effect of x and y, and someone brings up c1. This is the structure that is correct, that it doesn't matter if you have measured variable for it, you can be off that chart. That is not a problem, versus if you find out and in my data doesn't have c3 this structure is true because you need to have right, because you need to adjust. Yeah, thank you.
+
+Speaker 5  2:06:07  
+So example, we want to measure how much X effects on y goes up, goes through c1 in that case, we'll need to take all the back door path from x to c1 and c1, to y, I
+
+Unknown Speaker  2:06:23  
+ask for
+
+Speaker 3  2:06:26  
+your forgiveness. That's not the topic. I want to get it. These kind of mediating chains are tricky to do well for reasons that are now much easier, you're correct in how you think about it and guys. Does that make sense? Of course, it could be that our research problems are always such that everything that doesn't have a double headed arrow currently should have price. Everything is correlated with everything. It could be true. The point here is not that those are matching devices solving all your problems, but problems. These are very strict way to write down what you think the causal problem is like if you have some control over what you're studying, it is not uncommon to find, or at least, maybe more realistically, in social science applications, you could think that I capture the ones that really matter. There might be some confounders, inferences smaller.
+
+Speaker 3  2:07:28  
+And the cool thing, of course, about this is that, in a sense, the set of rules, or the fact that we have a theorem that tells us that if all of these is true and these two are true, then we can eliminate a vector path that allows for algorithm parsing, which is, in some sense, it's also neat that there's enough literature on it that chat GPT knows, knows it quite a ways. I took this and paid it. It knows what that is. It can read of the relationships. It absolutely knows that this is founding. Funny. Clearly knows what backdoor paths are, identified them. He clearly knows the parsing goals of kernels to try to do it. It's just that, so you get, like, one and a half pages a month of conditional programming. It's just the answer is bullshit. Is there, as a small Tailor of warning, trust but verify, or at least know enough that you recognize when your LLM was pretending to be a quantum inference machine. To be fair, I think it actually got it wrong because it misread one of the paths, because in principle, those things should be computer solvable is enough systems that do that. I wouldn't use llms for it.
+
+Unknown Speaker  2:08:53  
+Okay? All right,
+
+Speaker 3  2:08:57  
+I leave it there. There's a lot to be said about these kind of things. There's a lot of work that is currently being done, but let me just take take back and paint the picture where we'll go next. Right now, we have two ways of thinking about causal problems, and we hopefully have a way to write them down slightly more clearly potential outcomes. If you really need to think about counterfactual States a lot, if we instead, maybe want it easy to look at picture where we have observed relationships and easily draw unobserved relationships in there and maybe read off what happens. Perhaps a nice interested in machine learning, the proper sense of the world, the world work, you need to study this. But in that. But both tools could be useful for different things. Give an example. When I explain, if I explain instrumental variables to you directly, the secret graphs are pretty neat, because an instrument would just be an easy thing to draw on the graph. It would be very easy to visualize what needs to be true for an instrument would be a proper instrument, and what cannot be true substitute. But then we will also use potential notation to study some other characteristics. But it often is. It's quite helpful to jump back and forth between the two ways of expressing causal problems, and you will find that the literature increasingly does that as well. Different authors might be potential outcome notation in papers. Other authors might use directors what you should probably not do that. That bothers me a little bit. It's showing up. They put in science papers. They don't do the all sociology one and just call it every single graph, because it sounds fast. That's just some bullshit that cannot happen. It's happening a lot. So remember, right, that the point of these things is not to chart out some simple relationships. The point is you have to answer for yourself which errors if you say that. I have a theory about something. It affects something else. Draw here some other thing that's maybe a confounding variable, and then you draw me this right? Tell me. Here's my very deceptive graph. That's why I control for that. That's ridiculous, right? The immediate question is like, Why do you think business looks like? Right? It's an unobservable thing that I'm
+
+Speaker 3  2:11:37  
+trying to express is that drawing these things is reasonably easy if you involve the help of a computer or some software program. Parsing these things is also easy. It's pretty obvious that the hard part is to figure out how to encode what we think the constant problem is into that. Unfortunately, I got less than I would like, because it depends on what you study right. For some things, it's pretty easy to enumerate what other problems would be, and you just have a sense of like, here's something that I know exists, but I can't measure in other settings. You study things, it's almost impossible to think of how many unobserved things could matter. Or I've used these things with colleagues in a technology setting where all you have, I said, your population rates, it is not too difficult to list off the key compound. And we usually know one thing that we can see that goes on the graph, and you can figure out what's what that works recently, but I frequent papers where I studied people's preferences, I would be hard pressed to write just just too many doesn't mean they're not useful. I guess I'm making triple statement, like if you know the correct causal structure of your problem, many solutions are obvious to you. The problem is, of course, that you often do not. But then again, the more explicit research acknowledging effect is also better than what we have now, where people usually say that nothing is identified.
+
+Unknown Speaker  2:13:33  
+Well you have been
+
+Unknown Speaker  2:13:42  
+very sorry. Future
+
+Speaker 3  2:13:45  
+choice, all right?
+
