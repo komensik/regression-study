@@ -24,24 +24,31 @@ library(kableExtra)
 library(broom)
 library(marginaleffects)
 library(lmtest)
-library(stargazer)
+library(AER)
+library(stringr)
+library(tibble)
+
 
 ```
 
 ## Problem 11
 
-###1a.
+### 1a. WLS: Resent on pslave1860
 
 ```{r, echo=FALSE}
+#if laptop
 abs_data <- read.csv("abs_data.csv")
 
 #inspecting data
+
 class(abs_data$water1860)
+
+#class(abs_data$water1860)
+
 
 #converting water to factor ?????
 
 #convert state.abb to factor from chr
-
 abs_data$state.abb_af <- factor(abs_data$state.abb)
 
 #table(abs_data$state.abb_af)
@@ -51,10 +58,9 @@ abs_data$state.abb_af <- factor(abs_data$state.abb)
 #natural log of coarea00
 abs_data$ln_coarea00 <- log(abs_data$coarea00)
 
-summary(abs_data)
+#summary(abs_data)
 
 # latitude and longitude
-
 abs_data$latitude_sq  = abs_data$latitude^2
 abs_data$longitude_sq = abs_data$longitude^2
 ```
@@ -68,249 +74,290 @@ cleaned_abs <- abs_data[complete.cases(abs_data[clean_abs]),]
 
 ```
 
-
-
-
-
-
 ```{r, echo=FALSE}
 #wls model
 
-m1 <- lm(resent ~ pslave1860 + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af, data = abs_data, weights = sample.size)
+#m1 <- lm(resent ~ pslave1860 + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af, data = abs_data, weights = sample.size)
 
-summary(m1)
+m01 <- lm(resent ~ pslave1860 + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af, data = cleaned_abs, weights = sample.size)
+
+
+#summary(m1)
 #confint(m1, "state.abb_afWV", level = 0.95)
 
-sum(is.na(abs_data$state.abb_afWV))
+#summary(m01)
+
+c_ols <- coeftest(m01, vcov. = vcovHC(m01, type = "HC3"))
+
+#sum(is.na(abs_data$state.abb_afWV))
 
 ```
 
-** account for weights in below
-weighted by sample size in county -- samples from counties with fewer respondents given less weight because they have higher variance
+Note: I tested for heteroskedasticity on fitted model m01:
 
-###1b.
-
-Coefficient for pslave1860 is 0.1523... a one unit or 10% increase () in the proportion of a county's 1860 population that was enslaved is associated with a 0.01523 percentage point increase in anti-Black attitudes today, holding all else constant, but the relationship isn't statistically significant (95% CI includes 0, p = 0.13). Because of fixed effects for states, this reflects estimates of within-state comparisons.
-
-Note on scale: -1 unit change in pslave1860 means +1 proportion, so +100percentage points (0 to 1) but that's nonseniscal, so a 1 percentage point increase (beta times 0.01) gives a 0.001523 percentage point on resentment.
-
-###1c. Coefficient for water1860 is -0.05510.
-
-All else constant, counties with access to navigable water have an average of 0.055 lower levels of racial resentment today than those without, holding all else equal. This, however, is also not statistically significant (95% CI includes 0, p = 0.094)
-
-###1d. Alabama was excluded as the baseline, WV = 0.02606
-
-All else constant, counties in West Virginia have 0.369 higher levels of racial resentment today compared to those in Alabama - this would be surprising given the author's hypotheses since West Virginia had a smaller enslaved population. This appears statistically significant (95% CI (0.04, 0.69) is narrow and doesn't cross 0, p = 0.026).
-
-**Should I use robust standard errors?** 
-*Could test for need (hetero) first, by:*
-- looking at both weighted and unweighted models
-
-unweighted model
-```{r}
-
-m0 <- lm(resent ~ pslave1860 + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af, data = abs_data)
-
-bptest(m0)
-```
-
-#residuals - used squared residuals as an estimate of the Var(ui) and check extent to which they can be explained by x_i 
-```{r}
-
-```
-
-
-```{r}
-#B-P Test
-
-library(lmtest)
-
-bptest(m1)
-
-```
-B-P Test results:
-
-	studentized Breusch-Pagan test
-
-data:  m1
-BP = 36881, df = 21, p-value < 2.2e-16
-
-```{r}
-#White Test -- uses fitted values and their square
-
-#unweighted by 'hand'
-e2   <- residuals(m0)^2
-yhat <- fitted(m0)
-aux  <- lm(e2 ~ yhat + I(yhat^2))          # auxiliary regression
-LM   <- nobs(aux) * summary(aux)$r.squared # LM statistic
-p    <- pchisq(LM, df = 2, lower.tail = FALSE)
-c(statistic = LM, df = 2, p.value = p)
-
-
-#below not working
-#bptest(m0, varformula = ~ fitted(m0) + I(fitted(m0)^2))
-
-```
-
-F-Test
-```{r}
-
-m1_res_1 <- lm(m1$residuals^2 ~ m1$model[,2] + m1$model[,3] + m1$model[,4] + m1$model[,5] + m1$model[,6]+ m1$model[,7] + m1$model[,8] + m1$model[,9] + m1$model[,10]+ m1$model[,11])
-
-summary(m1_res_1)
-
-```
-
-
-
-
-(a) looking at plot of
-
-```{r}
-
-mtest <- lm(pslave1860 ~ cottonsuit, data = abs_data)
-
-plot(abs_data$cottonsuit, abs_data$pslave1860, xlab = "x", ylab = "y",)
-abline(lm(pslave1860 ~ cottonsuit, data = abs_data))
-
-```
-
-```{r}
+```{r eval=FALSE, include=FALSE}
+#residuals vs. fitted plot (diagnostic, not formal -- useful for notation)
+plot(m01$fitted.values, resid(m01),
+     xlab = "Fitted Values", ylab = "Residuals",
+     main = "Residuals v Fitted")
+abline(h=0, col = "red")
 
 
 ```
+
+-   a BP Test showed evidence of heteroskedasticity
+
+```{r eval=FALSE, include=FALSE}
+bptest(m01)
+```
+
+-   as did White's test
+
+```{r eval=FALSE, include=FALSE}
+
+bptest(m01, ~ fitted(m01) + I(fitted(m01)^2), data = data.frame(fitted = fitted(m01))) 
+
+```
+
+Redid model interpretation with omitted NAs (should have done first) and reporting robust HC3 standard errors.
+
+### 1b. Interpretation: pslave1860
+
+Coefficient for pslave1860 is 0.1281. This means a one unit or 10% increase in the proportion of a county's 1860 population that was enslaved is associated with a 0.1281 percentage point increase in anti-Black attitudes today, holding all else constant.
+
+However, there is no evidence we can reject the null -- the P is 0.45 over 0.05, the confidence interval crosses 0 (95% CI includes 0, p = 0.45).
+
+Because of fixed effects for states, this reflects estimates of within-state comparisons.
+
+Note on scale: -1 unit change in pslave1860 means +1 proportion, so +100percentage points (0 to 1) but that's nonseniscal, so a 1 percentage point increase (beta times 0.01) gives a 0.001281 percentage point on resentment.
+
+```{r eval=FALSE, include=FALSE}
+#confidence intervals by hand with robust SEs
+B <- coef(m01)
+
+V.robust_ols <- vcovHC(m01, type = "HC3")
+
+se <- sqrt(diag(V.robust_ols)) 
+  
+cbind(
+  B + qt(0.025, df=m01$df.residual) * se,
+  B + qt(0.975, df = m01$df.residual) * se
+)
+
+```
+
+### 1c. Interpretation: Water access
+
+All else constant, counties with access to navigable water have an average of 0.052621 lower levels of racial resentment today than those without access, holding all else equal. This, however, is also not statistically significant (95% CI includes 0, p = 0.23)
+
+### 1d. Interpretation: West Virginia
+
+Alabama was excluded as the baseline, WV = 0.3845
+
+All else constant, counties in West Virginia have 0.36845 higher levels of racial resentment today compared to those in Alabama - this would be surprising given the author's hypotheses since West Virginia had a smaller enslaved population. This is more significant than water and percent enslaved, but still short of statistical significance (95% CI crosses 0, p = 0.07).
 
 ## Problem 2
 
-###2a.
+### 2a. ivreg
 
-```{r, echo=FALSE}
-m2 <- ivreg(resent ~ pslave1860 + ln_coarea00 + rugged + latitude + longitude  + longitude_sq + water1860 + state.abb_af | + ln_coarea00 + rugged + latitude + longitude  + longitude_sq + water1860 + state.abb_af + cottonsuit, data = abs_data, weights = sample.size)
-summary(m2)
+```{r include=FALSE}
+m02 <- ivreg(resent ~  pslave1860 + 
+               ln_coarea00 + rugged + latitude + longitude  + latitude_sq + longitude_sq + water1860 + state.abb_af 
+             | cottonsuit + ln_coarea00 + rugged + latitude + longitude   + latitude_sq + longitude_sq + water1860 + state.abb_af, data = cleaned_abs, weights = sample.size)
 
-confint(m2, "pslave1860", level = 0.95)
+
+c_2sls <- coeftest(m01, vcov. = vcovHC(m01, type = "HC3"))
+
+#confint(m2, "pslave1860", level = 0.95)
 ```
 
-Now without NAs
+```{r include=FALSE}
+#confidence intervals by hand with robust SEs
+B_2sls <- coef(m02)
+
+V.robust_2sls <- vcovHC(m02, type = "HC3")
+
+se_2sls <- sqrt(diag(V.robust_2sls)) 
+  
+cbind(
+  B_2sls + qt(0.025, df=m02$df.residual) * se_2sls,
+  B_2sls + qt(0.975, df = m02$df.residual) * se_2sls
+)
+
+```
+
+### 2b. Table
+
+```{r echo=FALSE, warning=FALSE}
+#prep sig test vars
+
+# pull pieces of robust models as named vectors
+b_ols  <- c_ols[, "Estimate"]
+se_ols <- c_ols[, "Std. Error"]
+p_ols  <- c_ols[, "Pr(>|t|)"]
+
+b_2sls  <- c_2sls[, "Estimate"]
+se_2sls <- c_2sls[, "Std. Error"]
+p_2sls  <- c_2sls[, "Pr(>|t|)"]
+
+# star function (journal-style)
+stars <- function(p) {
+  ifelse(is.na(p), "",
+    ifelse(p < .01, "***",
+      ifelse(p < .05, "**",
+        ifelse(p < .10, "*", "")
+      )
+    )
+  )
+}
 
 
-###2c. 
-pslave1860 interpretation 
-- 0.666 in 2SLS, v. 0.1523 in WLS alone
+#variables to display
+vars <- c(
+  "pslave1860",
+  "ln_coarea00","rugged","latitude","longitude","latitude_sq","longitude_sq","water1860",
+  grep("^state\\.abb_af", names(b_ols), value = TRUE)
+)
+
+#  classify rows for non "Sample" column
+row_class <- function(v) {
+  if (v == "pslave1860")          return("Main IV")
+  if (str_detect(v, "^state\\.abb_af")) return("State FE")
+  return("Control")
+}
+
+#constructing the table body
+tbl_bod <- tibble::tibble(
+  Variable = vars,
+  Type = sapply(vars, row_class),
+   OLS_Beta = b_ols[vars],
+  OLS_SE   = se_ols[vars],
+  OLS_p = p_ols[vars],
+  `2SLS_Beta` = b_2sls[vars],
+  `2SLS_SE`   = se_2sls[vars],
+  `2SLS_p` = p_2sls[vars]
+) %>%
+
+#rounding
+dplyr::mutate(
+    OLS_Beta   = round(OLS_Beta, 3),
+    OLS_SE     = round(OLS_SE,   3),
+    `2SLS_Beta`= round(`2SLS_Beta`, 3),
+    `2SLS_SE`  = round(`2SLS_SE`,   3)
+  ) %>%
+
+#stars to beta cols
+  dplyr::mutate(
+    OLS_Beta    = paste0(OLS_Beta, stars(OLS_p)),
+    `2SLS_Beta` = paste0(`2SLS_Beta`, stars(`2SLS_p`))
+  ) %>%
+  # drop p cols
+  dplyr::select(Variable, Type, OLS_Beta, OLS_SE, `2SLS_Beta`, `2SLS_SE`)
+
+
+#observations (counties)
+N_ols <- nobs(m01)
+N_2sls <- nobs(m02)
+
+
+#r2
+r2_ols <- summary(m01)$r.squared
+r2_2sls <- summary(m02)$r.squared
+
+# sum of weights (respondents) if you want to show it
+sum_w <- sum(model.weights(model.frame(m01)))
+
+#footer rows to character for blank space
+f_num <-function(x) ifelse(is.na(x), "", format(round(x,3), nsmall = 3))
+tbl_footer <- tibble::tribble(
+  ~Variable,             ~Type, ~OLS_Beta,            ~OLS_SE, ~`2SLS_Beta`,         ~`2SLS_SE`,
+  "N (counties)",        "",      as.character(N_ols),  "",      as.character(N_2sls),   "",
+  "Sum of weights",      "",      as.character(sum_w),  "",      as.character(sum_w),  "",
+  "R²",                  "",      f_num(r2_ols),      "",      f_num(r2_2sls),       ""
+)
+
+#combine
+tbl_tbl <- dplyr::bind_rows(
+  tbl_bod %>% dplyr::mutate(dplyr::across(dplyr::everything(), as.character)),
+  tibble::tibble(Variable = "—", Type = "", OLS_Beta = "", OLS_SE = "", `2SLS_Beta` = "", `2SLS_SE` = ""),
+  tbl_footer
+)
+
+#render
+tbl_ttl <- "Table 1. Examining Slavery's Impact on Contemporary Racial Resentment, Using Soil Suitability for Cotton as an Instrument"
+
+tbl_tbl %>%
+  kbl(
+    align = c("l","l","r","r","r","r"),
+    booktabs = TRUE,
+    caption = tbl_ttl,
+    col.names = c("Variable","Type","Beta","SE","Beta","SE")
+  ) %>%
+  add_header_above(c(" " = 2, "OLS" = 2, "2SLS" = 2)) %>%
+  kable_classic(full_width = FALSE, html_font = "Times") %>%
+  row_spec(nrow(tbl_bod) + 1, extra_css = "border-bottom: 1px solid;") %>% 
+  footnote(
+    general = paste0(
+      "Weighted least squares by county sample size. Two-stage least squares uses soil suitability for cotton as an ",
+      "instrument for 1860 slave proportion. Robust (HC3) standard errors reported. ",
+      "Alabama omitted as the comparison category for state fixed effects. ",
+      "Significance codes: * p < 0.10, ** p < 0.05, *** p < 0.01."
+    ),
+    threeparttable = TRUE, general_title = ""
+  )
+```
+
+### 2c. Interpretation: pslave1860
 
 A one unit or 10% increase in the proportion of a county's 1860 population that was enslaved is associated with a 0.666 percentage point increase in anti-Black attitudes today, holding all else constant.
 
 ..the relationship isn't statistically significant (95% CI includes 0, p = 0.17). Because of fixed effects for states, this reflects estimates of within-state comparisons.
 
-The coefficient for pslave 1860 is produced from using soil cotton suitability as an instrument. 
+The coefficient for pslave 1860 is produced from using soil cotton suitability as an instrument.
 
+Notes:
 
--This means that cotton suitability was regressed on pslave1860 and all predictors. 
--This assumes that soil cotton suitability affects contemporary levels of county racial resentment through and only through the amount of slavery (measured as proportion of population in that county enslaved in 1860). 
-- This assumption could be problematic, if the suitability of soil for growing cotton impacts contemporary racial resentment via other channels. 
+-   This means that cotton suitability was regressed on pslave1860 and all predictors.
 
+-   This assumes that soil cotton suitability affects contemporary levels of county racial resentment through and only through the amount of slavery (measured as proportion of population in that county enslaved in 1860).
 
-###2d. two-stage approach
+-   This assumption could be problematic, if the suitability of soil for growing cotton impacts contemporary racial resentment via other channels.
 
-```{r}
+### 2d. Two-stage approach
+
+```{r echo=FALSE}
 #for endogenous variable in the model, regress it on all exogenous independent variables and all instruments. generate predicted values from those first stage regressions.  
 mS01 <- lm(pslave1860 ~ cottonsuit
           + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af , data = cleaned_abs, weights = sample.size)
 
+cleaned_abs$pslave_hat <- fitted(mS01)
+
+
 #Include predicted values as substitute predictors for the original exogenous version.
 
-mS02 <- lm(resent ~ mS01$fitted.values
+mS02 <- lm(resent ~ pslave_hat
           + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af, data = cleaned_abs, weights = sample.size)
 
-summary(mS02)
-
-
-
 ```
 
+Does two-stage approach get the same as ivreg 2SLS?
 
-PROCEED - does two-stage approach get the same as ivreg 2SLS
 ```{r, echo=FALSE}
+#summary(mS01)
+#summary(mS02)
+#summary(m02)
 
-m02 <- ivreg(resent ~ ln_coarea00 + rugged + latitude + longitude  + longitude_sq + water1860 + state.abb_af | + ln_coarea00 + rugged + latitude + longitude  + longitude_sq + water1860 + state.abb_af | pslave1860 | cottonsuit, data = cleaned_abs, weights = sample.size)
-summary(m2)
-
-
-
-
-```
-
-
-
-###2b. Construct a professional looking table that includes the results for both the WLS and the 2SLS results. The table should be labeled appropriately so that a reader can understand what they are looking at (e.g., titles, variable labels, any notes they might need, sample size, etc.). Construct the table as-if you were submitting this to a journal.
-
-me trying stargazer slowly
-
-```{r}
-
-#simple per model
-stargazer(m1, type = "text", out = "models.txt" )
-
-
-stargazer(m2, type = "text", out = "models.txt" )
-
-
-#seperate first stage so cottonsuit gets reported
-firststage <- lm(
-  pslave1860 ~ ln_coarea00 + rugged + latitude + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af + cottonsuit, data = abs_data, weights = sample.size
-)
-
-#simple table now with m1 m2 and first stage of m2
-
-stargazer(
-  m1, m2, firststage,
-  type = "text",
-  out = "models.txt",
-  column.labels = c("Model 1 - OLS", "Model 2 - 2SLS", "First Stage"), dep.var.labels = c("resent", "resent", "pslave1860"),
-  model.numbers = FALSE,
-  
-  keep = c(
-    "pslave1860",
-    "ln_coarea00",
-    "rugged",
-    "latitude$",
-    "longitude$",
-    "latitude_sq",
-    "longitude_sq",
-    "water1860",
-    "cottonsuit"
-  ),
-  covariate.labels = c(
-    "1960s Proportion Enslaved",
-    "County Area (log)",
-    "Land Ruggedness Index",
-    "Latitude",
-    "Longitude",
-    "Latitude Squared",
-    "Longitude Squared",
-    "Water Access 1860 (Y/N)",
-    "Cotton Suitability Score (Instrument)"
-  ),
-  
-  add.lines = list(
-    c("State Fixed Effects", "Yes", "Yes", "Yes"),
-    c("Excluded Instrument", "", "cottonsuit", "cottonsuit")
-  ),
-  notes.append = FALSE
-)
-
-#test joint
-
-
-stargazer(m1, m2, type = "text", 
-           out = "models.txt")
+c("manual_2sls" = coef(mS02)["pslave_hat"],
+  "ivreg_2sls" = coef(m02)["pslave1860"])
 
 ```
 
-interpretation of table 514pm
+### 2e. Interpretation: Instrument strength
 
-1960s proportion enslaved
+Looking first at the t value for cottonsuit in the first stage model, the t value is very large (9.707) and p value is less than 0.05 (almost 0, \< 2e-16). The coefficient is 0.408.
 
--   OLS coefficient 0.152 tells us that a unit change in the proportion of the enslaved population in a county in 1860, holding everything else fixed, is associated with a a 0.01523 percentage point increase in anti-Black attitudes today. the standard error reported
+Next, I compare the 2sls version of pslave to WLS. The increased coefficient estimate suggests that the OLS was downward-biased + inconsistent, and the effect of pslave1860 attenuated.
 
-###2e. no Sargan here because with only one instrument for one endogenous regressor, the model is exactly identified (no over-identification, so no Sargan over-id test is applicable)
+I can reject the null at 5% because the Wu-Hausman test is *just* under 0.05. But it's also not that low. However, the F stat from the weak instrument test is far over 10 (94.225) and it's p-value almost 0, suggesting cottonsuit is a strong instrument.
+
+There's no Sargan here because with only one instrument for one endogenous regressor, the model is exactly identified (no over-identification, so no Sargan over-id test is applicable)
