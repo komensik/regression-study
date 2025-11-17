@@ -9,110 +9,224 @@ format:
 
 ```{r, setup, echo=FALSE, warning=FALSE, include=FALSE}
 
+library(ggplot2)
 library(knitr)
 library(kableExtra)
-library(tidyverse)
-library(ggplot2)
-library(dplyr)
-library(haven)
-library(cobalt)
-library(MatchIt)
-library(readstata13)
-library(boot)
-library(marginaleffects)
-library(data.table)
-library(sandwich)
-library(lmtest)
 library(rdrobust)
+library(mpower)
 
 ```
 
-Idea of this assignment is to study a fundmaental assumption underlying RDD
+Note: Pretending I am interested in whether experiences with the the CJ system change how people think about policy/politics. I want to know if *being incarcerated* or crossing some threshold of exposure causes people to see the world differently. Pretending that there is such a thing as a 0-100 sentencing score that determines whether someone is sentenced to prison time or parole at 50 (at or greater means prison, less means parole), and that is my effectively arbitrary cutoff turned randomization device. (A bad example in a lot of ways)
 
-First
+So:
 
-create simulated data from an RDD data generating process (look at lab) and estimate the treatment effect using a suitable RDD estimation strategy.
+-   running/forcing/assignment variable is sentencing score
 
-```{r}
+-   cutoff: where treatment rule switches is 50 points
 
-#THIS IS VERBATIM FROM LAB
+-   treatment assignment: defendants above 50 get treatment, below do not
+
+-   outcome: policy support
+
+-   key assumption: all traits (both observed and unobserved) other than sentencing score change smoothly with the score, except for treatment
+
+-   estimation: compare predicted outcome (policy support) on either side of 50 (the "jump") using local regressions
+
+```{r, warning=FALSE}
+
 set.seed(15000)
 
+# set up simulation for the running variable
+running_var_sent_score <- rnorm(2000, 50, 20) #normally distributed with mean 50, sd 20
+running_var_sent_score <- running_var_sent_score[running_var_sent_score >= 0 & running_var_sent_score < 100] #truncated to the [0,100) interval, so observation's treatment status will depend on whether it running var is above or below 50 
 
-x <- rnorm(2000, 50, 20) #simulate
-x <- x[x >= 0 & x < 100] #the data
+# create the treatment assignment -- here is where "defendents whose sentencing scores is less than 50" are assigned to the treatment (incarceration) (D=1), otherwise parole (0). "This is "deterministic discontinuity / the "sharp" RDD setup
+D_prison_time <- ifelse(running_var_sent_score > 50, 1, 0)
 
-# c_0 at 50
-D <- ifelse(x > 50, 1, 0)
+# simulated outcome (observed y, via the 'true' GDP); added treatment effect of 100 for those above the cutoff + random noise makes it realistic (rnorm)
+# baseline policy support is 45, being treated increases support by 100 units ("the jump")
+# 0.022 * running_var means outcome increases by 2.2 points for every one unit increase in sentencing score, hold ing all else constant
+y_policy_support <- 45 + D_prison_time * 100 + 1.5 * running_var_sent_score - 0.022 * running_var_sent_score^2 + rnorm(length(running_var_sent_score), 0, 100) # plus random noise
 
-# Observed Y
-y <- 20 + D * 100 + 1.5 * x - 0.015 * x^2 + rnorm(length(x), 0, 100)
-
-
-# Simple plot of raw data
-plot(x, y, pch = 19, cex = 0.2)
+plot(running_var_sent_score, y_policy_support, pch = 19, cex = 0.2) 
 abline(v = 50, col = "red")
 
-# Binned plot (using 50 bins left and right of c_0)
+
+
+
+
+
+# Bin the data and fit local polynomials... plot (using 50 bins left and right of c_0)
 # with p=2 polynomial fitted below and above c_0
 # (h = full span of data)
-rdplot(y = y, x = x, c = 50, p = 4, nbins = c(50, 50))
+# rdplot bins data to left and right of cutoff sepearately and fits polynomia of order p
+# uses 4th degree polynomia and 50 bins on each side (show binned means with fitted lines), visual confirmation of discontinuity
+rdplot(y = y_policy_support, x = running_var_sent_score, c = 50, p = 4, nbins = c(50, 50))
 
 # automatic bin N selection
 # (selects MSE optimal choice)
-rdplot(y = y, x = x, c = 50, binselect = "esmv")
+rdplot(y = y_policy_support, x = running_var_sent_score, c = 50, binselect = "esmv")
 
-# Illustration: the role of h
-rdplot(y = y, x = x, c = 50, binselect = "esmv", h = 50)
-rdplot(y = y, x = x, c = 50, binselect = "esmv", h = 30)
-rdplot(y = y, x = x, c = 50, binselect = "esmv", h = 10)
+# Illustration: the role of h (varying the bandwith to see the local nature)
+rdplot(y = y_policy_support, x = running_var_sent_score, c = 50, binselect = "esmv", h = 50) # h controls how much data around the cutoff is used; small h means more local, less biased, more variance, large h means smoothing, more bias less variance (shows how estimate of the jump depends on h)
+rdplot(y = y_policy_support, x = running_var_sent_score, c = 50, binselect = "esmv", h = 30)
+rdplot(y = y_policy_support, x = running_var_sent_score, c = 50, binselect = "esmv", h = 10)
 
 # BW selection
-summary(rdbwselect(y = y, x = x, c = 50, bwselect = "mserd"))
-summary(rdbwselect(y = y, x = x, c = 50, bwselect = "msetwo"))
+summary(rdbwselect(y = y_policy_support, x = running_var_sent_score, c = 50, bwselect = "mserd")) # mserd minimizes mean sq error for the discontinuity
+summary(rdbwselect(y = y_policy_support, x = running_var_sent_score, c = 50, bwselect = "msetwo")) # allows different bandwidths left/right of the cutoff
 
 
-# Simple RDD est, p = 1 (locally linear)
-# optimal bw selected (same below and above c_0)
-m_p1 <- rdrobust(y = y, x = x, c = 50, p = 1, bwselect = "mserd")
-# Simple RDD est, p = 2 (locally quadratic)
-m_p2 <- rdrobust(y = y, x = x, c = 50, p = 2, bwselect = "mserd")
-summary(m_p1)
-summary(m_p2)
+
+# estimate RDD treatment effect
+# p = 1 (locally linear)
+views_m1 <- rdrobust(y = y_policy_support, x = running_var_sent_score, c = 50, p = 1, bwselect = "mserd") #rdrobust is main RDD estimator, fits local polynomia regression (here p = 1 or p = 2 ) within the optimal bandwiths
+
+
+# Simple RDD p = 2
+views_m2 <- rdrobust(y = y_policy_support, x = running_var_sent_score, c = 50, p = 2, bwselect = "mserd")
+summary(views_m1)
+summary(views_m2)
  
 
 # Construct plot (using obs within selected bw)
-xc <- x - 50
-m <- rdrobust(y = y, x = xc, p = 1)
-rdplot(y = y, x = xc, 
+# xc = x - 50 centers the running variable so that the cutoff is at 0; 
+xc <- running_var_sent_score - 50
+m <- rdrobust(y = y_policy_support, x = xc, p = 1)
+rdplot(y = y_policy_support, x = xc, 
     subset = -m$bws[1,1]<= xc & xc <= m$bws[1,2],
     binselect = "esmv", kernel = "triangular", 
     h = c(m$bws[1,1], m$bws[1,2]), p = 1)
 
-
-
-
-# Notable options:
-
-# choose other VCE: e.g., option vce("hc2") for the usual plug-in estimator
-# the default in the package is to use the sample covariance estimator of the 
-# J nearest neighbors to i (you can choose J using option nnmatch())
-
-# Clustering: option cluster()
-
-# add covariates: option covs()
 ```
 
-Second
+The RD effect of 93.706 means that crossing from a sentencing score of less than 50 to 50 increases policy support by 93.706 points, and if I repreated the whole study many times and built 95% confidence intervals each time, 95% of those intervals would contain the true effect of a jump between 56.815 and 124.840 points. The p score is 0 – the effect is significant.
 
-Extend the DGP by adding a confounder and simulate two scenarios:
+Part 2
 
--   the continuity assumption holds
+Adding a confounder Z that, in first scenario where continuity holds, would need to change gradually with running variable/not be discontinuous at the 50 juncture.
 
--   the continuity assumption is violated
+```{r}
 
-Study the behavior of RDD estimator under this scenario.
+Z_noproblem <- running_var_sent_score*0.1 +
+  rnorm(length(running_var_sent_score), 0, 500) # plus noise one draw per observation
 
-Third (bonus)
 
-Study the characteristics of your RDD estimator (e.g., using linear vs higher-order local regression) when the data is noisy. What can you learn about false positive results?
+y_confounded <- 45 + D_prison_time * 100 + 1.5 * running_var_sent_score +
+                0.022 * Z_noproblem - 0.015 * running_var_sent_score^2 +
+                rnorm(length(running_var_sent_score), 0, 100) #adjusted back
+
+
+# local linear model
+
+## y_confounded
+m_a <- rdrobust(y = y_confounded, x = running_var_sent_score, c = 50, p = 1, bwselect = "mserd")
+summary(m_a)
+
+
+# local quadratic model
+
+## y_confounded
+m_c <- rdrobust(y = y_confounded, x = running_var_sent_score, c = 50, p = 2, bwselect = "mserd")
+summary(m_c)
+
+
+## y_confounded plot
+rdplot(y = y_confounded, x = running_var_sent_score, c = 50, binselect = "esmv")
+
+
+
+
+### then 
+
+#with dummy to jump at 50, by 50
+Z_problem <- 0.1*running_var_sent_score + 50 * ifelse(running_var_sent_score > 50, 1, 0) + 
+               rnorm(length(running_var_sent_score), 0, 10)
+
+y_bad_confounded <- 45 + D_prison_time * 100 + 1.5 * running_var_sent_score +
+                0.022 * Z_problem - 0.015 * running_var_sent_score^2 +
+                rnorm(length(running_var_sent_score), 0, 100)
+
+
+
+# local linear model
+
+## y_bad_confounded
+m_b <- rdrobust(y = y_bad_confounded, x = running_var_sent_score, c = 50, p = 1, bwselect = "mserd")
+summary(m_b)
+
+# local quadratic model
+
+## y_bad_confounded
+m_d <- rdrobust(y = y_bad_confounded, x = running_var_sent_score, c = 50, p = 2, bwselect = "mserd")
+summary(m_d)
+
+# plot
+
+## y_bad_confounded
+rdplot(y = y_bad_confounded, x = running_var_sent_score, c = 50, binselect = "esmv")
+
+```
+
+Re-running both scenarios, the smooth confounder stays closer to the true effect but the problematic/discontinuous jumper exerts negative bias on the effect. The discontinuity contaminates the estimate because it reflects the treatment plus the jump.
+
+Third -- the characteristics of the RDD estimator (e.g., using linear vs higher-order local regression) when the data is noisy. What can you learn about false positive results?
+
+Addint noise to the unproblematically confounded estimator increases the p value, unsurprisingly distorts point estimates.
+
+(tried to set up MC but ran out of time)
+
+```{r}
+#| eval: false
+#| include: false
+
+#monte carlo test 
+
+set.seed (1)
+
+x <- rnorm(2000, 50, 20)
+
+x <- x[x >= 0 & x <100]
+
+D <- ifelse(x > 50, 1, 0)
+
+c0 <- 50
+c <- x -c0
+
+#dgp without true treatment effect
+
+y_generator <- function(sigma_y = 100) {
+  45 + 0*D + 1.5*x - 0.022*x^2 + rnorm(length(x), 0, sigma_y)
+}
+
+run <- function(sigma_y = 100, h_local = 10){
+  y <- gen_y(sigma_y)
+
+
+# -- glitchy OLS
+
+m_glitch <- lm(y_generator~D +x)
+p_glitch <- coef(summary(m_glitch))["D", "P(t)"]
+
+# RD OLS
+
+include <- abs(c)<= h_local
+m_rd <- lm(y[include] + c[include] + D[include]:c[include])
+p_rd <- coef(summary(m_rd))["D", "P(t)"]
+
+# robust rd
+
+m_robust <- rdrobust(y=y_generator, x=x, c= c0, p = 1, bwselect = "mserd")
+p_robust <- m_robust$pv[1]
+
+c(p_glitch=p_glitch, p_rd=p_rd, p_robust=p_robust)
+}
+
+repeats <- 1000
+
+try <- replicate(repeats, run(sigma_y = 200))
+
+apply(try < 0.05, 1 ,mean)
+
+```

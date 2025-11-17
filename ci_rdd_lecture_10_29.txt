@@ -1,0 +1,1659 @@
+Speaker 1  0:00  
+You remember, those are numerical scores into another grade, so that will be non linear functions. What you could do in your mind, if you just add 10 points here, that will be the distribution, right? If you're off here to find what to do, but
+
+Unknown Speaker  0:39  
+Thank you, I don't know how much help I'm doing.
+
+Unknown Speaker  1:04  
+Works, okay, wonderful,
+
+Speaker 1  1:34  
+one, which means we get to talk about expression discontinuity, or more precisely, the designs associated with it. So
+
+Unknown Speaker  2:07  
+because I'm sure I uploaded them last night,
+
+Speaker 1  2:16  
+and you're correct. All right, I'm going to make a folder called RDD, aren't you?
+
+Speaker 1  2:44  
+Up All right now in terms of progression in what we cover in this course, we are moving, as you might have noticed, right? We're moving away from approaches essentially mostly think about problems in terms of observables to allowing more unobservables to enter our mind. Right? Difference and differences in space and in time, if you will. Same is true for synthetic controls, and the same is true for regression discontinuity,
+
+Speaker 1  3:31  
+a number of contrasts, on pros and cons, on different strategies and neighboring the class. But for now, let's just start with thinking about what it is, what it does, and how it works.
+
+Unknown Speaker  3:43  
+And some of the problems or these things to be concerned about when doing it in empirical practice,
+
+Speaker 1  3:53  
+the idea of regression discontinuity, so often, has been invented separately, I would say, in different places. It goes back at least to the 60s paper by Campbell in educational psychology. It was used in economics. Interesting enough by Goldberger. There's an old book chapter now in 72 but it's fair to say that after those early pieces of work, it sort of it was forgotten for quite a for quite a while, and research its popularity and much later about what Campbell did. It's not a political science example, but it's easy enough to understand that it serves as a good way to think about the problem apple and others were interested in understanding the effect of some award, marriage award, in school, on subsequent academic performance. If a bunch of kids do different people academically, some of them, you get, like a marriage award, and then you study if the performance improves. Nine as a result of that award. Now you can probably immediately recognize what some of the concerns are. Think about it as a cost trying to find out the positive award and subsequent performance. Right? It's very likely you're not going to give the award to the dumbest kids most likely you could. But in practice, schools will usually give the merit awards to kids to some degree to serve it either based on prior academic performance, or the teacher likes you, or whatever it is, right? You already worry about selection effects. If it's based on prior academic performance, you're in love, because that's something you can measure. But what if it's something about the impression the teacher has of the student in class? That's something that's hard to measure. So you're worried that treatment of the married award is a function of observables and unobservable a common problem we have been in class.
+
+Speaker 1  6:03  
+Campbell came up with this idea, not necessarily based on first principles. You could derive those estimators principles easy, but you can also arrive at that kind of design by just thinking about the problem, right? And what they, of course, recognize is that in many schools, those merit awards are based on scores. You could pass performance of scores given by teachers, and there's usually some cut off Z zero if you're above it in terms of scores, you get the merit award below it in terms of inference, you're still worried about the same problem, right? Scores, s kind of somewhere below no merit award. And if you're off, you do hit the merit award. So far so good. The worry is that there's some unobservable characteristic, ability, motivation, attractiveness, many things, and that increases with the score. Mistake you would be making by attributing the measure of further academic performance as a function of the merit award, because it's not the merit award might be you just measuring the performance outcomes of people with higher ability,
+
+Speaker 1  7:36  
+on average, people with higher motivation than you have the merit award. People don't have it. Now, if you think about the problem of this being a treatment assignment, which we label D for, and if these were covariates, think about what the matching estimator would look like. You would have to match on ability and motivation. And then you can make a selection of surface assumption, and then you estimate the effect of D, the variable on the outcome. The problem starts when you don't have measure for academic ability or motivation or conscientiousness.
+
+Speaker 1  8:22  
+Therefore you cannot simply compare outcomes for the married and the non married students, right? Because only observables, you could control it away. They were already aware of this in the 60s. But if the difference is in other circles now, when thinking about the problem, they came up with a very simple idea, appealing as well as attractive to some people. Mainly that why, instead of comparing everyone one group to everyone in the other group, let's create a more focused comparison.
+
+Speaker 1  9:11  
+Why you could compare the outcomes of everyone without the award to the outcomes of everyone before? What if we, if we were to compare, say, only the outcomes of the group that has the award in some region across the cut off with the other group that does not have the award?
+
+Speaker 1  9:48  
+You get a calendar. You want to think about this in terms of the direct and see the graph that we have been using quite often in this class. Right? This is the problem. There's a treatment, you have an outcome, there's an unobservable that somehow, via some other variables related to the treatment, that we have, confounding of selection on unobservables that you can fix. Then there's something specific about a design you're studying, right? There's a variable x that is free to move around as vicious
+
+Unknown Speaker  10:26  
+variable, and there's a value
+
+Unknown Speaker  10:29  
+c zero that determines the treatment case it is below C 00,
+
+Speaker 1  10:42  
+NT X merit scores, and there's a discontinuity, there's a threshold, Merit scores, bonus scores, zero.
+
+Speaker 1  10:56  
+Obviously, the merit scores are highly correlated with whatever unobserved right motivation gives you higher scores, also gives you better outcomes.
+
+Unknown Speaker  11:12  
+Aptitude,
+
+Speaker 1  11:19  
+so where the identification idea in RDD come in? Well, if you only focus on the living case around the threshold, then that correlation Here is broken.
+
+Unknown Speaker  11:44  
+What's the logic behind that? Forward you
+
+Speaker 1  12:04  
+you say this is a distribution of motivation that you have, right? And here was the cut off or the assignment,
+
+Unknown Speaker  12:22  
+pretty clear that if you look at
+
+Speaker 1  12:23  
+the distribution of motivation, right, it is, it is lower non married group and higher, something we cannot see. So that's not something we could match away. Therefore, the comparison between the
+
+Unknown Speaker  12:38  
+marriage and the non memory make
+
+Speaker 1  12:41  
+a lot of sense because it's contrasted by the presence. However, what happens if you focus on what happens around that threshold? Only compare students just to the left and just to the right of their score the c zero threshold, or they seem to be pretty similar in terms of the unobservable that I'm worried about motivation, if you're worried that there's an unobserved characteristic such as motivation that makes it more likely that you receive the merit award, and of course, that motivation also makes
+
+Unknown Speaker  13:20  
+it makes you better, perform in terms
+
+Speaker 1  13:23  
+of outcomes, if necessary. Concern, we can focus only on students who just got, just about got the award, versus just about it.
+
+Unknown Speaker  13:34  
+And it must be very, very similar in terms of
+
+Speaker 1  13:43  
+it of the underlying motivation. If you only focus on those who got it just barely and those who just barely did not get it, you're going to be pretty similar. You
+
+Speaker 1  14:01  
+sense. In fact, whatever sort of characteristic you think about that is correlated with both y and d, and those are the only ones you care about. Whatever those are if they're systematically related to D functions that you would worry about, if you're willing to think that around a cut off that you study those who are similar, then you would be able to check right. Because, in essence, what you have done is you have mesh on these other circles, threshold,
+
+Unknown Speaker  14:41  
+definition or what right
+
+Speaker 1  14:50  
+you're trying to compare life with like and normally matching, estimating the weight you made like for like comparisons by matching for. And through that here you're worried about non observables, but you get closer to comparing like like by like, thinking about the distribution in a narrow region. Just basic
+
+Speaker 3  15:21  
+question for when we're grouping people together, pre cut off and post cut off, then we're doing is subbing out the potential outcome that we would have if we do like the full potential outcomes table between each individual and so, so then the score itself is acting as like the treatment or the cut off is acting.
+
+Unknown Speaker  15:58  
+The treatment is acting. So the treatment is assigned based on the curve, right?
+
+Speaker 1  16:06  
+So, for example, here, the merit, the actual treatment that you would be interested in, theoretically, you get married award, but the assignment of the award is based on, say, that score. So the treatment, what you're estimating, or if you try to estimate, is still the effect of the award. You're trying to estimate different just that this is a function of something else, and that's what we've exploited. But what you're still interested in is the treatment sorry,
+
+Speaker 3  16:37  
+it's just delineating what we're putting in the treatment category. Okay, okay.
+
+Speaker 4  16:43  
+Thank you. Yeah, the question about what we were just talking about, just so that I understand correctly. So let's say in this example that you're giving, if there is one group of people that will be aware of this mechanism that they would they and then they're different from the other group systematically because of some co variant. And this group, they would put in more effort because they know that they have to reach that cut off. But other group doesn't know, or they don't care, so they don't do that. Is that a problem? You would have to control that variable that makes them more motivated.
+
+Speaker 1  17:25  
+Beauty of that argument is that unless in many other settings, the knowledge of the treatment assignment mechanism is
+
+Unknown Speaker  17:35  
+strong, doesn't really matter, right?
+
+Speaker 1  17:40  
+What the assignment mechanism is, as long as you cannot manipulate
+
+Unknown Speaker  17:48  
+you care about the award and
+
+Speaker 1  17:50  
+push your kids to study as hard as they can when you change the underlying distribution, but locally to the threshold, right? Imagine two kids. Both have the same pushy parents, but the distribution being what it is, someone has to be below the color, someone has to be above. Those two are probably right. I think it's almost like a random process, right?
+
+Speaker 2  18:24  
+A whatever it might be. The argument is that in the limit conceptualizing also not inextension.
+
+Speaker 4  18:36  
+But if you have two kids, one with pushy bear answer, the other one with non pushy parents, so that the one with the Yeah, the kid with the pushy parents. If you didn't have those parents, you
+
+Unknown Speaker  18:49  
+wouldn't even be here, because
+
+Unknown Speaker  18:56  
+enter the estimation for one case, their parents don't know the rules. Yeah, motivation kid, nothing changes, yeah, but you
+
+Speaker 4  19:10  
+would have to know that you have to control for that. No, I
+
+Speaker 1  19:27  
+you use the threshold to use the threshold to solve a problem of identification in terms of our circles, easy part, you also change what you're estimating. You're estimating your local average treatment. In the past, I did instrumental variables earlier, which means we would have taught you what the.
+
+Speaker 1  20:07  
+So it's a very good question. You want to study the effect of the married award or subsequent performance. One of the cost of estimates you could be interested in is the average treatment effect, right? What is the effect in terms of outcomes for
+
+Speaker 2  20:24  
+those who got the award? That's the question we started. What happened is we
+
+Speaker 1  20:28  
+suddenly changed the question that we're interested in, right? Because now we're saying, I'm not estimating the average treatment effect on the treated I'm estimating the local effect. Why is it local? It is local to these people. I can't say anything about these kids here, nor can I say the kids who would have done well without the treatment are up here, a highly motivated, highly able, the kids who are down here, parents don't know anything I stopped saying about I'm constraining myself to that region Where I can create comparables. I think you were struggling with like, if I exploit the discontinuity, I'm now limiting
+
+Unknown Speaker  21:09  
+the group of cases a lot.
+
+Unknown Speaker  21:13  
+It's a local elementary
+
+Unknown Speaker  21:23  
+now we can think about is imagine your as you have a World
+
+Speaker 1  21:29  
+Two characteristic one, observe one observe that strongly determine treatment. You're trying to understand what the effect of the treatment is independent of what the assignment mechanism. There's only two ways you can really do it right? One is you model the whole process. You write the right model, you can play around with it, and then you go from there. That's essentially how most of physics works, right? We find that hard to do it. I would argue we have never really tried well, but we find it hard to do it. So the alternative is that you intervene on the assignment and then trace the cause and effect from there, but it also means you have to stay silent on that part, right? The things you just cannot know this is essentially as close as you gotta get an experiment if you're not free to intervene, right? But the experimental assignment is essentially, at least conceptually in people's mind. I'm thinking of this like an experiment, right as a cut off, someone just makes it, and someone just doesn't. And I think of these as the same thing as so I'm starting to think of this as a treatment group and a control group, but I can only really correctly say this in a very narrow bend around the cut off,
+
+Speaker 2  22:40  
+that band wide becomes actual? Predict.
+
+Speaker 4  22:57  
+There is some assumption right that those units, they get,
+
+Speaker 5  23:01  
+yeah,
+
+Speaker 4  23:05  
+yeah, or they cannot determine that they would just go over, God, It has to be random.
+
+Speaker 1  23:18  
+You're correct for now, right? Because I'll circle back later. Typical political science example, the elections, right? Everybody tries to win. We know what the color is, but someone just wins or just loses, and sometimes then there's two, there's two views of this. The positive view is that I'm going to treat this like a coin flip. The more negative view is that, actually, if you look close enough, it isn't
+
+Speaker 2  23:44  
+later, but
+
+Speaker 1  23:58  
+if you're willing to to do that, right is you change what you want to estimate, but you're fine with saying, I mean, I'm fine with that local treatment effect I can't learn about. Your question is, what would happen to the low motivation kids if I gave them a married award? There is nothing you can learn about this for that. You just don't know what the effect there would be. Nor can you say anything. What would happen to my over achievers. The only thing you can really say is, in that band here, what is the addition effect? Now, an argument that most people would make was, I rather know this limited slice, and I have ruled out the unobservables making statements about the whole distribution and probably ignore the unobservables, probably the common way people think about it, but it is a trade of your matrix.
+
+Speaker 2  25:07  
+A little bit more intuition, to some degree,
+
+Speaker 1  25:14  
+is one of that we expect couldn't really absent anything else, Nature doesn't produce jumps. You think of most things, if not disturbed, behaving a sort of continuous fashion. What is the distribution of motivation, which I can measure? Probably normally distributed
+
+Unknown Speaker  25:41  
+variance. And somewhere in that distance,
+
+Speaker 1  25:46  
+I thinking, I'm thinking that just to the left and to the right of that score column, I don't expect, why would the unobserved motivation jump as a function of the score? They're going to be difference in motivation. But just around the score,
+
+Speaker 1  26:09  
+dramatically is your probability of receiving the treatment, the probability of receiving the merit award, right? Because that,
+
+Unknown Speaker  26:19  
+remember, I know we did
+
+Unknown Speaker  26:29  
+before,
+
+Speaker 1  26:38  
+like this might be estimated method, logit model, probability zero, down here and one there S shape, right? If there's a variable that makes it more likely that you receive treatment, if x increases,
+
+Unknown Speaker  26:57  
+matching and so forth,
+
+Unknown Speaker  27:00  
+how does that probability look like
+
+Unknown Speaker  27:04  
+in the case?
+
+Speaker 1  27:06  
+Well, this is still x, but we have some cut off here, some thresholds, Z, zero. So how does the treatment assignment look like? It looks like this, right? So,
+
+Unknown Speaker  27:23  
+the score you don't get the merit order.
+
+Unknown Speaker  27:29  
+The assignment function is sharp. It jumps at a curve.
+
+Speaker 2  27:39  
+There are softer versions of these designs, fuzzy rd, where you make it less sharp, right, to make it fuzzy again. Instead, it's switching
+
+Speaker 1  27:55  
+sharply. The probability goes up. That's just the very end of the same thing. The logic remains the same, right? It's the cut off that makes you responsible for either being in one group versus the other group, or for you to be more likely.
+
+Unknown Speaker  28:16  
+Means right, the probability of
+
+Speaker 1  28:18  
+being assigned into the treatment jumps discontinuously
+
+Unknown Speaker  28:23  
+as right. What does not jump
+
+Speaker 1  28:30  
+is the distribution of the observers.
+
+Unknown Speaker  28:42  
+Thank you. Think about this.
+
+Speaker 1  28:52  
+Is the treatment assignment. More motivated students are more likely to get married awards. Let's just write it as a linear function, right? Just to make my life, make my life easier, right? The more motivated you are right, the more likely you end up in the group that receives.
+
+Unknown Speaker  29:12  
+Course, you can see that as a linear function. There's nothing here, zero point
+
+Unknown Speaker  29:22  
+that would expect you that it jumps,
+
+Unknown Speaker  29:28  
+not in terms of understanding assumptions
+
+Unknown Speaker  29:34  
+that make that work and come up with cases right for now, let's just think about the the ideal case.
+
+Unknown Speaker  29:47  
+So, yeah, comparing units just above and below the threshold as
+
+Unknown Speaker  29:57  
+the adoption every advantage has. So this is.
+
+Speaker 1  30:00  
+Advantage, right? The advantage is that you take care of unobserved. So far, there was a luxury we didn't have, right? If this really works, you don't have to worry about unobserved. That's a great thing. It can't be without cost, right? So I'm going to flag, even if we maintain the assumptions, I'm going to flag two costs right off the bat. The first one is we require extra operation, right because there's no overlap. There's no overlap between the treated and the control group right to the left of C. We're going to call it a control group to the right of C, treated group. If that bound is sharp, there is no overlap between the two, which means we need to do something to extrapolate outwards and inwards from both sides, and it will require models or some assumptions. Moving beyond the data, you will see that
+
+Unknown Speaker  30:53  
+that is tends to be in
+
+Speaker 1  30:56  
+an empirical fashion, and that tends to be data intensive.
+
+Unknown Speaker  31:02  
+Amount of data to make this work,
+
+Speaker 1  31:06  
+the other price you pay we have already discussed. Now if you're estimating the local average treatment effect, the treatment effect is local to that jumping point to the
+
+Speaker 1  31:28  
+issue free. But how that works out in a bit more detail, what you have is you have the assignment or de, and then it's just
+
+Unknown Speaker  31:46  
+an indicator
+
+Speaker 1  31:51  
+function right one of a that means that function gets one if that argument is true and equals zero. Next, we're writing it.
+
+Unknown Speaker  32:08  
+It. So this is
+
+Speaker 1  32:14  
+an indicator function, or switching, little switching function, right that turns to one when x is greater than c zero. That's my disc below C zero. This zero.
+
+Unknown Speaker  32:40  
+Well the potential outcome x i function or
+
+Speaker 1  32:49  
+and then, of course, in the two potential outcome control state plus delta, which is the treatment, think about where it would be in the control state. And then delta is the effect that something makes
+
+Unknown Speaker  33:09  
+into the switching you put this in the switching equation
+
+Speaker 1  33:15  
+outcomes related to observe y equals y zero. But like the same Rachel, a bit differently. The outcome is the control potential outcome state
+
+Unknown Speaker  33:29  
+plus the treatment. This is where you are if nothing
+
+Speaker 1  33:36  
+had happened to have happened. This is what the treatment does right? This is how much it shifts you over the baseline. Just plug in what we have here. Immediately get very little simple equation that you could estimate in principle, slope, coefficient on x, a coefficient for D, 01, One.
+
+Speaker 2  34:08  
+This delta represent in the condition of one.
+
+Unknown Speaker  34:21  
+State. Formally what that means.
+
+Unknown Speaker  34:34  
+So unless it's clear to everyone why we take that
+
+Unknown Speaker  34:45  
+the blockchain that we're using
+
+Speaker 1  34:55  
+is to cut off there's all kinds of other stuff going on on observables that very. One, right? We have. And the argument is that there are all kinds of differences in terms of observed and unobserved characteristics which make a comparison of outcomes, D zero, the d1 group, not very sensible, right? So what we said is, let's
+
+Speaker 2  35:20  
+PECO to the left, right
+
+Speaker 1  35:23  
+of C, zero, and I only compare cases there, because they
+
+Speaker 2  35:35  
+very low, motivation, very high, if you only focus on
+
+Unknown Speaker  35:38  
+that region here.
+
+Speaker 1  35:45  
+The right tends to be still different, but certainly less different than if I take a bigger complex. Of course, the logical next step that is, well, if I make this
+
+Unknown Speaker  35:58  
+focus only on where error
+
+Unknown Speaker  36:10  
+from the left and the right.
+
+Speaker 2  36:12  
+So what you do is you say around, which is just make notation
+
+Unknown Speaker  36:17  
+easier. That's the point where the cover is.
+
+Unknown Speaker  36:23  
+We move and we move forward here to the left,
+
+Speaker 1  36:36  
+so you have the expected outcome, expected value, potential outcome in the treatment state.
+
+Unknown Speaker  36:48  
+And here you have the expected control output moving towards it.
+
+Unknown Speaker  36:59  
+X equals zero in this case, is just that there's no
+
+Speaker 1  37:05  
+covariance, no, no x zero is where z zero is, so it's a counter.
+
+Unknown Speaker  37:10  
+Oh, okay, yeah. No.
+
+Unknown Speaker  37:27  
+In trying to sell
+
+Speaker 1  37:29  
+71 people are excited about potential outcomes. This is another equation that makes that point is, if you look at them quickly, they look the same to me. If they're not, we didn't.
+
+Speaker 1  37:45  
+Actual outcomes. So what we stating here is that in the limit can start to equate the potential outcomes
+
+Unknown Speaker  37:55  
+that I'm interested in,
+
+Speaker 1  37:57  
+potential control outcome, potential treatment, and they become the same as just looking at the actual outcome. That's the application. Remember what our problem was is the treated group. We would like to know what the outcome would have been had that group in control group. And you would like to know what the outcome would have been had it been treated that problem is not fixable in general, in our problem. But the argument is, if I focus on an increasingly narrow region around the cut off those two things, I can start
+
+Unknown Speaker  38:39  
+and what you get then is
+
+Speaker 1  38:42  
+effect at discontinuity, right? So what delta here would represent is the expected value of the difference in potential outcomes of the case in its trigger state
+
+Unknown Speaker  38:51  
+and its control state, that you're exactly as
+
+Unknown Speaker  39:03  
+as a logic more about
+
+Unknown Speaker  39:13  
+what the key identifying assumption is, it is limited.
+
+Unknown Speaker  39:27  
+Name.
+
+Speaker 1  39:38  
+What is the key assumption that you're making, it's one of continuity. And it's essentially, you're saying that
+
+Unknown Speaker  39:58  
+continuous in x.
+
+Unknown Speaker  40:06  
+Advent in a technical
+
+Speaker 1  40:13  
+sense, if you want to focus more on why we thinking about it in terms of potential outcomes, that's what the assumption refers to, not the actually observed.
+
+Unknown Speaker  40:23  
+Why there are no pattern or
+
+Speaker 1  40:27  
+treatment or absent the treatment, the potential outcomes would not have jumped.
+
+Unknown Speaker  40:35  
+Serve data. There is a check of, say, the generic award
+
+Speaker 1  40:39  
+to jump in the distribution of the actual outcome. The argument is potential outcomes. What is the Y, I, zero outcome? It's the non treatment condition. Imagine moving like it does here, that the cut off happens. The potential treatment outcome would continue undisturbed,
+
+Unknown Speaker  41:02  
+right? Is the potential outcome absent treatment other side?
+
+Speaker 1  41:10  
+Why I won, if you move that backwards, below the threshold where down the non treated state is, think about what the treatment outcome would be like.
+
+Unknown Speaker  41:20  
+The reason that there is a chunk is the there's a chunk is themselves
+
+Speaker 1  41:36  
+saying, right, that all other determinants of y, unobserved determinants y are continuously related to
+
+Speaker 1  41:59  
+x values. That's something you can check for observe, for covariance that you observe, you can easily check, are they discontinuous at the threshold Z zero, and they shouldn't be. If they are, you have a warning sign. Probably things are wrong in what you try to do that makes the model attractive was that you don't have to worry about unobservables. And of course, the continuity of the unobservables around the threshold. That's a precise assumption you need to make that you cannot verify.
+
+Unknown Speaker  42:47  
+Is, yes, I'm just writing x zero. That's the
+
+Speaker 1  43:19  
+an instrumental variable. Setting, yes, but the definition of what the latest is can be made generally without reference.
+
+Speaker 1  43:32  
+Of the class in the future. I'll probably do instruments earlier. Take me 15 minutes not to explain you.
+
+Unknown Speaker  43:44  
+It is a proper is local to thinking about who ends up thinking
+
+Speaker 1  43:53  
+about it in very, very similar terms that you think about up here,
+
+Unknown Speaker  44:01  
+something like motivation,
+
+Speaker 1  44:04  
+you can work that out in very similar fashion. In fact, you can write an RDD
+
+Unknown Speaker  44:19  
+who gets assigned to the treatment that will be the equivalent.
+
+Unknown Speaker  44:32  
+Let me illustrate the concept of continuity. Simulate the data.
+
+Speaker 1  44:45  
+You have the y axis right, you have some outcome y by myself. And then here we have forcing variable. And
+
+Unknown Speaker  44:53  
+then here, right, where as.
+
+Unknown Speaker  45:04  
+Dollars, it becomes one
+
+Speaker 1  45:10  
+once x is greater than 50 and it's zero. This is a very typical discontinuity right you can see to the left of the discontinuity
+
+Unknown Speaker  45:22  
+the records, initially
+
+Speaker 1  45:29  
+between x and the outcome, that's probably also strong relationship with many other unobserved variables, the fact
+
+Unknown Speaker  45:42  
+that as x goes up, y
+
+Speaker 1  45:46  
+goes up, So does the probability we observe the treatment clearer.
+
+Speaker 1  46:02  
+Focus. X value of 49 and 51 is probably not that different that would worry about, and not the less. We're not trying to compare individuals with values on 25 and 75 which are obviously not comparable in terms of x, maybe comparing someone to 49.5 and point
+
+Unknown Speaker  46:30  
+five, the potential outcomes, the observed outcome, the potential outcome would be continuous at that
+
+Unknown Speaker  46:41  
+point, the y1 potential outcome is
+
+Speaker 5  46:42  
+there's no
+
+Unknown Speaker  46:47  
+expectation that this.
+
+Speaker 1  46:59  
+Another way to think about this is think about what An experiment very simple, two arm experiment
+
+Unknown Speaker  47:14  
+is a sense.
+
+Speaker 1  47:38  
+Any random nurture you order them increasingly and you set the curve right, 10 increase in random numbers, the lowest 10 become the control group, the highest 10, that's a perfect way to do a random assignment, right?
+
+Speaker 1  48:00  
+So think about putting that assignment variable, your random number, down here. And let's say we split the distribution of that random number, these random numbers in half, and say, okay, the bottom half. Right. You Alpha
+
+Unknown Speaker  48:23  
+assignment mechanism you have for the RDP, right?
+
+Speaker 1  48:29  
+There's a cut off that we have chosen here, right? And it was just below overall.
+
+Unknown Speaker  48:40  
+And what? Well, you observe the
+
+Speaker 1  48:42  
+outcome for the control group in terms of some outcome one, and you observe an outcome in the treatment the experiment has an effect. You expect to see something like this, right here. The treatment effect is two. The average outcome is one.
+
+Unknown Speaker  48:55  
+The average does it allows you to make
+
+Speaker 1  49:04  
+for the control group. Actual outcome is what it's the expected value of the control outcome
+
+Unknown Speaker  49:17  
+for the treated group. Potential outcome, of course, this is you cannot get because you lack the counter, effectual outcomes.
+
+Unknown Speaker  49:32  
+Experiment
+
+Unknown Speaker  49:37  
+to observe control outcome, control group, and then take the difference.
+
+Unknown Speaker  49:44  
+That make sense. If you need the estimators
+
+Speaker 1  49:50  
+in an experiment, you compare these the means of these two groups, but
+
+Unknown Speaker  49:53  
+if you were to focus, would take that difference here?
+
+Unknown Speaker  50:00  
+Effect, of course, the
+
+Unknown Speaker  50:02  
+local average speed effect would be the same. The
+
+Unknown Speaker  50:10  
+experiment does nothing other than a sharp ID, forcing variable cut off.
+
+Speaker 1  50:40  
+Line idea, I think, is straightforward and clever enough. Some of the actual, I would say, appear in practical implementations. I'll try to print out some of them. Recommendations. It is very common, by the way, to just re center your forcing variable to recenter.
+
+Unknown Speaker  51:05  
+X represents the intervention point here.
+
+Unknown Speaker  51:14  
+Subtract the two right assignment.
+
+Unknown Speaker  51:25  
+A company to do
+
+Speaker 1  51:32  
+it. Now everything I will say next has to do with how do you actually estimate the size of the
+
+Unknown Speaker  51:39  
+disconnect for now we believe that story, Local Average Treatment
+
+Speaker 1  51:52  
+as a limit operation, if That makes sense. Conceptually, how do you estimate impurity data?
+
+Unknown Speaker  52:09  
+So it becomes a problem of
+
+Unknown Speaker  52:21  
+this x equal to zero, right? How do you actually estimate the
+
+Unknown Speaker  52:39  
+decision is happening here? Right? How would you estimate we've defined it? Well,
+
+Speaker 1  52:59  
+stupid thing to do is like you take the mean of these and take the mean of these and take the difference. It doesn't make any sense, because we said we want to focus on the liquid. We need to look at a narrow band. So the next best thing would be that, all right, let's define a short region here and we take the mean, or maybe I run
+
+Speaker 3  53:31  
+of the two, are there any red flags to look for, like, if you before you take this specific section of data to do the design, If you see that the mean between before the treatment and after the treatment is with all of the data is the same, but then, if you like, splice out that middle chunk of data that there is some sort of difference in between them, is the theoretical argument that like, the effect of the Treatment is just like, either like, I don't know if that question makes sense, only in a sense, can you sorry? I feel like
+
+Unknown Speaker  54:07  
+you'd be like, cherry there's no effect. It's a
+
+Speaker 1  54:15  
+good question. Can I take yes back to because I was trying to decide sorry to explain before After?
+
+Speaker 2  54:27  
+Slide, easier,
+
+Unknown Speaker  54:36  
+managing, digital forcing, variable, I think, right? It's generated
+
+Speaker 1  54:45  
+as an intercept which has a value of 1000 and then you can see there's a quadratic relationship right at 100 times x plus x squared. And I
+
+Speaker 1  54:57  
+make it such that the forcing variables switch. So this is the cut off right, 50 below your D, equal
+
+Unknown Speaker  55:09  
+to zero.
+
+Speaker 1  55:16  
+You go ahead and just fit naively, a linear regression to the left and a linear regression to the right, and then there's the difference
+
+Unknown Speaker  55:27  
+here to define your discontinuity. Regression here to the left,
+
+Speaker 2  55:37  
+clearly see while a changes the slope. But ultimately, out of the two intercept serves As a good enough difference or
+
+Unknown Speaker  56:02  
+president. Accident,
+
+Speaker 2  56:54  
+you on on some function, form constraints, the
+
+Speaker 1  56:59  
+linear regressions you would have let yourself straight if you had estimated it in a different way.
+
+Unknown Speaker  57:12  
+Historically, if you trace
+
+Unknown Speaker  57:15  
+for the literature people started and
+
+Unknown Speaker  57:23  
+another x, left and Y
+
+Speaker 1  57:30  
+on X to the right. Regression on X routinely start to regress it on x, squared x, cubed Q polynomials of the forcing variables.
+
+Speaker 2  57:44  
+He produces quite a bit of bias as a very nice paper by
+
+Unknown Speaker  58:00  
+what HP, experience comes from. I think you have you
+
+Unknown Speaker  58:06  
+just take it as given.
+
+Unknown Speaker  58:07  
+But an easy way to see
+
+Speaker 1  58:11  
+is the choice of P sometimes determine if you think there is a causal effect or this right? So you figure third order polynomial, and then there is no treatment effect, and you think the fifth order polynomial. And then that
+
+Unknown Speaker  58:24  
+alone, should warn you, the state of the world does cause the family
+
+Unknown Speaker  58:29  
+cannot depend.
+
+Speaker 5  58:42  
+By more flexible,
+
+Unknown Speaker  58:54  
+I understand so like when you're choosing which two points will be like your narrow focus. Are you
+
+Unknown Speaker  59:07  
+like run a linear model,
+
+Speaker 7  59:08  
+but if that's not quite flexible enough, then you'll just trial and error other models
+
+Unknown Speaker  59:14  
+until you find something that that's different between the
+
+Speaker 7  59:20  
+local area. But I guess, because my question above that is just who or what is deciding or influencing the space is like the two lines that you right now, we
+
+Speaker 1  59:30  
+don't do that right it's just okay right now, the implementation is simply one like that. I can say I'm interested in the discontinuity here, so I'm fitting a regression, and I'm taking the difference in these two points as my estimate, but this is based on the linear model. Okay, that gap is the function of how I specify that regression line, right? If I add a square term, you can already see. That careful becomes small. I made big data such that, in fact, is equal. So you're tricking yourself estimate it as a linear model. In this model as a large treatment effect. But in fact, there is none. People are aware of that. So you could think of the following procedure as you outline right start with a linear model and the square of x and the cube. But then how do you decide if you pick the one that gives you the significant effect, you're fooling yourself?
+
+Unknown Speaker  1:00:31  
+Right order of polynomials
+
+Speaker 1  1:00:33  
+should be if it were such that the higher the P is, the more robust your result subjected yourself to my criticism, then the world would be okay. But that's just not true. High you're estimating too many features of the data. What I'm trying to make here is that to estimate that F here, you need to rely on some form of model. And it can be simple linear models, nor can it be simple polynomial
+
+Unknown Speaker  1:01:13  
+it's not that you can do it. The problem
+
+Unknown Speaker  1:01:24  
+just to show it,
+
+Speaker 1  1:01:38  
+think about it in terms of outcomes. Right? What would the regression look? What you want to estimate by the x here, and that's, of course, expected value of the potential outcome, undisturbed state, in the control state. And then we have the differences in the expected values of potential outcomes that are switched on when right? Nothing. Happens, and if the treatment is switch on, meaning D is equal to one happens here,
+
+Unknown Speaker  1:02:07  
+that is, here is just a diffuse above the zero potential outcome. How would you run this as a
+
+Speaker 1  1:02:18  
+regression? Well, a straightforward way is estimating a P order polynomial pressure out here in December,
+
+Unknown Speaker  1:02:51  
+then You have plus.
+
+Speaker 1  1:03:00  
+Here you have the same structure. Again, the polynomials just multiply it by D, I'm writing it as x, I, J. Again, this, again, linear square with a coefficient at beta.
+
+Speaker 2  1:03:18  
+Star would be the the others. This would be the polynomial
+
+Speaker 1  1:03:30  
+to the left. This would be the polynomial when the treatment is switched off. You fit in the polynomials to the left, right, and then whatever shift happens, we put in the middle that's your
+
+Unknown Speaker  1:03:51  
+treatment. Allow for of the cut off into the right of the cut off,
+
+Unknown Speaker  1:03:58  
+which is equivalent as 01, zero,
+
+Unknown Speaker  1:04:07  
+P to four on the data, I get an estimate of 183
+
+Speaker 1  1:04:17  
+and the standard error forward there, you would correctly conclude that There's no significant treatment effect. Make some sense?
+
+Speaker 1  1:04:41  
+Sense. Okay, and let's take a break. Thanks. And energy, then I get to talk to you about local, linear or carbon progression. That's probably most likely. You
+
+Unknown Speaker  1:05:25  
+Before Right? I
+
+Speaker 2  1:06:04  
+of the stuff, binary instruments, in this case, the forcing variable is continuous. In
+
+Speaker 1  1:06:50  
+million the definition of what the local average treatment effect is is essentially conceptual. It is not defined in terms of the four groups you have when you cross right, CFD, I wouldn't
+
+Unknown Speaker  1:07:10  
+worry too much. Define the treatment effect is local to some region definition in instrument
+
+Speaker 1  1:07:28  
+vertical setting, instrument variable that is binary, that's binary. And then, of course, but if you do the same thing, you still get something that is conceptually compiled. At a post, no one would then start to think about the
+
+Unknown Speaker  1:07:53  
+group, if that makes sense.
+
+Unknown Speaker  1:08:10  
+That's fine.
+
+Speaker 1  1:08:16  
+I can easily rewrite the slide. Shall the education videos, read it for
+
+Unknown Speaker  1:08:29  
+Talk to us.
+
+Unknown Speaker  1:08:43  
+To be on campus.
+
+Speaker 1  1:09:02  
+I so do you like to simulate your mind? You
+
+Speaker 1  1:09:33  
+or I'm trying to avoid putting it in Canvas explicitly what the curve is, because that drops the freedom if you trust me to be a decent enough human being, and I never adjusted such that someone is
+
+Speaker 2  1:09:56  
+why can. Get what the letter rate is, but it's because what it is rate, and then I perturb
+
+Speaker 1  1:10:11  
+every individual rate a little bit. So I want to know when you have an assignment and you have 88 I want to know that had you gotten 89 your letter grade doesn't change, because plus minus two is probably measurement error, right? Instead, I want to make sure that this is not true. If I my simply reflects me, that it's the case for five people, then I just change the curve color strategy. Can commit to Sure 93 is a professional Today, because it might become 94 become 94 you there or
+
+Unknown Speaker  1:11:40  
+You. Oh, it is very hard me.
+
+Speaker 8  1:12:38  
+Count is my last rip, which is actually the comparative? Oh, okay, so she had so nice. I think I'm like, I'm a big fan to like work with me to make component, but I really needed, it'll be my fourth.
+
+Speaker 6  1:13:11  
+Like, you know, I mean, you're always like, you're always supposed to be taking what you like, think you'll need? No, we think it's relative. Who doesn't stop
+
+Unknown Speaker  1:13:19  
+at year three, year two. Yeah, totally.
+
+Speaker 8  1:13:21  
+Three stop, but I just, I mean,
+
+Unknown Speaker  1:13:27  
+you're just like, tired of like, taking every semester,
+
+Speaker 8  1:13:39  
+I dissertation, prospectus in the three classes, T, A, R, A, yeah,
+
+Speaker 6  1:13:51  
+I think I'm taking on John Green's. And then, oh, cool.
+
+Unknown Speaker  1:13:56  
+His is. I was talking to him about it. And if I could just
+
+Unknown Speaker  1:14:03  
+take it. But
+
+Speaker 8  1:14:04  
+one of the things we appreciate is he's trying to, like, be very mindful about making it like, useful for professional development, which I feel like Allison
+
+Unknown Speaker  1:14:20  
+is like
+
+Unknown Speaker  1:14:24  
+he said presentation.
+
+Unknown Speaker  1:14:38  
+And I actually I loved,
+
+Speaker 6  1:14:43  
+I'm saying a lot of people think you just thought that you're too
+
+Speaker 8  1:14:47  
+totally, I know it seems like your cohort, maybe in particular, God, like,
+
+Unknown Speaker  1:14:55  
+just like some lesson. LP,
+
+Unknown Speaker  1:15:03  
+no, and so I'll still at least one more methods class, they're like,
+
+Unknown Speaker  1:15:19  
+no, okay, because I'm
+
+Speaker 8  1:15:23  
+necessary for me. Yeah, I'm just has been like, let that be the one thing you haven't done when it's like, a matter of Like, like,
+
+Unknown Speaker  1:15:54  
+period, yeah, but yeah, but I also like, maybe it will be helpful,
+
+Unknown Speaker  1:16:04  
+it would be helpful, but there Are other methods classes I'd like to take experiments I
+
+Unknown Speaker  1:16:26  
+John, are you also studying? What are you
+
+Unknown Speaker  1:16:40  
+thinking about the comps? Right now? Well, right now.
+
+Speaker 2  1:16:50  
+Cool, cool. I know at one point you were like,
+
+Unknown Speaker  1:16:59  
+This year also took that long, I guess, like next fall,
+
+Speaker 8  1:17:10  
+in some ways, also, your standing was that I would be doing, and I don't want to, like, On the one hand, I don't want
+
+Unknown Speaker  1:17:25  
+to wait on beauty
+
+Unknown Speaker  1:17:27  
+have, like, made enough people happy. I'm like, I've checked off what I what I need to but on the other hand, it would be kind of nice to take it
+
+Unknown Speaker  1:17:42  
+together. But
+
+Unknown Speaker  1:17:46  
+I also from Arvin and Lin, is that it's like, basically,
+
+Unknown Speaker  1:18:10  
+just gonna make sure. How are you feeling about
+
+Unknown Speaker  1:18:18  
+I like that. They gave the option to like, work on whatever like,
+
+Unknown Speaker  1:18:25  
+decide like, keep taking if they're
+
+Speaker 6  1:18:35  
+like, unless they're outside. But yeah, and we keep an eye on next semester.
+
+Unknown Speaker  1:18:49  
+Are you like, I'm mostly
+
+Unknown Speaker  1:18:53  
+like to be in it. Like, really try to fudge budget. Like,
+
+Unknown Speaker  1:19:06  
+budget it is.
+
+Unknown Speaker  1:19:22  
+Yeah, no, I did it. Oh, you did it.
+
+Speaker 6  1:19:27  
+Having trouble with number one, like, because I did it exactly. A different number two. And then now it's like, not working because I can't, I can't see my control line. It's the
+
+Speaker 2  1:19:41  
+wait. Book. This is the kind of deity where the
+
+Speaker 8  1:19:46  
+group only appears on the data set when they get the treatment. So it's weird because like they're not Yeah,
+
+Unknown Speaker  1:19:58  
+thing to do with what you're.
+
+Speaker 6  1:20:00  
+Yeah, I mean, I did that. I just when I like, my having my treatment,
+
+Speaker 9  1:20:09  
+like, nice one.
+
+Unknown Speaker  1:20:21  
+I can grab this
+
+Unknown Speaker  1:20:34  
+one, or, if you're like, I don't know what's going on with my code
+
+Unknown Speaker  1:20:42  
+having This issue, but otherwise,
+
+Unknown Speaker  1:21:16  
+it when the estimate the discontinuity, form assumptions. I show you
+
+Speaker 1  1:21:30  
+one way you could do this, by fitting polynomial regressions. Specify them in that way, you have very easily, one coefficient that will give you an estimate of the discontinuity. The downside is that for that, you have to choose the order of polynomial,
+
+Unknown Speaker  1:21:47  
+and that just tends to
+
+Unknown Speaker  1:21:56  
+be right. I to keep the job discussion, but just to make that point, maybe intuitive, you
+
+Speaker 1  1:22:33  
+imagine you want to estimate The relationship between two quantities, right? Don't think about RDD.
+
+Unknown Speaker  1:22:50  
+X, Y, then we have with observations. So like,
+
+Unknown Speaker  1:23:18  
+if you run any impression,
+
+Speaker 1  1:23:20  
+what do you do? You do this right? Minimize the square residuals and the best fitting line that's that's well enough, right? Of course,
+
+Unknown Speaker  1:23:32  
+that is missed right? The actual goes down and fitting
+
+Speaker 1  1:23:41  
+a linear regression. You can start to add polynomials. Imagine adding a contract with that. Help. Will that help you finding that little curve here? It wouldn't right if you had a cube term. You might get lucky. You might need four or five or six order of polynomials to get
+
+Unknown Speaker  1:23:59  
+what is in a program. You might be to say about since work,
+
+Speaker 1  1:24:08  
+what if I fit regressions that are shorter? Think about what if I be following This one?
+
+Speaker 5  1:24:22  
+Keep turn here, right the problem.
+
+Speaker 1  1:24:42  
+Sections that I just created, right? Well, then the next thing is that maybe we don't choose sections at all point.
+
+Speaker 1  1:25:03  
+X, then we we choose an area around that and then within that area I'm going to estimate my linear regression. Then I move one point to the right and do the same again, if I do this for every single point,
+
+Unknown Speaker  1:25:16  
+and I get this,
+
+Speaker 1  1:25:21  
+hopefully, allow me, then to recently well, approximate what assumption is make sense? Well, then what matters here, it matters how big you make that window. When you make it too small, you end up having two or three points, and you're not going to fit regression lines very well. Can be very noisy. Right in the limit you have two points, and if you're unlucky, if you pick an extreme point, you end up with a risky progression. Shouldn't be we make the window too large. You're back to thinking the stupid linear regression that
+
+Unknown Speaker  1:26:10  
+question, if
+
+Speaker 1  1:26:11  
+I, if I have picked a window, a region right, I could say I'm interesting. Now, currently, I'm, at this point here right my local linear regression and I decided to include points here. Could weight them all equally, or I could weight them such. I give more weights to the ones that closer to that point and less once the point, for example, if this is your this is the area, one weight you could choose is just
+
+Unknown Speaker  1:26:46  
+like or,
+
+Speaker 2  1:26:55  
+yes the point across, because you need To choose two things, the size of the window, and you choose it's called a kernel.
+
+Speaker 3  1:27:12  
+When you're saying you're choosing the size and you're choosing the wave or the normal distribution, versus the triangle, the triangle Yes, does the model for kernel? Does that automatically just fit based on
+
+Speaker 2  1:27:37  
+crazy you make a choice of
+
+Speaker 1  1:27:41  
+what the kernel is like, a triangular kernel decided for you, and then the only choice that needs to be made is online. Was a depression, yes, yes. And different kernels would imply different weights. Can make it a uniform curve, by the way, and then quite weight everything the same.
+
+Unknown Speaker  1:28:03  
+Organic literature on these
+
+Unknown Speaker  1:28:12  
+things from theoretically, I can tell you in practice,
+
+Speaker 1  1:28:21  
+the choice of the curve makes a very little difference. Does that make sense? Different choices change the weight a little bit. Compared to a triangular distribution, to a normal distribution, imply different weights. You can choose other curves. They don't affect
+
+Unknown Speaker  1:28:47  
+is of the bandwidth, right?
+
+Speaker 1  1:28:49  
+In an extreme case, you can think of making the bandwidth so large if you consider all the points, most weight, obviously doesn't, doesn't make a lot of sense.
+
+Unknown Speaker  1:29:01  
+If you make it true,
+
+Speaker 1  1:29:04  
+points and then you produce a result that is excessively chittering because you're using a series of small little linear regressions to approximate that function. Overdo it.
+
+Unknown Speaker  1:29:21  
+Points here.
+
+Speaker 1  1:29:33  
+Later, right that move somewhat smooth in here, what you do not want is an overall function estimate that,
+
+Speaker 5  1:29:41  
+like a trade you multiple
+
+Speaker 1  1:29:53  
+times. So you think of it as moving point by point, but then you use every point a couple of times depending. You know about the content,
+
+Unknown Speaker  1:30:16  
+philosophy,
+
+Speaker 1  1:30:30  
+it. But I want to, want to give you a sense of what, what the technique looks like, right? So this has
+
+Speaker 2  1:30:37  
+local linear regression. And, the idea, when you then apply it to RDD, is what, well,
+
+Speaker 1  1:30:48  
+jump one more time to my little car tone right. We've come a long way. Instead of fitting a linear line segment to the left and the right or maybe doing some polynomial, what we do now is we're going to fit your
+
+Unknown Speaker  1:31:16  
+intercept, then you have distance.
+
+Speaker 1  1:31:34  
+And you have the kernel here, right? Can see this is the distance from web to be
+
+Unknown Speaker  1:31:41  
+towards the point, small window.
+
+Speaker 1  1:31:49  
+And here I'm constraining this to the right of c zero. So this would be the local poly number of regression to the right of the cut off. Of course you also want to fit one to the left of the cut off.
+
+Unknown Speaker  1:32:06  
+A choice to be made sure.
+
+Unknown Speaker  1:32:36  
+Response is the choice of the window, the bandwidth, the
+
+Speaker 1  1:32:51  
+so if you had to pick the bandwidth yourself,
+
+Speaker 2  1:32:54  
+then would not really because then you would have maneuvered
+
+Speaker 1  1:32:58  
+yourself in the same situation We were before, right before autumn, and I discussed the problem of choosing the right number of p. That doesn't work. If that changes to you choosing h such that the result is significant. That, again, would not convince anyone. This is a bit more robust than a polynomial progression, but still basically
+
+Unknown Speaker  1:33:16  
+trying to convince somebody to pay the issue so that is, in some sense optimal, optimal in scare
+
+Speaker 1  1:33:31  
+quotes, because it's optimal in a statistical sense, that doesn't mean it's optimal in a causal sense, it's good to remember that word, optimal, best. Test you asked you select the value of h such that it fulfills certain criteria. For example, here, criteria that you worry on is a trade off between bias and variance, right? But that is not a good approximation to what you what the truth is like bias? Well, if you go to the other extreme or make the window really small, then you start to trace out every single point, then it becomes very high variance. That's an obvious trade off between the two. And one way to think about this is like, okay, I can choose the bandwidth such that I control some criterion I care about, for example, mean square, just like a lunar regression, I want to minimize it overall.
+
+Speaker 5  1:34:39  
+I'm going to try try
+
+Speaker 2  1:34:45  
+different windows and figure out what you mean. Make the window
+
+Unknown Speaker  1:34:54  
+smaller and smaller. Some point the mean square error gives.
+
+Speaker 1  1:35:05  
+That's a standard way to do it. In the kind of non parametric regression literature, there's a very famous paper by immense
+
+Speaker 5  1:35:21  
+paper, that essentially is,
+
+Unknown Speaker  1:35:29  
+optimizes means whenever
+
+Speaker 1  1:35:36  
+fashion a little bit. It's pretty fair to say that what most People would
+
+Unknown Speaker  1:35:46  
+principal hospital expressions community decides to
+
+Unknown Speaker  1:36:23  
+questions first, and then I say, what the risk of that is.
+
+Unknown Speaker  1:36:26  
+Go ahead. Why don't we use the same criteria to choose
+
+Unknown Speaker  1:36:37  
+the poly compliance you could do that. Yeah. If you're doing this anyway.
+
+Speaker 1  1:36:52  
+Again, this is not. This is not. I've not been that active in the literature. I must admit, I don't completely understand why that even exists when I made it, when I made an illustration for you, this is the naive version. And when I thought about what's the non naive version, I immediately go to some technique that tries to produce estimates while controlling the variance. Karl,
+
+Unknown Speaker  1:37:24  
+fact that you find it in the literature,
+
+Unknown Speaker  1:37:26  
+it's probably more function of how much
+
+Speaker 1  1:37:32  
+anybody has been trained to run regression. So you have learned about polynomials the share of people have done
+
+Speaker 1  1:37:50  
+it if you want to approximate something locally. Now, for reasons of time, I didn't know what to discuss that length,
+
+Speaker 2  1:38:05  
+which has pros and cons with small details. The cons is, of course, that
+
+Speaker 1  1:38:17  
+optimal choice, in some sense that matters for inference, because of course, what happens in practice is that your results can be quite sensitive to choices of the benefit. Just because it's optimal under some statistic criterion doesn't mean that's the right choice for causal analysis. On
+
+Speaker 1  1:39:05  
+and if you're right, so if you end up with a study of discontinuity,
+
+Speaker 1  1:39:20  
+size of h is that, and you look at this, that's like a third of
+
+Unknown Speaker  1:39:26  
+probably does not no longer carry the same
+
+Speaker 1  1:39:30  
+convincingness in terms of what it means when you cause you essentially Back to run a nuclear regression
+
+Speaker 2  1:39:40  
+of soil chalk talks for someone. It doesn't matter
+
+Speaker 1  1:39:49  
+if your R package told you that this is the optimal bandwidth, that this might well be the case. But in terms of an instrument of positive identification, where you use the closeness the color as an argument. Right? That stops making sense.
+
+Speaker 1  1:40:13  
+You should check what the bandwidth is if it makes sense relative to what you're studying, and it's probably a good idea to let whatever software package you use, whenever algorithm chooses H for you, it's probably good
+
+Unknown Speaker  1:40:27  
+around yourself
+
+Speaker 1  1:40:28  
+to at least convince yourself that your results don't happen to you.
+
+Speaker 5  1:40:41  
+The events, but bandwidth,
+
+Speaker 1  1:40:59  
+you probably comes clearer in a second and show you how to do it again. That tells you nothing about the unobservables. Check for the observables and don't find anything there.
+
+Speaker 1  1:41:20  
+An easy way to do this is just to do a placebo RDD, right? You have a bunch of covariance or variable. Take the covariance and run an RDD on them. It's a placebo because you don't expect their effect, and hopefully you don't find one. To find one, it's a
+
+Speaker 2  1:41:54  
+in effect, and that should be small for the covariates. Then I mean, we
+
+Unknown Speaker  1:42:37  
+a pretty sharp kind of I
+
+Unknown Speaker  1:42:45  
+instance.
+
+Unknown Speaker  1:42:52  
+Let me end by think what it is that briefly, Wouldn't I?
+
+Unknown Speaker  1:43:04  
+To everything would continue undisturbed.
+
+Unknown Speaker  1:43:18  
+Score election everything else that you could think of, founders would not be disturbed,
+
+Unknown Speaker  1:43:35  
+as I labeled it is a
+
+Speaker 1  1:43:36  
+critical application political science, right? Look at this. Is the water
+
+Unknown Speaker  1:43:40  
+margin of one loss of
+
+Unknown Speaker  1:43:50  
+quality.
+
+Unknown Speaker  1:44:02  
+Of politicians, if you ask me,
+
+Unknown Speaker  1:44:05  
+reason, 50,000
+
+Unknown Speaker  1:44:20  
+somewhat sizable in terms of
+
+Unknown Speaker  1:44:28  
+differences.
+
+Unknown Speaker  1:44:38  
+Well fairly wins against,
+
+Speaker 1  1:44:44  
+apparently loses. That would be confusing, right? We were comparing windows and lose. It's obvious that people who win elections are different. For people who tried to think about that just 100 votes more, you.
+
+Unknown Speaker  1:45:00  
+I flip or a random assignment
+
+Unknown Speaker  1:45:13  
+for it.
+
+Unknown Speaker  1:45:21  
+Can I just make that point of view
+
+Speaker 1  1:45:30  
+always be true? Right? As a very nice paper by
+
+Unknown Speaker  1:45:39  
+me, they looked at
+
+Speaker 1  1:45:40  
+fair winners and fair losers in US House right, and they Find, again,
+
+Unknown Speaker  1:45:51  
+substantially more financial party along the previous election.
+
+Speaker 1  1:46:57  
+Up to add it's a very common way to Plug it this way. And then in that paper,
+
+Unknown Speaker  1:47:45  
+it happens often. That doesn't mean they're not significantly different, because if
+
+Speaker 1  1:47:53  
+you're actually interested in the difference, the 95% confidence levels are too long. If they don't touch you know there's a significant difference, but if they do overlap, you don't automatically. Can say that guy, you shrink the confidence interval for the difference, or you just do
+
+Speaker 5  1:48:19  
+the test. To me, this is seems
+
+Speaker 1  1:48:26  
+to be a strange difference that I can't explain. Where it comes from, where you either you look at an RDD paper, you
+
+Speaker 2  1:48:39  
+look at the paper the same blocks. Look at inside that is
+
+Speaker 1  1:48:47  
+probably Washington there. That's his reaction to almost RDD paper from Andy Gelman. His response,
+
+Unknown Speaker  1:48:55  
+I can't wait. Wait strong. He
+
+Speaker 1  1:48:56  
+understands how these things work very well. It's published on it how to do better. So it's not that you think it should be forbidden. I can tell by his prior is to look at a plot like this. Is that this is probably nothing versus the prior of other people is like, this is such a well identified effect here. This is fascinating.
+
+Unknown Speaker  1:49:21  
+Comes from. If this were
+
+Unknown Speaker  1:49:22  
+my paper, I would put in a lot of effort
+
+Unknown Speaker  1:49:25  
+to make them. This is
+
+Speaker 1  1:49:29  
+already quite a narrow margin, to be honest, just trying
+
+Unknown Speaker  1:49:33  
+to put in
+
+Speaker 1  1:49:57  
+at least in practical terms, the biggest NO NO is. In presentations, even if you have people in Rome who, in principle, are quite predisposed to thinking that RDD is one of the better designs we have is
+
+Unknown Speaker  1:50:13  
+not too large. You look at it right. Data
+
+Unknown Speaker  1:50:21  
+ranges from zero to 100 and then you see the band.
+
+Speaker 1  1:50:34  
+Again. The technology, in a sense, is simple enough that you don't need you could just do it yourself that there are many packages for kernel
+
+Speaker 1  1:50:53  
+regression the optimal bandwidth choice automatically you will always
+
+Speaker 1  1:51:05  
+of probably your best bet again for two reasons. It has competent people doing it, both in terms of people
+
+Unknown Speaker  1:51:17  
+taking more causal entrance,
+
+Unknown Speaker  1:51:19  
+and people who are good at writing American
+
+Speaker 2  1:51:31  
+routine package. I think this is
+
+Unknown Speaker  1:51:45  
+was it?
+
+Unknown Speaker  1:51:58  
+Okay now, instead of you,
+
+Speaker 2  1:52:06  
+of science simulate data. This might be more boring just using real data, but is that we know the truth. And
+
+Speaker 1  1:52:13  
+I also want to suddenly get you in the habit of doing this yourself,
+
+Speaker 2  1:52:17  
+because if you study how something doesn't idea.
+
+Unknown Speaker  1:52:34  
+What I'm doing.
+
+Speaker 1  1:52:37  
+What I'm doing here is very simple. And see here
+
+Speaker 2  1:52:40  
+I'm drawing from keeping values of x between zero and 100 right? So
+
+Speaker 1  1:52:55  
+you can think of it as a wheelchair stuff.
+
+Unknown Speaker  1:53:07  
+Say when x is great as that becomes our
+
+Unknown Speaker  1:53:15  
+treatment indicator
+
+Speaker 2  1:53:19  
+that's not the guys that as the treatment. Now write a little equation that determines even one
+
+Speaker 1  1:53:37  
+is 100 and then I add a quadratic relationship between x is related to y in general. Here, of course, the discriminity produces a
+
+Unknown Speaker  1:53:49  
+jump 200
+
+Unknown Speaker  1:53:54  
+points for the normal distribution would mean zero in up,
+
+Unknown Speaker  1:54:17  
+spend some time, sure. Term, it is not my editor, nor is it R
+
+Unknown Speaker  1:54:26  
+is an interaction between
+
+Unknown Speaker  1:54:33  
+it seems to be more an apple problem than any
+
+Speaker 1  1:54:43  
+not plug it again as an R file. This.
+
+Unknown Speaker  1:55:00  
+Aspect, maybe, right? You can see that it's probably an upward shift here
+
+Unknown Speaker  1:55:07  
+visually, that alone is not that.
+
+Unknown Speaker  1:55:18  
+Content, noise.
+
+Unknown Speaker  1:55:28  
+Strategy that is very common. This is not just specific to RDD.
+
+Unknown Speaker  1:55:40  
+Bring them together. Think about
+
+Speaker 1  1:55:46  
+it, the means of these bins, the figure becomes less busy visually. But if there's a lot of random noise, average over over, more observations, I can't stop what's
+
+Unknown Speaker  1:56:02  
+always on. Is function
+
+Speaker 1  1:56:09  
+rb plus, and it's pretty easy to use. The first thing you need to write is, what is an outcome? Why? What is the forcing variable, x? Then you need to tell me where the color is. In our case, that would be 50.
+
+Speaker 2  1:56:24  
+Then you choose here and the number of bins to the left and The Right. You don't have a output.
+
+Speaker 5  1:57:00  
+In the atmosphere, you
+
+Unknown Speaker  1:57:07  
+can see what it does right
+
+Speaker 1  1:57:09  
+to the left of the color. Here, it created 50 bins,
+
+Unknown Speaker  1:57:19  
+whatever, 2000 plots.
+
+Speaker 1  1:57:25  
+This makes it a bit easier now to see right there's this upward shift. Here
+
+Unknown Speaker  1:57:29  
+comes that plot,
+
+Unknown Speaker  1:57:36  
+in terms of noise, and you're getting
+
+Unknown Speaker  1:57:50  
+if you could make choosing the right number of bins to
+
+Speaker 1  1:57:57  
+some criteria, There's more than one criteria, an obvious one would be, let me pick the number of bins such that within each bin the variance is as small as possible and the constraint, but I want the overall variance also to be small right in the limit. Each point gets its own bin, quite Less
+
+Unknown Speaker  1:58:16  
+limit, all coins co infinity.
+
+Unknown Speaker  1:58:28  
+Industry sponsorship,
+
+Unknown Speaker  1:58:44  
+also slightly fewer if
+
+Unknown Speaker  1:58:58  
+you fit
+
+Speaker 1  1:59:00  
+polynomials to these bins. The choice of bins will, of course, affect how much of it is.
+
+Unknown Speaker  1:59:16  
+Community.
+
+Speaker 1  1:59:22  
+Now another way to think about what is happening in analysis like this is to think about how we choose the bandwidth. This is not an RDD analysis yet. This is
+
+Unknown Speaker  1:59:33  
+just a plot, but the
+
+Unknown Speaker  1:59:36  
+function here gives you the option
+
+Speaker 5  1:59:40  
+to choose the location. Click
+
+Unknown Speaker  1:59:45  
+entertainment value.
+
+Unknown Speaker  1:59:49  
+I start with 50, which is way too large. 30.
+
+Speaker 1  2:00:06  
+50, which means 50 to the left, 50 to the right. I'm using all the data.
+
+Unknown Speaker  2:00:17  
+Make it 30 for a curve that you think
+
+Speaker 1  2:00:32  
+it's also clear that if I make this five or one or two, that function starts to display quite a Rapid behavior, basically the trade off
+
+Unknown Speaker  2:00:52  
+shorter ways of just
+
+Unknown Speaker  2:01:05  
+it actually has
+
+Unknown Speaker  2:01:18  
+been passing before as part of our estimator.
+
+Speaker 1  2:01:27  
+What I'm showing you here is, if you want to play around with it separately, you can also do this as a function. Is called r, d, band with
+
+Speaker 1  2:01:43  
+or cut off this, and then you have different options to select the band. So here is essentially one that is a robust version of different
+
+Unknown Speaker  2:01:56  
+analysis of
+
+Unknown Speaker  2:01:58  
+the RDD. It just tells you what bandwidth you
+
+Unknown Speaker  2:02:08  
+have. This is what
+
+Unknown Speaker  2:02:17  
+right for a second. This is the number
+
+Unknown Speaker  2:02:20  
+below the threshold, and is the
+
+Speaker 2  2:02:51  
+technology as part of the actual estimator,
+
+Speaker 1  2:02:55  
+you get a local linear or local liquid ready to choose progression with a kernel that you specify, or leave it as before, and it chooses now you can choose the bandwidth for that local linear regression
+
+Unknown Speaker  2:03:18  
+to use my favorite channel book called M is too wide for me.
+
+Speaker 1  2:03:29  
+NT optimal bandwidth you consider optimal? Let me show you, at least in principle, you use the technology this way. How would you
+
+Unknown Speaker  2:03:45  
+happens. See from the
+
+Unknown Speaker  2:03:53  
+Help file, regression, local, I
+
+Speaker 1  2:04:00  
+showed you example linear regression. It doesn't have to be linear. It could be locally quadratic, cube, whatever you want to be, people tend not to go more than quadratic locally, because you don't need it flexible, but it implements
+
+Unknown Speaker  2:04:21  
+that right? Works. So you need, what does it need?
+
+Unknown Speaker  2:04:33  
+To know what it
+
+Speaker 1  2:04:49  
+local and indeed you tell him, okay, select the bandwidth automatically from.
+
+Unknown Speaker  2:05:02  
+Already, that's all you need to do.
+
+Speaker 1  2:05:06  
+It implements the kernel regression that we've discussed before. For you, it doesn't properly, right? It adjusts for some bias that you can work out
+
+Speaker 2  2:05:21  
+this community together with them, you run both of them and
+
+Unknown Speaker  2:06:57  
+you mentioned that
+
+Speaker 4  2:07:00  
+the width bandwidth can be asymmetrical. Asymmetrical depends on the number of observations or on each side of the cut off
+
+Unknown Speaker  2:07:14  
+that formula.
+
+Unknown Speaker  2:07:23  
+That may use a criteria, band, selection, that error, you might be better off allowing it to be
+
+Unknown Speaker  2:07:36  
+different experience, also, if it makes A difference, here's the
+
+Unknown Speaker  2:07:58  
+cut offs really have no variance.
+
+Speaker 2  2:08:07  
+Um, all right now you provide
+
+Unknown Speaker  2:08:34  
+out make the point that
+
+Speaker 1  2:08:35  
+centered x axis. That's what I'm taking x 50.
+
+Speaker 5  2:08:41  
+What
+
+Speaker 1  2:09:01  
+I do now is the following. I'll use the rd plot function that we have already seen, right? I tell you what the outcome is. I tell you where x is. This is not a centered variable. But instead of plotting all the data, I'm doing the following, I'm going that I've just estimated. This leaves behind here.
+
+Unknown Speaker  2:09:23  
+Saying is this number here, right
+
+Speaker 1  2:09:34  
+x c is greater than the lower level bandwidth is less than the higher level X. Rest is the same stuff as before. We set up the number of pins automatically and so forth. And for the best.
+
+Unknown Speaker  2:10:13  
+Forum, very simple relationship, the
+
+Unknown Speaker  2:10:22  
+challenge, jump Here
+
+Unknown Speaker  2:10:28  
+to show
+
+Unknown Speaker  2:10:34  
+that's a principle
+
+Speaker 2  2:10:41  
+that because I promise to end in
+
+Speaker 1  2:10:47  
+time, you can adjust standard errors for several problems. So here we by
+
+Speaker 1  2:10:59  
+default, you probably want to transfer elasticity, but imagine You had design where the observations you would get. Then
+
+Unknown Speaker  2:11:23  
+question, and we know
+
+Speaker 2  2:11:35  
+alternative ways, by the way, to see what cases you matching quite estimated by
+
+Speaker 2  2:12:09  
+at least, are we by this? I'm not going to use what to think. Them. I
+
+Unknown Speaker  2:12:30  
+don't know how to feel, but I do
+
+Speaker 3  2:12:31  
+have a question. What's in between this and the deity? The main if you're if you're trying to figure out your own data, the main assumption that the deity is making, that the rd isn't, is that we have Karl trends before the Treatment is put into place,
+
+Unknown Speaker  2:12:59  
+saying for both groups before,
+
+Speaker 3  2:13:09  
+like, if you have, like, a treatment in a control group, and you're putting some sort of some sort of treatment, then you're assuming, because the covariance would be the same between the groups that the baseline, let's say the test score before the treatment would be somewhat equal and there wasn't some like inherent difference between the groups
+
+Speaker 1  2:13:30  
+in petty control setting, they would have to be equal and have the same trends right difference in different
+
+Speaker 2  2:13:37  
+must have the same transcendence. A synthetic difference in difference estimator you can have both different here,
+
+Unknown Speaker  2:13:54  
+when you argue everything besides
+
+Unknown Speaker  2:14:09  
+the trend
+
+Speaker 3  2:14:16  
+question was that that would mean that the deity estimator is a more like conservative
+
+Unknown Speaker  2:14:23  
+estimate for the treatment.
+
+Unknown Speaker  2:14:30  
+Nobody but
+
+Unknown Speaker  2:14:38  
+we causal analysis
+
+Speaker 1  2:14:40  
+being tainted by the potential presence of unobservables. This is the better taking right, like this, in the sense of like if it works, you worry the least. I think that's probably fair to say,
+
+Unknown Speaker  2:14:58  
+different setting I know.
+
+Speaker 1  2:15:00  
+We have a sense that I understand the assumptions really fairly well. I.
+

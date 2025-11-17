@@ -1,0 +1,113 @@
+---
+title: "rdd_assignment3_notes"
+format: pdf
+editor: visual
+---
+
+First, create simulated data from an RDD data generating process (look at lab) and estimate the treatment effect using a suitable RDD estimation strategy.
+
+Example: you are
+
+Causal Q: does X cause Y? However, I cannot randomly assign incarceration/victimization, creating causal inference problem:
+
+the people who are treated (incarcerated, victimized, etc) are *already different* from those who are not.
+
+RDD is one credible way I could deal with this kind of problem – when nature or a policy rule provide a threshold.
+
+-   is a way of saying "I can't randomize treatment, but there's a rule in the world that's almost doing it for me."
+
+-   takes advantage of cutoffs in real life – rules that assign treatment when some variable crosses a threshold. Perhaps when:
+
+    -   fake: judges assign incarceration instead of probation when sentencing score is above 50. Just above or below that cutoff, people are extremely similar in all respects except for treatment status / score being just above or just below 50.
+
+    -   so, RDD would treat the cutoff as local randomization device: people just on either side are comparable, and any sudden jump in the outcome at that point can be interpreted as a causal effect
+
+-   asks:
+
+    -   are treated/untreated (just above/below 50 scorers) outcomes otherwise continuous?
+
+    -   is the only thing that jumps at the cutoff the probability of being incarcerated?
+
+        -   if yes, any jump in post-release policy views at that threshold is interpretable as the causal effect of incarceration
+
+Idea of this assignment is to study a fundmamental assumption underlying RDD
+
+**RDD**
+
+-   can solve selection on unobservables by focusing locally around a cutoff
+
+    -   forcing variable X (in merit award example = test score) determines treatment D
+
+    -   individuals just below and above the cutoff $c_0$ are assumed identical in unobserved motivation except for receiving treatment.
+
+    -   discontinuity thus conceptually like a localized randomization – "the closest we get to an expiriment when we cannot intervene directly"
+
+-   re-lab's setupL D \<- ifelse (x \> 50, 1, 0)
+
+    -   and the claim that around 50, treated and untreated are 'as if random'
+
+**What's actually estimated: not the ATE or ATT, but the LATE**
+
+LATE = lim(E\[Y\|X = x\]) - lim(E\[Y\|X=x\])
+
+-   makes explicit what the lab shows empirically – the coefficient on D from rdrobust(y=y, x = x, c = 50) ...is a local effect
+
+    -   the 'locality' explains why the window (h) matters
+
+    -   also means we learn only about individuals near the threshold – not the low or high ends of the distribution
+
+**Continuity Assumption**
+
+-   identifying assumption: "All other determinants of Y, including unobservables, are continuously realted to X at the cutoff"
+
+    -   this is what code assumes by generating a smooth baseline function plus a jump: y \<- 20 +d*100 + 1.5*x - 0.015\*x\^2 + rnorm(...)
+
+    -   \^corresponds to continuity in potential outcomes; the only discontinuity ine xpected Y should come from the treatment rule
+
+    -   *empirical diagnostic:* run placebo RDDs on covariates – if find a jump in those, identifying assumption is probably violated
+
+**The forcing variable as assignment mechanism**
+
+-   imbens & Rubin Ch 3
+
+-   direct line from RDD to assignment mechanism theory
+
+    -   RDD is just a case where the assignment probability ( P(D=1\|X) jumps discontinuously at $X = c_0$
+
+    -   this is "sharp" RDD
+
+    -   if the probabiilty only increases (not jumps fully from 0-\>1), that's "fuzzy" RDD
+
+-   \^contextualizes why the lab calls the variable x a "running" or "forcing" variableand why I'll later specify bwselect = "mserd" (mean squared error for regression discontinuity)
+
+The local fitting problem
+
+-   need local linear or polynomial fitting
+
+-   "polynomial order $p$" and its dangers (high = overfitting, spurious effects)
+
+-   bandwidth $h$ and kernal weighting (triangular, uniform, etc)
+
+-   bias-variance tradeoff in badnwith selection can justify automatic bandwidth in rdbwselect(y=y, x=x, bwselect = "mserd")
+
+-   matches lab sequence with rdplot x 3, then calling rdbwselect() to pick an optimal h
+
+Practical diagnostics
+
+-   in assignment, will need
+
+    -   to inspect whether the chosen bandwidth is too wide relative to data's range
+
+    -   conduct placebo tests using covariates
+
+    -   visually inspect binning (rdplot) and confirm that only the treatment variable jumps, not other predictors
+
+-   rdd works best when nature doesn't "produce jumps" – continuity in observables is plausible near the cutoff, but less so far away
+
+Conceptual relationship to other designs
+
+-   DiD needs parallel trends
+
+-   RDD needs continuity of potential outcomes
+
+    -   often more credible in the presence of unobservables, bc directly uses a structural cutoff as a quasi experiment
