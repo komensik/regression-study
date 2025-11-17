@@ -1,0 +1,79 @@
+---
+title: "mensik_pset_10"
+format: html
+editor: visual
+---
+
+## Data
+
+the `refug` dataset of judge decisions by the Canadian Federal Court of Appeal. The judges were making decisions about people seeking refugee status. The variables are as follows:
+
+-   `decision`: the DV; 2=grants refugee's appeal, 1=denies appeal
+-   decision_num is 1 = grants 0 = denies
+-   `judge`: name of the judge hearing the case; a factor variable
+    -   came in as character
+    -   judge_factor is as factor
+-   `nation`: nation of origin for the refugee making the appeal; a factor variable
+-   `rater`: judgment of the merit of the appeal by an independent rater; a factor variable with two levels, yes or no
+    -   rater_factor
+-   `language`: language of the case, English or French; a factor variable
+-   `location`: location of original claim by refugee, Montreal, Toronto, or other; a factor variable
+-   `success`: the logit of the success rate ($\text{ln} \left( \frac{p}{1-p} \right)$) of all cases from refugee's nation of origin (numeric)
+
+Load the data and name it refug.
+
+```{r, echo=FALSE, warning=FALSE}
+library(lmtest)
+library(sandwich)
+library(dplyr)
+
+refug <- read.csv("/Users/kristinamensik/Documents/GitHub/regression-study/refug.csv")
+
+# recode variable decision so that 1 equals grants the appeal and 0 equals denies the appeal (right now is 2 = grants the appeal and 1 = denies)
+refug$decision_num <- ifelse(refug$decision == "yes", 1, 0)
+
+# check judge -> recode to factor
+refug$judge_factor <- factor(refug$judge)
+levels(refug$judge_factor) #ordered alphabetically
+
+#check rater -> factor
+refug$rater_factor <- factor(refug$rater)
+levels(refug$rater_factor)
+
+#language to factor
+refug$language_factor <- factor(refug$language)
+
+#location to factor
+refug$location <- factor(refug$location)
+
+#success
+unique(refug$success)
+class(refug$success)
+
+levels(refug$language_factor)
+levels(refug$location)
+
+```
+
+## Problem 1
+
+Estimate linear model using predictors excluding the 'nation' variable
+
+```{r}
+
+m1 <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location + success, data = refug)
+
+# clustered standard errors by nation
+
+cov_clust_se <- vcovCL(m1, cluster = ~nation)
+
+coeftest(m1, vcov. = cov_clust_se)
+```
+
+judgeHeald - the -0.238 coefficient means that having Judge Heald as opposed to Judge Desjardin is associated with a 0.24 decrease in the likelihood of having a case granted, holding all else constant. This effect is highly significant.
+
+locationToronto - holding all else constant, having a case heard or seeking refugee status in Toronto instead of Montreal is associated with a 11.3 percentage point higher probability of being granted the case compared to a case/seeking refugee status in Montreal. However this is not statistically significant.
+
+success - holding all else constant, a one unit increase in the logit of the success rate of all cases from the refugee's nation of origin is associated with a \~20.8 percentage point increase in the probability that a judge grants the appeal. A unit increase in logit is the natural log of the probability of a nation's success rate – so a country with a 30% success rate's logit would be ln(0.30/0.70) \~ -0.8. This is nonlinear, but roughly corresponds to fairly significant changes. It is statistically significant as well.
+
+Coefficient plot - figure that plots the coef estimates for all independent variables along with their 95% confidence bounds
