@@ -1,0 +1,459 @@
+---
+title: "ci_mixtape"
+format: html
+editor: visual
+---
+
+```{r, setup}
+
+library(tidyverse)
+library(stargazer)
+library(haven)
+library(magrittr) 
+```
+
+## Regression Review
+
+```{r}
+
+set.seed(1)
+tb <- tibble(
+  x = rnorm(10000),
+  u = rnorm(10000),
+  y = 5.5*x + 12*u
+)
+
+reg_tb <- tb %>%
+  lm(y ~ x, .) %>%
+  print()
+
+reg_tb$coefficients
+
+tb <- tb %>%
+  mutate(
+    yhat1 = predict(lm(y~x,.)),
+    yhat2 = 0.0732608 + 5.685033*x,
+    uhat1 = residuals(lm(y~x, .)),
+    uhat2 = y - yhat2
+  )
+
+summary(tb[-1:-3])
+
+tb %>% 
+  lm(y ~ x, .) %>% 
+  ggplot(aes(x=x, y=y)) + 
+  ggtitle("OLS Regression Line") +
+  geom_point(size = 0.05, color = "black", alpha = 0.5) +
+  geom_smooth(method = lm, color = "black") +
+  annotate("text", x = -1.5, y = 30, color = "red", 
+           label = paste("Intercept = ", -0.0732608)) +
+  annotate("text", x = 1.5, y = -30, color = "blue", 
+           label = paste("Slope =", 5.685033))
+```
+
+## DAGs
+
+```{r}
+
+tb <- tibble(
+  female = ifelse(runif(10000)>=0.5,1,0),
+  ability = rnorm(10000),
+  discrimination = female,
+  occupation = 1+2*ability+0*female-2*discrimination+rnorm(10000),
+  wage = 1-1*discrimination + 1*occupation + 2*ability +rnorm(10000)
+
+)
+
+lm_1 <- lm(wage ~ female, tb)
+lm_2 <- lm(wage ~ female + occupation, tb)
+lm_3<- lm(wage ~ female + occupation + ability, tb)
+
+stargazer(lm_1, lm_2, lm_3, type = "text",
+          column.labels = c("Biased Unconditional",
+                            "Biased",
+                            "Unbiased Conditional"))
+```
+
+## Subclassification Exercise
+
+Titanic example – being in first class, a woman, and/or a child made survival more likely
+
+Diag shows:
+
+-   one direct path (causal effect) between first class (D) and survival (Y): D $\rightarrow$ Y
+
+-   two backdoor paths:
+
+    -   D $\leftarrow$ C $\rightarrow$ Y
+
+    -   D $\leftarrow$ W $\rightarrow$ Y
+
+-   bc data includes both age and gender, can close each backdoor path + satisfy backdoor criterion using subclassification
+
+First, note a naive **simple difference in outcomes (SDO)** which is just, for the sample:
+
+$$
+E[Y|D=1] - E[Y|D = 0]
+$$
+
+Code below uses data set on Titanic to calc SDO, which finds being seated in 1st raised the probability of survival by 35.4%.
+
+-   does not adjust for observable confounders of age and gender $\rightarrow$ biased estimate of the ATE
+
+```{r}
+
+read_data <- function(df)
+{
+  full_path <- paste("https://github.com/scunning1975/mixtape/raw/master/", 
+                     df, sep = "")
+  df <- read_dta(full_path)
+  return(df)
+}
+
+titanic <- read_data("titanic.dta") %>% 
+  mutate(d = case_when(class == 1 ~ 1, TRUE ~ 0))
+
+ey1 <- titanic %>% 
+  filter(d == 1) %>%
+  pull(survived) %>% 
+  mean()
+
+ey0 <- titanic %>% 
+  filter(d == 0) %>%
+  pull(survived) %>% 
+  mean()
+
+sdo <- ey1 - ey0
+```
+
+Because $\uparrow$ produces biased estimate of the ATE (doesn't adjust for observable confounders age and gender), we use **subclassification weighting to control for these confounders**.
+
+Steps:
+
+1.  stratify data into age x gender groups (4)
+2.  calc difference in survival probabilities for each group
+3.  get strata specific weights:
+    1.  calc \# people in non-first class groups
+    2.  divide by total \$ of non-first class population
+4.  calc weighted average survival rate using strata weights
+
+\
+titanic \<- read_data("titanic.dta") %\>% mutate(d = case_when(class == 1 \~ 1, TRUE \~ 0))
+
+```{r}
+
+titanic <- read_data("titanic.dta") %>% 
+  mutate(d = case_when(class == 1 ~ 1, TRUE ~ 0))
+
+
+titanic %<>%
+  mutate(s = case_when(sex == 0 & age == 1 ~ 1,
+                       sex == 0 & age == 0 ~ 2,
+                       sex == 1 & age == 1 ~ 3,
+                       sex == 1 & age == 0 ~ 4,
+                       TRUE ~ 0))
+
+ey11 <- titanic %>% 
+  filter(s == 1 & d == 1) %$%
+  mean(survived)
+
+ey10 <- titanic %>% 
+  filter(s == 1 & d == 0) %$%
+  mean(survived)
+
+ey21 <- titanic %>% 
+  filter(s == 2 & d == 1) %$%
+  mean(survived)
+
+ey20 <- titanic %>% 
+  filter(s == 2 & d == 0) %$%
+  mean(survived)
+
+ey31 <- titanic %>% 
+  filter(s == 3 & d == 1) %$%
+  mean(survived)
+
+ey30 <- titanic %>% 
+  filter(s == 3 & d == 0) %$%
+  mean(survived)
+
+ey41 <- titanic %>% 
+  filter(s == 4 & d == 1) %$%
+  mean(survived)
+
+ey40 <- titanic %>% 
+  filter(s == 4 & d == 0) %$%
+  mean(survived)
+
+diff1 = ey11 - ey10
+diff2 = ey21 - ey20
+diff3 = ey31 - ey30
+diff4 = ey41 - ey40
+
+obs = nrow(titanic %>% filter(d == 0))
+
+wt1 <- titanic %>% 
+  filter(s == 1 & d == 0) %$%
+  nrow(.)/obs
+
+wt2 <- titanic %>% 
+  filter(s == 2 & d == 0) %$%
+  nrow(.)/obs
+
+wt3 <- titanic %>% 
+  filter(s == 3 & d == 0) %$%
+  nrow(.)/obs
+
+wt4 <- titanic %>% 
+  filter(s == 4 & d == 0) %$%
+  nrow(.)/obs
+
+wate = diff1*wt1 + diff2*wt2 + diff3*wt3 + diff4*wt4
+
+stargazer(wate, sdo, type = "text")
+
+```
+
+### Dimensionality & Subclassification
+
+## Matching Estimator
+
+Cunningham:
+
+$$
+\hat{\delta_{ATT}} = \frac{1}{N_T}\sum_{D=1}{(Y_i - Y_{j(i)})}
+$$
+
+$i$: treated unit
+
+$j(i)$ matched control unit
+
+$Y_i = Y_i^1$ : observed
+
+$Y_{j(i)} = Y_{j(i)}^0$ : used as proxy for $Y_i^0$
+
+**Conditional Mean Functions – within-treatment averages, holding X fixed**
+
+$\mu^0(x) = E[Y|X=x, D = 0] = E[Y^0 | X = x]$
+
+$\mu^1(x) = E[Y|X=x, D = 1] = E[Y^1 | X = x]$
+
+Means:
+
+-   $\mu^0(X)$ is the average outcome we observe for control-group units who have covariate values x. "
+
+    -   bc CIA, this is also: the average outcome that any unit with the covariate value x would have had if it were untreated.
+
+    -   those two expressions are equal because the CIA lets us equate the first part (given D = 0), the average observed outcome among actual control units with X = x, with the second which is the average potential outcome under control units with X = x.
+
+-   Example:
+
+    -   Let
+
+        -   X = age
+
+        -   x = 30
+
+        -    Y = earnings
+
+        -   D = 0 = no training
+
+    -   then: $\mu^0(30)$ means: among 30 yr olds who did not receive training, what is the average earning?
+
+    -   under CIA: what would a 30 yr old earn on average if untreated
+
+FLAG - these functions are not:
+
+-   individual treatment effects
+
+-   comparisons between treated and control
+
+-   causal effects by themselves
+
+**Switching Equation**
+
+$$
+Y_i = \mu^{D_i}(X_i) + \epsilon_i
+$$
+
+Lecture: outcome = systematic part + error
+
+*Plain English:* each unit's observed outcome equals the expected outcome for the treatment they actually received, given their covariates, plus some random noise.
+
+Called the switching equation because the equation switches between two conditional mean functions depending on $D_i$ – if = 0 (control), $\mu^0$ vice versa for treatment (1)
+
+*Observed outcomes come from one of two conditional mean functions, and treatment status determines which one applies.*
+
+## Bias Correction Exercise
+
+Problem 5.3.2 is solving: nearest-neighbor matching does not generally give exact matches in finite samples.
+
+That means:
+
+-   treated unit has $X_i$
+
+-   matched control has $X_j \neq X_i$
+
+If X affects Y, then $Y_j$ is a **biased proxy** for $Y_i(0)$
+
+This bias exists even if CIA holds $\rightarrow$ this is not about unobserved confounding, but imperfect matches
+
+[Intuition – Where Bias Comes From (+ Cunningham's Bias Decomp)]{.underline}
+
+Cunningham **basically asks why matching produces bias when matched samples are imperfect, and what that bias is made of.**
+
+**To answer,** he re-writes the matching estimator (via the switching equation) and separates it into its systematic part (where bias lives) and its stochastic part (where it averages out):
+
+$Y= m_d(X) +\epsilon$ or $
+Y_i = \mu^{D_i}(X_i) + \epsilon_i
+$
+
+where:
+
+-   $m_d(X)$ = $\mu^d(X)$ = $E[Y(d)|X]$ systematic part
+
+-   $\epsilon$ is the noise/stochastic part
+
+Ie: when you match unit i to unit j, you're estimating:
+
+$Y_i(1) - Y_j(0)$
+
+but the true causal contrast is: $Y_i(1) - Y_i(0)$
+
+and the bias comes from $m_0(X_j) - m_0(X_i)$
+
+-   (ie this bias decomposition)
+
+-   The basic ATT matching estimator says to, for each treated unit, (a) take its observed outcome, (b) subtract the outcome of its matched control unit, (c) then average out those differences over treated units. ("Observed treated outcome minus observed control outcome, averaged").
+
+    But because each unit is made up of stochastic and systematic, a unit's observed outcome equals the average outcome we'd expect for someone with those covariates under that treatment, plus some random noise/deviation.
+
+    so apply this logic to a matched treated unit $i$ and its matched control $j(i)$
+
+    -   for the treated unit $i$ its observed outcome equals:
+
+        -   the expected outcoem for treated units with covariates like $X_i$ (this is what $\mu^1(X_i)$ means), plus some random noise specific to unit $j(i)$
+
+    -   for the matched control unit $j(i)$, its observed outcome equals the expected outcoem for treated units with covariates like $X_{j(i)}$ (this is what $\mu^0(X_{j(i)})$ means) plus some random noise specific to unit $j(i)$
+
+-   when you subtract the matched control outcome from the treated outcome, you're subtracting
+
+    -   \(1\) the difference in expected outcomes for the treated and untreated X (contains the true treatement effects plus distortion caused by the fact that $X_i$ and $X_{j(i)}$ aren't exactly the same – this is where the bias lives)
+
+    -   \(2\) the difference in random noise – this should average out when we average over many treated units, and is variance, not bias
+
+That term doesn't vanish quickly if X is continuous, dimensionality is nontrivial, matches are "close but not equal."
+
+**IE he asks next why the expected treatment outcome at** $X_i$ minus the expected untreated outcome at $X_{j(i)}$ would be biased for the ATT?
+
+**Answer:** because the counterfactual we want is: "the expected untreated outcome at $X_i$ " but matching gives us "expected untreated outcome at $X_j(i)$" – so the bias for unit i is *how much the expected untreated outcome changes when you move from the treated unit's covariates to the matched control's covariates.*
+
+[Bias Correction]{.underline}
+
+Says: "we've matched imperfectly, so let's adjust the matched control's outcome to what it would have been at the treated unit's covariate value." To do this, we:
+
+-   estimate how outcomes change with $X$ among controls
+
+-   shift the matched control outcome accordingly
+
+Instead of using $Y_j$ we use $Y_j + \hat{m_0}(X_i) - \hat{m_0}(X_j)$ which shifts control outcome from $X_j$ to $X_i$.
+
+Estimate $\hat{\mu^0}(X)$ (also/or
+
+Dataset has columns like unit, Y, D, X (covariate)
+
+```{r}
+
+read_data <- function(df)
+{
+  full_path <- paste("https://github.com/scunning1975/mixtape/raw/master/", 
+                     df, sep = "")
+  df <- read_dta(full_path)
+  return(df)
+}
+
+
+training_bias_reduction <- read_data("training_bias_reduction.dta") %>% 
+  mutate(
+    Y1 = case_when(Unit %in% c(1,2,3,4) ~ Y), #for treated units, observed outcome is Y^1 - so makes explicit that Y = Y^1
+    Y0 = c(4,0,5,1,4,0,5,1)) #manually inserting the "matched control outcomes" as the imputed Y^0 for treated units. For units 1-4 (treated) those numbers (4, 0, 5, 1) are exactly the matched outcomes from the control units in the matched sample. For units 5-8 (controls) Y^ 0 just equals observed Y (since they're untreated)
+
+
+```
+
+fitting a regression line to generate $\hat{\mu^0}(X)$ – the expected outcome under control condition as a function of X, then attach the fitted values
+
+```{r}
+train_reg <- lm(Y ~ X, training_bias_reduction) 
+
+#cleaner implementation: train_reg <- lm(Y ~ X, data = training_bias_reduction, subset = (D == 0))
+
+training_bias_reduction <- training_bias_reduction %>%
+  mutate(u_hat0 = predict(train_reg))
+
+training_bias_reduction
+```
+
+Note of caution about using fitted values for bias correction
+
+## Propensity Matching Exercise
+
+## RDD
+
+### Simulation 1: continuity
+
+```{r}
+# simulate the data
+dat <- tibble(
+  x = rnorm(1000, 50, 25)
+) %>% 
+  mutate(
+    x = if_else(x<0,0,x)
+  ) %>%
+  filter(x<100)
+
+#cutoff at x = 50
+dat <- dat %>%
+  mutate(
+    D = if_else(x>50, 1, 0),
+    y1 = 25 + 0 * D + 1.5 + rnorm(n(), 0, 20)
+  )
+
+ggplot(aes(x, y1, colour = factor(D)), data = dat) +
+  geom_point(alpha = 0.5) +
+  geom_vline(xintercept = 50, colour = "grey", linetype = 2)+
+  stat_smooth(method = "lm", se = F) +
+  labs(x = "Test score (X)", y = "Potential Outcome (Y1)")
+```
+
+```{r}
+# simulate the discontinuity
+dat <- dat %>%
+  mutate(
+    y2 = 25 + 40 * D + 1.5 * x + rnorm(n(), 0, 20)
+  )
+
+# figure
+ggplot(aes(x, y2, colour = factor(D)), data = dat) +
+  geom_point(alpha = 0.5) +
+  geom_vline(xintercept = 50, colour = "grey", linetype = 2) +
+  stat_smooth(method = "lm", se = F) +
+  labs(x = "Test score (X)", y = "Potential Outcome (Y)")
+```
+
+### Estimation w/ Local + Global Least Sqs
+
+```{r}
+# simulate the discontinuity
+dat <- dat %>%
+  mutate(
+    y2 = 25 + 40 * D + 1.5 * x + rnorm(n(), 0, 20)
+  )
+
+# figure
+ggplot(aes(x, y2, colour = factor(D)), data = dat) +
+  geom_point(alpha = 0.5) +
+  geom_vline(xintercept = 50, colour = "grey", linetype = 2) +
+  stat_smooth(method = "lm", se = F) +
+  labs(x = "Test score (X)", y = "Potential Outcome (Y)")
+```
