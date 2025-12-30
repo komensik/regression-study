@@ -289,7 +289,8 @@ Another obvious possibility is to "hold out" some of your training data to use a
 
 ```{r heldout, echo = TRUE, eval = FALSE}
 # randomly sample rows to include/exclude from training
-train_index <- sample(1:nrow(df), floor(nrow(df)*.7), replace = F)
+train_index <- sample(1:nrow(df), floor(nrow(df)*.7), replace = F) #says sample from 70% of sample size, replace
+#dif from bootstrapping that we're not replacing +
 
 # split
 model <- lm(y ~ independent_variables, data = df[train_index,])
@@ -302,15 +303,43 @@ heldout_predictions <- predict(model, newdata = df[-train_index,])
 
 ## Cross-validation
 
-Not obvious how much data to hold out / how sensitive results are to which observations are held out.
+Potential issues:
+
+-   Not obvious how much data to hold out and use for estimation (70%? 80%?)
+
+-   Not obvious how sensitive results are to which observations are held out. - each time you do the above you would get a different answer
+
+    -   how to deal with this?
+
+-   Cross validation tries to deal with these two issues
 
 . . .
 
 We could maximize our sample size by minimizing the amount of data "held out", but this may also increase the variance of our estimate of the test MSE (because we are only using 1 observation!)
 
+Tradeoff: larger sample size for estimate (smaller for prediction) is good because minimizes variance in our estimator itself which is good; problem is fewer observations we hold out for prediction, the worse our estimates of the mean square error are going to be.
+
+Ie: if we used n-one observations for estimation,
+
+-   we would minimize the variance of our estimator, and get effectively the minimum variance estimates that we could still get while still holding out some data for prediction,
+
+-   but we would only be holding out one observation for prediction – our ability to predict that one observation is party due to the goodness of the model and party due to random factors associated with that idiosyncratic observation – won't get good estimate of the test MSE using only one held out observation
+
+    -   but do want to minimize variance of error
+
+-   *anytime you use less than the sample size you actually have to estimate your model, you're going to overestimate the test mean squared error*
+
+    -   biases your est of test MSE upwards
+
+        -   creates pessimistic portrait of how well estimator would actually do given sample size
+
 ## Cross-validation
 
 Common to repeat this process across equally-sized chunks of held-out data and average loss across the K "folds"
+
+-   do "k" times
+
+-   each time holding out different sub-portion of the data
 
 ![](images/k_fold_crossval.png){fig-align="center"}
 
@@ -354,6 +383,8 @@ print(m1_LOOCV)
 
 ## Example LOOCV, analytically
 
+(leave one out cross validation)
+
 For OLS, there is an analytic solution for LOOCV (where $h_i$ is the [leverage]{.alert} of observation $i$):
 
 $$
@@ -377,6 +408,7 @@ How to choose $K$? Using only a portion of the data for training leads to upward
 -   As $K \rightarrow N$, the bias goes to 0 but the variance can also increase
     -   b/c of potential for higher correlations across folds
 -   Common practice to use 10 folds (i.e. hold 10% of data out at a time)
+    -   probably good as default
 -   There is debate about this - unclear whether standard practice is actually better than LOOCV
 :::
 
@@ -393,27 +425,33 @@ You may often wish to choose among models of varying complexity
 One criterion is to choose the model that minimizes the test MSE:
 
 ::: incremental
--   Estimate a series of models with different sets of parameters
+-   Estimate a series of models with different sets of parameters/variables in the model
 -   Calculate K-fold test MSE for each
 -   Choose the model with the lowest test MSE
 :::
+
+Better than just using in sample R squared
+
+\*flag: not necessarily the case that the model with the best predictive fit is the model that you always want to choose bc you might have other purposes beyond predicting a variable; might be predicting a theory – goal not just predicting outcome but whether (ex) giving drug to someone works
 
 ## Other selection criteria
 
 If $\hat{L}$ is the value of the likelihood function at the maximum:
 
-[Akaike Information Criterion]{.alert} ($\text{AIC} = 2(K+1) - 2\ln(\hat{L})$)
+[Akaike Information Criterion]{.alert} ($\text{AIC} = 2(K+1) - 2\ln(\hat{L})$) (last thing is log likelyhood value)
 
 . . .
 
 [Bayesian Information Criterion]{.alert} ($\text{BIC} = \ln(N)(K+1) - 2\ln(\hat{L})$)
 
 ::: incremental
+-   basic idea is to penalize model fit based on how many parameters are estimated
 -   Choose model with smallest AIC or BIC
 -   If we assume normal errors, maximum likelihood and ordinary least squares are equivalent, and so AIC and BIC can be used as model selection criteria
+-   actual value doesn't mean anything, just comparing different values for different models
 :::
 
-<!---   BIC exacts a larger penalty for complexity when $ln(N) > 2 \approx ln(7)$-->
+Except in really small sample sizes BIC exacts a larger penalty for complexity when $ln(N) > 2 \approx ln(7)$
 
 ## AIC and BIC in R
 
@@ -424,9 +462,11 @@ AIC(m1)
 BIC(m1)
 ```
 
+\*we may want to integrate this idea of bias-variance tradeoff into the estimation procedure itself – for example, getting rid of variables that are not doing a good job of predicting new data. Want a principled way to select which variables to retain in the model:
+
 ## Regularization
 
-[Regularization]{.alert} methods place constraints on the parameter space during estimation
+[Regularization]{.alert} methods place constraints on the parameter space *during estimation*
 
 ::: incremental
 -   These constraints operate to reduce model flexibility
@@ -446,9 +486,14 @@ $$
 $$
 
 ::: incremental
--   $\lambda$ is the [hyperparameter]{.alert} chosen by the researcher (often selected by cross-validation)
+-   augment OLS loss function by adding some penalty
+-   $\lambda$ (tuning parameter) is the [hyperparameter]{.alert} chosen by the researcher (often selected by cross-validation)
     -   larger $\lambda$ means larger penalties and more shrinkage
--   Dividing $SS_R$ by the sample size ensures that the loss function is independent of $N$, which makes the scale of $\lambda$ comparable across applications (though some software does not do this, e.g., `MASS`)
+    -   is basically a weight
+-   Dividing $SS_R$ by the sample size x 2 ensures that the loss function is independent of $N$, which makes the scale of $\lambda$ comparable across applications (though some software does not do this, e.g., `MASS`)
+    -   if didn't divide by N, SSR just goes up every time add a new observation - makes tuning parameter conditional on the sample size which is problem
+    -   dividing by N standardizes the thing the the tuning parameter is comparing across different models/estimations.
+    -   dividing by 2 just convenience norm, convenient mathmatically but not meaningful
 -   $\hat{\beta}_k$ is sensitive to scale! Standardize inputs prior to estimation
 :::
 
@@ -460,9 +505,12 @@ $$
 \hat{\boldsymbol{\beta}}_{LASSO} = \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} |\hat{\beta}_k| \right)
 $$
 
+-   all we're realling doing here is choosing a function: absolute value of the betas
 -   Penalize sum of coefficient absolute values
+    -   "we're going to penalize models with large values of beta – all else equal, models with smaller/closer to 0 betas will be considered better fitting models"
 -   Leads uninformative coefficients to "shrink" to zero
 -   LASSO is thus a good choice when one wishes to reduce model complexity
+    -   in addition to shrinking some coefficients towards zero, gets rids of other altogether by shrinking all the way down to 0
 
 ## Penalized Regression
 
@@ -472,8 +520,10 @@ $$
 \hat{\boldsymbol{\beta}}_{RR} = \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} \hat{\beta}_k^2 \right)
 $$
 
+-   dif from lasso is function is square of betas
 -   Penalize sum of squared coefficients
 -   Shrinks coefficients toward zero as a function of uninformativeness
+    -   smoothly shrinks towards 0, so won't shrink any to 0 – won't eliminate
 -   A limitation of ridge is that it does not do subset selection
 
 ## Penalized Regression

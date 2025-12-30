@@ -1,8 +1,10 @@
 ---
-title: "mensik_pset_10"
+title: "mensik_pset_11"
 format: html
 editor: visual
 ---
+
+## NOTE TO SELF: When done, copy into R markdown file (a la instructions) and delete noise
 
 ## Data
 
@@ -26,8 +28,14 @@ Load the data and name it refug.
 library(lmtest)
 library(sandwich)
 library(dplyr)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
 
-refug <- read.csv("/Users/kristinamensik/Documents/GitHub/regression-study/refug.csv")
+
+
+getwd()
+refug <- read.csv("/Users/kristina/Documents/GitHub/regression-study/refug.csv")
 
 # recode variable decision so that 1 equals grants the appeal and 0 equals denies the appeal (right now is 2 = grants the appeal and 1 = denies)
 refug$decision_num <- ifelse(refug$decision == "yes", 1, 0)
@@ -55,9 +63,7 @@ levels(refug$location)
 
 ```
 
-## Problem 1
-
-Estimate linear model using predictors excluding the 'nation' variable
+## 1a
 
 ```{r}
 
@@ -65,9 +71,31 @@ m1 <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location
 
 # clustered standard errors by nation
 
-cov_clust_se <- vcovCL(m1, cluster = ~nation)
+cov_clust_se <- vcovCL(m1, cluster = ~nation) #defauls HC1
 
-coeftest(m1, vcov. = cov_clust_se)
+cte <- coeftest(m1, vcov. = cov_clust_se)
+
+# table
+coef_data <- data.frame(
+  Coefficient = cte[, "Estimate"],
+  Standard_Error = cte[, "Std. Error"],
+  T_Statistic = cte[, "t value"],
+  P_Value = cte[, "Pr(>|t|)"]
+)
+
+coef_table <- knitr::kable(
+  coef_data,
+  format = "html",
+  longtable = FALSE,
+  caption = "Regression Coeff. Estimates with Clustered Standard Errors"
+)
+
+styled_table <- kable_styling(
+  coef_table,
+  full_width = FALSE,
+  bootstrap_options = c("striped", "hover")
+)
+print(styled_table)
 ```
 
 judgeHeald - the -0.238 coefficient means that having Judge Heald as opposed to Judge Desjardin is associated with a 0.24 decrease in the likelihood of having a case granted, holding all else constant. This effect is highly significant.
@@ -76,4 +104,68 @@ locationToronto - holding all else constant, having a case heard or seeking refu
 
 success - holding all else constant, a one unit increase in the logit of the success rate of all cases from the refugee's nation of origin is associated with a \~20.8 percentage point increase in the probability that a judge grants the appeal. A unit increase in logit is the natural log of the probability of a nation's success rate – so a country with a 30% success rate's logit would be ln(0.30/0.70) \~ -0.8. This is nonlinear, but roughly corresponds to fairly significant changes. It is statistically significant as well.
 
-Coefficient plot - figure that plots the coef estimates for all independent variables along with their 95% confidence bounds
+## 1b
+
+```{r, echo=FALSE}
+#doing this a different way/lab way need to check that i created same se's 
+
+clust_se <- sqrt(diag(sandwich::vcovCL(m1, cluster =~ nation, type = "HC1")))
+
+lci <- m1$coefficients - 2*clust_se
+uci <- m1$coefficients + 2*clust_se
+
+results <- data.frame(coefficient = coef(m1)[-1],
+                      lower.ci = lci[-1],
+                      upper.ci = uci[-1])
+
+ggplot(results, aes(x = rownames(results), y = coefficient))+
+  geom_point(size = 3) + 
+  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2) + 
+  labs(title = "Coefficient Plot with 95% Confidence Bounds",
+       x = "variable",
+       y = "Effect on Probability of Case Granted") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  coord_flip() +
+  theme_minimal()
+
+```
+
+### 1c.
+
+```{r, echo=FALSE}
+#training proc set up
+m1_training <- caret::trainControl(method = "cv", number = 10)
+
+#train model
+m1_10fold <- caret::train(formula(m1), data = refug, method = "lm",
+                          trControl = m1_training)
+#cross-validation results
+print(m1_10fold)
+
+#vs m1 values
+training <- c(summary(m1)["sigma"], summary(m1)["r.squared"])
+test <- c(m1_10fold$results["RMSE"], m1_10fold$results["Rsquared"])
+cbind(training, test)
+
+training
+```
+
+The out of sample (test) MSE is slightly (0.0081) larger than the in-sample MSE/residual standard error, which suggests the model was slightly overfitted (the DV is a 0-1 variable, so 0.41 means predictions are off by 41 percentage points on average – less stark when compared to 40 percentage points).
+
+The out of sample R2 drops by about 0.034 (from explaining about 25% of the variance to 21.5%) - so 3.4 percentage points of explained variance disappear when moving to new data. This is not so severe as to suggest the model doesn't have predictive capacities, or that the model is severely biased.
+
+There are differences because the model is created to fit (OLS) the observed data. Held-out data doesn't have the noise on the in sample data.
+
+### 1d. 
+
+new model uses fixed effects for 'nation' to account for all nation-level variance in 'decision' (HINT: what other changes do you need to make to estimate this model?)
+
+-FE adjust for possibility of unobserved heterogeneity X groups by controlling for group level ommitted/confounding variables
+
+```{r, echo=FALSE}
+
+#m1 <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location + success, data = refug)
+
+m2 <- 
+
+```
