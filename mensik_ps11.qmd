@@ -156,7 +156,7 @@ The out of sample R2 drops by about 0.034 (from explaining about 25% of the vari
 
 There are differences because the model is created to fit (OLS) the observed data. Held-out data doesn't have the noise on the in sample data.
 
-### 1d. 
+### 1d. - Fixed effects
 
 new model uses fixed effects for 'nation' to account for all nation-level variance in 'decision' (HINT: what other changes do you need to make to estimate this model?)
 
