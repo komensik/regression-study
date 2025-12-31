@@ -294,8 +294,6 @@ An [instrumental variable]{.alert}, $z_{1i}$, for $x_{1i}$ in the model above is
 
 Put another way: $z_{1i}$ is associated with $y_i$ *through, and only through,* its relationship with $x_{1i}$.
 
-## Instrumental variables
-
 $\text{Cov}(z_{1i}, u_i^*) = 0$ and $\text{Cov}(z_{1i}, x_{1i}) \neq 0$
 
 $z_{1i}$ is associated with $y_i$ *through and only through* its relationship with $x_{1i}$.
@@ -342,8 +340,6 @@ $$
 $$
 \frac{\text{Cov}(y_i, z_{1i})}{\text{Cov}(x_{1i}, z_{1i})} = \beta_1
 $$
-
-## IV estimator for bivariate case
 
 Substituting our sample estimates for $\text{Cov}(y_i, z_{1i})$ and $\text{Cov}(x_{1i}, z_{1i})$ gives us the IV estimator, $\hat{\beta}_{1}^{IV}$
 

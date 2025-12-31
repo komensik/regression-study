@@ -10,6 +10,8 @@ library(tidyverse)
 library(stargazer)
 library(haven)
 library(magrittr) 
+library(AER)
+
 ```
 
 ## Regression Review
@@ -254,7 +256,7 @@ Means:
 
         -   x = 30
 
-        -    Y = earnings
+        -   Y = earnings
 
         -   D = 0 = no training
 
@@ -304,9 +306,7 @@ Cunningham **basically asks why matching produces bias when matched samples are 
 
 **To answer,** he re-writes the matching estimator (via the switching equation) and separates it into its systematic part (where bias lives) and its stochastic part (where it averages out):
 
-$Y= m_d(X) +\epsilon$ or $
-Y_i = \mu^{D_i}(X_i) + \epsilon_i
-$
+$Y= m_d(X) +\epsilon$ or \$ Y_i = \mu\^{D_i}(X_i) + \epsilon\_i \$
 
 where:
 
@@ -456,4 +456,206 @@ ggplot(aes(x, y2, colour = factor(D)), data = dat) +
   geom_vline(xintercept = 50, colour = "grey", linetype = 2) +
   stat_smooth(method = "lm", se = F) +
   labs(x = "Test score (X)", y = "Potential Outcome (Y)")
+```
+
+## Instrumental Variables
+
+Card (1995)
+
+$$
+Y_i = \alpha + \delta S_i+ \gamma X_i + \epsilon_i
+$$
+
+$Y$ is log earnings
+
+$S$ is years of schooling
+
+$X$ is a matrix of exogenous covariates
+
+$\epsilon$ contains ability, correlated with schooling, so $C(S,\epsilon) \neq 0$
+
+(covariance between schooling and the error term is not 0, so not exogenous but enogenous)
+
+Instrumental variable: presence of a college within county
+
+-   why would it $\rightarrow$ schooling? lowers cost of going to college $\rightarrow$ increases P(going to college for specific compliers)
+
+-   those compliers = low income/income restrained $\rightarrow$ LATE (not ATE)
+
+    #### code isn't working
+
+```{r}
+read_data <- function(df)
+{
+  full_path <- paste("https://github.com/scunning1975/mixtape/raw/master/", 
+                     df, sep = "")
+  df <- read_data(full_path)
+  return(df)
+}
+
+card <- read_data("card.dta")
+
+#Define variable 
+#(Y1 = Dependent Variable, Y2 = endogenous variable, X1 = exogenous variable, X2 = Instrument)
+
+attach(card)
+
+Y1 <- lwage
+Y2 <- educ
+X1 <- cbind(exper, black, south, married, smsa)
+X2 <- nearc4
+
+#OLS
+ols_reg <- lm(Y1 ~ Y2 + X1)
+summary(ols_reg)
+
+#2SLS
+iv_reg = ivreg(Y1 ~ Y2 + X1 | X1 + X2)
+summary(iv_reg)
+
+```
+
+## Judge Fixed Effects
+
+*"Ideal" scenario: all units pass through judge who determines whether they are assigned to treatment; the judge to which a unit is assigned is random, and it only affects the units treatment assignment outcome. Judges are always consistent in their severity/whichever direction.*
+
+Assumptions needed:
+
+-   independence (IV is independent of potential outcomes and potential treatment assignment; "as good as random")
+
+    -   can try to assess by checking balance on pre-treatment covariates
+
+-   exclusion restriction (instrument effects Y thru and only thru D)
+
+    -   "units" - people, defense teams - may try to switch once or before assigned in anticipation of judge's harshness; or change behaviors (ie, plead out) given assignment
+
+-   monotonicity (not homogeneity, but that effects happen in the same direction)
+
+    -   judges are biased – race, offense type, etc.
+
+    -   condition – "parametric strategy of simultaneously instrumenting for all observed sentencing dimensions and thus allowing the instruments' effect on sentencing outcomes to be heterogeneous in defendant traits and crime characteristics" (371)
+
+Other routes
+
+-   Frandensen et al (2019) – test exclusion and monotonicity by
+
+    -   relax monoton. assumption, require instead that ATE among individuals who violate monoton. be identical to ATE for some subset that satisfies it.
+
+```{r}
+library(tidyverse)
+library(haven)
+library(estimatr)
+library(lfe)
+library(SteinIV)
+
+read_data <- function(df)
+{
+  full_path <- paste("https://github.com/scunning1975/mixtape/raw/master/", 
+                     df, sep = "")
+  df <- read_dta(full_path)
+  return(df)
+}
+
+judge <- read_data("judge_fe.dta")
+
+#grouped variable names from the data set
+judge_pre <- judge %>% 
+  select(starts_with("judge_")) %>% 
+  colnames() %>% 
+  subset(., . != "judge_pre_8") %>% # remove one for colinearity
+  paste(., collapse = " + ")
+
+demo <- judge %>% 
+  select(black, age, male, white) %>% 
+  colnames() %>% 
+  paste(., collapse = " + ")
+
+off <- judge %>% 
+  select(fel, mis, sum, F1, F2, F3, M1, M2, M3, M) %>% 
+  colnames() %>% 
+  paste(., collapse = " + ")
+
+prior <- judge %>% 
+  select(priorCases, priorWI5, prior_felChar, 
+         prior_guilt, onePrior, threePriors) %>% 
+  colnames() %>% 
+  paste(., collapse = " + ")
+
+control2 <- judge %>%
+  mutate(bailDate = as.numeric(bailDate)) %>% 
+  select(day, day2, bailDate, 
+         t1, t2, t3, t4, t5) %>% # all but one time period for colinearity
+  colnames() %>% 
+  paste(., collapse = " + ")
+
+#formulas used in the OLS
+min_formula <- as.formula(paste("guilt ~ jail3 + ", control2))
+max_formula <- as.formula(paste("guilt ~ jail3 + possess + robbery + DUI1st + drugSell + aggAss",
+                                demo, prior, off, control2, sep = " + "))
+
+#max variables and min variables
+min_ols <- lm_robust(min_formula, data = judge)
+max_ols <- lm_robust(max_formula, data = judge)
+
+#--- Instrumental Variables Estimations
+#-- 2sls main results
+#- Min and Max Control formulas
+min_formula <- as.formula(paste("guilt ~ ", control2, " | 0 | (jail3 ~ 0 +", judge_pre, ")"))
+max_formula <- as.formula(paste("guilt ~", demo, "+ possess +", prior, "+ robbery +", 
+                                off, "+ DUI1st +", control2, "+ drugSell + aggAss | 0 | (jail3 ~ 0 +", judge_pre, ")"))
+#2sls for min and max
+min_iv <- felm(min_formula, data = judge)
+summary(min_iv)
+max_iv <- felm(max_formula, data = judge)
+summary(max_iv)
+
+
+
+#-- JIVE main results
+#- minimum controls
+y <- judge %>%
+  pull(guilt)
+
+X_min <- judge %>%
+  mutate(bailDate = as.numeric(bailDate)) %>%
+  select(jail3, day, day2, t1, t2, t3, t4, t5, bailDate) %>%
+  model.matrix(data = .,~.)
+
+Z_min <- judge %>%
+  mutate(bailDate = as.numeric(bailDate)) %>%
+  select(-judge_pre_8) %>%
+  select(starts_with("judge_pre"), day, day2, t1, t2, t3, t4, t5, bailDate) %>%
+  model.matrix(data = .,~.)
+
+jive.est(y = y, X = X_min, Z = Z_min)
+
+#- maximum controls
+X_max <- judge %>%
+  mutate(bailDate = as.numeric(bailDate)) %>%
+  select(jail3, white, age, male, black,
+         possess, robbery, prior_guilt,
+         prior_guilt, onePrior, priorWI5, prior_felChar, priorCases,
+         DUI1st, drugSell, aggAss, fel, mis, sum,
+         threePriors,
+         F1, F2, F3,
+         M, M1, M2, M3,
+         day, day2, bailDate, 
+         t1, t2, t3, t4, t5) %>%
+  model.matrix(data = .,~.)
+
+Z_max <- judge %>%
+  mutate(bailDate = as.numeric(bailDate)) %>%
+  select(-judge_pre_8) %>%
+  select(starts_with("judge_pre"), white, age, male, black,
+         possess, robbery, prior_guilt,
+         prior_guilt, onePrior, priorWI5, prior_felChar, priorCases,
+         DUI1st, drugSell, aggAss, fel, mis, sum,
+         threePriors,
+         F1, F2, F3,
+         M, M1, M2, M3,
+         day, day2, bailDate, 
+         t1, t2, t3, t4, t5) %>%
+  model.matrix(data = .,~.)
+
+jive.est(y = y, X = X_max, Z = Z_max)
 ```

@@ -31,14 +31,15 @@ library(dplyr)
 library(knitr)
 library(kableExtra)
 library(ggplot2)
-
+library(carData)
 
 
 getwd()
 refug <- read.csv("/Users/kristina/Documents/GitHub/regression-study/refug.csv")
 
 # recode variable decision so that 1 equals grants the appeal and 0 equals denies the appeal (right now is 2 = grants the appeal and 1 = denies)
-refug$decision_num <- ifelse(refug$decision == "yes", 1, 0)
+refug$decision_num <- ifelse(refug$decision == "yes", 2, 1)
+
 
 # check judge -> recode to factor
 refug$judge_factor <- factor(refug$judge)
@@ -61,6 +62,8 @@ class(refug$success)
 levels(refug$language_factor)
 levels(refug$location)
 
+class(refug$success)
+
 ```
 
 ## 1a
@@ -71,9 +74,9 @@ m1 <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location
 
 # clustered standard errors by nation
 
-cov_clust_se <- vcovCL(m1, cluster = ~nation) #defauls HC1
+cov_clust <- sandwich::vcovCL(m1, cluster = ~ nation, type = "HC1")
 
-cte <- coeftest(m1, vcov. = cov_clust_se)
+cte <- lmtest::coeftest(m1, vcov. = cov_clust)
 
 # table
 coef_data <- data.frame(
@@ -109,7 +112,7 @@ success - holding all else constant, a one unit increase in the logit of the suc
 ```{r, echo=FALSE}
 #doing this a different way/lab way need to check that i created same se's 
 
-clust_se <- sqrt(diag(sandwich::vcovCL(m1, cluster =~ nation, type = "HC1")))
+clust_se <- sqrt(diag(cov_clust))
 
 lci <- m1$coefficients - 2*clust_se
 uci <- m1$coefficients + 2*clust_se
@@ -119,7 +122,7 @@ results <- data.frame(coefficient = coef(m1)[-1],
                       upper.ci = uci[-1])
 
 ggplot(results, aes(x = rownames(results), y = coefficient))+
-  geom_point(size = 3) + 
+  geom_point(size = 2) + 
   geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2) + 
   labs(title = "Coefficient Plot with 95% Confidence Bounds",
        x = "variable",
@@ -134,6 +137,7 @@ ggplot(results, aes(x = rownames(results), y = coefficient))+
 
 ```{r, echo=FALSE}
 #training proc set up
+set.seed(123)
 m1_training <- caret::trainControl(method = "cv", number = 10)
 
 #train model
@@ -143,9 +147,9 @@ m1_10fold <- caret::train(formula(m1), data = refug, method = "lm",
 print(m1_10fold)
 
 #vs m1 values
-training <- c(summary(m1)["sigma"], summary(m1)["r.squared"])
-test <- c(m1_10fold$results["RMSE"], m1_10fold$results["Rsquared"])
-cbind(training, test)
+m1_sr <- c(summary(m1)["sigma"], summary(m1)["r.squared"])
+m1_10f_sr <- c(m1_10fold$results["RMSE"], m1_10fold$results["Rsquared"])
+cbind(m1_sr, m1_10f_sr)
 
 training
 ```
@@ -162,10 +166,57 @@ new model uses fixed effects for 'nation' to account for all nation-level varian
 
 -FE adjust for possibility of unobserved heterogeneity X groups by controlling for group level ommitted/confounding variables
 
+-each group (except one) gets a binary variable in the estimated model
+
+indicator for group j gives the difference in average y hat i comparing group j to the excluded (baseline) group
+
+removing what is shared across observations within groups makes the errors independent and SEs unbiased
+
 ```{r, echo=FALSE}
 
-#m1 <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location + success, data = refug)
+#dropping success bc success is constant with nation
 
-m2 <- 
+m1_fe <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location + as.factor(nation),data = refug)
+
+```
+
+### 1e. - 10-fold
+
+```{r, echo=FALSE}
+#training proc set up
+m1fe_training <- caret::trainControl(method = "cv", number = 10)
+
+#train model
+m1fe_10fold <- caret::train(formula(m1_fe), data = refug, method = "lm",
+                          trControl = m1fe_training)
+#cross-validation results
+print(m1fe_10fold)
+
+#vs m1 values
+fe_sr <- c(summary(m1_fe)["sigma"], summary(m1_fe)["r.squared"])
+fe_10f_sr <- c(m1fe_10fold$results["RMSE"], m1fe_10fold$results["Rsquared"])
+
+cbind(m1_sr, m1_10f_sr, fe_sr, fe_10f_sr)
+cbind(m1_sr, fe_sr)
+cbind(m1_10f_sr, fe_10f_sr)
+summary(m1_fe)
+
+(m1_sr$sigma) - (fe_sr$sigma)
+
+```
+
+First, both models have lower $R^2$ and higher error under 10-fold cross-validation because out-of-sample tests do not “reward"the original models for being fitted to the data's particular random noise.
+
+Nation fixed effects modestly improves in-sample fit but increase variance, which may explain its bigger to cross validation drop in the out of sample. Moreover, the fixed effects out of sample does not account for the fixed effects models' training of data to nation-specific noise - which also explains the \~0.3 to 0.2 drop in R-squared/explained variance, and increase in prediction error (0.4 to 0.41).
+
+Still, the fixed effects models' higher out-of-sample $R^2$ suggests some predictive benefits to accounting for nation-level differences, and underscoring the bias-variance tradeoff. In m1, success it imposes a functional form on how 'nation' matters/says how a unit fares in relation to others in their country, or allows m1 control for country rates. Compared to the fixed effects model, this somewhat obscures country-level variation. The fixed effects model (nation as a factor makes each nation (except for the baseline) a parameter and gives each its own baseline), which allows the model to more/less absorb nation-level differences.
+
+As with the tradeoff, adding country level parameters also muddy interpretability at the cross-national level, but it is in this case potentially useful (depending on your theory/aims) to see by-country variation.
+
+# 2a.
+
+```{r}
+
+
 
 ```

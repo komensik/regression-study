@@ -576,6 +576,28 @@ vocab <- carData::Vocab
 summary(vocab)
 ```
 
+This model assumes:
+
+-   One single intercept
+
+-   Education has the same effect regardless of year
+
+-   **Year-to-year differences are shoved into the error term**
+
+But vocabulary scores *systematically change by year*:
+
+-   test design changes
+
+-   cohort effects
+
+-   secular trends
+
+-   sampling differences
+
+So the error term is **correlated within year,** and violates :$\text{Cov}(u_i, u_j) \neq 0$
+
+if year affects both vocab (DV) and ed (X) – OVB
+
 ## Example fixed effects {.smaller}
 
 ::::: columns
@@ -599,7 +621,19 @@ modelsummary::modelsummary(list(naive = m2_naive, fixed_effects = m2_a))
 :::
 :::::
 
-## Example fixed effects
+Adding fixed effects (m2_a) does 3 things:
+
+1.  creates year dummies, giving each year its own intercept
+
+    1.  one year excluded as a baseline
+
+2.  Education is identified within year
+
+    1.  The coefficient on `education` is now estimated by comparing **people with different education levels *within the same year***.
+
+    2.  – gets rid of between year variation
+
+3.  removes omitted group-level confounding (test difficulty or measurement changes, cohort effects) – "uses only within-group variation"
 
 ```{r echo=TRUE}
 m2_b <- lm(vocabulary ~ 0 + education + as.factor(year), data = vocab)
