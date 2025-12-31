@@ -541,6 +541,50 @@ Other routes
 
     -   relax monoton. assumption, require instead that ATE among individuals who violate monoton. be identical to ATE for some subset that satisfies it.
 
+**Stevenson 2018**
+
+Stevenson, Megan T. 2018. “Distortion of Justice: How the Inability to Pay Bail Affects Case Outcomes.” *The Journal of Law, Economics and Organization* 34 (4): 511–42.
+
+-   Philly (large cities have large samples that can help with sample bias of an IV)
+
+-   natural experiment:
+
+    -   random assignment of bail judges ("magistrates")
+
+    -   variation across propensities re: bail price
+
+    -   higher bail forces individuals into pre-trial detention
+
+-   IV estimators
+
+-   findings: increase in pretrial detention 13% increase in probability of conviction
+
+    -   argues: cause is increase in guilty please among defendants who otherwise would have been acquitted or had charges dropped
+
+    -   PTD -\> 42% increase in length of sentence, 41% increase in amount of non-bail fees owed
+
+-   N = 331, 971,
+
+-   8 randomly selected bail judges
+
+-   uses jackknife IV estimator
+
+Problem: "high-dimension instrument"
+
+-   8-100s of judges
+
+    -   insofar as weak $\rightarrow$ overidentification where in finite samples you begin moving the point estimates back to centering on OLS bias
+
+        -   opt: combine individual judges with similar strictness into only one instrument
+
+-   Jackknife / leave one out helps
+
+    -   use all observations in estimator except for $ith$ unit – good bc ideally mean strictness of judges in all other cases is the instrument, excluding particular defendant's
+
+    -   good for handling finite sample bias and other stuff
+
+[Thus, here, we're running through simple exercises using JIVE/Jackknife]{.underline}
+
 ```{r}
 library(tidyverse)
 library(haven)
@@ -548,15 +592,8 @@ library(estimatr)
 library(lfe)
 library(SteinIV)
 
-read_data <- function(df)
-{
-  full_path <- paste("https://github.com/scunning1975/mixtape/raw/master/", 
-                     df, sep = "")
-  df <- read_dta(full_path)
-  return(df)
-}
-
 judge <- read_data("judge_fe.dta")
+
 
 #grouped variable names from the data set
 judge_pre <- judge %>% 
