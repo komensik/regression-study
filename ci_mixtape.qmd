@@ -11,7 +11,7 @@ library(stargazer)
 library(haven)
 library(magrittr) 
 library(AER)
-
+getwd()
 ```
 
 ## Regression Review

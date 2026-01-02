@@ -213,10 +213,168 @@ Still, the fixed effects models' higher out-of-sample $R^2$ suggests some predic
 
 As with the tradeoff, adding country level parameters also muddy interpretability at the cross-national level, but it is in this case potentially useful (depending on your theory/aims) to see by-country variation.
 
+# 2
+
+Let's turn to new data. use the `Baumann` data from the `carData` package. They are data from an experiment with 66 undergraduate subjects who were randomly assigned to one of three treatment conditions: (1) `Basal`: a traditional method of teaching; (2) `DRTA`: an innovative method of teaching; or (3) `Strat`: a different innovative teaching method. The variables are as follows:
+
+-   `group`: student treatment assignment, a factor variable
+-   `pretest.1`: student pre-treatment performance scores on measure 1
+-   `pretest.2`: student pre-treatment performance scores on measure 1
+-   `post.test.1`: student post-treatment performance scores on measure 1
+-   `post.test.2`: student post-treatment performance scores on measure 2
+-   `post.test.3`: student post-treatment performance scores on measure 3
+
+Load the data and name it `baum`.
+
+```{r}
+library(carData)
+data("Baumann")
+```
+
 # 2a.
+
+You will note that there are two pre-treatment measures of student performance and these are modestly correlated. Presumably, each of these is measured with error. Create one pre-treatment performance measure by averaging the two individual measures, and call it `pretest`.
+
+```{r}
+summary(Baumann$group)
+view(Baumann)
+Baumann$pretest <- (Baumann$pretest.1 + Baumann$pretest.2) / 2
+
+summary(Baumann$post.test.3)
+```
+
+## **2b.**
+
+There are also three post-test measures but their correlations are mixed. You decide to treat them as three distinct measures of performance and examine the treatment effects on each separately. Estimate a separate OLS regression for each of the three post-treatment measures. Include the experimental treatment factor variable in the model (traditional method as baseline) and also include your new `pretest` variable as a control.
+
+```{r}
+levels(Baumann$group)
+m_post1 <- lm(post.test.1 ~ group + pretest, data = Baumann)
+
+m_post2 <- lm(post.test.2 ~ group + pretest, data = Baumann)
+
+m_post3 <- lm(post.test.3 ~ group + pretest, data = Baumann)
+
+aggregate(pretest_composite ~ group, data=Baumann, mean)
+```
+
+## 2c. 
+
+Explain why including the `pretest` measure might be beneficial even though the experimental treatments are known to be exogenous via random assignment.
+
+Including the pretest measure might be beneficial because (1) while randomization balances all pre-treatment covariates in expectation, covariates (observed and unobserved) on average, they might be imbalanced by chance which would skew internal validity and inflate variance of the estimator.
+
+the analysis involves multiple treatment arms (Basal, DRTA, Strata) across multiple outcomes, and repeated independent trials have family-wise error rates that are elevated. This increases the rate of false positives. Formal adjustments (alpha) might reduce power in this small (n = 66) sample. Moreover, since folks' post-test scores will vary due to prior ability, and while we're not worried about endogeneity, we can reduce residual variance assuming the control accounts for individual variability (increase the model's explained variance/R\^2).
+
+## 2d.
+
+Discuss the statistical significance of the treatment effects across the three dependent variables. What issues might arise here with respect to using p-values in the regression output combined with $\alpha=0.05$ to test treatment effects for all three variables?
+
+Assignment to the DRTA treatment instead of traditional teaching is associated with a 3.55 point higher score on the first test (highly statistically significant \>0.008), 3.1894 point higher score on the second (slightly less but still significant (0.0084), and 5.8372 on the third test (also significant at 0.00339).
+
+Assignment to the Strat treatment condition instead of traditional teaching is associated with a 1.9 point higher scores on the first post test (significant at 0.0122), 3.0694 (highly significant at near 0) on the second test, and 3.5 point higher scores on the third, though that is not significant (0.07).
+
+The pretest coefficient tells us that a one unit increase in pretest scores are associated with a 0.9735 point improvement in test 1 (not significant), a 0.2987 point improvement in test 2 (significant), and 0.3255 point better scores in test 3 (not significant).
+
+However, given this is two different treatment contrasts per each three separate regression (6 hypothesis tests) the probability of at least one false positive at $\alpha = 0.05$ is 1-(1-0.05)\^6 \~ 0.26, this setup inflates the likelihood of type 1 errors and also, at the model-by-model level, sort of obscures the risk of error. Moreover, with only 22 students per treatment group, statistical power is pretty limited.
+
+## 2e. Discuss the substantive meaning of each coefficient you decide is statistically significant.
+
+While I can refer to max and min scores on the pre and outcome tests (1-15, 1-13, 1-57), one barrier to substantive interpretation is not knowing how many points these tests are out.
+
+By the $\alpha = 0.05$ rule, statistically significant coefficients are discussed below.
+
+-   3.55 coef on groupDRTA for model 1 – a 3.55 point improvement on a test where student scores range from 1 to 15 is seems substantively significant – like a meaningful reflection of student learning.
+
+-   1.9095 coef on groupStrat for model 1 –
+
+-   3.0694 coef on group Strat on model 2
+
+-   5.8372 coef on group DRTA on model 3
+
+```{r}
+alpha <- 1 - (1-0.05)^(1/6)
+
+coef()
+```
+
+**Statistical vs Substantive Significance:** We should clarify this important distinction for the student:
+
+-   *Substantive (or practical) significance* asks: is the size of the effect big enough to matter in real terms – in the context of education, is a difference of that many points meaningful in students’ learning? For instance, Strat’s +3.1 on post2 was highly significant statistically and is also clearly substantive (assuming the test is on a scale where 3 points is a considerable jump, like going from a score of 5 to 8 out of 15). On the other hand, suppose we had a huge sample and we found a tiny effect (like +0.5 points with p \< 0.001) – that could be statistically significant but not educationally important. In our case, most effects we see, if significant, are a few points – which in these tests appears to be a notable difference given the scale (especially since each group only had \~22 students, a difference of 3-5 points is quite noticeable in group averages).
+
+We should also interpret the meaning of Basal vs the others: Basal being the traditional curriculum, these results imply the new methods can produce higher comprehension scores. One might consider, for instance, if we wanted to recommend a method: DRTA seems consistently effective, Strat is effective for certain outcomes. One could also test DRTA vs Strat by comparing their coefficients (though that wasn’t explicitly asked, it’s a possible additional insight: e.g., on post-test1, DRTA outperforms Strat by \~1.7 points, etc.). However, since the question likely expects just Basal vs others, we stick to that.
+
+a.  Create a plot that shows the estimated treatment effects of the innovative methods relative to the traditional one for each dependent variable. Include confidence bounds for each treatment effect. Make your own choices about how best to present these results (e.g., number of panels, labeling choices, reference lines, etc.). Pretend this is going into a paper to be submitted to a journal - make it look good!
+
+Finally, we want to create a figure to professionally illustrate the effects of the treatments. A good approach is to plot the **estimated treatment effects with their confidence intervals** for each outcome. This could be a side-by-side coefficient plot specifically for the group comparisons.
+
+One idea: Have a plot for each post-test outcome (maybe as separate facets or panels), showing the difference from Basal for DRTA and Strat with error bars. Alternatively, a single combined plot could use the x-axis for effect size and list each (Outcome, Group) combination on the y-axis.
+
+We’ll demonstrate using **ggplot2** again. First, let’s compile the effect estimates and CIs from our three models:
 
 ```{r}
 
+library(broom)
+# Extract tidy results with conf. intervals for each model
+tidy1 <- tidy(model_post1, conf.int=TRUE)
+tidy2 <- tidy(model_post2, conf.int=TRUE)
+tidy3 <- tidy(model_post3, conf.int=TRUE)
+
+# Add an identifier for outcome
+tidy1$outcome <- "Post-test 1"
+tidy2$outcome <- "Post-test 2"
+tidy3$outcome <- "Post-test 3"
+
+# Combine into one data frame
+tidy_all <- rbind(tidy1, tidy2, tidy3)
+
+# Filter only the treatment effects (exclude intercept and pretest)
+effects_plot <- tidy_all[tidy_all$term %in% c("groupDRTA", "groupStrat"), ]
+
+# Rename terms for better labels
+effects_plot$term <- factor(effects_plot$term, levels=c("groupDRTA","groupStrat"),
+                            labels=c("DRTA vs Basal","Strat vs Basal"))
 
 
 ```
+
+Now `effects_plot` contains rows for DRTA vs Basal and Strat vs Basal for each outcome, with columns for estimate, conf.low, conf.high, and outcome.
+
+We can plot this using `geom_pointrange` or `geom_errorbar` + `geom_point`:
+
+```{r}
+ggplot(effects_plot, aes(x = estimate, y = term)) +
+  geom_point(size=3) +
+  geom_errorbarh(aes(xmin = conf.low, xmax = conf.high), height=0.2) +
+  facet_wrap(~ outcome) +
+  geom_vline(xintercept=0, linetype="dashed", color="gray") +
+  labs(title="Treatment Effects on Post-test Outcomes (95% CI)",
+       x="Score Difference (Treatment - Basal)",
+       y="Comparison") +
+  theme_bw()
+
+```
+
+In this plot:
+
+-   We use horizontal error bars (`geom_errorbarh`) since we put the estimate on the x-axis (effect size) and the comparison on the y-axis.
+
+    We facet by outcome, so we get three panels (Post-test 1, 2, 3). In each panel, we’ll see two points: “DRTA vs Basal” and “Strat vs Basal”.
+
+    The x=0 line helps see if an effect crosses zero (not significant).
+
+    We labeled the x-axis in a self-explanatory way (“Score Difference (Treatment - Basal)”).
+
+    We chose a clean theme (`theme_bw`) for a professional look. One can further tweak text size, etc., if needed.
+
+The key learning points for the student from Problem 2 are:
+
+-   How to create and use a composite control variable.
+
+-   How to interpret regression coefficients in an experiment (where they have a causal meaning due to randomization).
+
+-   Why controlling for baseline improves the analysis (precision, power).
+
+-   The importance of distinguishing “significant” from “meaningful” results
+
+-   How to effectively present regression findings (clear tables and especially a nice plot of effects).
