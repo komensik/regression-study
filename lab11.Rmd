@@ -10,16 +10,16 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Data 
+# Data
 
 We’re going to return to the `chile` data set. The variables of interest are as follows:
 
-- `vote`: a factor with levels: A, will abstain; N, will vote no (against Pinochet); U, undecided; Y, will vote yes (for Pinochet).
-- `statusquo`: higher values = more support for the status quo, standardized to have mean zero and standard deviation of one
-- `income`: monthly income, in pesos
-- `education`: factor variable with 3 levels: primary only (baseline), secondary (S), post-secondary (PS)
-- `sex`: factor variable with two levels, female (baseline) and male (M)
-- `region`: A factor with levels: C, Central; M, Metropolitan Santiago area; N, North; S, South; SA, city of Santiago.
+-   `vote`: a factor with levels: A, will abstain; N, will vote no (against Pinochet); U, undecided; Y, will vote yes (for Pinochet).
+-   `statusquo`: higher values = more support for the status quo, standardized to have mean zero and standard deviation of one
+-   `income`: monthly income, in pesos
+-   `education`: factor variable with 3 levels: primary only (baseline), secondary (S), post-secondary (PS)
+-   `sex`: factor variable with two levels, female (baseline) and male (M)
+-   `region`: A factor with levels: C, Central; M, Metropolitan Santiago area; N, North; S, South; SA, city of Santiago.
 
 ```{r}
 chile <- carData::Chile
@@ -44,7 +44,7 @@ chile <- na.omit(chile)
 
 # Cross Validation
 
-Estimate the following model: 
+Estimate the following model:
 
 $$
 voteyes_i = \beta_0 + \beta_1statusquo_i + \beta_2income1000_i + \beta_3educS_i + \beta_4educPS_i + \beta_5female_i + u_i
@@ -55,9 +55,9 @@ m1 <- lm(vote_yes ~ statusquo + income_1000 + educS + educPS + female, chile)
 summary(m1)
 ```
 
-## Clustered SE 
+## Clustered SE
 
-Clustered standard errors adjust for the possibility that observations within the same group (e.g., a region) are not independent from each other. 
+Clustered standard errors adjust for the possibility that observations within the same group (e.g., a region) are not independent from each other.
 
 ```{r}
 # vcovCL function in sandwich package
@@ -90,12 +90,12 @@ ggplot(results, aes(x = rownames(results), y = coefficient)) +
   theme_minimal()
 ```
 
-Use 10-fold cross validation to calculate the out-of-sample (test) mean squared error and $R^2$. 
+Use 10-fold cross validation to calculate the out-of-sample (test) mean squared error and $R^2$.
 
-- Out-of-sample (test) mean squared error measures the average prediction error (how far off the predicted `vote_yes` values are from the actual). (The lower the better).
-- Out-of-sample (test) $R^2$ measures the proportion of variance in the binary outcome (vote_yes) explained by the model. (The higher the better). 
+-   Out-of-sample (test) mean squared error measures the average prediction error (how far off the predicted `vote_yes` values are from the actual). (The lower the better).
+-   Out-of-sample (test) $R^2$ measures the proportion of variance in the binary outcome (vote_yes) explained by the model. (The higher the better).
 
-How do we expect the out-of-sample (test) metrics to compare to the within-sample (train) metrics from 'm1'? 
+How do we expect the out-of-sample (test) metrics to compare to the within-sample (train) metrics from 'm1'?
 
 ```{r}
 # set up the training procedure
@@ -116,11 +116,11 @@ cbind(train, test)
 
 What does it mean if the test RMSE and $R^2$ are similar to the train RMSE and $R^2$?
 
-## Fixed Effects 
+## Fixed Effects
 
-Fixed effects adjust for the possibility of unobserved heterogeneity across groups by controlling for group-level omitted/confounding variables. 
+Fixed effects adjust for the possibility of unobserved heterogeneity across groups by controlling for group-level omitted/confounding variables.
 
-Estimate a new model that uses fixed effects for `region` to account for all regional-level variance in `vote_yes`. 
+Estimate a new model that uses fixed effects for `region` to account for all regional-level variance in `vote_yes`.
 
 ```{r}
 m2 <- lm(vote_yes ~ statusquo + income_1000 + educS + educPS + female + region, chile)
@@ -143,15 +143,15 @@ m2_test <- c(m2_10fCV$results["RMSE"], m2_10fCV$results["Rsquared"])
 cbind(m1_test, m2_test)
 ```
 
-As expected, the out-of-sample (test) mean squared error in the fixed effects model is slightly larger than the out-of-sample (test) mean squared error in the original model. 
+As expected, the out-of-sample (test) mean squared error in the fixed effects model is slightly larger than the out-of-sample (test) mean squared error in the original model.
 
-The out-of-sample (test) $R^2$ in the fixed effects model is slightly smaller than the out-of-sample (test) $R^2$ in the original model (0.20). 
+The out-of-sample (test) $R^2$ in the fixed effects model is slightly smaller than the out-of-sample (test) $R^2$ in the original model (0.20).
 
-This is because the fixed effects model is fitting the training data very closely, including noise tied to specific `region` dummies. On new (test) data, those specific patterns don’t generalize, so prediction error (MSE) increases and predictive performance ($R^2$) decreases. 
+This is because the fixed effects model is fitting the training data very closely, including noise tied to specific `region` dummies. On new (test) data, those specific patterns don’t generalize, so prediction error (MSE) increases and predictive performance ($R^2$) decreases.
 
 # Leave One Out CV
 
-## By Hand 
+## By Hand
 
 ```{r loocv}
 error <- NA
@@ -173,7 +173,7 @@ for (i in 1:nrow(chile)){
 sqrt(mean(error^2))  
 ```
 
-## With `caret` 
+## With `caret`
 
 ```{r}
 # set up the training procedure
@@ -186,7 +186,7 @@ m1_LOOCV <- caret::train(formula(m1), data = chile, method = "lm", trControl = m
 m1_LOOCV$results["RMSE"]
 ```
 
-## Analytically 
+## Analytically
 
 For OLS, there is an analytic solution for LOOCV (where $h_i$ is the leverage of observation $i$):
 
@@ -199,21 +199,20 @@ $$
 sqrt( sum( (m1$residuals / (1 - hatvalues(m1)))^2 ) / nrow(chile) )
 ```
 
-# Family-Wise Error Rates 
+# Family-Wise Error Rates
 
 Consider the following randomized survey experiment, which tested different messaging strategies to promote vaccination against COVID-19.
 
-- `vaccine_message`: the message respondents received. One of:
-    + Control -- no message
-    + Patriotism -- emphasizing vaccination as good for the country
-    + People you know -- emphasizing social norms regarding vaccination
-    + Physician recommend -- asking the respondent to consider what they'd do if their personal doctor recommended vaccination
-    + Preventing harm -- emphasizing that vaccination is important to reduce risks for others
-    + Scientists recommend -- emphasizing the scientific consensus regarding vaccination
+-   `vaccine_message`: the message respondents received. One of:
+    -   Control -- no message
+    -   Patriotism -- emphasizing vaccination as good for the country
+    -   People you know -- emphasizing social norms regarding vaccination
+    -   Physician recommend -- asking the respondent to consider what they'd do if their personal doctor recommended vaccination
+    -   Preventing harm -- emphasizing that vaccination is important to reduce risks for others
+    -   Scientists recommend -- emphasizing the scientific consensus regarding vaccination
+-   `vaccine_attitude`: respondents' self-reported likelihood of getting vaccinated
+    -   1-7 scale, higher values indicate higher likelihood
 
-- `vaccine_attitude`: respondents' self-reported likelihood of getting vaccinated 
-    + 1-7 scale, higher values indicate higher likelihood
-    
 ```{r}
 load("data/experiment")
 print(s1)
@@ -221,10 +220,10 @@ print(s1)
 
 What issues might arise here with respect to using p-values in the regression output combined with $\alpha=0.05$ to test each distinct coefficient?
 
-- This experiment has multiple treatment arms. 
-- Repeated, independent trials have a family-wise error rate
-- Increases the rate of false positives
-- Adjust alpha to test for statistical significance
+-   This experiment has multiple treatment arms.
+-   Repeated, independent trials have a family-wise error rate
+-   Increases the rate of false positives
+-   Adjust alpha to test for statistical significance
 
 ```{r}
 # corrected alpha
@@ -240,7 +239,7 @@ coef(s1)[6,4] < alpha # scientists
 s1$df[2]
 ```
 
-Let's make another coefficient plot, this time with base R. 
+Let's make another coefficient plot, this time with base R.
 
 ```{r}
 c <- qt(1 - alpha/2, s1$df[2])
@@ -260,5 +259,3 @@ segments(5, df$lci[6], 5, df$uci[6])
 abline(h = 0, lty = 2)
 box()
 ```
-
-

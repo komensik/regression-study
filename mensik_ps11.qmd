@@ -248,7 +248,7 @@ summary(Baumann$post.test.3)
 There are also three post-test measures but their correlations are mixed. You decide to treat them as three distinct measures of performance and examine the treatment effects on each separately. Estimate a separate OLS regression for each of the three post-treatment measures. Include the experimental treatment factor variable in the model (traditional method as baseline) and also include your new `pretest` variable as a control.
 
 ```{r}
-levels(Baumann$group)
+#levels(Baumann$group)
 m_post1 <- lm(post.test.1 ~ group + pretest, data = Baumann)
 
 m_post2 <- lm(post.test.2 ~ group + pretest, data = Baumann)
@@ -262,7 +262,7 @@ aggregate(pretest_composite ~ group, data=Baumann, mean)
 
 Explain why including the `pretest` measure might be beneficial even though the experimental treatments are known to be exogenous via random assignment.
 
-Including the pretest measure might be beneficial because (1) while randomization balances all pre-treatment covariates in expectation, covariates (observed and unobserved) on average, they might be imbalanced by chance which would skew internal validity and inflate variance of the estimator.
+Including the pretest measure might be beneficial because – even though randomization balances all pre-treatment covariates in expectation – covariates might be imbalanced by chance, creating internal validity problems and inflating variance of the estimator.
 
 the analysis involves multiple treatment arms (Basal, DRTA, Strata) across multiple outcomes, and repeated independent trials have family-wise error rates that are elevated. This increases the rate of false positives. Formal adjustments (alpha) might reduce power in this small (n = 66) sample. Moreover, since folks' post-test scores will vary due to prior ability, and while we're not worried about endogeneity, we can reduce residual variance assuming the control accounts for individual variability (increase the model's explained variance/R\^2).
 
@@ -270,41 +270,50 @@ the analysis involves multiple treatment arms (Basal, DRTA, Strata) across multi
 
 Discuss the statistical significance of the treatment effects across the three dependent variables. What issues might arise here with respect to using p-values in the regression output combined with $\alpha=0.05$ to test treatment effects for all three variables?
 
-Assignment to the DRTA treatment instead of traditional teaching is associated with a 3.55 point higher score on the first test (highly statistically significant \>0.008), 3.1894 point higher score on the second (slightly less but still significant (0.0084), and 5.8372 on the third test (also significant at 0.00339).
+First, worth flagging that 22 students per treatment group is fairly low statistical power. Second, the error rate this kind of series or "family" of tests – two different treatment contrasts per each three separate regression means 6 hypothesis tests - or the family-wise error rate is: $\leq$ 1 - (1 - 0.05)\^6, or \~ 0.265. There's a 27% probability of incorrectly rejecting a null (a Type I error). One correction would be to use a Bonferroni correction, testing hypotheses at 0.05/6 or 0.008.
 
-Assignment to the Strat treatment condition instead of traditional teaching is associated with a 1.9 point higher scores on the first post test (significant at 0.0122), 3.0694 (highly significant at near 0) on the second test, and 3.5 point higher scores on the third, though that is not significant (0.07).
+With that said, assignment to the DRTA treatment instead of traditional teaching is associated with a statistically significant **(\>0.008) effect in test 1**, where it is associated with a 3.55 higher score than traditional treatment. It also has a statistically **significant (0.003) effect in test 3,** where it is associated with 5.83 point higher scores. Assignment to the Strat treatment instead of traditional teaching has a **significant effect (0.00005) in test 2,** where it associated with 3.069 point higher scores.
 
-The pretest coefficient tells us that a one unit increase in pretest scores are associated with a 0.9735 point improvement in test 1 (not significant), a 0.2987 point improvement in test 2 (significant), and 0.3255 point better scores in test 3 (not significant).
+At 95% intervals, the DRTA treatment has significant effects on test 3 (5.83 points) and the Strata treatment instead of traditional teaching has a significant effect on test 1 (1.9 points).
 
-However, given this is two different treatment contrasts per each three separate regression (6 hypothesis tests) the probability of at least one false positive at $\alpha = 0.05$ is 1-(1-0.05)\^6 \~ 0.26, this setup inflates the likelihood of type 1 errors and also, at the model-by-model level, sort of obscures the risk of error. Moreover, with only 22 students per treatment group, statistical power is pretty limited.
+The pretest coefficient tells us that a one unit increase in pretest scores are associated with a 0.9735 point improvement in test 1 (significant with the Bonferonni correction), a 0.2987 point improvement in test 2 (significant at 95% CIs), and 0.3255 point better scores in test 3 (not significant).
+
+This could be inferred as a suggestion that student's performance on the first test has more to do with conditions outside of teaching method than the other tests.
 
 ## 2e. Discuss the substantive meaning of each coefficient you decide is statistically significant.
 
-While I can refer to max and min scores on the pre and outcome tests (1-15, 1-13, 1-57), one barrier to substantive interpretation is not knowing how many points these tests are out.
+While I can refer to max and min scores on the pre and outcome tests (1-15, 1-13, 1-57), a first mild barrier to substantive interpretation is not knowing how many points these tests are out of. It's not that I need the scale to understand treatment effect, but rather speaking to substantive meaning of these coefficients probably requires more context of the tests and how they differ than we have here – a 2 point improvement on, for example, a 20-point total test means something different than does a 2 point improvement on a 100 point test. This is particularly true given the small sample size, where I'm confident the variance isn't somewhat more reflective of the small sample than it is the heterogeneity of treatment effect.
 
-By the $\alpha = 0.05$ rule, statistically significant coefficients are discussed below.
+That said, if the first test's total possible points is close to its highest score (15 points), then DRTA's 3.55 coefficient suggest it is a substantive intervention producing \~24% better scores. If test 3's highest score (57) similarly reflects its max points, then DRTA produces a 15% increase in test scores, which is nothing to disparage and within the context of student scores is a meaningful effect.
 
--   3.55 coef on groupDRTA for model 1 – a 3.55 point improvement on a test where student scores range from 1 to 15 is seems substantively significant – like a meaningful reflection of student learning.
+If test 2 is out of 13 points (its max score), the Strata intervention also has a substantive effect, increasing scores by 23%.
 
--   1.9095 coef on groupStrat for model 1 –
+However, without knowing how these tests are related to one another (or the pretest), it is difficult to speak to the substantive impact of interventions across tests, or the overall meaningfulness of these teaching interventions compared to traditional methods.
 
--   3.0694 coef on group Strat on model 2
+## 2f. Plot
 
--   5.8372 coef on group DRTA on model 3
+Create a plot that shows:
+
+-   the estimated treatment effects of the innovative methods relative to the traditional one for each dependent variable.
+
+-   Include confidence bounds for each treatment effect.
+
+-   Make your own choices about how best to present these results (e.g., number of panels, labeling choices, reference lines, etc.). Pretend this is going into a paper to be submitted to a journal - make it look good!
 
 ```{r}
+
+summary(Baumann$pretest)
+Baumann$pretest_m <- Baumann$pretest - mean(Baumann$pretest) #centering at pretest mean because I want to show effect relative to mean pre-treatment score 
+m_post1c <- lm(post.test.1 ~ group + pretest_m, data = Baumann)
+
+m_post2c <- lm(post.test.2 ~ group + pretest_m, data = Baumann)
+
+m_post3c <- lm(post.test.3 ~ group + pretest_m, data = Baumann)
+
 alpha <- 1 - (1-0.05)^(1/6)
 
-coef()
+
 ```
-
-**Statistical vs Substantive Significance:** We should clarify this important distinction for the student:
-
--   *Substantive (or practical) significance* asks: is the size of the effect big enough to matter in real terms – in the context of education, is a difference of that many points meaningful in students’ learning? For instance, Strat’s +3.1 on post2 was highly significant statistically and is also clearly substantive (assuming the test is on a scale where 3 points is a considerable jump, like going from a score of 5 to 8 out of 15). On the other hand, suppose we had a huge sample and we found a tiny effect (like +0.5 points with p \< 0.001) – that could be statistically significant but not educationally important. In our case, most effects we see, if significant, are a few points – which in these tests appears to be a notable difference given the scale (especially since each group only had \~22 students, a difference of 3-5 points is quite noticeable in group averages).
-
-We should also interpret the meaning of Basal vs the others: Basal being the traditional curriculum, these results imply the new methods can produce higher comprehension scores. One might consider, for instance, if we wanted to recommend a method: DRTA seems consistently effective, Strat is effective for certain outcomes. One could also test DRTA vs Strat by comparing their coefficients (though that wasn’t explicitly asked, it’s a possible additional insight: e.g., on post-test1, DRTA outperforms Strat by \~1.7 points, etc.). However, since the question likely expects just Basal vs others, we stick to that.
-
-a.  Create a plot that shows the estimated treatment effects of the innovative methods relative to the traditional one for each dependent variable. Include confidence bounds for each treatment effect. Make your own choices about how best to present these results (e.g., number of panels, labeling choices, reference lines, etc.). Pretend this is going into a paper to be submitted to a journal - make it look good!
 
 Finally, we want to create a figure to professionally illustrate the effects of the treatments. A good approach is to plot the **estimated treatment effects with their confidence intervals** for each outcome. This could be a side-by-side coefficient plot specifically for the group comparisons.
 
