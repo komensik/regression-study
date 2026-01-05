@@ -214,7 +214,8 @@ Consider the following randomized survey experiment, which tested different mess
     -   1-7 scale, higher values indicate higher likelihood
 
 ```{r}
-load("data/experiment")
+getwd()
+load("/Users/kristina/Documents/GitHub/regression-study/labs_data_experiment")
 print(s1)
 ```
 
