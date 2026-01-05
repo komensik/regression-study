@@ -1,30 +1,10 @@
 ---
-title: "mensik_pset_11"
-format: html
-editor: visual
+title: "mensik_ps11"
+output: html_document
+date: "2026-01-05"
 ---
 
-## NOTE TO SELF: When done, copy into R markdown file (a la instructions) and delete noise
-
-## Data
-
-the `refug` dataset of judge decisions by the Canadian Federal Court of Appeal. The judges were making decisions about people seeking refugee status. The variables are as follows:
-
--   `decision`: the DV; 2=grants refugee's appeal, 1=denies appeal
--   decision_num is 1 = grants 0 = denies
--   `judge`: name of the judge hearing the case; a factor variable
-    -   came in as character
-    -   judge_factor is as factor
--   `nation`: nation of origin for the refugee making the appeal; a factor variable
--   `rater`: judgment of the merit of the appeal by an independent rater; a factor variable with two levels, yes or no
-    -   rater_factor
--   `language`: language of the case, English or French; a factor variable
--   `location`: location of original claim by refugee, Montreal, Toronto, or other; a factor variable
--   `success`: the logit of the success rate ($\text{ln} \left( \frac{p}{1-p} \right)$) of all cases from refugee's nation of origin (numeric)
-
-Load the data and name it refug.
-
-```{r, echo=FALSE, warning=FALSE}
+```{r setup, echo=FALSE, warning=FALSE, include=FALSE}
 library(lmtest)
 library(sandwich)
 library(dplyr)
@@ -32,9 +12,13 @@ library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(carData)
+library(broom)
 
+```
 
-getwd()
+# 1.
+
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
 refug <- read.csv("/Users/kristina/Documents/GitHub/regression-study/refug.csv")
 
 # recode variable decision so that 1 equals grants the appeal and 0 equals denies the appeal (right now is 2 = grants the appeal and 1 = denies)
@@ -43,11 +27,11 @@ refug$decision_num <- ifelse(refug$decision == "yes", 2, 1)
 
 # check judge -> recode to factor
 refug$judge_factor <- factor(refug$judge)
-levels(refug$judge_factor) #ordered alphabetically
+#levels(refug$judge_factor) #ordered alphabetically
 
 #check rater -> factor
 refug$rater_factor <- factor(refug$rater)
-levels(refug$rater_factor)
+#levels(refug$rater_factor)
 
 #language to factor
 refug$language_factor <- factor(refug$language)
@@ -56,19 +40,18 @@ refug$language_factor <- factor(refug$language)
 refug$location <- factor(refug$location)
 
 #success
-unique(refug$success)
-class(refug$success)
+#unique(refug$success)
+#class(refug$success)
 
-levels(refug$language_factor)
-levels(refug$location)
+#levels(refug$language_factor)
+#levels(refug$location)
 
-class(refug$success)
-
+#class(refug$success)
 ```
 
-## 1a
+## 1a.
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
 
 m1 <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location + success, data = refug)
 
@@ -107,10 +90,9 @@ locationToronto - holding all else constant, having a case heard or seeking refu
 
 success - holding all else constant, a one unit increase in the logit of the success rate of all cases from the refugee's nation of origin is associated with a \~20.8 percentage point increase in the probability that a judge grants the appeal. A unit increase in logit is the natural log of the probability of a nation's success rate – so a country with a 30% success rate's logit would be ln(0.30/0.70) \~ -0.8. This is nonlinear, but roughly corresponds to fairly significant changes. It is statistically significant as well.
 
-## 1b
+## 1b.
 
-```{r, echo=FALSE}
-#doing this a different way/lab way need to check that i created same se's 
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
 
 clust_se <- sqrt(diag(cov_clust))
 
@@ -130,13 +112,12 @@ ggplot(results, aes(x = rownames(results), y = coefficient))+
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
   coord_flip() +
   theme_minimal()
-
 ```
 
-### 1c.
+## 1c.
 
-```{r, echo=FALSE}
-#training proc set up
+```{r, echo=FALSE, warning=FALSE}
+
 set.seed(123)
 m1_training <- caret::trainControl(method = "cv", number = 10)
 
@@ -150,8 +131,6 @@ print(m1_10fold)
 m1_sr <- c(summary(m1)["sigma"], summary(m1)["r.squared"])
 m1_10f_sr <- c(m1_10fold$results["RMSE"], m1_10fold$results["Rsquared"])
 cbind(m1_sr, m1_10f_sr)
-
-training
 ```
 
 The out of sample (test) MSE is slightly (0.0081) larger than the in-sample MSE/residual standard error, which suggests the model was slightly overfitted (the DV is a 0-1 variable, so 0.41 means predictions are off by 41 percentage points on average – less stark when compared to 40 percentage points).
@@ -160,29 +139,17 @@ The out of sample R2 drops by about 0.034 (from explaining about 25% of the vari
 
 There are differences because the model is created to fit (OLS) the observed data. Held-out data doesn't have the noise on the in sample data.
 
-### 1d. - Fixed effects
+## 1d. 
 
-new model uses fixed effects for 'nation' to account for all nation-level variance in 'decision' (HINT: what other changes do you need to make to estimate this model?)
-
--FE adjust for possibility of unobserved heterogeneity X groups by controlling for group level ommitted/confounding variables
-
--each group (except one) gets a binary variable in the estimated model
-
-indicator for group j gives the difference in average y hat i comparing group j to the excluded (baseline) group
-
-removing what is shared across observations within groups makes the errors independent and SEs unbiased
-
-```{r, echo=FALSE}
-
+```{r, echo=FALSE, warning=FALSE}
 #dropping success bc success is constant with nation
 
 m1_fe <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location + as.factor(nation),data = refug)
-
 ```
 
-### 1e. - 10-fold
+## 1e.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
 #training proc set up
 m1fe_training <- caret::trainControl(method = "cv", number = 10)
 
@@ -202,7 +169,6 @@ cbind(m1_10f_sr, fe_10f_sr)
 summary(m1_fe)
 
 (m1_sr$sigma) - (fe_sr$sigma)
-
 ```
 
 First, both models have lower $R^2$ and higher error under 10-fold cross-validation because out-of-sample tests do not “reward"the original models for being fitted to the data's particular random noise.
@@ -213,62 +179,38 @@ Still, the fixed effects models' higher out-of-sample $R^2$ suggests some predic
 
 As with the tradeoff, adding country level parameters also muddy interpretability at the cross-national level, but it is in this case potentially useful (depending on your theory/aims) to see by-country variation.
 
-# 2
+# 2.
 
-Let's turn to new data. use the `Baumann` data from the `carData` package. They are data from an experiment with 66 undergraduate subjects who were randomly assigned to one of three treatment conditions: (1) `Basal`: a traditional method of teaching; (2) `DRTA`: an innovative method of teaching; or (3) `Strat`: a different innovative teaching method. The variables are as follows:
+## 2a.
 
--   `group`: student treatment assignment, a factor variable
--   `pretest.1`: student pre-treatment performance scores on measure 1
--   `pretest.2`: student pre-treatment performance scores on measure 1
--   `post.test.1`: student post-treatment performance scores on measure 1
--   `post.test.2`: student post-treatment performance scores on measure 2
--   `post.test.3`: student post-treatment performance scores on measure 3
-
-Load the data and name it `baum`.
-
-```{r}
+```{r, echo=FALSE, warning=FALSE}
 library(carData)
 data("Baumann")
-```
 
-# 2a.
-
-You will note that there are two pre-treatment measures of student performance and these are modestly correlated. Presumably, each of these is measured with error. Create one pre-treatment performance measure by averaging the two individual measures, and call it `pretest`.
-
-```{r}
-summary(Baumann$group)
-view(Baumann)
+#summary(Baumann$group)
+#view(Baumann)
 Baumann$pretest <- (Baumann$pretest.1 + Baumann$pretest.2) / 2
 
-summary(Baumann$post.test.3)
 ```
 
-## **2b.**
+## 2b. 
 
-There are also three post-test measures but their correlations are mixed. You decide to treat them as three distinct measures of performance and examine the treatment effects on each separately. Estimate a separate OLS regression for each of the three post-treatment measures. Include the experimental treatment factor variable in the model (traditional method as baseline) and also include your new `pretest` variable as a control.
-
-```{r}
-#levels(Baumann$group)
+```{r, echo=FALSE, warning=FALSE}
 m_post1 <- lm(post.test.1 ~ group + pretest, data = Baumann)
 
 m_post2 <- lm(post.test.2 ~ group + pretest, data = Baumann)
 
 m_post3 <- lm(post.test.3 ~ group + pretest, data = Baumann)
 
-aggregate(pretest_composite ~ group, data=Baumann, mean)
 ```
 
 ## 2c. 
-
-Explain why including the `pretest` measure might be beneficial even though the experimental treatments are known to be exogenous via random assignment.
 
 Including the pretest measure might be beneficial because – even though randomization balances all pre-treatment covariates in expectation – covariates might be imbalanced by chance, creating internal validity problems and inflating variance of the estimator.
 
 the analysis involves multiple treatment arms (Basal, DRTA, Strata) across multiple outcomes, and repeated independent trials have family-wise error rates that are elevated. This increases the rate of false positives. Formal adjustments (alpha) might reduce power in this small (n = 66) sample. Moreover, since folks' post-test scores will vary due to prior ability, and while we're not worried about endogeneity, we can reduce residual variance assuming the control accounts for individual variability (increase the model's explained variance/R\^2).
 
-## 2d.
-
-Discuss the statistical significance of the treatment effects across the three dependent variables. What issues might arise here with respect to using p-values in the regression output combined with $\alpha=0.05$ to test treatment effects for all three variables?
+## 2d. 
 
 First, worth flagging that 22 students per treatment group is fairly low statistical power. Second, the error rate this kind of series or "family" of tests – two different treatment contrasts per each three separate regression means 6 hypothesis tests - or the family-wise error rate is: $\leq$ 1 - (1 - 0.05)\^6, or \~ 0.265. There's a 27% probability of incorrectly rejecting a null (a Type I error). One correction would be to use a Bonferroni correction, testing hypotheses at 1-(0.95) to the (0.05/6) or 0.0085 per-test significance levels or 99.15% confidence intervals (this is the Sidak correction to make the family-wise error rate across tests 0.05).
 
@@ -280,7 +222,7 @@ The pretest coefficient tells us that a one unit increase in pretest scores are 
 
 This could be inferred as a suggestion that student's performance on the first test has more to do with conditions outside of teaching method than the other tests.
 
-## 2e. Discuss the substantive meaning of each coefficient you decide is statistically significant.
+## 2e.
 
 While I can refer to max and min scores on the pre and outcome tests (1-15, 1-13, 1-57), a first mild barrier to substantive interpretation is not knowing how many points these tests are out of. It's not that I need the scale to understand treatment effect, but rather speaking to substantive meaning of these coefficients probably requires more context of the tests and how they differ than we have here – a 2 point improvement on, for example, a 20-point total test means something different than does a 2 point improvement on a 100 point test. This is particularly true given the small sample size, where I'm confident the variance isn't somewhat more reflective of the small sample than it is the heterogeneity of treatment effect.
 
@@ -290,29 +232,16 @@ If test 2 is out of 13 points (its max score), the Strata intervention also has 
 
 However, without knowing how these tests are related to one another (or the pretest), it is difficult to speak to the substantive impact of interventions across tests, or the overall meaningfulness of these teaching interventions compared to traditional methods.
 
-## 2f. Plot
+## 2f. 
 
-Create a plot that shows:
+```{r, echo=FALSE, warning=FALSE, include = FALSE}
 
--   the estimated treatment effects of the innovative methods relative to the traditional one for each dependent variable.
-
--   Include confidence bounds for each treatment effect.
-
--   Make your own choices about how best to present these results (e.g., number of panels, labeling choices, reference lines, etc.). Pretend this is going into a paper to be submitted to a journal - make it look good!
-
-```{r}
-
-summary(Baumann$pretest)
 Baumann$pretest_m <- Baumann$pretest - mean(Baumann$pretest) #centering at pretest mean because I want to show effect relative to mean pre-treatment score 
 
 m_post1c <- tidy(lm(post.test.1 ~ group + pretest_m, data = Baumann))
 m_post2c <- tidy(lm(post.test.2 ~ group + pretest_m, data = Baumann))
 m_post3c <- tidy(lm(post.test.3 ~ group + pretest_m, data = Baumann))
 
-
-```
-
-```{r}
 # Post Test 1
 ci95_low <- m_post1c$estimate - 1.96 * m_post1c$std.error
 ci95_hi <- m_post1c$estimate + 1.96 * m_post1c$std.error
@@ -341,8 +270,7 @@ m_post3c$ci99_low_3 <- m_post3c$estimate - p_99 * m_post3c$std.error
 m_post3c$ci99_hi_3<- m_post3c$estimate + p_99 * m_post3c$std.error
 ```
 
-```{r}
-
+```{r, echo=FALSE, warning=FALSE, include = FALSE}
 label_map <- c(
   "(Intercept)" = "Avg. Basal Student",
   "groupDRTA"   = "Treatment: DRTA",
@@ -351,6 +279,13 @@ label_map <- c(
   "term" = "Teaching"
 )
 
+```
+
+```{}
+```
+
+```{r, echo=FALSE, warning=FALSE}
+
 #plotting post test 1
 
 ggplot(m_post1c, aes(x = estimate, y = term)) + geom_point() + geom_errorbarh(aes(xmin = ci95_low, xmax = ci95_hi), height = 0.2, size = 1, linetype = "dashed") + geom_errorbarh(aes(xmin = ci99_low, xmax = ci99_hi),
@@ -358,11 +293,9 @@ ggplot(m_post1c, aes(x = estimate, y = term)) + geom_point() + geom_errorbarh(ae
   geom_vline(xintercept = 0, linetype = "dashed") + scale_y_discrete(labels = label_map)+
   labs(x = "Coefficient Estimate", y = "", title = "Effect of Teaching Styles on Test 1", subtitle = "Centered on Average Pretest Score", caption = "99% CIs reported in green. 95% CIs reported in black.") +
   theme_minimal()
-
-
 ```
 
-```{r}
+```{r, echo=FALSE, warning=FALSE}
 #plotting post test 2
 
 ggplot(m_post2c, aes(x = estimate, y = term)) + geom_point() + geom_errorbarh(aes(xmin = ci95_low_2, xmax = ci95_hi_2), height = 0.2, size = 1, linetype = "dashed") + geom_errorbarh(aes(xmin = ci99_low_2, xmax = ci99_hi_2),
@@ -370,11 +303,9 @@ ggplot(m_post2c, aes(x = estimate, y = term)) + geom_point() + geom_errorbarh(ae
   geom_vline(xintercept = 0, linetype = "dashed") + scale_y_discrete(labels = label_map) +
   labs(x = "Coefficient Estimate", y = "",title = "Effect of Teaching Styles on Test 2", subtitle = "Centered on Average Pretest Score", caption = "99% CIs reported in green. 95% CIs reported in black.") +
   theme_minimal()
-
-
 ```
 
-```{r}
+```{r, echo=FALSE, warning=FALSE}
 #plotting post test 3
 
 label_map <- c(
@@ -390,6 +321,5 @@ ggplot(m_post3c, aes(x = estimate, y = term)) + geom_point() + geom_errorbarh(ae
   geom_vline(xintercept = 0, linetype = "dashed") + scale_y_discrete(labels = label_map) +
   labs(x = "Coefficient Estimate", y = "", title = "Effect of Teaching Styles on Test 3", subtitle = "Centered on Average Pretest Score", caption = "99% CIs reported in green. 95% CIs reported in black.") +
   theme_minimal()
-
 
 ```

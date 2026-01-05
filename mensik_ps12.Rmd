@@ -1,0 +1,46 @@
+---
+title: "mensik_ps12"
+output: html_document
+date: "2026-01-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+devtools::install_github("synth-inference/synthdid")
+library(synthdid)
+library(did)
+library(fixest)
+library(plm)
+
+
+```
+
+#1
+
+```{r}
+
+```
+
+
+##1a. 
+
+##1b.
+
+##1c.
+
+##1d.
+
+#2
+
+```{r}
+
+```
+
+##2a. 
+
+##2b.
+
+##2c.
+
+##2d.
