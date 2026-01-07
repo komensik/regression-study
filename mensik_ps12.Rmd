@@ -19,17 +19,23 @@ library(plm)
 #1
 
 ```{r}
-
+data(california_prop99)
+?california_prop99
 ```
 
 
 ##1a. 
+Using either the fixest or plm package, estimate a two-way fixed effects model to test the hypothesis that California’s cigarette tax hike in 1989 reduced per-capita cigarette consumption relative to the other control states. HINT: you need to explicitly call Year as a factor variable.
 
 ##1b.
+Interpret the coefficient on treated.
 
 ##1c.
+Calculate clustered standard errors by State (HINT: the packages have functions for this available) and construct a 95% confidence interval for the effect of the CA tax hike on cigarette consumption.
 
 ##1d.
+Now estimate the same model using lm, and show you get the same estimate for treated.
+
 
 #2
 

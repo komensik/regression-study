@@ -44,6 +44,7 @@ What might we do?
     -   and group independent time varying on the other side
 
 ```{r fig.width=7, fig.align='center'}
+
 library(wooldridge)
 data("kielmc")
 
@@ -191,6 +192,7 @@ data("Guns", package = "AER")
 ## Example
 
 ```{r echo=TRUE}
+{r echo=TRUE}
 # estimate 2-way fixed effects model
 m_guns <- lm(violent ~ law + as.factor(state) + as.factor(year), data = Guns)
 summary(m_guns) # should cluster SEs by state
