@@ -39,7 +39,7 @@ We're interested in inferring causation. Mill (2010) devises 5 methods:\
 
 Number two – the method of difference – is most similar to the idea of causation as a comparison among counterfactuals: "If a person eats of a particular dish, and dies in consequence, that is, would not have died if he had not eaten it, people would be apt to say that eating the dish was the source of his death"
 
-#### Potential Outcomes - 
+#### Potential Outcomes -
 
 Assume a binary variable that takes value = 1 if a particular unit $i$ receives the treatment, 0 if not.
 
@@ -65,7 +65,7 @@ $Y_i$
 
 -   are "realized, historical, actual, empirical" outcomes that unit $i$ experienced
 
-#### "Switching Equation" Gets us from Potential to Actual Outcomes - 
+#### "Switching Equation" Gets us from Potential to Actual Outcomes -
 
 $$
 Y_i = D_iY^1_i + (1-D_i)Y^0_i
