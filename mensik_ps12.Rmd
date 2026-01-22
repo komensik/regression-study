@@ -12,113 +12,47 @@ library(synthdid)
 library(did)
 library(fixest)
 library(plm)
-library(broom)
-library(lmtest)
-library(sandwich)
+
+
 ```
 
-# 1
+#1
 
 ```{r}
 data(california_prop99)
 ?california_prop99
 ```
 
-## 1a.
+
+##1a. 
+Using either the fixest or plm package, estimate a two-way fixed effects model to test the hypothesis that California’s cigarette tax hike in 1989 reduced per-capita cigarette consumption relative to the other control states. HINT: you need to explicitly call Year as a factor variable.
 
 ```{r}
-#head(california_prop99)
-#class(california_prop99$Year)
 
-m_fe <- feols(PacksPerCapita ~ treated | State + as.factor(Year), data = california_prop99, cluster = ~State
-)
-
-
-summary(m_fe)
 
 ```
 
-## 1b. Interpret the coefficient on treated:
 
-After California's cigarette tax was implemented in 1989, the difference between California's per-capita cigarette consumption and other states' decreased by 27.35 percentage points, holding all else equal.
+##1b.
+Interpret the coefficient on treated.
 
-## 1c. Calculate clustered standard errors by State
+##1c.
+Calculate clustered standard errors by State (HINT: the packages have functions for this available) and construct a 95% confidence interval for the effect of the CA tax hike on cigarette consumption.
 
-(HINT: the packages have functions for this available) and construct a 95% confidence interval for the effect of the CA tax hike on cigarette consumption.
+##1d.
+Now estimate the same model using lm, and show you get the same estimate for treated.
 
-```{r}
-confint(m_fe, level = 0.95)
-
-tidy(m_fe, conf.int = TRUE, conf.level = 0.95)
-
-```
-
-## 1d. estimate same model using lm
-
-and show you get the same estimate for treated.
-
-$Y_{it} = \alpha_i + \lambda_t + \beta(treated_{it}) + \epsilon_{it}$
-
-treated = state x pre/post
-
-```{r}
-year_f <- as.factor(california_prop99$Year)
-
-m_lm <- lm(PacksPerCapita ~ State + year_f + treated, data = california_prop99 )
-
-summary(m_lm)
-
-#coeftest(m_lm, vcovCL(m_lm, cluster =~State))
-
-```
 
 #2
 
-## Problem 2
-
-For this analysis, you will use the dataset `mpdta` from the package `did`. Load the data using `data(mpdta)`. Use `?mpdta` to see the data description and the variables available.
-
-```{r}
-?mpdta
-```
-
-a.  You first need to recode the `treat` variable so that it is 0 in years before treatment. Use this code below:
-
-```{r echo=TRUE}
-mpdta$treat_01 <- ifelse(mpdta$first.treat != 0 & mpdta$year >= mpdta$first.treat, 1, 0)
-```
-
-b.  Use `feols` in the `fixest` package to estimate a two-way fixed effects model to test the hypothesis that raising the minimum wage reduces teen employment. Use clustered standard errors by county.
-
-first.treat = year that the state where the county is located raised its minimum wage, set to 0 for counties that have min wages equal to the fed min wage over the entire period
-
-treat = whether/not a particular county is treated in that year
-
-lpop = log of 1000s of population for the county
-
-countyreal = unique ID for a particular county
-
-year = year of the observation
-
-$lemp_{it} = \beta(treat_{it}) + \alpha_i + \lambda_t + \epsilon_{it}$
-
 ```{r}
 
-m1 <- feols(lemp ~ treat_01 | countyreal + year, data = mpdta, cluster =~countyreal)
-
-summary(m1)
 ```
 
-c.  Estimate a dynamic version of this model using the code below, then plot the model object using `iplot`. Is there evidence against the parallel trends assumption?
+##2a. 
 
-```{r echo=TRUE}
-# estimate dynamic version of the model
-m_dynamic  <- feols(lemp ~ sunab(first.treat, year) | countyreal + year,
-                    data = mpdta, vcov = cluster ~ countyreal)
+##2b.
 
-iplot(m_dynamic, xlab = "Years since minimum wage increase", ref.line = 0)
-```
+##2c.
 
-Yes - the treated countries have different different employment starting points before treatment (significant pre treatment coefficients).
-
-d.  All evidence considered, would you say there is support for the claim that minimum wage hikes reduced youth employment?
+##2d.

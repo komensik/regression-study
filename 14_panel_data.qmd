@@ -44,7 +44,7 @@ What might we do?
     -   and group independent time varying on the other side
 
 ```{r fig.width=7, fig.align='center'}
-
+install.packages("wooldridge")
 library(wooldridge)
 data("kielmc")
 
@@ -91,7 +91,7 @@ summary(m1)
 
 -   2 way fixed effects:
 
-    -   "" group (dummy)
+    -   put in fixed effect for the group (dummy)
 
     -   ""time (post is a fixed effects for time)
 
