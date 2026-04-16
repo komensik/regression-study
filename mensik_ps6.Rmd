@@ -32,6 +32,10 @@ a.  Load the data and store it in `contrib`.
 library(marginaleffects)
 library(ggplot2)
 
+getwd()
+
+setwd("")
+
 contrib <- read.csv("contribupdate.csv")
 
 summary(contrib)
