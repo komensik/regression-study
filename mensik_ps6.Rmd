@@ -10,38 +10,17 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Instructions
-
-Create a new markdown document where you will answer all questions. Submit (1) your code as an `.Rmd` file, and (2) a rendered html file including only what you wish to present, to the `Problem Set 6` assignment under the Assignments tab in Canvas. The problem set is due *Friday, 28 February, by 10:00 EST*. Name your files `lastname_ps06` (`.html` and `.Rmd`).
-
-All submitted work must be your own.
-
-## Data
-
-For these problems, we will use a dataset of campaign contributions: `contribupdate.csv`.
-
-We will use the following variables:
-
--   `age`: Age (years);
--   `faminc`: Household income (in \$1,000 U.S. dollars);
--   `given`: Campaign contributions over the past year (in U.S. dollars).
-
-a.  Load the data and store it in `contrib`.
-
 ```{r, echo=FALSE}
 library(marginaleffects)
 library(ggplot2)
 
-getwd()
-
-setwd("")
 
 contrib <- read.csv("contribupdate.csv")
 
-summary(contrib)
+#summary(contrib)
 ```
 
-a.  Create two new variables in `contrib` that are the natural log of `faminc` and `given`. Name them `lfaminc` and `lgiven`, respectively.
+a.  Created two new variables in `contrib` that are the natural log of `faminc` and `given`, named  `lfaminc` and `lgiven`.
 
 ```{r, echo=FALSE}
 
@@ -65,11 +44,11 @@ m1 <- lm(given ~ age + I(age^2), data = contrib)
 
 #looking for evidence of a quadratic relationship between age and given
 
-summary(m1)
+#summary(m1)
 
 ```
 
-b.  Is there evidence for a quadratic relationship between `age` and `given`? Explain why or why not.
+b.  Evidence for a quadratic relationship between `age` and `given`?
 
 The intercept of 96.09 means the predicted giving at 0 years old (not substantively meaningful) is 0.
 
@@ -81,16 +60,16 @@ b.  Formula for the conditional marginal effect of `age` on `given`.
 
 $$\frac{\partial given_i}{\partial age_i} = \beta_1 + 2\beta_2age_{i}$$
 
-b.  At what value of age does the conditional marginal effect of age reach zero? Show your work using an R code block (`echo=T`). The CME of age on contributions reaches zero at 97.93.
+b. The CME of age on contributions reaches zero at 97.93.
 
 ```{r, echo=TRUE}
 
- turning_point <- -4.34239/(2*-0.02217)
+turning_point <- -4.34239/(2*-0.02217)
  
-turning_point
+#turning_point
 ```
 
-b.  Plot the conditional marginal effect of `age` on `given` across values of `age`. Make sure your figure is properly labeled and looks professional. Briefly interpret the plot substantively.
+b.  Plots of the conditional marginal effect of `age` on `given` across values of `age`:
 
 ```{r, echo=FALSE, fig.align='center'}
 options(marginaleffects_print_omit = c("s.value"))
@@ -117,9 +96,11 @@ plot(age_grid, cme_age,
 abline(h=0, lty=3)
 ```
 
+Interpretation:
+
 This shows us that the instantaneous rate of change or the slop of age's effect on contributions decreases as people get older, although it (the effect of age on campaign contributions) is always positive (increases annual campaign contribution amounts, holding all else equal. For some examples. we see that at about 18-20, an additional year of age on average increases annual campaign contribution amounts by \$3.5, but at 60, that's closer to \$2, and by \~90 an additional year is almost nothing.
 
-b.  Plot the predicted values of `given` across values of `age`. Briefly interpret the plot substantively.
+b.  Plot of the predicted values of `given` across values of `age`:
 
 ```{r, echo=FALSE, fig.align='center'}
 
@@ -136,10 +117,12 @@ plot(age_grid, p_given,
      main = "Quadratic Predicted Annual\nCampaign Donations x Age")
 
 ```
+**Interpretation**
+
 
 ## Problem 2
 
-a.  You suspect that the impact of household income on campaign contributions is conditional on the age of an individual. Estimate the following model and store it in `m2`.
+a.  m2: estimate of the following model to see if impact of household income on campaign contributions is conditional on the age of an individual:
 
 $$
  \text{given}_i = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{faminc}_i + \beta_3 \text{age}_i \times \text{faminc}_i + u_i
@@ -149,11 +132,11 @@ $$
 
 m2 <- lm(given ~ age*faminc, data = contrib)
 
-summary(m2)
+#summary(m2)
 
 ```
 
-b.  What are the marginal effects of family income on campaign contributions for individuals who are 30, 50, and 70 years old, respectively? Use the coefficients from the regression table to calculate the marginal effects and show your work using `echo=T`.
+b.  Work to find the marginal effects of family income on campaign contributions for individuals who are 30, 50, and 70 years old, using the coefficients from the regression table:
 
 Marginal effect of faminc on campaign contrib is:
 
@@ -183,7 +166,7 @@ slopes(m2,
 
 The conditional marginal effect of a one unit increase in family income at 30 is 74 cents, at 50 is \$1.74, at 70 is \$2.73, holding all else constant.
 
-b.  Create a plot that shows the marginal effect of family income at each value of age. Make sure your figure is properly labeled and looks professional. Briefly interpret the plot substantively.
+b.  Plot that shows the marginal effect of family income at each value of age. 
 
 ```{r, echo=FALSE}
 #plot of marginal effect of family income at 30
@@ -209,7 +192,9 @@ arrows(m_income$age, m_income$conf.low,
 
 ```
 
-b.  Create a plot that displays the predicted contributions across the range of values of family income, with age fixed at three different values: 30, 50, and 70. That is, the plot should display predicted values across income in three separate lines, each representing a different value of age. Briefly interpret the plot substantively.
+**Interpretation**
+
+b.  Plot that displays the predicted contributions across the range of values of family income, with age fixed at three different values: 30, 50, and 70. That is, the plot should display predicted values across income in three separate lines, each representing a different value of age. Briefly interpret the plot substantively.
 
 ```{r}
 
@@ -267,7 +252,7 @@ perc_change
 
 On average, a 10-year increase in age increases annual campaign contributions by 13%.
 
-c.  Calculate the expected value of `given` for a 40-year-old with \$90,000 in family income (i.e., `faminc = 90`). Remember that this is expected for `given` NOT `log(given)`. Use `echo=T`
+d.  Calculate the expected value of `given` for a 40-year-old with \$90,000 in family income (i.e., `faminc = 90`). Remember that this is expected for `given` NOT `log(given)`. Use `echo=T`
 
 ```{r, echo=TRUE}
 
@@ -294,7 +279,7 @@ Predicted value of campaign contributions for a 40 year old with \$90k in family
 
 c.  Calculate the change in the expected value of `given`, for a 60-year-old, when `faminc` changes from 50 to 100. In other words, calculate the first difference in `given` for a change in `faminc` from 50 to 100 holding `age` at 60. Use `echo=T`. Write a sentence that describes the result.
 
-For a 60 year old, a \$50k to \$100k jump in family income is on average associated with an estimated \$42 increase in campaign contributiond.
+For a 60 year old, a \$50k to \$100k jump in family income is on average associated with an estimated $42 increase in campaign contributions.
 
 ```{r, echo=TRUE}
 
