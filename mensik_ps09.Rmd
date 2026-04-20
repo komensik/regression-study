@@ -19,7 +19,8 @@ library(purrr)
 library(car)
 library(sandwich)
 library(xtable)
-
+library(knitr)
+library(kableExtra)
 
 highway <- read.csv("highway.csv")
 chile <- read.csv("chile.csv")
@@ -56,14 +57,14 @@ $$
 m1 <- lm(rate ~ acpt + slim + sigs1 + shld, data = highway) 
 
 
-summary(m1)
-confint(m1)
+#summary(m1)
+#confint(m1)
 
-par(mfrow=c(2,2))
-plot(m1)
-par(mfrow=c(1,1))
-library(lmtest)
-bptest(m1)
+#par(mfrow=c(2,2))
+#plot(m1)
+#par(mfrow=c(1,1))
+#library(lmtest)
+#bptest(m1)
 ```
 
 ### 1B
@@ -72,7 +73,7 @@ bptest(m1)
 
 -   *interpretation*:
 
-    -   an additional access point per mile is associated with a 0.09 increase in accidents/million miles, and this effect is statistically significant at the 1% level (bc p value is less than 0.01), where the confidence interval is [0.028, 0.154].
+    -   an additional access point per mile is associated with a 0.09 increase in accidents/million miles, and this effect is statistically significant at the 1% level (because the p value is less than 0.01), where the confidence interval is [0.028, 0.154].
 
 **slim**: -0.10408; change in the rate of accidents per million miles for unit (+5mph) increase in the speeding limit
 
@@ -129,11 +130,9 @@ $$
 
 ### 1D.
 
-Interpret all coefficients substantively (including the intercept).
-
 First, it may be worth noting that an n of 39 and k of 4 makes for a fairly small degrees of freedom (34), the significance tests rely on the normality of residuals assumption more than asymptotic properties of large samples.
 
-The **intercept** tells us that when there are no vehicle access points, a 0 mph speed limit, 0 turn signals, and no road shoulders, the rate of accidents per million miles is about 8. In other words, perhaps, an unmarked, unofficial country road is still predicted to have 8 accidents per 1 million miles – whether such a million mile road exists seems dubious, so taken literally this doesn't seem meaningful, and also this predictor and the others set to 0 is outside of the support of the data (ie, mph starts at 40 in this data).
+The intercept tells us that when there are no vehicle access points, a 0 mph speed limit, 0 turn signals, and no road shoulders, the rate of accidents per million miles is about 8. In other words, perhaps, an unmarked, unofficial country road is still predicted to have 8 accidents per 1 million miles – whether such a million mile road exists seems dubious, so taken literally this doesn't seem meaningful, and also this predictor and the others set to 0 is outside of the support of the data (ie, mph starts at 40 in this data).
 
 ```{r}
 hist(highway$acpt)
@@ -158,7 +157,7 @@ The model explains a good deal of variation in accident rates across roads (63-6
 
 Calculate, by hand, 95% confidence intervals for each coefficient (but not the intercept). Explain how these confidence intervals relate to the $p$ values in the table above.
 
-```{r}
+```{r, echo=FALSE}
 
 B <- coef(m1)
 df <- m1$df.residual
@@ -210,7 +209,18 @@ table1 <- data.frame(coefficient = coef(m1),
                  t.value = t_vals,
                  p.value = p_values)
 
-print(xtable(round(table, 5)), type = "latex")
+table1_table <- knitr::kable(table1,
+                             format = "html",
+                             longtable=FALSE,
+                             caption = "Het-Robust SEs Table")
+
+styled_table1_table <- kable_styling(
+  table1_table,
+  full_width = FALSE,
+  bootstrap_options = c("striped", "hover")
+)
+
+styled_table1_table
 ```
 
 ## Problem 2
