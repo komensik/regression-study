@@ -240,7 +240,7 @@ voteyes_i = \beta_0 + \beta_1sexM_i + \beta_2educationPS_i + \beta_3educationS_i
 \beta_6(statusquo_i)(educationPS_i) + \beta_7(statusquo_i)(educationS_i) + u_i
 $$
 
-When we estimate a linear model for a binary dependent variable, as we do above, it is called the "Linear Probability Model" (LPM). Since the dependent variable is binary (0 or 1 only), we can interpret the expected value of the dependent variable in terms of the **probability** that the variable is equal to 1 (the expected value of a Bernoulli trial is the probability of 1, or $p$). So in this context, predicted and expected values are interpreted as probabilities of voting "Yes" (for Pinochet), and marginal effects and first differences are interpreted in terms of changes in the probability of voting "Yes" (for Pinochet).
+When we estimate a linear model for a binary dependent variable, as we do above, it is called the "Linear Probability Model" ō(LPM). Since the dependent variable is binary (0 or 1 only), we can interpret the expected value of the dependent variable in terms of the **probability** that the variable is equal to 1 (the expected value of a Bernoulli trial is the probability of 1, or $p$). So in this context, predicted and expected values are interpreted as probabilities of voting "Yes" (for Pinochet), and marginal effects and first differences are interpreted in terms of changes in the probability of voting "Yes" (for Pinochet).
 
 Now answer the following questions:
 
