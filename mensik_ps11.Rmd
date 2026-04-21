@@ -19,7 +19,8 @@ library(broom)
 # 1.
 
 ```{r, echo=FALSE, warning=FALSE, include=FALSE}
-refug <- read.csv("/Users/kristina/Documents/GitHub/regression-study/refug.csv")
+
+refug <- read.csv("/Users/kristinamensik/Documents/GitHub/regression-study/refug.csv")
 
 # recode variable decision so that 1 equals grants the appeal and 0 equals denies the appeal (right now is 2 = grants the appeal and 1 = denies)
 refug$decision_num <- ifelse(refug$decision == "yes", 2, 1)
@@ -51,14 +52,14 @@ refug$location <- factor(refug$location)
 
 ## 1a.
 
-```{r, echo=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=FALSE, warning=FALSE, include=TRUE}
 
 m1 <- lm(decision_num ~ judge_factor + rater_factor + language_factor + location + success, data = refug)
 
 # clustered standard errors by nation
-
+#vcovCL: cluster robust vcov matrix
 cov_clust <- sandwich::vcovCL(m1, cluster = ~ nation, type = "HC1")
-
+#coeftest: use CR VM to get ses, t-stats, p's
 cte <- lmtest::coeftest(m1, vcov. = cov_clust)
 
 # table
@@ -81,7 +82,7 @@ styled_table <- kable_styling(
   full_width = FALSE,
   bootstrap_options = c("striped", "hover")
 )
-print(styled_table)
+styled_table
 ```
 
 judgeHeald - the -0.238 coefficient means that having Judge Heald as opposed to Judge Desjardin is associated with a 0.24 decrease in the likelihood of having a case granted, holding all else constant. This effect is highly significant.
@@ -92,7 +93,7 @@ success - holding all else constant, a one unit increase in the logit of the suc
 
 ## 1b.
 
-```{r, echo=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=FALSE, warning=FALSE, include=TRUE}
 
 clust_se <- sqrt(diag(cov_clust))
 
