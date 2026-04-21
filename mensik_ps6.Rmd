@@ -20,8 +20,6 @@ contrib <- read.csv("contribupdate.csv")
 #summary(contrib)
 ```
 
-Created new variables `lfaminc` and `lgiven` thare are natural log of `faminc` and `given`.
-
 ```{r, echo=FALSE}
 
 contrib$lfaminc <- log(contrib$faminc)
@@ -32,7 +30,7 @@ contrib$lgiven <- log(contrib$given)
 
 ## Problem 1
 
-###a.  M1 - modeled non-linear relationship between age and campaign contributions.
+### 1a. M1 - modeled non-linear relationship between age and campaign contributions.
 
 $$
  \text{given}_i = \beta_0 + \beta_1\text{age}_i + \beta_2 (\text{age}_i)^2 + u_i
@@ -48,7 +46,7 @@ m1 <- lm(given ~ age + I(age^2), data = contrib)
 
 ```
 
-###b.  Evidence for a quadratic relationship between `age` and `given`:
+### 1b. Evidence for a quadratic relationship between `age` and `given`:
 
 The intercept of 96.09 means the predicted giving at 0 years old (not substantively meaningful) is 0.
 
@@ -56,11 +54,11 @@ The coefficient estimate for age is 4.34. Because this is a quadratic model, the
 
 The coefficient estimate for age squared (-0.227) for I(age\^2) – since it's negative and nonzero - tells us the curvature would be concave down. However, age squared's p value (0.2053) is much greater than 0.05, suggesting the relationship may be due to chance – so, there isn't strong evidence of a quadratic relationship between age and given.
 
-###c.  Formula for the conditional marginal effect of `age` on `given`.
+### 1c. Formula for the conditional marginal effect of `age` on `given`.
 
 $$\frac{\partial given_i}{\partial age_i} = \beta_1 + 2\beta_2age_{i}$$
 
-###d.  The CME of age on contributions reaches zero at 97.93.
+### 1d. The CME of age on contributions reaches zero at 97.93.
 
 ```{r, echo=TRUE}
 
@@ -69,7 +67,7 @@ turning_point <- -4.34239/(2*-0.02217)
 #turning_point
 ```
 
-###e.  Plots of the conditional marginal effect of `age` on `given` across values of `age`:
+### 1e. Plots of the conditional marginal effect of `age` on `given` across values of `age`:
 
 ```{r, echo=FALSE, fig.align='center'}
 
@@ -101,7 +99,7 @@ Interpretation:
 
 This shows us that the instantaneous rate of change or the slop of age's effect on contributions decreases as people get older, although it (the effect of age on campaign contributions) is always positive (increases annual campaign contribution amounts, holding all else equal. For some examples. we see that at about 18-20, an additional year of age on average increases annual campaign contribution amounts by \$3.5, but at 60, that's closer to \$2, and by \~90 an additional year is almost nothing.
 
-###f.  Plot of the predicted values of `given` across values of `age`:
+### 1f. Plot of the predicted values of `given` across values of `age`:
 
 ```{r, echo=FALSE, fig.align='center'}
 
@@ -119,14 +117,13 @@ plot(age_grid, p_given,
 
 ```
 
-**Interpretation**
-This plot of predicted (expected) annual campaign contributions using the quadratic model asks what the model thinks the average contribution is at each age. The plot is increasing but begins to flatten out around 75/80 years old, so is concave down (beta 2 is less than 0), which shows that the predicted contributions increases with age but at a decreasing rate.
+**Interpretation** This plot of predicted (expected) annual campaign contributions using the quadratic model asks what the model thinks the average contribution is at each age. The plot is increasing but begins to flatten out around 75/80 years old, so is concave down (beta 2 is less than 0), which shows that the predicted contributions increases with age but at a decreasing rate.
 
 It's notable that the predictive positive and increasing relationship between age and contributions really extends throughout the adult life course.
 
 ## Problem 2
 
-###a.  m2: estimate of the following model to see if impact of household income on campaign contributions is conditional on the age of an individual:
+### 2a. m2: estimate of the following model to see if impact of household income on campaign contributions is conditional on the age of an individual:
 
 $$
  \text{given}_i = \beta_0 + \beta_1 \text{age}_i + \beta_2 \text{faminc}_i + \beta_3 \text{age}_i \times \text{faminc}_i + u_i
@@ -140,11 +137,7 @@ m2 <- lm(given ~ age*faminc, data = contrib)
 
 ```
 
-###b.  Marginal effects of family income on campaign contributions for individuals who are 30, 50, and 70 years old, using the coefficients from the regression table:
-
-Marginal effect of faminc on campaign contrib is:
-
-$$\frac{\partial given_i}{\partial faminc_i} = \beta_2 + \beta_3age_{_i}$$
+### 2b. Marginal effects of family income on campaign contributions for individuals who are 30, 50, and 70 years old, using the coefficients from the regression table:
 
 ```{r, echo=TRUE}
 
@@ -170,7 +163,7 @@ slopes(m2,
 
 The conditional marginal effect of a one unit increase in family income at 30 is 74 cents, at 50 is \$1.74, at 70 is \$2.73, holding all else constant.
 
-###c.  Plot that shows the marginal effect of family income at each value of age.
+### 2c. Plot that shows the marginal effect of family income at each value of age.
 
 ```{r, echo=FALSE}
 #plot of marginal effect of family income at 30
@@ -196,10 +189,9 @@ arrows(m_income$age, m_income$conf.low,
 
 ```
 
-**Interpretation**
-At 30 years old, a 1k increase in family income is associated with an increase of about 75 cents in contributions; at 50 years old, about 1.75 dollars, and at age 70, about 2.75 dollars. We see that the effect of income on campaign contributions increases with age. The confidence intervals show that the effects are statistically above 0 so significant at all ages, and not drastically different than one another. 
+**Interpretation** At 30 years old, a 1k increase in family income is associated with an increase of about 75 cents in contributions; at 50 years old, about 1.75 dollars, and at age 70, about 2.75 dollars. We see that the effect of income on campaign contributions increases with age. The confidence intervals show that the effects are statistically above 0 so significant at all ages, and not drastically different than one another.
 
-###d.  Plot that displays the predicted contributions across the range of values of family income, with age fixed at three different values: 30, 50, and 70. That is, the plot displays predicted values across income in three separate lines, each representing a different value of age. 
+### 2d. Plot that displays the predicted contributions across the range of values of family income, with age fixed at three different values: 30, 50, and 70. That is, the plot displays predicted values across income in three separate lines, each representing a different value of age.
 
 ```{r}
 
@@ -231,11 +223,11 @@ ggplot(new_data, aes(x = faminc, y = predicted_contrib, color = factor(age))) +
 
 Interpretation
 
-This plot shows that -- for the positive relationship between age and campaign contributions to appear -- families need to make over 50,000 dollars a year. When families earn less than 50,000, predicted annual camapign contributions are actually higher for younger people than older people. Moreover, the relationship increases with income -- the effect of age on campaign contributions is greatest for those who earn 500 thousand dollars annually. 
+This plot shows that -- for the positive relationship between age and campaign contributions to appear -- families need to make over 50,000 dollars a year. When families earn less than 50,000, predicted annual camapign contributions are actually higher for younger people than older people. Moreover, the relationship increases with income -- the effect of age on campaign contributions is greatest for those who earn 500 thousand dollars annually.
 
 ## Problem 3
 
-###a.  Model of the relationship of contributions to family income as non-linear.
+### 3a. Model of the relationship of contributions to family income as non-linear.
 
 $$
  \ln(\text{given}_i) = \beta_0 + \beta_1 \text{age}_i + \beta_2 \ln(\text{faminc}_i) + u_i
@@ -246,11 +238,11 @@ m3 <- lm(lgiven ~ age + lfaminc, data = contrib)
 #summary(m3)
 ```
 
-###b.  $\beta_2$ estimate interpreted as an elasticity:
+### 3b. $\beta_2$ estimate interpreted as an elasticity:
 
 $\beta_2$ is 0.594, meaning a 1 percent increase in family income is associated with a \~0.60% increase in the expected value of annual campaign contributions, holding all else constant.
 
-###c.  Percentage change in `given` for a 10-year increase in `age` : 
+### 3c. Percentage change in `given` for a 10-year increase in `age` :
 
 ```{r, echo=TRUE}
 
@@ -261,7 +253,7 @@ perc_change
 
 On average, a 10-year increase in age increases annual campaign contributions by 13%.
 
-###d.  Expected value of `given` for a 40-year-old with \$90,000 in family income:
+### 3d. Expected value of `given` for a 40-year-old with \$90,000 in family income:
 
 ```{r, echo=TRUE}
 
@@ -285,7 +277,7 @@ pred_level_sigma <- exp(predicted_40$fit + 0.5 *sigmasq)
 
 Predicted value of campaign contributions for a 40 year old with \$90k in family income is \$98.2 dollars that year.
 
-###e.  Change in the expected value of `given`, for a 60-year-old, when `faminc` changes from 50 to 100:
+### 3e. Change in the expected value of `given`, for a 60-year-old, when `faminc` changes from 50 to 100:
 
 For a 60 year old, a \$50k to \$100k jump in family income is on average associated with an estimated \$42 increase in campaign contributions.
 
