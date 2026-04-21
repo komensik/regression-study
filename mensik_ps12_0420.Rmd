@@ -1,0 +1,114 @@
+---
+title: "mensik_ps12"
+output: html_document
+date: "2026-01-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+devtools::install_github("synth-inference/synthdid")
+library(synthdid)
+library(did)
+library(fixest)
+library(plm)
+library(broom)
+library(lmtest)
+library(sandwich)
+```
+
+# 1
+
+```{r, echo=FALSE, warning=FALSE}
+data(california_prop99)
+?california_prop99
+```
+
+## 1a.
+
+```{r,  echo=FALSE, warning=FALSE}
+#head(california_prop99)
+#class(california_prop99$Year)
+
+m_fe <- feols(PacksPerCapita ~ treated | State + as.factor(Year), data = california_prop99, cluster = ~State
+)
+
+
+#summary(m_fe)
+
+```
+
+## 1b.
+
+After California's cigarette tax was implemented in 1989, the difference between California's per-capita cigarette consumption and other states' decreased by 27.35 percentage points, holding all else equal.
+
+## 1c.
+
+```{r, echo=FALSE}
+confint(m_fe, level = 0.95)
+
+tidy(m_fe, conf.int = TRUE, conf.level = 0.95)
+
+```
+
+## 1d.
+
+Show you get the same estimate for treated.
+
+$Y_{it} = \alpha_i + \lambda_t + \beta(treated_{it}) + \epsilon_{it}$
+
+treated still = -27.349
+
+```{r}
+year_f <- as.factor(california_prop99$Year)
+
+m_lm <- lm(PacksPerCapita ~ State + year_f + treated, data = california_prop99 )
+
+summary(m_lm)
+
+#coeftest(m_lm, vcovCL(m_lm, cluster =~State))
+
+```
+
+## Problem 2
+
+```{r, echo=FALSE}
+?mpdta
+```
+
+### 2a.
+
+```{r echo=FALSE}
+mpdta$treat_01 <- ifelse(mpdta$first.treat != 0 & mpdta$year >= mpdta$first.treat, 1, 0)
+```
+
+### 2b.
+
+```{r, echo=FALSE}
+
+m1 <- feols(lemp ~ treat_01 | countyreal + year, data = mpdta, cluster =~countyreal)
+
+#summary(m1)
+```
+
+### 2c.
+
+```{r echo=FALSE}
+# estimate dynamic version of the model
+m_dynamic  <- feols(lemp ~ sunab(first.treat, year) | countyreal + year,
+                    data = mpdta, vcov = cluster ~ countyreal)
+
+iplot(m_dynamic, xlab = "Years since minimum wage increase", ref.line = 0)
+```
+
+Generally, yes – starting 3 years before minimum wage hikes, the treated countries have different different employment starting points before treatment (significant pre treatment coefficients). However, for all but one the CI crosses 0.
+
+Also, while parallel trends might be violated, it seems worth noting that we don't see an expected treatment effect going into effect, pre-treatment – instead, that treated counties, pre-treatment, had higher employment relative to untreated controls (k = -1 baseline).
+
+### 2d.
+
+I'd say that in there's evidence minimum wage hikes might reduce youth employment in the short term. While the 2wfe in m1 shows treatment is associated with a decrease in log teen employment of about 0.036 (significant) or 3.6% relative to the counterfactual, the plot in 2c might tell a different story.
+
+Specifically, if places that have the best chance at increasing minimum wage have lowest unemployment (seems right), that might explain unparallel trends. Then, it makes sense that in the initial period after minimum wage increases go into effect, businesses might layoff part time etc youth workers, but later employment might rebound. This would help explain the large CI's/less precise estimates at 2 and 3 years after implementation.
+
+Overall though, the pre-treatment anti-parallel trends evidence coupled with the wave-like pattern suggests that evaluating the effect of min wage on youth unemployment probably requires a longer time horizon than the 7 years shown here.
