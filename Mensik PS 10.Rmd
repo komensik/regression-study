@@ -26,8 +26,6 @@ library(marginaleffects)
 library(lmtest)
 library(AER)
 library(stringr)
-library(tibble)
-
 
 ```
 
@@ -36,12 +34,13 @@ library(tibble)
 ### 1a. WLS: Resent on pslave1860
 
 ```{r, echo=FALSE}
+
 #if laptop
 abs_data <- read.csv("abs_data.csv")
 
 #inspecting data
 
-class(abs_data$water1860)
+#class(abs_data$water1860)
 
 #class(abs_data$water1860)
 
@@ -93,10 +92,10 @@ c_ols <- coeftest(m01, vcov. = vcovHC(m01, type = "HC3"))
 
 ```
 
-Note: I tested for heteroskedasticity on fitted model m01:
+Note: tested for heteroskedasticity on fitted model m01:
 
 ```{r eval=FALSE, include=FALSE}
-#residuals vs. fitted plot (diagnostic, not formal -- useful for notation)
+#residuals vs. fitted plot for diag
 plot(m01$fitted.values, resid(m01),
      xlab = "Fitted Values", ylab = "Residuals",
      main = "Residuals v Fitted")
@@ -119,13 +118,13 @@ bptest(m01, ~ fitted(m01) + I(fitted(m01)^2), data = data.frame(fitted = fitted(
 
 ```
 
-Redid model interpretation with omitted NAs (should have done first) and reporting robust HC3 standard errors.
+Omitted NAs and used robust HC3 standard errors.
 
 ### 1b. Interpretation: pslave1860
 
 Coefficient for pslave1860 is 0.1281. This means a one unit or 10% increase in the proportion of a county's 1860 population that was enslaved is associated with a 0.1281 percentage point increase in anti-Black attitudes today, holding all else constant.
 
-However, there is no evidence we can reject the null -- the P is 0.45 over 0.05, the confidence interval crosses 0 (95% CI includes 0, p = 0.45).
+However, there is no evidence we can reject the null -- the P is 0.45 so over 0.05, and the confidence interval crosses 0 (95% CI includes 0, p = 0.45).
 
 Because of fixed effects for states, this reflects estimates of within-state comparisons.
 
@@ -191,7 +190,7 @@ cbind(
 ```{r echo=FALSE, warning=FALSE}
 #prep sig test vars
 
-# pull pieces of robust models as named vectors
+# pieces of robust models as named vectors
 b_ols  <- c_ols[, "Estimate"]
 se_ols <- c_ols[, "Std. Error"]
 p_ols  <- c_ols[, "Pr(>|t|)"]
@@ -200,7 +199,7 @@ b_2sls  <- c_2sls[, "Estimate"]
 se_2sls <- c_2sls[, "Std. Error"]
 p_2sls  <- c_2sls[, "Pr(>|t|)"]
 
-# star function (journal-style)
+# star function 
 stars <- function(p) {
   ifelse(is.na(p), "",
     ifelse(p < .01, "***",
@@ -219,7 +218,7 @@ vars <- c(
   grep("^state\\.abb_af", names(b_ols), value = TRUE)
 )
 
-#  classify rows for non "Sample" column
+# rows for non "Sample" column
 row_class <- function(v) {
   if (v == "pslave1860")          return("Main IV")
   if (str_detect(v, "^state\\.abb_af")) return("State FE")
@@ -264,10 +263,10 @@ N_2sls <- nobs(m02)
 r2_ols <- summary(m01)$r.squared
 r2_2sls <- summary(m02)$r.squared
 
-# sum of weights (respondents) if you want to show it
+# sum of weights (respondents)
 sum_w <- sum(model.weights(model.frame(m01)))
 
-#footer rows to character for blank space
+#blank space function for footer
 f_num <-function(x) ifelse(is.na(x), "", format(round(x,3), nsmall = 3))
 tbl_footer <- tibble::tribble(
   ~Variable,             ~Type, ~OLS_Beta,            ~OLS_SE, ~`2SLS_Beta`,         ~`2SLS_SE`,
@@ -284,7 +283,7 @@ tbl_tbl <- dplyr::bind_rows(
 )
 
 #render
-tbl_ttl <- "Table 1. Examining Slavery's Impact on Contemporary Racial Resentment, Using Soil Suitability for Cotton as an Instrument"
+tbl_ttl <- "Table 1. Slavery's Impact on Contemporary Racial Resentment, Using Soil Suitability for Cotton as an Instrument"
 
 tbl_tbl %>%
   kbl(
@@ -311,7 +310,7 @@ tbl_tbl %>%
 
 A one unit or 10% increase in the proportion of a county's 1860 population that was enslaved is associated with a 0.666 percentage point increase in anti-Black attitudes today, holding all else constant.
 
-..the relationship isn't statistically significant (95% CI includes 0, p = 0.17). Because of fixed effects for states, this reflects estimates of within-state comparisons.
+The relationship isn't statistically significant (95% CI includes 0, p = 0.17). Because of fixed effects for states, this reflects estimates of within-state comparisons.
 
 The coefficient for pslave 1860 is produced from using soil cotton suitability as an instrument.
 
@@ -326,7 +325,7 @@ Notes:
 ### 2d. Two-stage approach
 
 ```{r echo=FALSE}
-#for endogenous variable in the model, regress it on all exogenous independent variables and all instruments. generate predicted values from those first stage regressions.  
+#for endogenous variable in the model, regress on all exogenous ind variables and all instruments. generate predicted values from those regressions.  
 mS01 <- lm(pslave1860 ~ cottonsuit
           + ln_coarea00 + rugged + latitude  + longitude + latitude_sq + longitude_sq + water1860 + state.abb_af , data = cleaned_abs, weights = sample.size)
 
@@ -340,7 +339,7 @@ mS02 <- lm(resent ~ pslave_hat
 
 ```
 
-Does two-stage approach get the same as ivreg 2SLS?
+Does two-stage approach get the same as ivreg 2SLS? (yes)
 
 ```{r, echo=FALSE}
 #summary(mS01)
