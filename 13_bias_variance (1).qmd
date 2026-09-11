@@ -22,8 +22,8 @@ There is a fundamental trade-off in statistical modeling.
 Adding parameters to the model (i.e. making it more complex)...
 
 ::: incremental
--   increases "flexibility": it allows the model to better fit the current ("training" or "in-sample") data
--   increases variance: larger uncertainty about the true parameter values (more variation from sample to sample)
+- increases "flexibility": it allows the model to better fit the current ("training" or "in-sample") data
+- increases variance: larger uncertainty about the true parameter values (more variation from sample to sample)
 :::
 
 ## Flexibility and variance
@@ -31,13 +31,13 @@ Adding parameters to the model (i.e. making it more complex)...
 Your model's fit contains...
 
 ::: incremental
--   systematic elements of the true data-generating process
+- systematic elements of the true data-generating process
 
-    -   generalizable, likely to remain consistent under repeated sampling / new data
+  - generalizable, likely to remain consistent under repeated sampling / new data
 
--   stochastic elements of the true data-generating process
+- stochastic elements of the true data-generating process
 
-    -   noise, *unlikely* to replicate on new data
+  - noise, *unlikely* to replicate on new data
 :::
 
 ## Simple example
@@ -205,23 +205,19 @@ summary(m)
 
 The true model of $y_i$ is: $y_i = f(\boldsymbol{x}_i) + u_i$, and we want to estimate $f$ using $\hat{f}$ to make predictions $\hat{y}_i$
 
--   Common practice to evaluate $\hat{f}$ using variance of prediction errors on new data (i.e. test mean squared error):
+- Common practice to evaluate $\hat{f}$ using variance of prediction errors on new data (i.e. test mean squared error):
 
-$$
-\text{E} \left( \left(y_{0i} - \hat{f}(\boldsymbol{x}_{0i}) \right)^2 \right)
-$$
+$$\text{E} \left( \left(y_{0i} - \hat{f}(\boldsymbol{x}_{0i}) \right)^2 \right)$$
 
 ## Bias-variance tradeoff
 
 Test mean squared error, $\text{E} \left( \left(y_{0i} - \hat{f}(\boldsymbol{x}_{0i}) \right)^2 \right)$, can be decomposed as:
 
-$$
-\text{Var}\left(\hat{f}(x_{0i})\right) + \left[\text{Bias}\left(\hat{f}(x_{0i})\right)\right]^2 + \text{Var}(u_{0i})
-$$
+$$\text{Var}\left(\hat{f}(x_{0i})\right) + \left[\text{Bias}\left(\hat{f}(x_{0i})\right)\right]^2 + \text{Var}(u_{0i})$$
 
--   variance of estimator
--   bias of estimator squared
--   "irreducible" error variance
+- variance of estimator
+- bias of estimator squared
+- "irreducible" error variance
 
 . . .
 
@@ -240,24 +236,24 @@ We may be willing to tolerate a little bias if it reduces variance by enough
 In addition to increasing variance, increasing flexibility (reducing bias) may also *decrease* model interpretability
 
 ::: incremental
--   More variables, more parameters, more complexity means more difficult to understand and explain
--   e.g., cubic vs linear relationship of X to Y
--   e.g., non-parametric models
--   e.g., "deep learning" neural networks with millions of parameters
+- More variables, more parameters, more complexity means more difficult to understand and explain
+- e.g., cubic vs linear relationship of X to Y
+- e.g., non-parametric models
+- e.g., "deep learning" neural networks with millions of parameters
 :::
 
 ## Upshot
 
 Constructing a useful estimator doesn't *necessarily* mean minimizing bias
 
--   We care about expected distance from the true value
--   This is a function of *both* bias and variance
+- We care about expected distance from the true value
+- This is a function of *both* bias and variance
 
 . . .
 
 We are willing to increase bias to decrease variance if it reduces our [generalization error]{.alert}
 
--   May also increase interpretability as a byproduct
+- May also increase interpretability as a byproduct
 
 ## Implications for assessing fit
 
@@ -267,7 +263,7 @@ We expect our "training" MSE (fit to current data) to underestimate "test" MSE (
 
 In-sample fit includes fit to signal and fit to noise.
 
--   Reporting training MSE and $R^2$ overstates model fit
+- Reporting training MSE and $R^2$ overstates model fit
 
 Corrections we have discussed so far (adjusted $R^2$, e.g.) indicate whether adding parameters improves fit to *current* data at rates better than chance. This is a low bar to clear!
 
@@ -283,9 +279,9 @@ But we usually don't. What's the next best thing?
 
 Another obvious possibility is to "hold out" some of your training data to use as test data
 
--   Fit model on random subsample of your total dataset
+- Fit model on random subsample of your total dataset
 
--   Use the held out data as "test" data to assess fit
+- Use the held out data as "test" data to assess fit
 
 ```{r heldout, echo = TRUE, eval = FALSE}
 # randomly sample rows to include/exclude from training
@@ -305,13 +301,13 @@ heldout_predictions <- predict(model, newdata = df[-train_index,])
 
 Potential issues:
 
--   Not obvious how much data to hold out and use for estimation (70%? 80%?)
+- Not obvious how much data to hold out and use for estimation (70%? 80%?)
 
--   Not obvious how sensitive results are to which observations are held out. - each time you do the above you would get a different answer
+- Not obvious how sensitive results are to which observations are held out. - each time you do the above you would get a different answer
 
-    -   how to deal with this?
+  - how to deal with this?
 
--   Cross validation tries to deal with these two issues
+- Cross validation tries to deal with these two issues
 
 . . .
 
@@ -321,25 +317,25 @@ Tradeoff: larger sample size for estimate (smaller for prediction) is good becau
 
 Ie: if we used n-one observations for estimation,
 
--   we would minimize the variance of our estimator, and get effectively the minimum variance estimates that we could still get while still holding out some data for prediction,
+- we would minimize the variance of our estimator, and get effectively the minimum variance estimates that we could still get while still holding out some data for prediction,
 
--   but we would only be holding out one observation for prediction – our ability to predict that one observation is party due to the goodness of the model and party due to random factors associated with that idiosyncratic observation – won't get good estimate of the test MSE using only one held out observation
+- but we would only be holding out one observation for prediction – our ability to predict that one observation is party due to the goodness of the model and party due to random factors associated with that idiosyncratic observation – won't get good estimate of the test MSE using only one held out observation
 
-    -   but do want to minimize variance of error
+  - but do want to minimize variance of error
 
--   *anytime you use less than the sample size you actually have to estimate your model, you're going to overestimate the test mean squared error*
+- *anytime you use less than the sample size you actually have to estimate your model, you're going to overestimate the test mean squared error*
 
-    -   biases your est of test MSE upwards
+  - biases your est of test MSE upwards
 
-        -   creates pessimistic portrait of how well estimator would actually do given sample size
+    - creates pessimistic portrait of how well estimator would actually do given sample size
 
 ## Cross-validation
 
 Common to repeat this process across equally-sized chunks of held-out data and average loss across the K "folds"
 
--   do "k" times
+- do "k" times
 
--   each time holding out different sub-portion of the data
+- each time holding out different sub-portion of the data
 
 ![](images/k_fold_crossval.png){fig-align="center"}
 
@@ -361,9 +357,9 @@ print(m1_10fCV)
 
 Can extend this such that K = N (i.e. we estimate the model $N$ times on $N-1$ data points)
 
--   Rather than evaluating fit based on in-sample *residuals*, we instead use out-of-sample *prediction errors*
+- Rather than evaluating fit based on in-sample *residuals*, we instead use out-of-sample *prediction errors*
 
--   The MSE of these predictions is an estimate of the true test MSE
+- The MSE of these predictions is an estimate of the true test MSE
 
 . . .
 
@@ -387,9 +383,7 @@ print(m1_LOOCV)
 
 For OLS, there is an analytic solution for LOOCV (where $h_i$ is the [leverage]{.alert} of observation $i$):
 
-$$
-\text{LOOCV} = \frac{1}{N} \sum_{i=1}^N \left[\frac{\hat{u}_i}{(1 - h_i)} \right]^2
-$$
+$$\text{LOOCV} = \frac{1}{N} \sum_{i=1}^N \left[\frac{\hat{u}_i}{(1 - h_i)} \right]^2$$
 
 ```{r echo=TRUE}
 sqrt( sum( (m1$residuals / (1 - hatvalues(m1)))^2 ) / nrow(BEPS) )
@@ -397,26 +391,26 @@ sqrt( sum( (m1$residuals / (1 - hatvalues(m1)))^2 ) / nrow(BEPS) )
 
 . . .
 
--   In words, inflate observed squared error by observations' leverage
--   It's an HC3 adjustment!
+- In words, inflate observed squared error by observations' leverage
+- It's an HC3 adjustment!
 
 ## Bias and variance in cross-validation {.scrollable}
 
 How to choose $K$? Using only a portion of the data for training leads to upward bias on estimate of test MSE (b/c sample is smaller, so estimator is higher variance)
 
 ::: incremental
--   As $K \rightarrow N$, the bias goes to 0 but the variance can also increase
-    -   b/c of potential for higher correlations across folds
--   Common practice to use 10 folds (i.e. hold 10% of data out at a time)
-    -   probably good as default
--   There is debate about this - unclear whether standard practice is actually better than LOOCV
+- As $K \rightarrow N$, the bias goes to 0 but the variance can also increase
+  - b/c of potential for higher correlations across folds
+- Common practice to use 10 folds (i.e. hold 10% of data out at a time)
+  - probably good as default
+- There is debate about this - unclear whether standard practice is actually better than LOOCV
 :::
 
 . . .
 
 With small $K$, the final estimate depends (to some degree) on the randomness of the divisions into folds (we would get a different answer with different folds)
 
--   Extension: estimate K-fold CV $M$ times and average the results
+- Extension: estimate K-fold CV $M$ times and average the results
 
 ## Cross-validation for model choice
 
@@ -425,9 +419,9 @@ You may often wish to choose among models of varying complexity
 One criterion is to choose the model that minimizes the test MSE:
 
 ::: incremental
--   Estimate a series of models with different sets of parameters/variables in the model
--   Calculate K-fold test MSE for each
--   Choose the model with the lowest test MSE
+- Estimate a series of models with different sets of parameters/variables in the model
+- Calculate K-fold test MSE for each
+- Choose the model with the lowest test MSE
 :::
 
 Better than just using in sample R squared
@@ -445,10 +439,10 @@ If $\hat{L}$ is the value of the likelihood function at the maximum:
 [Bayesian Information Criterion]{.alert} ($\text{BIC} = \ln(N)(K+1) - 2\ln(\hat{L})$)
 
 ::: incremental
--   basic idea is to penalize model fit based on how many parameters are estimated
--   Choose model with smallest AIC or BIC
--   If we assume normal errors, maximum likelihood and ordinary least squares are equivalent, and so AIC and BIC can be used as model selection criteria
--   actual value doesn't mean anything, just comparing different values for different models
+- basic idea is to penalize model fit based on how many parameters are estimated
+- Choose model with smallest AIC or BIC
+- If we assume normal errors, maximum likelihood and ordinary least squares are equivalent, and so AIC and BIC can be used as model selection criteria
+- actual value doesn't mean anything, just comparing different values for different models
 :::
 
 Except in really small sample sizes BIC exacts a larger penalty for complexity when $ln(N) > 2 \approx ln(7)$
@@ -469,73 +463,65 @@ BIC(m1)
 [Regularization]{.alert} methods place constraints on the parameter space *during estimation*
 
 ::: incremental
--   These constraints operate to reduce model flexibility
--   This increases bias (relative to OLS), but reduces variance, ideally reducing test MSE
--   These methods may also be used to increase interpretability (again, by trading for bias)
+- These constraints operate to reduce model flexibility
+- This increases bias (relative to OLS), but reduces variance, ideally reducing test MSE
+- These methods may also be used to increase interpretability (again, by trading for bias)
 :::
 
 ## Penalized Regression {.scrollable}
 
 One way to regularize is to *augment the loss function* to explicitly penalize coefficient size
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 \hat{\boldsymbol{\beta}}_{OLS} &= \min(SS_R) \\
 \hat{\boldsymbol{\beta}}_{Penalized} &= \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} f(\hat{\beta}_k) \right)
-\end{aligned}
-$$
+\end{aligned}$$
 
 ::: incremental
--   augment OLS loss function by adding some penalty
--   $\lambda$ (tuning parameter) is the [hyperparameter]{.alert} chosen by the researcher (often selected by cross-validation)
-    -   larger $\lambda$ means larger penalties and more shrinkage
-    -   is basically a weight
--   Dividing $SS_R$ by the sample size x 2 ensures that the loss function is independent of $N$, which makes the scale of $\lambda$ comparable across applications (though some software does not do this, e.g., `MASS`)
-    -   if didn't divide by N, SSR just goes up every time add a new observation - makes tuning parameter conditional on the sample size which is problem
-    -   dividing by N standardizes the thing the the tuning parameter is comparing across different models/estimations.
-    -   dividing by 2 just convenience norm, convenient mathmatically but not meaningful
--   $\hat{\beta}_k$ is sensitive to scale! Standardize inputs prior to estimation
+- augment OLS loss function by adding some penalty
+- $\lambda$ (tuning parameter) is the [hyperparameter]{.alert} chosen by the researcher (often selected by cross-validation)
+  - larger $\lambda$ means larger penalties and more shrinkage
+  - is basically a weight
+- Dividing $SS_R$ by the sample size x 2 ensures that the loss function is independent of $N$, which makes the scale of $\lambda$ comparable across applications (though some software does not do this, e.g., `MASS`)
+  - if didn't divide by N, SSR just goes up every time add a new observation - makes tuning parameter conditional on the sample size which is problem
+  - dividing by N standardizes the thing the the tuning parameter is comparing across different models/estimations.
+  - dividing by 2 just convenience norm, convenient mathmatically but not meaningful
+- $\hat{\beta}_k$ is sensitive to scale! Standardize inputs prior to estimation
 :::
 
 ## Penalized Regression
 
 [LASSO]{.alert} (Least Absolute Shrinkage and Selection Operator)
 
-$$
-\hat{\boldsymbol{\beta}}_{LASSO} = \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} |\hat{\beta}_k| \right)
-$$
+$$\hat{\boldsymbol{\beta}}_{LASSO} = \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} |\hat{\beta}_k| \right)$$
 
--   all we're realling doing here is choosing a function: absolute value of the betas
--   Penalize sum of coefficient absolute values
-    -   "we're going to penalize models with large values of beta – all else equal, models with smaller/closer to 0 betas will be considered better fitting models"
--   Leads uninformative coefficients to "shrink" to zero
--   LASSO is thus a good choice when one wishes to reduce model complexity
-    -   in addition to shrinking some coefficients towards zero, gets rids of other altogether by shrinking all the way down to 0
+- all we're realling doing here is choosing a function: absolute value of the betas
+- Penalize sum of coefficient absolute values
+  - "we're going to penalize models with large values of beta – all else equal, models with smaller/closer to 0 betas will be considered better fitting models"
+- Leads uninformative coefficients to "shrink" to zero
+- LASSO is thus a good choice when one wishes to reduce model complexity
+  - in addition to shrinking some coefficients towards zero, gets rids of other altogether by shrinking all the way down to 0
 
 ## Penalized Regression
 
 [Ridge regression]{.alert}
 
-$$
-\hat{\boldsymbol{\beta}}_{RR} = \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} \hat{\beta}_k^2 \right)
-$$
+$$\hat{\boldsymbol{\beta}}_{RR} = \min \left( \frac{SS_R}{2N} + \lambda \sum_{k=1}^{K} \hat{\beta}_k^2 \right)$$
 
--   dif from lasso is function is square of betas
--   Penalize sum of squared coefficients
--   Shrinks coefficients toward zero as a function of uninformativeness
-    -   smoothly shrinks towards 0, so won't shrink any to 0 – won't eliminate
--   A limitation of ridge is that it does not do subset selection
+- dif from lasso is function is square of betas
+- Penalize sum of squared coefficients
+- Shrinks coefficients toward zero as a function of uninformativeness
+  - smoothly shrinks towards 0, so won't shrink any to 0 – won't eliminate
+- A limitation of ridge is that it does not do subset selection
 
 ## Penalized Regression
 
 [Elastic net]{.alert} regression
 
-$$
-\hat{\boldsymbol{\beta}}_{EN} = \min \left( \frac{SS_R}{2N} + \frac{\lambda(1 - \alpha)}{2} \sum_{k=1}^{K} \hat{\beta}_k^2 + \lambda\alpha \sum_{k=1}^{K} |\hat{\beta}_k| \right)
-$$
+$$\hat{\boldsymbol{\beta}}_{EN} = \min \left( \frac{SS_R}{2N} + \frac{\lambda(1 - \alpha)}{2} \sum_{k=1}^{K} \hat{\beta}_k^2 + \lambda\alpha \sum_{k=1}^{K} |\hat{\beta}_k| \right)$$
 
--   Adds another tuning parameter, $\alpha$, which ranges from 0-1 and "mixes" LASSO and Ridge
--   When $\alpha$ = 1, we've got LASSO; when When $\alpha$ = 0, we've got ridge
+- Adds another tuning parameter, $\alpha$, which ranges from 0-1 and "mixes" LASSO and Ridge
+- When $\alpha$ = 1, we've got LASSO; when When $\alpha$ = 0, we've got ridge
 
 ## Ridge vs LASSO, visually
 
@@ -598,11 +584,11 @@ round(cbind(m1_lasso$beta, coef(m1_std)[-1]), 3)
 
 The researcher must choose the value of $\lambda$
 
--   There is unlikely to be theoretical guidance
+- There is unlikely to be theoretical guidance
 
--   We can choose based on model fit using cross-validation
+- We can choose based on model fit using cross-validation
 
-    -   Estimate ridge or lasso many times with varying values and choose the model with lowest MSE
+  - Estimate ridge or lasso many times with varying values and choose the model with lowest MSE
 
 ## Example, using `glmnet` {.scrollable}
 
@@ -678,12 +664,10 @@ round(cbind(m2_ridge$beta, m2_lasso$beta), 3)
 
 [Elastic net]{.alert} regression
 
-$$
-\hat{\boldsymbol{\beta}}_{EN} = \min \left( \frac{SS_R}{2N} + \frac{\lambda(1 - \alpha)}{2} \sum_{k=1}^{K} \hat{\beta}_k^2 + \lambda\alpha \sum_{k=1}^{K} |\hat{\beta}_k| \right)
-$$
+$$\hat{\boldsymbol{\beta}}_{EN} = \min \left( \frac{SS_R}{2N} + \frac{\lambda(1 - \alpha)}{2} \sum_{k=1}^{K} \hat{\beta}_k^2 + \lambda\alpha \sum_{k=1}^{K} |\hat{\beta}_k| \right)$$
 
--   Adds another tuning parameter, $\alpha$, which ranges from 0-1 and "mixes" LASSO and Ridge
--   When $\alpha$ = 1, we've got LASSO; when When $\alpha$ = 0, we've got ridge
+- Adds another tuning parameter, $\alpha$, which ranges from 0-1 and "mixes" LASSO and Ridge
+- When $\alpha$ = 1, we've got LASSO; when When $\alpha$ = 0, we've got ridge
 
 ## Example, using `caret`
 
@@ -714,20 +698,20 @@ round(m2_enet_cv$finalModel$beta[, which(rownames(m2_enet_cv$results) == rowname
 You may have noticed that penalized regression functions are not providing standard errors!
 
 ::: incremental
--   For ridge regression
+- For ridge regression
 
-    -   There are analytic solutions for covariance matrix (see Hanson (2022, p. 947)), though many packages do not report
-    -   Unclear how to think about confidence intervals when loss function introduces unknown bias, as the target of estimation is not the true value
+  - There are analytic solutions for covariance matrix (see Hanson (2022, p. 947)), though many packages do not report
+  - Unclear how to think about confidence intervals when loss function introduces unknown bias, as the target of estimation is not the true value
 
--   For LASSO, the idea of a confidence interval is even more problematic, because variables are being eliminated entirely
+- For LASSO, the idea of a confidence interval is even more problematic, because variables are being eliminated entirely
 
--   You should take Machine Learning so that someone more informed on these topics can give you better advice!
+- You should take Machine Learning so that someone more informed on these topics can give you better advice!
 :::
 
 ## Bayesian regularization
 
 An alternative to penalized regression is a full Bayesian analysis with informative priors for coefficients that center on 0
 
--   This has the same regularizing effect of shrinking estimates toward zero
--   SEs and uncertainty bounds are easily calculated
--   Though, again, if those are not your *true* priors, then it is not entirely clear how to interpret...
+- This has the same regularizing effect of shrinking estimates toward zero
+- SEs and uncertainty bounds are easily calculated
+- Though, again, if those are not your *true* priors, then it is not entirely clear how to interpret...
