@@ -82,25 +82,23 @@ Titanic example – being in first class, a woman, and/or a child made survival 
 
 Diag shows:
 
--   one direct path (causal effect) between first class (D) and survival (Y): D $\rightarrow$ Y
+- one direct path (causal effect) between first class (D) and survival (Y): D $\rightarrow$ Y
 
--   two backdoor paths:
+- two backdoor paths:
 
-    -   D $\leftarrow$ C $\rightarrow$ Y
+  - D $\leftarrow$ C $\rightarrow$ Y
 
-    -   D $\leftarrow$ W $\rightarrow$ Y
+  - D $\leftarrow$ W $\rightarrow$ Y
 
--   bc data includes both age and gender, can close each backdoor path + satisfy backdoor criterion using subclassification
+- bc data includes both age and gender, can close each backdoor path + satisfy backdoor criterion using subclassification
 
 First, note a naive **simple difference in outcomes (SDO)** which is just, for the sample:
 
-$$
-E[Y|D=1] - E[Y|D = 0]
-$$
+$$E[Y|D=1] - E[Y|D = 0]$$
 
 Code below uses data set on Titanic to calc SDO, which finds being seated in 1st raised the probability of survival by 35.4%.
 
--   does not adjust for observable confounders of age and gender $\rightarrow$ biased estimate of the ATE
+- does not adjust for observable confounders of age and gender $\rightarrow$ biased estimate of the ATE
 
 ```{r}
 
@@ -222,9 +220,7 @@ stargazer(wate, sdo, type = "text")
 
 Cunningham:
 
-$$
-\hat{\delta_{ATT}} = \frac{1}{N_T}\sum_{D=1}{(Y_i - Y_{j(i)})}
-$$
+$$\hat{\delta_{ATT}} = \frac{1}{N_T}\sum_{D=1}{(Y_i - Y_{j(i)})}$$
 
 $i$: treated unit
 
@@ -242,41 +238,39 @@ $\mu^1(x) = E[Y|X=x, D = 1] = E[Y^1 | X = x]$
 
 Means:
 
--   $\mu^0(X)$ is the average outcome we observe for control-group units who have covariate values x. "
+- $\mu^0(X)$ is the average outcome we observe for control-group units who have covariate values x. "
 
-    -   bc CIA, this is also: the average outcome that any unit with the covariate value x would have had if it were untreated.
+  - bc CIA, this is also: the average outcome that any unit with the covariate value x would have had if it were untreated.
 
-    -   those two expressions are equal because the CIA lets us equate the first part (given D = 0), the average observed outcome among actual control units with X = x, with the second which is the average potential outcome under control units with X = x.
+  - those two expressions are equal because the CIA lets us equate the first part (given D = 0), the average observed outcome among actual control units with X = x, with the second which is the average potential outcome under control units with X = x.
 
--   Example:
+- Example:
 
-    -   Let
+  - Let
 
-        -   X = age
+    - X = age
 
-        -   x = 30
+    - x = 30
 
-        -   Y = earnings
+    - Y = earnings
 
-        -   D = 0 = no training
+    - D = 0 = no training
 
-    -   then: $\mu^0(30)$ means: among 30 yr olds who did not receive training, what is the average earning?
+  - then: $\mu^0(30)$ means: among 30 yr olds who did not receive training, what is the average earning?
 
-    -   under CIA: what would a 30 yr old earn on average if untreated
+  - under CIA: what would a 30 yr old earn on average if untreated
 
 FLAG - these functions are not:
 
--   individual treatment effects
+- individual treatment effects
 
--   comparisons between treated and control
+- comparisons between treated and control
 
--   causal effects by themselves
+- causal effects by themselves
 
 **Switching Equation**
 
-$$
-Y_i = \mu^{D_i}(X_i) + \epsilon_i
-$$
+$$Y_i = \mu^{D_i}(X_i) + \epsilon_i$$
 
 Lecture: outcome = systematic part + error
 
@@ -292,9 +286,9 @@ Problem 5.3.2 is solving: nearest-neighbor matching does not generally give exac
 
 That means:
 
--   treated unit has $X_i$
+- treated unit has $X_i$
 
--   matched control has $X_j \neq X_i$
+- matched control has $X_j \neq X_i$
 
 If X affects Y, then $Y_j$ is a **biased proxy** for $Y_i(0)$
 
@@ -310,9 +304,9 @@ $Y= m_d(X) +\epsilon$ or \$ Y_i = \mu\^{D_i}(X_i) + \epsilon\_i \$
 
 where:
 
--   $m_d(X)$ = $\mu^d(X)$ = $E[Y(d)|X]$ systematic part
+- $m_d(X)$ = $\mu^d(X)$ = $E[Y(d)|X]$ systematic part
 
--   $\epsilon$ is the noise/stochastic part
+- $\epsilon$ is the noise/stochastic part
 
 Ie: when you match unit i to unit j, you're estimating:
 
@@ -322,25 +316,25 @@ but the true causal contrast is: $Y_i(1) - Y_i(0)$
 
 and the bias comes from $m_0(X_j) - m_0(X_i)$
 
--   (ie this bias decomposition)
+- (ie this bias decomposition)
 
--   The basic ATT matching estimator says to, for each treated unit, (a) take its observed outcome, (b) subtract the outcome of its matched control unit, (c) then average out those differences over treated units. ("Observed treated outcome minus observed control outcome, averaged").
+- The basic ATT matching estimator says to, for each treated unit, (a) take its observed outcome, (b) subtract the outcome of its matched control unit, (c) then average out those differences over treated units. ("Observed treated outcome minus observed control outcome, averaged").
 
-    But because each unit is made up of stochastic and systematic, a unit's observed outcome equals the average outcome we'd expect for someone with those covariates under that treatment, plus some random noise/deviation.
+  But because each unit is made up of stochastic and systematic, a unit's observed outcome equals the average outcome we'd expect for someone with those covariates under that treatment, plus some random noise/deviation.
 
-    so apply this logic to a matched treated unit $i$ and its matched control $j(i)$
+  so apply this logic to a matched treated unit $i$ and its matched control $j(i)$
 
-    -   for the treated unit $i$ its observed outcome equals:
+  - for the treated unit $i$ its observed outcome equals:
 
-        -   the expected outcoem for treated units with covariates like $X_i$ (this is what $\mu^1(X_i)$ means), plus some random noise specific to unit $j(i)$
+    - the expected outcoem for treated units with covariates like $X_i$ (this is what $\mu^1(X_i)$ means), plus some random noise specific to unit $j(i)$
 
-    -   for the matched control unit $j(i)$, its observed outcome equals the expected outcoem for treated units with covariates like $X_{j(i)}$ (this is what $\mu^0(X_{j(i)})$ means) plus some random noise specific to unit $j(i)$
+  - for the matched control unit $j(i)$, its observed outcome equals the expected outcoem for treated units with covariates like $X_{j(i)}$ (this is what $\mu^0(X_{j(i)})$ means) plus some random noise specific to unit $j(i)$
 
--   when you subtract the matched control outcome from the treated outcome, you're subtracting
+- when you subtract the matched control outcome from the treated outcome, you're subtracting
 
-    -   \(1\) the difference in expected outcomes for the treated and untreated X (contains the true treatement effects plus distortion caused by the fact that $X_i$ and $X_{j(i)}$ aren't exactly the same – this is where the bias lives)
+  - \(1\) the difference in expected outcomes for the treated and untreated X (contains the true treatement effects plus distortion caused by the fact that $X_i$ and $X_{j(i)}$ aren't exactly the same – this is where the bias lives)
 
-    -   \(2\) the difference in random noise – this should average out when we average over many treated units, and is variance, not bias
+  - \(2\) the difference in random noise – this should average out when we average over many treated units, and is variance, not bias
 
 That term doesn't vanish quickly if X is continuous, dimensionality is nontrivial, matches are "close but not equal."
 
@@ -352,9 +346,9 @@ That term doesn't vanish quickly if X is continuous, dimensionality is nontrivia
 
 Says: "we've matched imperfectly, so let's adjust the matched control's outcome to what it would have been at the treated unit's covariate value." To do this, we:
 
--   estimate how outcomes change with $X$ among controls
+- estimate how outcomes change with $X$ among controls
 
--   shift the matched control outcome accordingly
+- shift the matched control outcome accordingly
 
 Instead of using $Y_j$ we use $Y_j + \hat{m_0}(X_i) - \hat{m_0}(X_j)$ which shifts control outcome from $X_j$ to $X_i$.
 
@@ -462,9 +456,7 @@ ggplot(aes(x, y2, colour = factor(D)), data = dat) +
 
 Card (1995)
 
-$$
-Y_i = \alpha + \delta S_i+ \gamma X_i + \epsilon_i
-$$
+$$Y_i = \alpha + \delta S_i+ \gamma X_i + \epsilon_i$$
 
 $Y$ is log earnings
 
@@ -478,11 +470,11 @@ $\epsilon$ contains ability, correlated with schooling, so $C(S,\epsilon) \neq 0
 
 Instrumental variable: presence of a college within county
 
--   why would it $\rightarrow$ schooling? lowers cost of going to college $\rightarrow$ increases P(going to college for specific compliers)
+- why would it $\rightarrow$ schooling? lowers cost of going to college $\rightarrow$ increases P(going to college for specific compliers)
 
--   those compliers = low income/income restrained $\rightarrow$ LATE (not ATE)
+- those compliers = low income/income restrained $\rightarrow$ LATE (not ATE)
 
-    #### code isn't working
+  #### code isn't working
 
 ```{r}
 read_data <- function(df)
@@ -521,67 +513,67 @@ summary(iv_reg)
 
 Assumptions needed:
 
--   independence (IV is independent of potential outcomes and potential treatment assignment; "as good as random")
+- independence (IV is independent of potential outcomes and potential treatment assignment; "as good as random")
 
-    -   can try to assess by checking balance on pre-treatment covariates
+  - can try to assess by checking balance on pre-treatment covariates
 
--   exclusion restriction (instrument effects Y thru and only thru D)
+- exclusion restriction (instrument effects Y thru and only thru D)
 
-    -   "units" - people, defense teams - may try to switch once or before assigned in anticipation of judge's harshness; or change behaviors (ie, plead out) given assignment
+  - "units" - people, defense teams - may try to switch once or before assigned in anticipation of judge's harshness; or change behaviors (ie, plead out) given assignment
 
--   monotonicity (not homogeneity, but that effects happen in the same direction)
+- monotonicity (not homogeneity, but that effects happen in the same direction)
 
-    -   judges are biased – race, offense type, etc.
+  - judges are biased – race, offense type, etc.
 
-    -   condition – "parametric strategy of simultaneously instrumenting for all observed sentencing dimensions and thus allowing the instruments' effect on sentencing outcomes to be heterogeneous in defendant traits and crime characteristics" (371)
+  - condition – "parametric strategy of simultaneously instrumenting for all observed sentencing dimensions and thus allowing the instruments' effect on sentencing outcomes to be heterogeneous in defendant traits and crime characteristics" (371)
 
 Other routes
 
--   Frandensen et al (2019) – test exclusion and monotonicity by
+- Frandensen et al (2019) – test exclusion and monotonicity by
 
-    -   relax monoton. assumption, require instead that ATE among individuals who violate monoton. be identical to ATE for some subset that satisfies it.
+  - relax monoton. assumption, require instead that ATE among individuals who violate monoton. be identical to ATE for some subset that satisfies it.
 
 **Stevenson 2018**
 
 Stevenson, Megan T. 2018. “Distortion of Justice: How the Inability to Pay Bail Affects Case Outcomes.” *The Journal of Law, Economics and Organization* 34 (4): 511–42.
 
--   Philly (large cities have large samples that can help with sample bias of an IV)
+- Philly (large cities have large samples that can help with sample bias of an IV)
 
--   natural experiment:
+- natural experiment:
 
-    -   random assignment of bail judges ("magistrates")
+  - random assignment of bail judges ("magistrates")
 
-    -   variation across propensities re: bail price
+  - variation across propensities re: bail price
 
-    -   higher bail forces individuals into pre-trial detention
+  - higher bail forces individuals into pre-trial detention
 
--   IV estimators
+- IV estimators
 
--   findings: increase in pretrial detention 13% increase in probability of conviction
+- findings: increase in pretrial detention 13% increase in probability of conviction
 
-    -   argues: cause is increase in guilty please among defendants who otherwise would have been acquitted or had charges dropped
+  - argues: cause is increase in guilty please among defendants who otherwise would have been acquitted or had charges dropped
 
-    -   PTD -\> 42% increase in length of sentence, 41% increase in amount of non-bail fees owed
+  - PTD -\> 42% increase in length of sentence, 41% increase in amount of non-bail fees owed
 
--   N = 331, 971,
+- N = 331, 971,
 
--   8 randomly selected bail judges
+- 8 randomly selected bail judges
 
--   uses jackknife IV estimator
+- uses jackknife IV estimator
 
 Problem: "high-dimension instrument"
 
--   8-100s of judges
+- 8-100s of judges
 
-    -   insofar as weak $\rightarrow$ overidentification where in finite samples you begin moving the point estimates back to centering on OLS bias
+  - insofar as weak $\rightarrow$ overidentification where in finite samples you begin moving the point estimates back to centering on OLS bias
 
-        -   opt: combine individual judges with similar strictness into only one instrument
+    - opt: combine individual judges with similar strictness into only one instrument
 
--   Jackknife / leave one out helps
+- Jackknife / leave one out helps
 
-    -   use all observations in estimator except for $ith$ unit – good bc ideally mean strictness of judges in all other cases is the instrument, excluding particular defendant's
+  - use all observations in estimator except for $ith$ unit – good bc ideally mean strictness of judges in all other cases is the instrument, excluding particular defendant's
 
-    -   good for handling finite sample bias and other stuff
+  - good for handling finite sample bias and other stuff
 
 [Thus, here, we're running through simple exercises using JIVE/Jackknife]{.underline}
 
