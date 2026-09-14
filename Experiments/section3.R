@@ -4,9 +4,21 @@
 ## Chern Xun Gan
 ##################################################
 
+
+########################################
+##KM Note
+
+#1. potential outcomes schedule
+#2. conduct random assignment (simulated)
+#3. extract observed y from simulation data
+#4. calculate DIM
+# steps 2-4 10k times in for loop
+#5. p value with 20k DIM
+########################################
+
 ########################################
 ## A quick refresher of for-loops
-########################################
+
 
 # calculates values but does not print or store them
 for (i in 1:3) {
@@ -84,8 +96,11 @@ library(tidyverse)
 library(estimatr)
 library(randomizr)
 
+
+getwd()
 # import data
 hajj <- read.csv("Clingingsmith_et_al_QJE_2009dta.csv")
+
 
 # always set seed when using randomizr!
 set.seed(20260911)
