@@ -3,28 +3,1011 @@ title: "mensik_672_3"
 author: "Kristina Mensik"
 date: "2026-09-15"
 output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: sentence
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(estimatr)
+library(tidyverse)
+library(randomizr)
+
 ```
 
-## R Markdown
+SD usually is about dispersion in an observed variable.
+Randomization Inference A secondary problem of causal inference is we cannot derive test statistics from unobserved potential outcomes.
+The sharp null is helpful in this respect: stating that the treatment effect is zero for all units also means that unobserved and observed potential outcomes are the same.
+Using that ‘complete’ battery, we can simulate randomization and produce a ‘true’-under-the-null sampling distribution for estimate ATEs, and derive the p-value, or probability of obtaining an ATE as large as that obtained in the actual experiment in question, were the treatment effect nil.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+C: What is a 95% confidence interval?
+Imposing a 95% confidence interval around an estimator creates an estimated interval that will contain the “truth” 95% of the time, under repeated sampling.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+D: Difference between complete random assignment and cluster random assignment.
+In complete random assignment, the number of those in the treatment (m) and control (N-m) is known and the probability for each unit of assignment to treatment is m/N.
+In expectation, this creates balance for covariates.
+Block random assignment, in effect, turns a single experiment into some number of mini-experiments: study units are divided into blocks or strata before treatment is assigned within each block.
+In cluster random assignment, subjects likely to have similar outcomes are put into groups.
+Treatment then is randomized across groups – if a cluster is a family for example, the family becomes the unit of observation rather than individual family members.
 
-```{r cars}
-summary(cars)
+E: desirable statistical properties of balanced designs Balanced designs should allow confidence intervals to be “conservative” by reducing sampling variability at least when the variances of outcomes are similar within treatment conditions.
+
+## Question 4
+
+| Sub    | Y0  | YA  | YB  |
+|--------|-----|-----|-----|
+| miriam | 1   | 2   | 3   |
+| ben    | 2   | 3   | 3   |
+| helen  | 3   | 4   | 3   |
+| eva    | 4   | 5   | 3   |
+| billie | 5   | 6   | 3   |
+|        |     |     |     |
+
+treatment effects defined as YA - Y0 or YB - Y0
+
+### a.
+
+Which treatment, A or B, will generate a sampling distribution with a smaller standard error
+
+```{r, echo = T, include = T, warning = F}
+
+schedule <- data.frame("Y(0)" = 1:5, "Y(A)" = 2:6, "Y(B)" = rep(3,5))
 ```
 
-## Including Plots
+Treatment A's standard error for the ATE is:
 
-You can also embed plots, for example:
+```{r, echo = T, include = T, warning = F}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+ta_se <- sqrt((1/4)*((3*(var(schedule$Y.0.))) / (2) +
+                       (2*(var(schedule$Y.A.))) / (3) +
+                       (2*cov(schedule$Y.0., schedule$Y.A.))))
+print(ta_se)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Treatment B's standard error for the ATE is:
+
+```{r}
+
+tb_se <- sqrt((1/4)*((3*(var(schedule$Y.0.))) / (2) +
+                       (2*(var(schedule$Y.B.))) / (3) +
+                       (2*cov(schedule$Y.0., schedule$Y.B.))))
+print(tb_se)
+```
+
+Treatment B then has a smaller standard error.
+This might also have been inferrable because it has a variance of 0 (all of Y(B) = 3).
+
+### b.
+
+what does that imply about feasibility of studying interventions that attempt to close an existing achievement gap.
+
+Robin Hood stole from the rich and gave to the poor: "Robin Hood" treatments lower outcomes for those with higher untreated outcomes and raise outcomes for those with lower untreated outcomes.
+This reduces standard errors but without an assurance that the lower values ( measures of uncertainty) are actualyl indicative of certainty.
+
+## Question 5
+
+```{r, echo = T, include = T, warning = F}
+
+g_g <- "http://hdl.handle.net/10079/989c3e0c-4d31-47e5-b461-947ef6b54e1a"
+
+table_2.1 <- read.csv(g_g, header = TRUE, sep = ",")
+
+knitr::kable(table_2.1)
+
+```
+
+#### (a)
+
+```{r, echo = T, include = T, warning = F}
+
+# setting seed, though it doesn't matter here as we will obtain all possible randomisations
+
+set.seed(20250922)
+
+# declaring random assignment procedure
+
+q5_declaration <- declare_ra(N = nrow(table_2.1), m = 1)
+
+# creating matrix of all possible randomisations
+
+q5_permmatrix <- obtain_permutation_matrix(q5_declaration)
+
+# checking that m = 1 in every assignment
+
+sum(q5_permmatrix[, 1]) # repeated for each column
+
+# creating empty vector to store results of for loop
+
+dim_estimates <- c()
+
+# calculating difference-in-means, looping over every permutation
+
+for (i in 1:ncol(q5_permmatrix)) {
+  table_2.1$ri <- q5_permmatrix[, i]
+
+  treated_mean <- mean(table_2.1$Yi.1.[table_2.1$ri == 1])
+  control_mean <- mean(table_2.1$Yi.0.[table_2.1$ri == 0])
+
+  dim <- treated_mean - control_mean
+  dim_estimates <- c(dim_estimates, dim)
+}
+
+print(dim_estimates)
+
+```
+
+#### (b)
+
+The average of these estimates is 5, calculated as below.
+
+```{r, echo = T, include = T, warning = F}
+
+print(mean(dim_estimates))
+
+```
+
+The true ATE is the average of the treatment effect for each unit (recall that Table 2.1 is a complete schedule of potential outcomes that does not contend with the fundamental problem of causal inference).
+The true ATE is also 5, calculated as below.
+
+```{r, echo = T, include = T, warning = F}
+
+print(mean(table_2.1$Treatment.Effect))
+
+```
+
+#### (c)
+
+The standard deviation of the seven estimates is 7.30 (rounding to two decimal places), calculated using the standard R function.
+
+```{r, echo = T, include = T, warning = F}
+
+print(sd(dim_estimates))
+
+```
+
+The standard error implied by equation 3.4 is also 7.30 (rounding to two decimal places), calculated as below.
+
+```{r, echo = T, include = T, warning = F}
+
+q5_se <- sqrt((1/6)*
+  ((1*(var(table_2.1$Yi.0.))) / (6) + 
+  (6*(var(table_2.1$Yi.1.))) / (1) + 
+  (2*cov(table_2.1$Yi.0.,table_2.1$Yi.1.))))
+
+print(q5_se)
+
+```
+
+Given the preceding discussion in Question 1(a), this equality is unsurprising – standard error of an estimator is meant to estimate the standard deviation of the sampling distribution of estimates produced by that estimator.
+Here, as we have the entire schedule of potential outcomes and have simulated all possible treatment assingments, our simulated ATEs form the entire sampling distribution in question.
+Accordingly, the standard error is simply equivalent to the standard deviation of our simulated ATEs.
+
+#### (d)
+
+This is because the formula for the true standard error (*i.e.*, equation 3.4) weights the variance of $Y_i(1)$ by $\frac{N-m}{m}$, where $m$ is the number of treated units.
+Accordingly, as the number of treated units increases, such as by going from one to two, the value of the denominator is larger and the overall standard error – our estimator of sampling variability – is adjusted downward.
+This is intuitive, because having more than one observation in the treatment group would typically make us slightly less uncertain about our treatment effect.
+In a sense, we are able to exploit the increased variation to gain more information about our phenomenon of interest.
+
+#### (e)
+
+This intuitively follows the logic underlying the answer in 5(d).
+When there is only one village in treatment, our entire estimation of the treatment effect is based only on that one village and is sensitive to that one village's characteristics -- our estimated ATE could vary greatly depending on which one village is in our sample.
+This is the intuition reflected in weighted variances in equation 3.4.
+Accordingly, the standard error of our ATE is reduced when there are six villages in treatment, because we have additional information to more precisely estimate the ATE.
+
+## Question 6
+
+```{r, echo = T, include = T, warning = F}
+
+hajj <- read.csv("Clingingsmith et al.csv")
+
+# setting seed
+
+set.seed(20250923)
+
+# declaring random assignment procedure
+
+hajj_declaration <- declare_ra(nrow(hajj), m = sum(hajj$success))
+
+# creating matrix of 10,000 simulated randomisations
+
+hajj_permmatrix <- obtain_permutation_matrix(hajj_declaration)
+
+# creating empty vector to store results of for loop
+
+hajj_dim_estimates <- c()
+
+# calculating difference-in-means, looping over every permutation
+
+for (i in 1:ncol(hajj_permmatrix)) {
+  hajj$ri <- hajj_permmatrix[, i]
+
+  hajj_treated_mean <- mean(hajj$views[hajj$ri == 1])
+  hajj_control_mean <- mean(hajj$views[hajj$ri == 0])
+
+  hajj_dim <- hajj_treated_mean - hajj_control_mean
+  hajj_dim_estimates <- c(hajj_dim_estimates, hajj_dim)
+}
+
+# checking that the mean of the distribution of simulated ATEs is zero, as we 
+# are testing the sharp null hypothesis
+
+print(round(mean(hajj_dim_estimates)), 10)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# computing ATE of actual experiment
+
+clingingsmith_dim <- 
+  mean(hajj$views[hajj$success == 1]) - 
+  mean(hajj$views[hajj$success == 0])
+
+print(clingingsmith_dim)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the number of simulated ATEs at least as large as actual
+
+print(sum(hajj_dim_estimates >= clingingsmith_dim))
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the corresponding one-sided p-value 
+
+print(mean(hajj_dim_estimates >= clingingsmith_dim))
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the number of simulated ATEs with an absolute value at least as large as actual 
+
+print(sum(abs(hajj_dim_estimates) >= abs(clingingsmith_dim)))
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the corresponding two-sided p-value 
+
+print(mean(abs(hajj_dim_estimates) >= abs(clingingsmith_dim)))
+
+```
+
+## Question 7
+
+Upon performing the transformation indicated in the question, we are testing the sharp null hypothesis that the diet and exercise program has no effect for anyone in the program.
+In other words, $\tau_i = 0$ $\forall i$.
+
+```{r, echo = T, include = T, warning = F}
+
+# creating the potential outcomes schedule
+
+q6_Y0 <- c(1, 0, 0, 4, 3)
+q6_Y1 <- c(2,11, 14, 0, 3)
+q6_Y1_transformed <- q6_Y1 - 7
+q6_d <- c(rep(0,length(q6_Y0)),rep(1,length(q6_Y1_transformed)))
+q6_Y_null <- c(q6_Y0, q6_Y1_transformed)
+q6_schedule <- data.frame(cbind(q6_Y_null, q6_d))
+
+# setting seed 
+
+set.seed(20250923)
+
+# declaring random assignment procedure
+
+q6_declaration <- declare_ra(nrow(q6_schedule), m = sum(q6_schedule$q6_d))
+
+# creating matrix of 10,000 simulated randomisations
+
+q6_permmatrix <- obtain_permutation_matrix(q6_declaration)
+
+# creating empty vector to store results of for loop
+
+q6_dim_estimates <- c()
+
+# calculating difference-in-means, looping over every permutation
+
+for (i in 1:ncol(q6_permmatrix)) {
+  q6_schedule$ri <- q6_permmatrix[, i]
+
+  q6_treated_mean <- mean(q6_schedule$q6_Y_null[q6_schedule$ri == 1])
+  q6_control_mean <- mean(q6_schedule$q6_Y_null[q6_schedule$ri == 0])
+
+  q6_dim <- q6_treated_mean - q6_control_mean
+  q6_dim_estimates <- c(q6_dim_estimates, q6_dim)
+}
+
+# checking that the mean of the distribution of simulated ATEs is zero, as we 
+# are testing the sharp null hypothesis
+
+print(round(mean(q6_dim_estimates)), 10)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# computing actual ATE of experiment with transformed outcome vector
+
+actual_dim <- 
+  mean(q6_schedule$q6_Y_null[q6_schedule$q6_d == 1]) - 
+  mean(q6_schedule$q6_Y_null[q6_schedule$q6_d == 0])
+
+print(actual_dim)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the two-sided p-value 
+
+print(mean(abs(q6_dim_estimates) >= abs(actual_dim)))
+
+```
+
+The p-value here is less than 0.05, indicating that we can reject the sharp null hypothesis that the program had no effect for any of its participants.
+This, in turn, implies that the program *did* have a treatment effect that was significantly different from zero.
+We use a two-sided test in this instance because we have no theoretical grounds to suppose that the program would only differ from zero in one direction *(i.e.*, only cause weight loss) – we cannot preclude the possibility that the treatment could have caused participants to gain weight.
+
+## Question 8
+
+```{r, echo = T, include = T, warning = F}
+
+q8_textbook <- "https://hdl.handle.net/10079/10b7b9e8-ab68-493b-81ff-39063be637ae"
+
+q8_data <- read.csv(q8_textbook, header = TRUE, sep = ",")
+
+```
+
+#### (a)
+
+The estimated average treatment effect of having a two-year term on the number of bills introduced in Texas and Arkansas is -16.74 and - 10.09, respectively, calculated as below.
+
+```{r, echo = T, include = T, warning = F}
+
+# subsetting the data by block (state)
+
+texas <- q8_data[q8_data$texas0_arkansas1 == 0,]
+arkansas <- q8_data[q8_data$texas0_arkansas1 == 1,]
+
+# estimating difference in mean bills introduced depending on term length - texas 
+
+texas_ate <- mean(texas$bills_introduced[texas$term2year == 1]) -
+             mean(texas$bills_introduced[texas$term2year == 0])
+
+# estimating difference in mean bills introduced depending on term length - arkansas 
+
+arkansas_ate <- mean(arkansas$bills_introduced[arkansas$term2year == 1]) -
+                mean(arkansas$bills_introduced[arkansas$term2year == 0])
+
+print(texas_ate)
+print(arkansas_ate)
+
+```
+
+#### (b)
+
+The standard error of the estimated ATE in Texas and Arkansas is 9.35 and 3.40, respectively, calculated as below (applying equation 3.6, FEDAI: 61).
+
+```{r, echo = T, include = T, warning = F}
+
+# identifying number of treated units in Texas
+
+texas_m <- sum(texas$term2year)
+
+# calculating variance of Y_i0 and Y_i1 in Texas
+
+texas_var0 <- var(texas$bills_introduced[texas$term2year == 0])
+texas_var1 <- var(texas$bills_introduced[texas$term2year == 1])
+
+texas_se <- sqrt((texas_var0 / (nrow(texas)- texas_m)) + (texas_var1/ texas_m))
+
+# identifying number of treated units in Arkansas
+
+arkansas_m <- sum(arkansas$term2year)
+
+# calculating variance of Y_i0 and Y_i1 in Arkansas
+
+arkansas_var0 <- var(arkansas$bills_introduced[arkansas$term2year == 0])
+arkansas_var1 <- var(arkansas$bills_introduced[arkansas$term2year == 1])
+
+arkansas_se <- sqrt((arkansas_var0 / (nrow(arkansas)- arkansas_m)) + (arkansas_var1/ arkansas_m))
+
+print(texas_se)
+print(arkansas_se)
+
+```
+
+#### (c)
+
+The estimated overall ATE for both states combined is -13.22, calculated as below (applying equation 3.10, FEDAI: 73).
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the weight of each block 
+
+texas_weight <- nrow(texas) / nrow(q8_data)
+arkansas_weight <- nrow(arkansas) / nrow(q8_data)
+
+# calculating overall ATE
+
+q8_ate <- (texas_weight * texas_ate)+(arkansas_weight * arkansas_ate)
+
+print(q8_ate)
+
+```
+
+#### (d)
+
+While there is random assignment of the treatment within each block, this is not the case across blocks.
+It is not clear why Arkansas and Texas were chosen for the introduction of these term length lotteries, and we have no information to suggest that they were selected at random.
+It is likely that these lotteries were introduced in these states due to specific characteristics of these states, which would mean that we have not achieved the severance between predictive covariates and the outcome of interest that results from successful randomisation, undermining the promise of difference-in-means as an unbiased estimator of the true ATE.
+
+#### (e)
+
+The estimated standard error for the overall ATE is 4.74, calculated as below (applying equation 3.12, FEDAI: 74).
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating standard error for the overall ATE
+
+q8_se <- sqrt(
+  ((texas_se^2)*(texas_weight^2))+
+  ((arkansas_se^2)*(arkansas_weight^2))
+  )
+
+print(q8_se)
+
+```
+
+#### (f)
+
+I understand this question to mean that we test the sharp null hypothesis that the treatment effect is zero for all senators in Texas and Arkansas, respectively (*i.e.*, evaluate this hypothesis per state.)
+
+```{r, echo = T, include = T, warning = F}
+
+# setting seed 
+
+set.seed(20250923)
+
+# declaring random assignment procedure
+
+texas_declaration <- declare_ra(nrow(texas), m = sum(texas$term2year))
+
+# creating matrix of 10,000 simulated randomisations
+
+texas_permmatrix <- obtain_permutation_matrix(texas_declaration)
+
+# creating empty vector to store results of for loop
+
+texas_dim_estimates <- c()
+
+# calculating difference-in-means, looping over every permutation
+
+for (i in 1:ncol(texas_permmatrix)) {
+  texas$ri <- texas_permmatrix[, i]
+
+  texas_treated_mean <- mean(texas$bills_introduced[texas$ri == 1])
+  texas_control_mean <- mean(texas$bills_introduced[texas$ri == 0])
+
+  texas_dim <- texas_treated_mean - texas_control_mean
+  texas_dim_estimates <- c(texas_dim_estimates, texas_dim)
+}
+
+# checking that the mean of the distribution of simulated ATEs is zero, as we 
+# are testing the sharp null hypothesis
+
+print(round(mean(texas_dim_estimates)), 10)
+
+```
+
+We know from Question 8(a) that the actual ATE for Texas -16.74167.
+Using this, I calculate the two-sided p-value.
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the two-sided p-value 
+
+print(mean(abs(texas_dim_estimates) >= abs(texas_ate)))
+
+```
+
+The p-value indicates that we cannot reject the sharp null hypothesis at the 95% significance level, but may do so at the 90% significance level.
+I now repeat this analysis for Arkansas.
+
+```{r, echo = T, include = T, warning = F}
+
+# setting seed 
+
+set.seed(20250923)
+
+# declaring random assignment procedure
+
+arkansas_declaration <- declare_ra(nrow(arkansas), m = sum(arkansas$term2year))
+
+# creating matrix of 10,000 simulated randomisations
+
+arkansas_permmatrix <- obtain_permutation_matrix(arkansas_declaration)
+
+# creating empty vector to store results of for loop
+
+arkansas_dim_estimates <- c()
+
+# calculating difference-in-means, looping over every permutation
+
+for (i in 1:ncol(arkansas_permmatrix)) {
+  arkansas$ri <- arkansas_permmatrix[, i]
+
+  arkansas_treated_mean <- mean(arkansas$bills_introduced[arkansas$ri == 1])
+  arkansas_control_mean <- mean(arkansas$bills_introduced[arkansas$ri == 0])
+
+  arkansas_dim <- arkansas_treated_mean - arkansas_control_mean
+  arkansas_dim_estimates <- c(arkansas_dim_estimates, arkansas_dim)
+}
+
+# checking that the mean of the distribution of simulated ATEs is zero, as we 
+# are testing the sharp null hypothesis
+
+print(round(mean(arkansas_dim_estimates)), 10)
+
+```
+
+We know from Question 8(a) that the actual ATE for Arkansas -10.09.
+Using this, I calculate the two-sided p-value.
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the two-sided p-value 
+
+print(mean(abs(arkansas_dim_estimates) >= abs(arkansas_ate)))
+
+```
+
+The p-value indicates that we can reject the sharp null hypothesis at even the 99% significance level.
+
+## Question 9
+
+#### (a)
+
+This design feature does violate the non-interference assumption, as a bet on the treatment horse directly affects the control horse's outcome by shifting the odds.
+However, if the horses were treated as a cluster, and co-assigned to a treatment or control condition, it would be possible to guard against this kind of spillover effect.
+We could then define potential outcomes at the cluster level, rather than the unit (individual horse) level.
+
+#### (b)
+
+We are testing the sharp null hypothesis that there was no difference in pre-experiment bets between treatment and control horses, for all horses.
+
+```{r, echo = T, include = T, warning = F}
+
+q9_textbook <- "http://hdl.handle.net/10079/d42acb15-0840-4abe-b11b-8e768b584bc5"
+
+camerer <- read.csv(q9_textbook, header = TRUE, sep = ",")
+
+# setting seed 
+
+set.seed(20250923)
+
+# declaring block random assignment procedure, 
+# where every pair of horses is a block with one each in treatment and control
+
+camerer_declaration <- declare_ra(
+                      nrow(camerer), 
+                      camerer$pair, 
+                      block_m = rep(1, length(unique(camerer$pair))))
+
+# creating permutation matrix of 10,000 simulated randomisations
+
+camerer_permmatrix <- obtain_permutation_matrix(camerer_declaration)
+
+# creating empty vector to store results of for loop
+
+camerer_preexp_dim_estimates <- c()
+
+# calculating difference-in-means for pre-experiment bets, looping over every permutation
+
+for (i in 1:ncol(camerer_permmatrix)) {
+  camerer$ri <- camerer_permmatrix[, i]
+
+  preexp_treated_mean <- mean(camerer$preexperimentbets[camerer$ri == 1])
+  preexp_control_mean <- mean(camerer$preexperimentbets[camerer$ri == 0])
+
+  camerer_preexp_dim_estimates [i] <- preexp_treated_mean - preexp_control_mean
+}
+
+# checking that the mean of the distribution of simulated pre-experiment ATEs 
+# is zero, as we are testing the sharp null hypothesis
+
+print(round(mean(camerer_preexp_dim_estimates)), 10)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# computing actual difference-in-means for pre-experiment bets
+
+camerer_preexp_dim <- 
+  mean(camerer$preexperimentbets[camerer$treatment == 1]) - 
+  mean(camerer$preexperimentbets[camerer$treatment == 0])
+
+print(camerer_preexp_dim)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the two-sided p-value 
+
+print(mean(abs(camerer_preexp_dim_estimates) >= abs(camerer_preexp_dim)))
+
+```
+
+The p-value here is relatively high, much higher than the typical cut-off of 0.05.
+This means we cannot reject the sharp null hypothesis that there was no difference in pre-experiment bets between treatment and control horses, for all horses.
+This is goods new for our fictional researcher who is interested in conducting a randomisation check; our failure to reject the null indicates that the groups were comparable pre-treatment and that treatment was randomly assigned.
+
+#### (c)
+
+The average increase in bets during the experimental period for treatment horses and control horses was US \$461.24 and US \$571.41, respectively.
+The estimated ATE is therefore \~US \$110.17, calculated as below.
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the estimated ATE using difference-in-means between treatment and control groups
+
+camerer_ate <- 
+  mean(camerer$experimentbets[camerer$treatment == 1]) - 
+  mean(camerer$experimentbets[camerer$treatment == 0])
+
+print(camerer_ate)
+
+```
+
+This ATE value suggests that, on average, treatment horses received about US \$110.17 *less* in bets from other bettors during the roughly 11 minute experimental period compared to the control horses.
+This indicates some support for the argument that other bettors were repelled by Camerer's intervention, likely because the intervention diminished the odds – which in turn meant a lower return for each wager.
+
+#### (d)
+
+To calculate ATE in this way, I use the `estimatr` package.
+
+```{r, echo = T, include = T, warning = F}
+
+pairwise_ATE <- camerer %>% 
+  difference_in_means(experimentbets ~ treatment, ., pair) %>% 
+  coefficients
+
+print(pairwise_ATE)
+
+```
+
+This also estimates ATE to be - US \$ 110.17, which is the same as our original group-wise difference-in-means estimate.
+
+#### (e)
+
+We are testing the sharp null hypothesis that Camerer's intervention had no effect on the bets placed on treatment horses, for any horse.
+
+```{r, echo = T, include = T, warning = F}
+
+# setting seed 
+
+set.seed(20250923)
+
+# creating empty vector to store results of for loop
+
+camerer_dim_estimates <- c()
+
+# calculating difference-in-means for bets, looping over every permutation
+
+for (i in 1:ncol(camerer_permmatrix)) {
+  camerer <- 
+    camerer %>% 
+    mutate(d_temp = camerer_permmatrix[, i])
+  
+  camerer_dim_estimates[i] <- 
+    camerer %>%
+    difference_in_means(experimentbets ~ d_temp, ., pair) %>% 
+    coefficients
+}
+
+# checking that the mean of the distribution of simulated ATEs is zero as 
+# we are testing the sharp null hypothesis
+
+print(round(mean(camerer_dim_estimates)), 10)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# calculating the two-sided p-value 
+
+print(mean(abs(camerer_dim_estimates) >= abs(camerer_ate)))
+
+```
+
+The two-tailed p-value is 0.31, which falls well short of the conventional 0.05 threshold for statistical significance which would enable us to reject the sharp null hypothesis.
+This indicates that Camerer's intervention did not systematically change other bettors' wagers, and that there is a 31% chance that we observed the ATE of - US\$ 110.17 for purely stochastic reasons.
+
+## Question 10
+
+Suppose that 800 students were randomly assigned to classrooms of 25 students apiece, and these classrooms were then randomly assigned as clusters to treatment and control.
+Assume that non-interference holds.
+Use equations (3.4) and (3.22) to explain why this clustered design has approximately the same standard error as complete random assignment of individual students to treatment and control.
+
+Equations 3.4 and 3.22 are very similar in structure, with the following two differences:
+
+- $\frac{1}{N-1}$ is replaced by $\frac{1}{k-1}$, where $k$ is the number of clusters
+
+- unit-level potential outcomes ($Y_i(0)$ and $Y_i(1)$) are replaced by cluster-level average potential outcomes ($\overline{Y_j(1)}$ and $\overline{Y_j(0)}$).
+
+In this instance, while the denominator is much smaller under the clustered design – inflating the standard error of the ATE by 25 times relative to the complete random assignment design – the numerator is *also* smaller by the same proportion.
+This is because it is based on cluster means, which will have lower variance individual outcomes (see also the explanations in Questions 5 (d) and (e) for why it is that an estimate based on a larger number of observations will have lower variance).
+There are 25 students per cluster, which means that the cluster-level outcome variances will be 1/25th that of individual-level variances.
+This perfectly cancels out the increase from the smaller denominator, such that the clustered design will have the same standard error as the complete random assignment design.
+
+## Question 11
+
+#### (a)
+
+```{r, echo = T, include = T, warning = F}
+
+q11_textbook <- "http://hdl.handle.net/10079/cf1a6ba7-1603-4b36-ab18-1a7e81a63990"
+
+table_3.3 <- read.csv(q11_textbook, header = TRUE, sep = ",")
+
+# renaming columns to align with the textbook 
+
+names(table_3.3)[2] <- "Y0"
+names(table_3.3)[3] <- "Y1"
+
+# creating clusters in the data
+
+table_3.3 <- table_3.3 %>%
+  mutate(Cluster1 = rep(1:(n() / 2), each = 2))
+
+# setting seed 
+
+set.seed(20250923)
+
+# conducting cluster randomisation, with 4 clusters assigned to treatment 
+
+q11a_declaration <- 
+  declare_ra(nrow(table_3.3), clusters = table_3.3$Cluster1, m = 4)
+
+table_3.3 <- 
+  table_3.3 %>% 
+  mutate(D1 = conduct_ra(q11a_declaration)) 
+
+# calculating cluster means
+
+cluster_means1 <- table_3.3 %>%
+  group_by(Cluster1) %>%
+  summarise(
+    Y0_bar1 = mean(Y0),
+    Y1_bar1 = mean(Y1)
+  )
+
+# calculating variances
+
+var_Y01 <- var(cluster_means1$Y0_bar1)
+var_Y11 <- var(cluster_means1$Y1_bar1)
+cov_Y01_Y11 <- cov(cluster_means1$Y0_bar1, cluster_means1$Y1_bar1)
+
+# number of clusters and treated clusters
+
+k1 <- length(unique(table_3.3$Cluster1))      
+m1 <- sum(table_3.3$D1) / 2
+
+q11a_se <- sqrt(
+  (1 / (k1 - 1)) * (
+    (m1 / (k1 - m1)) * var_Y01 +
+    ((k1 - m1) / m1) * var_Y11 +
+    2 * cov_Y01_Y11
+  )
+)
+
+print(q11a_se)
+
+
+```
+
+#### (b)
+
+```{r, echo = T, include = T, warning = F}
+
+# creating new clusters in the data
+
+cluster_ids <- rep(NA, 14)
+
+pairs <- list(
+  c(1,14),
+  c(2,13),
+  c(3,12),
+  c(4,11),
+  c(5,10),
+  c(6,9),
+  c(7,8)
+)
+
+for (i in seq_along(pairs)) {
+  cluster_ids[pairs[[i]]] <- i
+}
+
+table_3.3$Cluster2 <- cluster_ids
+
+# setting seed again
+
+set.seed(20250923)
+
+# conducting cluster randomisation, with half of the clusters assigned to treatment 
+
+q11b_declaration <- 
+  declare_ra(nrow(table_3.3), clusters = table_3.3$Cluster2, prob = 0.5)
+
+table_3.3 <- 
+  table_3.3 %>% 
+  mutate(D2 = conduct_ra(q11b_declaration)) 
+
+# calculating cluster means
+
+cluster_means2 <- table_3.3 %>%
+  group_by(Cluster2) %>%
+  summarise(
+    Y0_bar2 = mean(Y0),
+    Y1_bar2 = mean(Y1)
+  )
+
+# calculating variances
+
+var_Y02 <- var(cluster_means2$Y0_bar2)
+var_Y12 <- var(cluster_means2$Y1_bar2)
+cov_Y02_Y12 <- cov(cluster_means2$Y0_bar2, cluster_means2$Y1_bar2)
+
+# number of clusters and treated clusters
+
+k2 <- length(unique(table_3.3$Cluster2))   
+m2 <- sum(table_3.3$D2)/2
+
+q11b_se <- sqrt(
+  (1 / (k2 - 1)) * (
+    (m2 / (k2 - m2)) * var_Y02 +
+    ((k2 - m2) / m2) * var_Y12 +
+    2 * cov_Y02_Y12
+  )
+)
+
+print(q11b_se)
+
+```
+
+#### (c)
+
+The two methods of forming clusters lead to different standard errors because the level of homogeneity within clusters affects the variance of cluster-level means, which in turn affects standard error itself given the constituent terms in Equation 3.22.
+There were dramatic differences between the variances in our two instances; the first had much greater variance as the units within clusters seemed more homogeneous than in the second instance.
+It also turned out that under the simulated random assignment where 'half' of the clusters were to be in treatment, 3 out of 7 were treated.
+(Half of 7 is 3.5, so conduct_ra will choose arbitrarily between placing 3 or 4 in treatment.) The lower number of treated clusters also impacted the standard error estimates given that $m$ is a constituent term in Equation 3.22.
+
+In terms of implications for the design of clustered randomised experiments, this indicates that we ought to be thoughtful about how similar units within a cluster are.
+On the one hand, clustering is often necessitated by the inability to contain spillover effects, and that is more likely to happen across homogeneous units (family members in a household, neighbours, viewers of the same TV news channel).
+However, on the other hand, that is likely to inflate standard error.
+
+## Question 12
+
+#### (a)
+
+```{r, echo = T, include = T, warning = F}
+
+# loading schedule of potential outcomes into R
+
+q12_data <- data.frame(
+  School = c("A", "B", "B", "C", "C", "C"),
+  Classroom = c("A-1", "B-1", "B-2", "C-1", "C-2", "C-3"),
+  Y0 = c(0, 0, 0, 0, 0, 0), 
+  Y1 = c(0, 1, 1, 2, 2, 2)
+  )
+
+# calculating ATE among six classrooms 
+
+ATE <- mean(q12_data$Y1) - mean(q12_data$Y0)
+print(ATE)
+
+```
+
+#### (b)
+
+The three possible randomisations are as follows:
+
+1.  School A is in treatment, and B and C are in control.
+
+2.  School B is in treatment, and A and C are in control.
+
+3.  School C is in treatment, and A and B are in control.
+
+Below, I show the difference-in-means estimates produced under each possible randomisation, and then the average of those estimates to see if, in expectation, the difference-in-means estimator is unbiased.
+
+```{r, echo = T, include = T, warning = F}
+
+# difference-in-means when A is in treatment
+
+dim_a <- mean(q12_data$Y1 [q12_data$School == "A"]) - 0 
+print(dim_a)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# difference-in-means when B is in treatment
+
+dim_b <- mean(q12_data$Y1 [q12_data$School == "B"]) - 0 
+print(dim_b)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# difference-in-means when C is in treatment
+
+dim_c <- mean(q12_data$Y1 [q12_data$School == "C"]) - 0 
+print(dim_c)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# difference-in-means, in expectation
+
+q12_dim <- (dim_a + dim_b + dim_c) / 3
+print(q12_dim)
+
+```
+
+We already know that the true ATE is 1.33; thus the difference-in-means estimator is biased downward.
+This is because in our data, cluster size clearly covaries with potential outcomes and the number of clusters is too small for that bias to disappear as it tends to do when the number of clusters increases (as part (c) goes on to articulate).
+
+#### (c)
+
+There are now two possible randomisations, as follows:
+
+1.  Schools A and B are in treatment, and C is in control.
+
+2.  School C is in treatment, and A and B are in control.
+
+Below, I show the difference-in-means estimates produced under each possible randomisation, and then the average of those estimates to see if, in expectation, the difference-in-means estimator is unbiased.
+
+```{r, echo = T, include = T, warning = F}
+
+# difference-in-means when A and B are in treatment
+
+dim_2_ab <- mean(q12_data$Y1 [q12_data$School == "A" |q12_data$School == "B"  ]) - 0 
+print(dim_2_ab)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# difference-in-means when C is in treatment, as above
+
+dim_c <- mean(q12_data$Y1 [q12_data$School == "C"]) - 0 
+print(dim_c)
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# difference-in-means, in expectation
+
+q12_dim2 <- (dim_2_ab + dim_c) / 2
+print(q12_dim2)
+```
+
+This value is the same as the true ATE of 1.33, indicating that the design yields unbiased estimates.
+This is because there are now a balanced number of units in treatment and control, despite uneven cluster size.
+In terms of the design of cluster randomised experiments, this exercise implies that researchers should try where possible to have the same cluster sizes at the outset, and failing that, balance units across treatment and control through unequal probability weighting for random assignment.
+Researchers should also be wary of working with a very small number of clusters.
