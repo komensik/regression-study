@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(estimatr)
 library(tidyverse)
 library(randomizr)
-
+library(haven)
 
 ```
 
@@ -110,19 +110,20 @@ This minimizes variance in treated potential outcomes and the covariance between
 Using table 2.1, imagine experiment allocates one village to treatment
 
 ```{r, echo = T, include = T, warning = F}
+getwd()
 
-info_2.1 <- "http://hdl.handle.net/10079/989c3e0c-4d31-47e5-b461-947ef6b54e1a"
+t2.1 <- read_csv("/Users/kristinamensik/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/GerberGreenBook_Chapter2_Table_2_1.csv")
 
-table_2.1 <- read.csv(info_2.1, header = TRUE, sep = ",")
+table_2.1 <- t2.1
 
-knitr::kable(table_2.1)
-
+View(table_2.1)
 ```
-
 ### a
 Calc estimated DIM for all 7 possible randomizations
 
 ```{r, echo = T, include = T, warning = F}
+
+set.seed(1090903)
 
 # assignment procedure
 
@@ -136,26 +137,185 @@ pm_q5 <- obtain_permutation_matrix(ap_q5)
 
 des_q5 <- c()
 
-# calculating difference-in-means, looping over every permutation
+# difference-in-means, all permutations
 
 for (i in 1:ncol(pm_q5)) {
-  table_2.1$ri <- pm_q5[, i]
-
-  treated_mean <- mean(table_2.1$Yi.1.[table_2.1$ri == 1])
-  control_mean <- mean(table_2.1$Yi.0.[table_2.1$ri == 0])
+  
+  table_2.1$ta <- pm_q5[, i] #treatment assignment
+  
+  treated_mean <- mean(
+    table_2.1$`Yi[1]`[table_2.1$ta == 1]
+  )
+  
+  control_mean <- mean(
+    table_2.1$`Yi[0]`[table_2.1$ta == 0]
+  )
 
   dim <- treated_mean - control_mean
   des_q5 <- c(des_q5, dim)
 }
 
-print(dim_estimates)
+print(des_q5)
 
 ```
 
+### b
+The average across estimates is:
+```{r}
+print(mean(des_q5))
+```
+
+The true treatment effect is the average of treatment effects for each unit. 
+
+```{r}
+true_ate <- mean(table_2.1$`Treatment Effect`)
+
+print(true_ate)
+```
+
+Both the average across estimates and the true ATE are 5. 
+
+### c
+
+Standard devisiation of the 7 estimates is identical to the standard error implied by equation 3.4
+
+```{r, echo = T, include = T, warning = F}
+
+se_q5 <- sqrt((1/6)*
+  ((1*(var(table_2.1$`Yi[0]`))) / (6) + 
+  (6*(var(table_2.1$`Yi[1]`))) / (1) + 
+  (2*cov(table_2.1$`Yi[0]`,table_2.1$`Yi[1]`))))
+
+print(se_q5)
+
+```
+
+```{r}
+sd_eq5 <- sd(des_q5)
+print(sd_eq5)
+```
+Both are 7.296.
+
+### d
+Why this experimental design has more sampling variability than the design in which 2 villages out of 7 are assigned to treatment.
+
+Equation 3.4 shows to weight the variance of treated potential outcomes by the ratio of untreated units to treated units. More treated units means a larger denominator and thus smaller standard error or sampling variability. 
+
+### e
+
+Having only one unit (village) assigned to treatment means that it is the only outcome informing the estimated treatment effect, so that effect will reflect particularities of that village. This is a continuation of the point in the previous answer on weighted variances. 
+
+* how distinct?
 
 ## Question 6
 
+
+```{r, echo = T, include = T, warning = F}
+
+hajj <- read_dta("/Users/kristinamensik/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Clingingsmith_et_al_QJE_2009dta.dta")
+
+view(hajj)
+
+
+set.seed(1090903) #set seet
+
+hajj_declaration <- declare_ra(nrow(hajj), m = sum(hajj$success)) #ra procedure
+
+hajj_permmatrix <- obtain_permutation_matrix(hajj_declaration) #sims matrix
+
+hajj_dim_estimates <- c() #init storage vector
+
+for (i in 1:ncol(hajj_permmatrix)) {
+  hajj$ri <- hajj_permmatrix[, i]#go thru every perm
+
+  hajj_treated_mean <- mean(hajj$views[hajj$ri == 1])
+  hajj_control_mean <- mean(hajj$views[hajj$ri == 0])
+
+  hajj_dim <- hajj_treated_mean - hajj_control_mean #calc dim
+  hajj_dim_estimates <- c(hajj_dim_estimates, hajj_dim)
+}
+
+
+print(round(mean(hajj_dim_estimates)), 10) #check that mean is 0 for sharp null 
+
+```
+
+```{r, echo = T, include = T, warning = F}
+
+# ATE for experiments
+
+clingingsmith_dim <- 
+  mean(hajj$views[hajj$success == 1]) - 
+  mean(hajj$views[hajj$success == 0])
+
+print(clingingsmith_dim)
+
+```
+
+How many simulated ATEs are at least as large as the actual ate (0.47)? 
+```{r, echo = T, include = T, warning = F}
+
+print(sum(hajj_dim_estimates >= clingingsmith_dim))
+
+```
+
+Implied one tailed p value:
+```{r, echo = T, include = T, warning = F}
+print(mean(hajj_dim_estimates >= clingingsmith_dim))
+
+```
+
+How many simulated RAs generate an estimate ATE at least as large in absolute value?
+```{r, echo = T, include = T, warning = F}
+
+print(sum(abs(hajj_dim_estimates) >= abs(clingingsmith_dim)))
+
+```
+
+Two-tailed p value:
+```{r, echo = T, include = T, warning = F}
+
+print(mean(abs(hajj_dim_estimates) >= abs(clingingsmith_dim)))
+
+```
+
 ## Question 7
+
+Transformation, then test sharp null. 
+
+Potential outcomes schedule
+```{r}
+Y0_6 <-c(1,0,0,4,3)
+Y1_6<-c(2,11,14,0,3)
+tformed_Y1 <- Y1_6 - 7
+d_6 <- c(rep(0,length(Y0_6)), rep(1,length(tformed_Y1)))
+null <- c(Y0_6, tformed_Y1)
+sched_6 <- data.frame(cbind(null, d_6))
+  
+```
+
+```{r}
+set.seed(1090903) #set seet
+
+
+q6_declaration <- declare_ra(nrow(sched_6), m = sum(sched_6$d)) #ra procedure
+
+hajj_permmatrix <- obtain_permutation_matrix(hajj_declaration) #sims matrix
+
+hajj_dim_estimates <- c() #init storage vector
+
+for (i in 1:ncol(hajj_permmatrix)) {
+  hajj$ri <- hajj_permmatrix[, i]#go thru every perm
+
+  hajj_treated_mean <- mean(hajj$views[hajj$ri == 1])
+  hajj_control_mean <- mean(hajj$views[hajj$ri == 0])
+
+  hajj_dim <- hajj_treated_mean - hajj_control_mean #calc dim
+  hajj_dim_estimates <- c(hajj_dim_estimates, hajj_dim)
+}
+
+
+```
 
 ## Question 8
 
