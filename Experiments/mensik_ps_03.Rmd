@@ -1,0 +1,168 @@
+---
+title: "Mensik Pset 3"
+author: "Kristina Mensik"
+date: "2026-09-14"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(estimatr)
+library(tidyverse)
+library(randomizr)
+
+
+```
+
+## Question 1
+
+### a
+
+A standard error is a statistic that characterizes the amount of sampling variability (measured with the standard deviation) of the sampling distribution of estimates, *across* hypothetical iterations of an experiment. It is calculated by taking the summed squared difference of each iterations' ATE from the average ATE, dividing by the number of experiments (ways of randomizing treatment), and the square root.
+
+*Within* a given experiment, variability in outcomes is measured with standard deviation. Like SE, it is is the sum of the squared difference between each observation (in this case) and the average, divided by the number of observations or one less than that number. It denotes dispersion of observations from the mean for the sample.
+
+SD usually is about dispersion in an observed variable.
+
+### b
+
+It would be nice to know the treated and untreated outcome for each subject in an experiment.This wo The trouble with this is that 
+The sharp null hypothesis is that the treatment effect for all subjects in an experiement is zero. This is helpful beca
+RI is used to test the sharp null by finding the p-values for many or all possible random assignments. 
+
+Randomization Inference A secondary problem of causal inference is we cannot derive test statistics from unobserved potential outcomes.
+The sharp null is helpful in this respect: stating that the treatment effect is zero for all units also means that unobserved and observed potential outcomes are the same.
+
+Using that ‘complete’ battery, we can simulate randomization and produce a ‘true’-under-the-null sampling distribution for estimate ATEs, and derive the p-value, or probability of obtaining an ATE as large as that obtained in the actual experiment in question, were the treatment effect nil.
+
+### c
+Imposing a 95% confidence interval around an estimator creates an estimated interval that will contain the “truth” 95% of the time, under repeated sampling.
+
+### d
+
+Difference between complete random assignment and cluster random assignment.
+In complete random assignment, the number of those in the treatment (m) and control (N-m) is known and the probability for each unit of assignment to treatment is m/N.
+
+In expectation, this creates balance for covariates.
+
+Block random assignment, in effect, turns a single experiment into some number of mini-experiments: study units are divided into blocks or strata before treatment is assigned within each block.
+
+In cluster random assignment, subjects likely to have similar outcomes are put into groups. Treatment then is randomized across groups – if a cluster is a family for example, the family becomes the unit of observation rather than individual family members.
+
+### e
+Balanced designs should allow confidence intervals to be “conservative” by reducing sampling variability at least when the variances of outcomes are similar within treatment conditions.
+
+## Question 4
+
+
+| Sub    | Y0  | YA  | YB  |
+|--------|-----|-----|-----|
+| miriam | 1   | 2   | 3   |
+| ben    | 2   | 3   | 3   |
+| helen  | 3   | 4   | 3   |
+| eva    | 4   | 5   | 3   |
+| billie | 5   | 6   | 3   |
+|        |     |     |     |
+
+treatment effects defined as YA - Y0 or YB - Y0
+
+### a.
+
+Which treatment, A or B, will generate a sampling distribution with a smaller standard error
+
+```{r, echo = T, include = T, warning = F}
+
+schedule <- data.frame("Y(0)" = 1:5, "Y(A)" = 2:6, "Y(B)" = rep(3,5))
+```
+
+Treatment A's standard error for the ATE is:
+
+```{r, echo = T, include = T, warning = F}
+
+ta_se <- sqrt((1/4)*((3*(var(schedule$Y.0.))) / (2) +
+                       (2*(var(schedule$Y.A.))) / (3) +
+                       (2*cov(schedule$Y.0., schedule$Y.A.))))
+print(ta_se)
+```
+
+Treatment B's standard error for the ATE is:
+
+```{r}
+
+tb_se <- sqrt((1/4)*((3*(var(schedule$Y.0.))) / (2) +
+                       (2*(var(schedule$Y.B.))) / (3) +
+                       (2*cov(schedule$Y.0., schedule$Y.B.))))
+print(tb_se)
+```
+
+Treatment B then has a smaller standard error.
+This might also have been inferrable because it has a variance of 0 (all of Y(B) = 3).
+
+### b.
+
+Treatment B can be considered a "Robin Hood" treatment: one that "steals" outcomes from the "rich" (those with a high pre-treatment or untreated outcome) by lowering their treated outcomes while "giving" (raising treated outcomes) for those with low pre-treatment or untreated outcomes, the "poor." 
+
+This minimizes variance in treated potential outcomes and the covariance between treated and untreated potential outcomes, and lowers sampling variability, so shrink standard errors in ways that may overstate certainty. 
+
+## Question 5
+
+Using table 2.1, imagine experiment allocates one village to treatment
+
+```{r, echo = T, include = T, warning = F}
+
+info_2.1 <- "http://hdl.handle.net/10079/989c3e0c-4d31-47e5-b461-947ef6b54e1a"
+
+table_2.1 <- read.csv(info_2.1, header = TRUE, sep = ",")
+
+knitr::kable(table_2.1)
+
+```
+
+### a
+Calc estimated DIM for all 7 possible randomizations
+
+```{r, echo = T, include = T, warning = F}
+
+# assignment procedure
+
+ap_q5 <- declare_ra(N = nrow(table_2.1), m = 1)
+
+# randomizations permutation matrix
+
+pm_q5 <- obtain_permutation_matrix(ap_q5)
+
+# results vector
+
+des_q5 <- c()
+
+# calculating difference-in-means, looping over every permutation
+
+for (i in 1:ncol(pm_q5)) {
+  table_2.1$ri <- pm_q5[, i]
+
+  treated_mean <- mean(table_2.1$Yi.1.[table_2.1$ri == 1])
+  control_mean <- mean(table_2.1$Yi.0.[table_2.1$ri == 0])
+
+  dim <- treated_mean - control_mean
+  des_q5 <- c(des_q5, dim)
+}
+
+print(dim_estimates)
+
+```
+
+
+## Question 6
+
+## Question 7
+
+## Question 8
+
+## Question 9
+
+## Question 10
+
+## Question 11
+
+## Question 12
