@@ -41,3 +41,22 @@ redesign(design, p=c(0.2,.04,0.6))
 then can graph power for p is 0.2, 0.4, 0.6
 
 can do this with different parts of the design to see what works best
+
+how to check we did this right
+
+we set the design
+we know in expectation that .6, .75, .7, .8
+
+we'd only saved success[i] (how many )
+
+success[i] <- model$p.value <= 0.05
+
+#init
+
+n_untreated_undergrads_with_a[i] <- c()
+
+n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==0,]$exam)
+
+n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==1,]$exam)
+
+
