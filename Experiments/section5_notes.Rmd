@@ -55,8 +55,8 @@ success[i] <- model$p.value <= 0.05
 
 n_untreated_undergrads_with_a[i] <- c()
 
-n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==0,]$exam)
+n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==0]$exam)
 
-n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==1,]$exam)
+n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==1]$exam)
 
 
