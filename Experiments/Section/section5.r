@@ -25,7 +25,15 @@ N <- 100
 # binary indicator for whether an observation is a graduate (1) or undergraduate (0)
 ## 60% chance that a student is a graduate student
 ## each obs is a single draw from a binomial distribution with p = 0.6
-matcha <- data.frame(grad = rbinom(N, 1, .6))
+matcha <- data.frame(grad = rbinom(N, 1, .6)) #drawing from binomial distribution
+
+# for sample variability, don't want exactly 40 undergrads and 60 grads
+# rbinom is random draw from binomial distribution
+# 3 arguments: n = number observations, size = number of trials, prob is prob success on each trial 
+# here is probability of being a graduate student (0.6)
+
+# after doing this, get a row 
+
 
 
 ## STEP 2: SIMULATE TREATMENT ASSIGNMENT
@@ -37,6 +45,7 @@ matcha <- matcha %>%
 # check treatment assignment
 ## there should be approximately 40% undergrads and 60% grads
 ## each group should have half of the subjects each in treatment and control
+
 matcha %>% 
   group_by(grad) %>%
   summarize(n = n(), treated = sum(treat)) %>%
@@ -44,12 +53,14 @@ matcha %>%
 
 
 ## STEP 3: SIMULATE OUTCOME MEASURE
+# different ways to do this step
+# should be taking draws from binomial distribution
 
 # generate outcomes
 matcha <- matcha %>%
   mutate(
-    # first assign probability of A for each subject based on DGP
-    prob_A = case_when(
+    # first assign probability of A for each subject based on DGP #
+    prob_A = case_when( #probabilities are not the same for each row, so we give vector of probabilities
       grad == 0 & treat == 0 ~ .6, 
       grad == 0 & treat == 1 ~ .75, 
       grad == 1 & treat == 0 ~ .7, 
@@ -152,9 +163,12 @@ ggplot(powers, aes(sample_size, power)) +
   geom_point() + 
   geom_smooth()
 
-
+#############################
 ## USING DECLAREDESIGN
+###########################
+
 library(DeclareDesign)
+#useful to know tidyverse to know how works, uses tidyverse
 
 # declare initial sample size
 sample_size = 100
@@ -172,23 +186,23 @@ design <-
   # declare random assignment (block random assignment in this case)
   declare_assignment(Z = block_ra(X, .5)) + 
   # declare measurement (telling DeclareDesign that the outcome can now be simulated)
-  declare_measurement(Y = reveal_outcomes(Y ~ Z)) + 
+  declare_measurement(Y = reveal_outcomes(Y ~ Z)) + #can p much just copy/paste this line onto any dec des that you do
   # declare estimator (block-adjusted DIM)
   declare_estimator(
-    Y ~ Z, 
+    Y ~ Z, # give the equation
     inquiry = "ATE", 
-    .method = difference_in_means, # specify which function to use for estimator
+    .method = difference_in_means, # specify which function (from estimatr) to use for estimator
     blocks = X # specify additional arguments for estimator function
   )
 
 # use `redesign()` to change specific features of design
 designs <- redesign(design, sample_size = seq(100, 500, 50))
 
-# use `diagnose_design()` for power calculations
+# use `diagnose_design()` for power calculations (diagnosis test)
 diagnosis <-
   diagnose_designs(
     designs, 
-    diagnosands = declare_diagnosands(power = mean(p.value <= 0.05)), 
+    diagnosands = declare_diagnosands(power = mean(p.value <= 0.05)), #power
     sims = 1000 # number of simulations for each sample size 
   )
 
