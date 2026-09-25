@@ -55,8 +55,19 @@ success[i] <- model$p.value <= 0.05
 
 n_untreated_undergrads_with_a[i] <- c()
 
-n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==0]$exam)
+n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==0]$exam & matcha$treat ==0])
 
 n_untreated_undergrads_with_a[i] <- sum(matcha[matcha$grad ==1]$exam)
+
+should be
+60 undergrads, half untreated, . . .
+ 100*0.4*0.5*0.6
+
+sample size 100
+40% undergrads
+half are treated, half are untreated, among them 60% get an A
+
+
+
 
 
