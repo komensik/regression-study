@@ -1,0 +1,138 @@
+---
+title: "Mensik Experiments PS 4"
+author: "Kristina Mensik"
+date: "2026-10-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(estimatr)
+library(tidyverse)
+library(randomizr)
+library(kableExtra)
+library(ggplot2)
+library(blockTools)
+
+
+
+```
+
+Questions
+1, 2, 3, 4, 5, 6, 7, 9, 10
+
+# Question 1
+
+## a 
+Covariates are "supplementary variables that predict outcomes" (G & G 95). They are not required for unbiased estimation. They're used to improve precision by reducing variance in potential outcomes or differences between treatment and control observations in OLS, and to assign blocks in block randomized assignment. 
+
+## b 
+"Disturbance term" refers to 
+
+## c
+Equation 4.2 demonstrates that rescaling the outcome by subtracting a pretest leads to unbiased estimates of the ATE. Subtracting the rescaled pretest $cX_j$ instead of the pre-test $X_i$ would....(show it produces unbaised estiamtes of the ATE).
+
+## d
+
+Show that the parameter $b$ in equation 4.7 is identical to the ATE. 
+
+# Question 2 
+
+Puzzles after treatment, recorded number of correctly solved puzzles. control students given 30 extra minutes a few days later to improve puzzle-solving skills, treatment group were given rules of thumb; all then took post-test. 
+
+## a. 
+
+RI to test the null that pre-test scores are unaffected by treatment assignment. 
+
+```{r}
+data_2 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Gendelman_2004.csv")
+
+set.seed(312608170)
+
+names(data_2)
+
+subject <- data_2$subject
+treatment <- data_2$treatment
+pretest <- data_2$pretest
+posttest <- data_2$posttest
+improvement <- data_2$improvement
+
+model_2 <- lm_robust(treatment ~ pretest)
+
+
+
+fstat_2 <- model_2$fstatistic # f stat of treatment
+
+#fstat_2
+
+ra_2 <- declare_ra(nrow(data_2), m = 9) # random assignment procedure
+
+perm_matrx_2 <- obtain_permutation_matrix(ra_2) #10k randomization permmatrix
+
+estimates_2 <- c() #bucket to store results
+
+for (i in 1:ncol(perm_matrx_2)) {
+  data_2$ri <- perm_matrx_2[, i]
+  random_inf_2 <- lm_robust(data_2$ri ~ data_2$pretest)
+  estimates_2 <- c(estimates_2, random_inf_2$fstatistic[1])
+}
+```
+
+The reported p-value is:
+```{r}
+print(mean(estimates_2 >= random_inf_2$fstatistic))
+```
+We can't reject the null hypothesis that treatment had no effect on pretest scores because 0.1972 is much higher than 0.05. In this case, rejecting the null means randomization was successful.
+
+## b 
+
+```{r}
+
+dim_2 <- difference_in_means(posttest ~ treatment, data = data_2)
+dim_ate_2 <- dim_2$coefficients
+
+```
+Treatment's effect on posttest scores is:
+```{r}
+
+print(dim_ate_2)
+
+```
+
+```{r}
+
+set.seed(312608170)
+
+dim_estimates_2 <- c()
+
+for(i in 1:ncol(perm_matrx_2)){
+  data_2$ri <- perm_matrx_2[,i]
+  
+  mean_treated <- mean(data_2$posttest[data_2$ri == 1]) + (-0.333)
+  mean_control<- mean(data_2$posttest[data_2$ri ==0])
+  
+  dim_2 <- mean_treated - mean_control
+  dim_estimates_2 <- c(dim_estimates_2, dim_2)
+}
+
+mean(dim_estimates_2) # should be centered around the ate (0.333)
+
+# CI? 
+
+ci_2 <- quantile(dim_estimates_2, probs = c(0.025, 0.975))
+
+ci_2
+
+```
+
+as a table:
+```{r}
+
+knitr::kable(ci_2, caption = "CIs for DIM", col.names = "Est.") %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+  
+```
+
+## c
+
