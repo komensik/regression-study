@@ -17,69 +17,10 @@ library(randomizr)
 
 ```
 
-SD usually is about dispersion in an observed variable.
-Randomization Inference A secondary problem of causal inference is we cannot derive test statistics from unobserved potential outcomes.
-The sharp null is helpful in this respect: stating that the treatment effect is zero for all units also means that unobserved and observed potential outcomes are the same.
-Using that ‘complete’ battery, we can simulate randomization and produce a ‘true’-under-the-null sampling distribution for estimate ATEs, and derive the p-value, or probability of obtaining an ATE as large as that obtained in the actual experiment in question, were the treatment effect nil.
 
-C: What is a 95% confidence interval?
-Imposing a 95% confidence interval around an estimator creates an estimated interval that will contain the “truth” 95% of the time, under repeated sampling.
-
-D: Difference between complete random assignment and cluster random assignment.
-In complete random assignment, the number of those in the treatment (m) and control (N-m) is known and the probability for each unit of assignment to treatment is m/N.
-In expectation, this creates balance for covariates.
-Block random assignment, in effect, turns a single experiment into some number of mini-experiments: study units are divided into blocks or strata before treatment is assigned within each block.
-In cluster random assignment, subjects likely to have similar outcomes are put into groups.
-Treatment then is randomized across groups – if a cluster is a family for example, the family becomes the unit of observation rather than individual family members.
-
-E: desirable statistical properties of balanced designs Balanced designs should allow confidence intervals to be “conservative” by reducing sampling variability at least when the variances of outcomes are similar within treatment conditions.
 
 ## Question 4
 
-| Sub    | Y0  | YA  | YB  |
-|--------|-----|-----|-----|
-| miriam | 1   | 2   | 3   |
-| ben    | 2   | 3   | 3   |
-| helen  | 3   | 4   | 3   |
-| eva    | 4   | 5   | 3   |
-| billie | 5   | 6   | 3   |
-|        |     |     |     |
-
-treatment effects defined as YA - Y0 or YB - Y0
-
-### a.
-
-Which treatment, A or B, will generate a sampling distribution with a smaller standard error
-
-```{r, echo = T, include = T, warning = F}
-
-schedule <- data.frame("Y(0)" = 1:5, "Y(A)" = 2:6, "Y(B)" = rep(3,5))
-```
-
-Treatment A's standard error for the ATE is:
-
-```{r, echo = T, include = T, warning = F}
-
-ta_se <- sqrt((1/4)*((3*(var(schedule$Y.0.))) / (2) +
-                       (2*(var(schedule$Y.A.))) / (3) +
-                       (2*cov(schedule$Y.0., schedule$Y.A.))))
-print(ta_se)
-```
-
-Treatment B's standard error for the ATE is:
-
-```{r}
-
-tb_se <- sqrt((1/4)*((3*(var(schedule$Y.0.))) / (2) +
-                       (2*(var(schedule$Y.B.))) / (3) +
-                       (2*cov(schedule$Y.0., schedule$Y.B.))))
-print(tb_se)
-```
-
-Treatment B then has a smaller standard error.
-This might also have been inferrable because it has a variance of 0 (all of Y(B) = 3).
-
-### b.
 
 what does that imply about feasibility of studying interventions that attempt to close an existing achievement gap.
 
