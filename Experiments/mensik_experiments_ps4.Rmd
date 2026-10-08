@@ -3,6 +3,9 @@ title: "Mensik Experiments PS 4"
 author: "Kristina Mensik"
 date: "2026-10-04"
 output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
@@ -20,31 +23,73 @@ getwd()
 
 ```
 
-Questions
-1, 2, 3, 4, 5, 6, 7, 9, 10
+Questions 1, 2, 3, 4, 5, 6, 7, 9, 10
 
 # Question 1
 
-## a 
-Covariates are "supplementary variables that predict outcomes" (G & G 95). They are not required for unbiased estimation. They're used to improve precision by reducing variance in potential outcomes or differences between treatment and control observations in OLS, and to assign blocks in block randomized assignment. 
+## a
 
-## b 
-"Disturbance term" refers to 
+Covariates are "supplementary variables that predict outcomes" (G & G
+95). They are not required for unbiased estimation. They're used to
+improve precision by reducing variance in potential outcomes or
+differences between treatment and control observations in OLS, and to
+assign blocks in block randomized assignment. In theory, they are
+measured before subjects are randomized into treatment and control.
+
+## b
+
+"Disturbance term" refers to the part of a regression that is
+unobserved, which is unexplained variation in untreated and treated
+outcomes.
 
 ## c
-Equation 4.2 demonstrates that rescaling the outcome by subtracting a pretest leads to unbiased estimates of the ATE. Subtracting the rescaled pretest $cX_j$ instead of the pre-test $X_i$ would....(show it produces unbaised estiamtes of the ATE).
+
+Equation 4.2 demonstrates that rescaling the outcome by subtracting a
+pretest leads to unbiased estimates of the ATE. Subtracting the rescaled
+pretest $cX_j$ instead of the pre-test $X_i$ would....(show it produces
+unbaised estiamtes of the ATE).
+
+Equation 4.2 says
+
+$$
+E(\hat{ATE}) = E[Y_i - X_i|D_i = 1] - E[Y_i-X_i|D_i = 0]
+$$ The rescaled pretest $cX_i$ where $c$ is constant and positive can be
+substituted for $X_i$. $$
+E(\hat{ATE}) = E[Y_i - cX_i|D_i = 1] - E[Y_i-cX_i|D_i = 0]
+$$ So when we expand as in 4.2: $$
+E(\hat{ATE}) = E[Y_i|D_i = 1] - E[cX_i|D_i=1] - E[Y_i|D_i = 0] + cE[X_i|Di=0]
+$$ ...and rearrange: $$
+E(\hat{ATE}) = E[Y_i|D_i = 1] - E[Y_i|D_i = 0] - c(E[X_i|D_i=1]  + E[X_i|Di=0])
+$$ ...and because we assume that the expected values of $Y_i$ when
+$D_i = 0$ are the same as when $D_i = 1$, we arrive at the same place as
+in figure 4.2: $$
+ E(\hat{ATE}) = E(Y_i(1))-E[Y_i(0)]
+$$
 
 ## d
 
-Show that the parameter $b$ in equation 4.7 is identical to the ATE. 
+The slope parameter $b$ in equation 4.7 is the change in average
+potential outcomes $\mu_{Y(1)} - \mu_{Y(0)}$, also called the ATE.
 
-# Question 2 
+$$
+E(ATE) = E[Y_i(1)] - E[Y_i(0)]
+$$ \## e Balanced designs are ideal because they allow for interval
+estimation: CI's will be conservative rather than too wide or narrow
+from outcome variances with imbalance in the treatment and controls that
+produce. They're particularly helpful when there is similar variance in
+the outcomes of treatment and control groups.
 
-Puzzles after treatment, recorded number of correctly solved puzzles. control students given 30 extra minutes a few days later to improve puzzle-solving skills, treatment group were given rules of thumb; all then took post-test. 
+# Question 2
 
-## a. 
+Puzzles after treatment, recorded number of correctly solved puzzles.
+control students given 30 extra minutes a few days later to improve
+puzzle-solving skills, treatment group were given rules of thumb; all
+then took post-test.
 
-RI to test the null that pre-test scores are unaffected by treatment assignment. 
+## a.
+
+RI to test the null that pre-test scores are unaffected by treatment
+assignment.
 
 ```{r}
 data_2 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Gendelman_2004.csv")
@@ -81,12 +126,16 @@ for (i in 1:ncol(perm_matrx_2)) {
 ```
 
 The reported p-value is:
+
 ```{r}
 print(mean(estimates_2 >= random_inf_2$fstatistic))
 ```
-We can't reject the null hypothesis that treatment had no effect on pretest scores because 0.1972 is much higher than 0.05. In this case, rejecting the null means randomization was successful.
 
-## b 
+We can't reject the null hypothesis that treatment had no effect on
+pretest scores because 0.1972 is much higher than 0.05. In this case,
+rejecting the null means randomization was successful.
+
+## b
 
 ```{r}
 
@@ -94,7 +143,9 @@ dim_2 <- difference_in_means(posttest ~ treatment, data = data_2)
 dim_ate_2 <- dim_2$coefficients
 
 ```
+
 Treatment's effect on posttest scores is:
+
 ```{r}
 
 print(dim_ate_2)
@@ -102,22 +153,49 @@ print(dim_ate_2)
 ```
 
 ```{r}
-
 set.seed(312608170)
+
+null <- 0
 
 dim_estimates_2 <- c()
 
+data_2 <- data_2 %>%
+  mutate(
+    y0_null = case_when(
+      treatment == 0 ~ posttest,
+      treatment == 1 ~ posttest - null
+    ),
+    y1_null = case_when(
+      treatment == 1 ~ posttest,
+      treatment == 0 ~ posttest + null
+    )
+  )
+
+unique(data_2$y1_null - data_2$y0_null == null)
+
+```
+
+```{r}
+
 for(i in 1:ncol(perm_matrx_2)){
-  data_2$ri <- perm_matrx_2[,i]
+ 
+   data_2$ri <- perm_matrx_2[, i] #hypothetical assignment
   
-  mean_treated <- mean(data_2$posttest[data_2$ri == 1]) + (-0.333)
-  mean_control<- mean(data_2$posttest[data_2$ri ==0])
   
-  dim_2 <- mean_treated - mean_control
-  dim_estimates_2 <- c(dim_estimates_2, dim_2)
+  data_2$y_temp <- ifelse(
+    data_2$ri == 1,
+    data_2$y1_null,
+    data_2$y0_null
+  )
+  
+  mean_treated <- mean(data_2$y_temp[data_2$ri == 1]) #DIM
+  mean_control <- mean(data_2$y_temp[data_2$ri == 0])
+  
+  dim_estimates_2[i] <- mean_treated - mean_control #store 
+  
 }
 
-mean(dim_estimates_2) # should be centered around the ate (0.333)
+mean(dim_estimates_2) # should be centered around 0
 
 # CI? 
 
@@ -128,12 +206,256 @@ ci_2
 ```
 
 as a table:
+
 ```{r}
 
-knitr::kable(ci_2, caption = "CIs for DIM", col.names = "Est.") %>%
-  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"))
+knitr::kable(ci_2, caption = "CIs for DIM", col.names = "Est.") 
   
 ```
 
 ## c
 
+D-i-D to estimate effect of treatment on post-test score:
+
+```{r}
+
+did_2 <- difference_in_means(improvement ~ treatment, data = data_2)
+
+did_ate_2 <- did_2$coefficients
+
+print(did_ate_2)
+
+```
+
+95% CI, and compare to interval from b.
+
+```{r}
+#CI's from difference_in_means() function
+
+did_ci_2 <- c(
+  lower = dim_2$conf.low,
+  upper = dim_2$conf.high
+)
+
+did_ci_2
+
+knitr::kable(did_ci_2, caption = "CIs for DIM", col.names = "Est.") 
+
+```
+
+The interval is wider than for the DIM estimation of the effect of
+treatment on the postscore. This suggests that adjusting for the
+pre-test covariate with the D-i-D estimation did not lead to gains in
+precision, which is surprising.
+
+# Question 3
+
+This reporting policy does not offer up unbiased estimates because it is
+premised on the outcomes -- seems like rather explicit
+researcher-induced bias.
+
+# Question 4
+
+20 schools assigned to treatment and 20 schools assigned to controls
+
+```{r}
+
+data_4 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/GerberGreenBook_Chapter4_Table_4_1.csv")
+
+```
+
+## a
+
+```{r}
+
+data_4$obs_y <- ifelse(data_4$D == 1, data_4$y1, data_4$y0) 
+
+#regress treatment on observed outcomes
+
+model_4 <- lm_robust(obs_y ~ D, data = data_4)
+
+summary(model_4)
+
+```
+
+```{r}
+
+dim_4 <- difference_in_means(obs_y ~ D, data = data_4)
+dim_ate_4 <- dim_4$coefficients
+
+print(dim_ate_4)
+```
+
+```{r}
+print(coef(model_4)["D"])
+```
+
+Is estimated slope the same as estimated ATE based on DIM
+
+```{r}
+mean(data_4$obs_y [data_4$D == 0]) #control group mean should = intercept value
+```
+
+Yes.
+
+## b
+
+Treated and untreated outcomes on $X_i$.
+
+```{r}
+
+model_4b <- lm_robust(y0 ~ x, data = data_4)
+summary(model_4b)
+
+print(coef(model_4b)["x"])
+```
+
+```{r}
+
+model_4b_2 <- lm_robust(y1 ~ x, data = data_4)
+
+summary(model_4b_2)
+
+
+```
+
+```{r}
+print(coef(model_4b_2)["x"])
+```
+
+Sum of the slope coefficients:
+
+```{r}
+0.9417928 + 0.9420107 
+```
+
+. . . is greater than 1, which means the dependent variable needs to be
+rescaled so that the outcome is a change score.
+
+## c
+
+```{r}
+
+model_4c <- lm_robust(obs_y ~ D + x, data = data_4)
+
+summary(model_4c)
+
+```
+
+```{r}
+print(coef(model_4c)["D"])
+```
+
+The results here provide a smaller estimate for D (close to halved). The
+DIM approach then produces a smaller treatment effect. The SE is
+smaller, so we should be more confident in these results.
+
+## d
+
+```{r}
+
+set.seed(6081709)
+
+declare_4c <- declare_ra(nrow(data_4), m = sum(data_4$D))
+declare_4c
+
+```
+
+```{r}
+#10k matrix
+
+matrix_4 <- replicate(1000, conduct_ra(declare_4c))
+
+estimates_4 <- rep(NA, 1000)
+
+# dim for every permutation
+
+for (i in 1:ncol(matrix_4)) {
+  data_4$ri <- matrix_4[, i]
+  
+  estimates_4 [i] <- lm_robust(obs_y ~ ri, data = data_4)$coef["ri"]
+}
+
+print(round(mean(estimates_4), 2))
+
+```
+
+The two sided p value is:
+
+```{r}
+print(mean(abs(estimates_4) >= abs(10.7 )))
+```
+
+...less than 0.05 so we are good to reject the sharp null that there is
+no effect for any school.
+
+## e
+
+Estimates from part (c):
+
+```{r}
+coef_4c<-(coef(model_4c)["D"])
+
+print(coef_4c)
+```
+
+RI to eval sharp null, then obtain sampling distribution with 100k
+random assignments and for each estimate ATE by regressing Yi on di and
+Xi, then interpret.
+
+```{r}
+
+set.seed(6081709)
+
+coef_estimates_4c <- rep(NA, 100000)
+
+for(i in 1:ncol(matrix_4)) {
+  
+  data_4$ri <- matrix_4[, i]
+  
+  coef_estimates_4c <- lm(obs_y ~ ri + x, data = data_4)$coef["ri"]
+}
+
+
+print(round(mean(coef_estimates_4c), 2))
+
+
+```
+
+is not centered around 0.
+
+## f
+
+95% CI estimated with RI:
+
+```{r}
+
+data_4$y0_ci <- ifelse(data_4$D == 0, data_4$obs_y, data_4$obs_y - dim_ate_4)
+data_4$y1_ci <- ifelse(data_4$D == 0, data_4$obs_y + dim_ate_4, data_4$obs_y)
+
+
+set.seed(6081709)
+
+# RI
+
+ate_estimates_4 <- rep(NA, 10000) #init
+
+#ate
+
+for( i in 1:ncol(matrix_4)) {
+  
+  data_4$ri <- matrix_4[, i]
+  
+  data_4$y_temp <- data_4$y1_ci*data_4$ri + data_4$y0_ci*(1-data_4$ri)
+  
+  ate_estimates_4 [i] <- lm_robust(y_temp ~ ri, data = data_4)$coef["ri"]
+}
+
+
+# lower bound
+
+sort_ATEs <- sort(ate_estimates_4)
+
+ci_lower <- sort_ATEs()
+
+```

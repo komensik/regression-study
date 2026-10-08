@@ -596,7 +596,7 @@ text(1.5, 1.5, "Slope of tangent = 1/2", col="red")
 
 ```{r echo=TRUE}
 
-get(wd)
+
 
 # ceo data (salary in $1,000s, profits in $1Ms, age in years)
 ceo <- read.csv("./2024-2025/630 - Spring 25/ceosalary.csv")
