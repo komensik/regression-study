@@ -15,9 +15,9 @@ embed-resources: true
 
 Regression has a variety of uses in the social sciences
 
--   Characterizing associations between variables
--   Prediction to future observations
--   Causal effect estimation
+- Characterizing associations between variables
+- Prediction to future observations
+- Causal effect estimation
 
 . . .
 
@@ -26,15 +26,15 @@ Regression can in theory do all of the above *if the right assumptions are met*.
 ## Notation
 
 ::: incremental
--   generic units of analysis are indicated by $i=1,...,N$
--   scalars are lower-case italics (e.g., $x_{1i}$)
--   (column) vectors are lower-case bold italics (e.g., $\boldsymbol{x}_i$, transpose: $\boldsymbol{x}_i'$)
--   matrices are upper-case bold (e.g., $\mathbf{X}$)
--   random variables are generally Roman (e.g., $x$)
--   model parameters are generally Greek (e.g., $\beta_1$, $\boldsymbol{\beta}$)
--   generic model variables (and associated parameters) are indicated by $j=1,...,K$
--   error terms are indicated by $u_i$ or $\boldsymbol{u}$, but sometimes $e_i$ or even $\epsilon_i$
--   error variance is indicated by $\sigma^2$ or $\sigma_u^2$ if necessary
+- generic units of analysis are indicated by $i=1,...,N$
+- scalars are lower-case italics (e.g., $x_{1i}$)
+- (column) vectors are lower-case bold italics (e.g., $\boldsymbol{x}_i$, transpose: $\boldsymbol{x}_i'$)
+- matrices are upper-case bold (e.g., $\mathbf{X}$)
+- random variables are generally Roman (e.g., $x$)
+- model parameters are generally Greek (e.g., $\beta_1$, $\boldsymbol{\beta}$)
+- generic model variables (and associated parameters) are indicated by $j=1,...,K$
+- error terms are indicated by $u_i$ or $\boldsymbol{u}$, but sometimes $e_i$ or even $\epsilon_i$
+- error variance is indicated by $\sigma^2$ or $\sigma_u^2$ if necessary
 :::
 
 ## What is regression?
@@ -58,10 +58,10 @@ abline(h=mean(trees$Volume[trees$Height==80]), lty=3)
 ```
 
 ::: notes
--   One way to do this is to simply calculate mean of the DV at each value of the IV
--   But there are small numbers of observations at each value of the IV - estimates are noisy
--   By imposing a model on the relationship, we leverage "knowledge" that comes from the model assumptions to get more efficient estimates
--   This is a very general idea that you should internalize until you feel it in your bones
+- One way to do this is to simply calculate mean of the DV at each value of the IV
+- But there are small numbers of observations at each value of the IV - estimates are noisy
+- By imposing a model on the relationship, we leverage "knowledge" that comes from the model assumptions to get more efficient estimates
+- This is a very general idea that you should internalize until you feel it in your bones
 :::
 
 ## Conditional expected value based on linear model
@@ -84,18 +84,18 @@ text(70, 55, paste0(-87.12 + 1.54*80, " = ", "-87.12 + 1.54 * 80"))
 $$\boldsymbol{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{u}$$
 
 ::: incremental
--   $\boldsymbol{y}$ is an $N \times 1$ vector
--   $\bf{X}$ is an $N \times (K \rm{+1)}$ matrix
--   $\boldsymbol{\beta}$ is a $(K \rm{+1)} \times 1$ vector
--   $\boldsymbol{u}$ is an $N \times 1$ vector
+- $\boldsymbol{y}$ is an $N \times 1$ vector
+- $\bf{X}$ is an $N \times (K \rm{+1)}$ matrix
+- $\boldsymbol{\beta}$ is a $(K \rm{+1)} \times 1$ vector
+- $\boldsymbol{u}$ is an $N \times 1$ vector
 :::
 
 . . .
 
 For data with N observations and K predictors
 
--   The first column of $\bf{X}$ is all 1s
--   The first element of $\boldsymbol{\beta}$ is the y-intercept
+- The first column of $\bf{X}$ is all 1s
+- The first element of $\boldsymbol{\beta}$ is the y-intercept
 
 ## Vectors and matrices
 
@@ -113,10 +113,10 @@ $$\boldsymbol{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{u}$$
 $$\boldsymbol{y} = \beta_0 + \beta_1\boldsymbol{x_1} + \beta_2\boldsymbol{x_2}\ldots\beta_K\boldsymbol{x_K} + \boldsymbol{u}$$
 
 ::: incremental
--   $\boldsymbol{y}$ is an $N \times 1$ vector
--   Each $\boldsymbol{x_k}$ is an $N \times 1$ vector
--   Each $\beta_k$ is a scalar
--   $\boldsymbol{u}$ is an $N \times 1$ vector
+- $\boldsymbol{y}$ is an $N \times 1$ vector
+- Each $\boldsymbol{x_k}$ is an $N \times 1$ vector
+- Each $\beta_k$ is a scalar
+- $\boldsymbol{u}$ is an $N \times 1$ vector
 :::
 
 ## The linear regression model, single unit
@@ -125,20 +125,20 @@ $$\boldsymbol{y} = \beta_0 + \beta_1\boldsymbol{x_1} + \beta_2\boldsymbol{x_2}\l
 
 $$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i}\ldots\beta_Kx_{Ki} + u_i$$
 
--   This is the model for a single unit, $i$
--   Each symbol represents a scalar
+- This is the model for a single unit, $i$
+- Each symbol represents a scalar
 
 ## Model components
 
 $$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i}\ldots\beta_Kx_{Ki} + u_i$$
 
 ::: incremental
--   $\beta_0$ is the (y-)intercept or constant term
-    -   The predicted value of $y_i$ when all $x_{ki} = 0$
--   $\beta_k$ is the coefficient or slope for predictor $x_{ki}$
-    -   Change in $y_i$ associated with a 1-unit change in $x_{ki}$
--   $u_i$ is the error or disturbance term
-    -   The random deviation of the observed value from the fitted value
+- $\beta_0$ is the (y-)intercept or constant term
+  - The predicted value of $y_i$ when all $x_{ki} = 0$
+- $\beta_k$ is the coefficient or slope for predictor $x_{ki}$
+  - Change in $y_i$ associated with a 1-unit change in $x_{ki}$
+- $u_i$ is the error or disturbance term
+  - The random deviation of the observed value from the fitted value
 :::
 
 ## Model components, visually
@@ -231,8 +231,8 @@ plot.a + plot.b
 
 There are two pieces to each regression model:
 
--   A [systematic]{.alert} part: $\boldsymbol{x}_i \boldsymbol{\beta}$
--   A [stochastic]{.alert} part: $u_i$ (where $\text{E}(u_i) = 0$)
+- A [systematic]{.alert} part: $\boldsymbol{x}_i \boldsymbol{\beta}$
+- A [stochastic]{.alert} part: $u_i$ (where $\text{E}(u_i) = 0$)
 
 . . .
 
@@ -245,10 +245,10 @@ $$\text{E}(y_i | \boldsymbol{x_i}) = \boldsymbol{x_i} \boldsymbol{\beta} = \hat{
 We will assume several things about the errors
 
 ::: incremental
--   They are completely random disturbances
--   They have an expected value of zero
--   They have an error variance $\sigma^2$, which is the model-unexplained portion of the dependent variable
--   They are uncorrelated with the model predictors
+- They are completely random disturbances
+- They have an expected value of zero
+- They have an error variance $\sigma^2$, which is the model-unexplained portion of the dependent variable
+- They are uncorrelated with the model predictors
 :::
 
 . . .
@@ -282,18 +282,18 @@ We can also transform the DV and/or the IVs in ways that allow for non-linear re
 $$\text{ln}(y_i) = \beta_0 + \beta_1 \text{ln}(x_{1i}) + \beta_2x_{2i}+\beta_3x_{3i} + u_i$$
 
 ::: incremental
--   This implies a non-constant relationship of $x_{1i}$ to $y_i$
--   It is still a linear combination of (transformed) predictors
-    -   A 1-unit change in $\text{ln}(x_{1i})$ implies a $\beta_1$-unit change in $\text{ln}(y_i)$
--   To characterize the relationship between the untransformed variables, we need to do additional work (we will have a section on this)
+- This implies a non-constant relationship of $x_{1i}$ to $y_i$
+- It is still a linear combination of (transformed) predictors
+  - A 1-unit change in $\text{ln}(x_{1i})$ implies a $\beta_1$-unit change in $\text{ln}(y_i)$
+- To characterize the relationship between the untransformed variables, we need to do additional work (we will have a section on this)
 :::
 
 ## Why *linear* regression?
 
 Examples of *non*-linear regression models:
 
--   $y_i = x_{1i}^{\alpha}+u_i$
--   $y_i = e^{\beta_0+\beta_1x_{1i}+u_i}$
+- $y_i = x_{1i}^{\alpha}+u_i$
+- $y_i = e^{\beta_0+\beta_1x_{1i}+u_i}$
 
 # Part 2. Estimation and Interpretation
 
@@ -306,27 +306,27 @@ We would like to generate an estimate of $\boldsymbol{\beta}$ using a sample wit
 What qualities would we want in an ideal estimator?
 
 ::: incremental
--   Unbiasedness: $\text{E}(\hat{\boldsymbol{\beta}}) = \boldsymbol{\beta}$
+- Unbiasedness: $\text{E}(\hat{\boldsymbol{\beta}}) = \boldsymbol{\beta}$
 
--   Consistency: $\text{lim}_{N\rightarrow\infty} \space \text{Pr}(|\hat{\boldsymbol{\beta}}-\boldsymbol{\beta}|>\epsilon)=0, \space \forall \space +\epsilon$
+- Consistency: $\text{lim}_{N\rightarrow\infty} \space \text{Pr}(|\hat{\boldsymbol{\beta}}-\boldsymbol{\beta}|>\epsilon)=0, \space \forall \space +\epsilon$
 
-    -   limit as sample size goes to infinity...
+  - limit as sample size goes to infinity...
 
-    -   as sample size gets larger and larger, probability that your estimate will deviate from the true value by an arbitrarily small amount goes to 0
+  - as sample size gets larger and larger, probability that your estimate will deviate from the true value by an arbitrarily small amount goes to 0
 
--   Efficiency: $\text{E} \left((\hat{\boldsymbol{\beta}}-\boldsymbol{\beta})^2 \right)$ (the variance of the estimator) is smallest possible
+- Efficiency: $\text{E} \left((\hat{\boldsymbol{\beta}}-\boldsymbol{\beta})^2 \right)$ (the variance of the estimator) is smallest possible
 :::
 
 ## Ordinary least squares estimator
 
 The ordinary least squares (OLS) estimator has these properties
 
--   In general, find $\boldsymbol{\beta}$ that minimizes the sum of squared [residuals]{.alert}
-    -   estimate of an error term
+- In general, find $\boldsymbol{\beta}$ that minimizes the sum of squared [residuals]{.alert}
+  - estimate of an error term
 
 . . .
 
--   For bivariate case: find $\hat{\beta}_0$ and $\hat{\beta}_1$ that minimize:
+- For bivariate case: find $\hat{\beta}_0$ and $\hat{\beta}_1$ that minimize:
 
 $$\min_{\beta_0,\beta_1} \left[\sum_{i=1}^N(y_i-\beta_0-\beta_1x_{1i})^2 \right] =\min_{\beta_0,\beta_1} \left[\sum_{i=1}^N\hat{u}_i^2 \right]$$
 
@@ -354,7 +354,7 @@ OLS estimator for $\beta_0$:
 $$\hat{\beta}_0 = \bar{y} - \hat{\beta}_1\bar{x}_1$$
 
 ::: notes
--   to see B0, take expected value of y = B0 + B1x1 + u
+- to see B0, take expected value of y = B0 + B1x1 + u
 :::
 
 ## Example, by hand and with lm()
@@ -388,7 +388,7 @@ $$\hat{\boldsymbol{\beta}}=(\textbf{X}'\textbf{X})^{-1}\textbf{X}'\boldsymbol{y}
 
 . . .
 
--   Note the similarity to the bivariate case:
+- Note the similarity to the bivariate case:
 
 $$\hat{\beta}_1 = \frac{cov(y,x_1)}{var(x_1)}$$
 
@@ -472,7 +472,7 @@ coef(m1)
 
 </br>
 
--   "A tree with a 15 inch diameter is predicted to have a volume of $-36.94 + (5.07)(15) = 39.11$ cubic inches."
+- "A tree with a 15 inch diameter is predicted to have a volume of $-36.94 + (5.07)(15) = 39.11$ cubic inches."
 
 ## With multiple IVs
 
@@ -494,7 +494,7 @@ coef(m1)[1]*1 + coef(m1)[2]*15 + coef(m1)[3]*60
 
 . . .
 
--   "A tree with a 15 inch diameter and 60ft height is predicted to have a volume of 33 cubic inches."
+- "A tree with a 15 inch diameter and 60ft height is predicted to have a volume of 33 cubic inches."
 
 ## Interpreting coefficients
 
@@ -503,8 +503,8 @@ $$y_i = \beta_0 + \beta_1x_{1i} + \beta_2x_{2i} + u_i$$
 We are interested in how $\text{E}(y_i)$ changes as a function of $x_{1i}$
 
 ::: incremental
--   When you think "rate of change" you should think "derivative"
--   With more than one variable, think *partial* derivative
+- When you think "rate of change" you should think "derivative"
+- With more than one variable, think *partial* derivative
 :::
 
 . . .
@@ -554,7 +554,7 @@ With discrete IVs, we cannot take the 1st derivative
 
 . . .
 
--   Instead, we think about [first differences]{.alert} for a change in $x_{1i}$ from some value ($k_1$) to another ($k_2$)
+- Instead, we think about [first differences]{.alert} for a change in $x_{1i}$ from some value ($k_1$) to another ($k_2$)
 
 $$
 \begin{align}
@@ -564,7 +564,7 @@ $$
 \end{align}
 $$
 
--   If $k_2 - k_1 = 1$, then this just equals $\beta_1$
+- If $k_2 - k_1 = 1$, then this just equals $\beta_1$
 
 ## First difference, linear
 
@@ -626,15 +626,15 @@ Common to scale to mean of 0 and standard deviation of 1
 
 Two kinds:
 
--   Only standardize (one or more) IVs
+- Only standardize (one or more) IVs
 
--   Also standardize the DV
+- Also standardize the DV
 
 . . .
 
 `scale()` function in `R` will Z-score by default (i.e. subtract mean, divide by SD)
 
--   Unit of change becomes SD
+- Unit of change becomes SD
 
 ## Standardized CEO
 
@@ -662,9 +662,9 @@ $$\frac{x_i - \min(x)}{\max(x) - \min(x)}$$
 
 Either [theoretical]{.alert} or [sample]{.alert} minima/maxima.
 
--   If lowest observed value is higher than lowest theoretically possible value, you may have a choice to make
+- If lowest observed value is higher than lowest theoretically possible value, you may have a choice to make
 
--   Similar issue to "care in interpretation" with standardized vars
+- Similar issue to "care in interpretation" with standardized vars
 
 ## 0-1 example
 
@@ -686,13 +686,13 @@ we want to be able to talk about how "good" our model is
 
 We often evaluate our models by their ability to account for variation in our outcome -- i.e. how well they "fit" the data.
 
--   model fit isn't everything! it's one thing you might be interested in
+- model fit isn't everything! it's one thing you might be interested in
 
 ::: incremental
--   There are many different measures of model fit.
--   We will discuss the most common today; later this semester, we will turn to alternatives.
--   Model fit is not everything! Depends on your goals.
-    -   ie, if studying turnout, impact of some intervention (mailer) on turnout
+- There are many different measures of model fit.
+- We will discuss the most common today; later this semester, we will turn to alternatives.
+- Model fit is not everything! Depends on your goals.
+  - ie, if studying turnout, impact of some intervention (mailer) on turnout
 :::
 
 ## Sums of squares
@@ -700,19 +700,19 @@ We often evaluate our models by their ability to account for variation in our ou
 People sometimes talk about the following [sums of squares]{.alert}:
 
 ::: incremental
--   [Total]{.alert}: $\sum_N{(y_i - \bar{y})^2}$
+- [Total]{.alert}: $\sum_N{(y_i - \bar{y})^2}$
 
-    -   terminology differs! some people mean this when they say "total sum of squares"
+  - terminology differs! some people mean this when they say "total sum of squares"
 
-    -   the sum of squared deviations of the dependent variable from its mean
+  - the sum of squared deviations of the dependent variable from its mean
 
--   [Model / Explained]{.alert}: $\sum_N{(\hat{y}_i - \bar{y})^2}$
+- [Model / Explained]{.alert}: $\sum_N{(\hat{y}_i - \bar{y})^2}$
 
-    -   the sum of squared deviations of predicted values from the mean
+  - the sum of squared deviations of predicted values from the mean
 
--   [Error / Residual]{.alert}: $\sum_N{(y_i - \hat{y}_i)^2}$
+- [Error / Residual]{.alert}: $\sum_N{(y_i - \hat{y}_i)^2}$
 
-    -   the sum of squared deviations of observed values from predicted values
+  - the sum of squared deviations of observed values from predicted values
 :::
 
 ## Errors vs residuals
@@ -721,11 +721,11 @@ The errors, $u_i$, are population quantities, and unobservable
 
 . . .
 
--   Residuals are sample estimates, $\hat{u}_i$, and have an expected value of 0 by construction
+- Residuals are sample estimates, $\hat{u}_i$, and have an expected value of 0 by construction
 
 . . .
 
--   An unbiased estimator of the error variance, $\hat{\sigma}^2$ is:
+- An unbiased estimator of the error variance, $\hat{\sigma}^2$ is:
 
 $$\frac{\sum_N{(y_i - \hat{y}_i)^2}}{N - K - 1}$$
 
@@ -735,16 +735,16 @@ More generally, we can define the [mean squared error]{.alert} for any model as:
 
 $$\text{MSE} = \text{E} \left((\hat{\theta} - \theta)^2 \right)$$
 
--   Expected value of quadratic loss from applying model
+- Expected value of quadratic loss from applying model
 
 ::: incremental
--   Interpretable only with reference to scale of $\theta$
+- Interpretable only with reference to scale of $\theta$
 
-    -   useful in relative terms (for comparing fit between two versions of same model)
+  - useful in relative terms (for comparing fit between two versions of same model)
 
--   Incorporates both bias and variance
+- Incorporates both bias and variance
 
-    -   For unbiased estimators such as OLS, $\text{MSE} \equiv \text{Error Variance}$
+  - For unbiased estimators such as OLS, $\text{MSE} \equiv \text{Error Variance}$
 :::
 
 ## MSE in linear regression
@@ -755,7 +755,7 @@ $$\text{MSE} = \frac{\sum_N{(y_i - \hat{y}_i)^2}}{N - K - 1}$$
 
 i.e. we divide by degrees of freedom, not sample size
 
--   More complex model --\> smaller denominator --\> higher MSE, all else equal
+- More complex model --\> smaller denominator --\> higher MSE, all else equal
 
 ## $R^2$
 
@@ -764,9 +764,9 @@ A common measure of model fit is [$R^2$]{.alert}, which is 1 minus the ratio of 
 $$1 - \frac{\text{SS}_R}{\text{SS}_T} = 1 - \frac{\sum_N{(y_i - \hat{y}_i)^2}}{\sum_N{(y_i - \bar{y})^2}}$$
 
 ::: incremental
--   This can be interpreted as the proportionate reduction in error of prediction (relative to always guessing $\bar{\boldsymbol{y}}$)
+- This can be interpreted as the proportionate reduction in error of prediction (relative to always guessing $\bar{\boldsymbol{y}}$)
 
--   It is also the squared correlation (shared variance) between $\boldsymbol{y}$ and $\hat{\boldsymbol{y}}$
+- It is also the squared correlation (shared variance) between $\boldsymbol{y}$ and $\hat{\boldsymbol{y}}$
 :::
 
 ## $R^2$
