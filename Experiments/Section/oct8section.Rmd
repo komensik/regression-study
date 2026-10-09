@@ -1,0 +1,104 @@
+---
+title: "Oct 9 Section"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+Mult Comparisons
+
+Likely on exam: interpreting interactions in regressions
+
+'filling in' coefficients for a 3 way interaction. (note exam likely
+also will have fill in when )
+
+2 treatments: loan or training ppl can receive one, none, or both
+
+dif with treatment by treatment and treatment by covariate: TBT has
+random assignment, including for marginal effects, so all conditions
+causally identified (as opposed to TBCoefficient)
+
+Filling in
+
+- if exam doesn't give averages but gives a small table, first thing you
+  want is to get down to averages of each group
+
+in pset, gave averages
+
+intercept only model would be mean outcome of the data adding betas
+
+if both loan and training loan = 1 training = 1 equation is =
+$alpha_0$ + $alpha_1$ + $alpha_2$ + $alpha_3$
+
+so avg $Y_i$ of both is $alpha$s 1-3 added together
+
+once figured out what potential outcomes. . .
+
+$\hat{y_i}$ for neither (neither is given as) $\alpha_0$
+
+$\bar{y_2}$ = loan = alpha0 + alpha1
+
+interpreting
+
+alpha_0 is average outcomes for people in control
+
+alpha_1 is average outcomes of people in loan condition minus average
+outcome of people in control (ie, average treatment effect of loans,
+holding constant you have no training)
+
+alpha_2 is ATE of training, holding constant you have no loans
+
+alpha_3
+
+- both
+
+- minus everything else (alpha_0 + alpha_1 + alpha_2)
+
+- minus $\bar{y_2}(neither) + \bar{y_2}(neither)$
+
+-plus  $\bar{y_2}(neither) + \bar{y_2}(neither)$
+
+
+cumulates to difference in 2 way marginal effect of getting training, whether or not you have a loan.
+
+next part -- what about when we add a coefficient
+0.5(loan x skills) = difference in affect of loan across two subgroups (high skills vs low skills)
+
+1.25 = CATE of having a loan, given low skills
+
+we're given -0.5(loan x skills): of those with loan, difference of having skill
+
+CATE (training | loan = 1)
+= y3(both) - y2(loan)
+= alppha 1 + alpha 3
+= 
+
+### heterogeneous treatment effects
+
+Null: treatment is the same for every individual
+= Var(treatment) = 0 (treatment = tao_i)
+
+
+basic concept
+we know Y1 = y_i(0) + tao_i
+
+Var(Y(1)) = Var[Y(0) + tau_i]
+
+Var(Y(1)) = Var[Y(0)] + Var(tao_i) + 2(Cov(Y(0)tau))
+
+(because of covariances of constants)
+
+(can reduce to)
+
+var of tao is 0 is same as saying var Y1 is same as Y0
+
+
+Random Variable reminders
+
+they are not algebra
+variance of a random variable?
+
+ie Y_i(0) + Y_i(0) NOT = 2 (Y_i(0))
+
+but if we're talking about expected values, than that works

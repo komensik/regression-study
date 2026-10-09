@@ -293,3 +293,15 @@ mean(abs(sharp_null_dim) >= abs(hajj_dim))
 hist(sharp_null_dim, xlim = c(- .5, .9))
 abline(v = hajj_dim, col = "blue")
 abline(v = - hajj_dim, col = "red")
+
+
+Oct 9 notes
+
+model_
+
+
+
+
+
+
+
