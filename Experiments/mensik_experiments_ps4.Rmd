@@ -422,7 +422,7 @@ print(round(mean(coef_estimates_4c), 2))
 
 ```
 
-is not centered around 0.
+is not centered around 0!
 
 ## f
 
@@ -457,5 +457,103 @@ for( i in 1:ncol(matrix_4)) {
 sort_ATEs <- sort(ate_estimates_4)
 
 ci_lower <- sort_ATEs()
+
+```
+
+# Question 5
+
+# Question 6
+
+# Question 7
+
+# Question 9
+
+```{r}
+data_9 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Gerber_Green_AAAPSS_2005.csv")
+```
+
+## a
+
+The effect of getting phone banked on turnout was positive in Iowa
+districts that were not competitive. The effect was positive in the
+Michigan districts that were competitive, and negative in those that
+were non competitive. Neither was particularly pronounced.
+
+## b 
+
+The composition of treated subjects within each block and differences in
+block sizes are obscured in the total ATE.
+
+## c
+
+The ATE estimated by overall Block:
+
+```{r}
+
+block1 <- 0.049487*0.00964
+block2 <- 0.1520981*(-0.007829)
+block3 <- 0.626616*(-0.01362)
+block4<-0.171799*0.008271
+
+ate_9 <- block1+block2+block3+block4
+
+print(ate_9)
+```
+
+## d
+
+The OLS weights consider within-block balance and the size of blocks for
+control and treatment blocks. Balanced blocks have lower sampling
+variability than do imbalanced blocks, so balanced blocks are more
+heavily weighted. The OLS weights in 4.3 are more balanced than in part
+c.
+
+## e
+
+```{r}
+
+data_9a <- data_9[data_9$strata == 1,]
+data_9b <- data_9[data_9$strata == 2,]
+data_9c <- data_9[data_9$strata == 3,]
+data_9d <- data_9[data_9$strata == 4,]
+
+#strata
+
+data_9a <- ifelse(data_9a$treat2 == 1,
+                  sum((data_9a$treat2 == 1)) / nrow(data_9a),
+                  sum((data_9a$treat2 == 0 )) / nrow(data_9a))
+
+
+data_9b <- ifelse(data_9b$treat2 == 1,
+                  sum((data_9b$treat2 == 1)) / nrow(data_9b),
+                  sum((data_9b$treat2 == 0 )) / nrow(data_9b))
+
+data_9c <- ifelse(data_9c$treat2 == 1,
+               sum((data_9c$treat2 == 1)) / nrow(data_9c),
+               sum((data_9c$treat2 == 0 )) / nrow(data_9c))
+
+data_9d <- ifelse(data_9d$treat2 == 1,
+                  sum((data_9d$treat2 == 1)) / nrow(data_9d),
+                  sum((data_9d$treat2 == 0 )) / nrow(data_9d))
+
+data_9_weighted <- rbind(data_9a, data_9b, data_9c, data_9d)
+  
+#regress after inverting weights
+
+data_9_weighted$weight <- 1/data_9_weighted$q # not working
+
+# would then regress weighted vote on treatment
+
+model_9 <- lm_robust(vote02 ~ treat + strata, weights = weight, data = data_9_weighted)
+
+```
+
+# Question 10
+
+Cluster Random Design for KC voter mobilization.
+
+```{r}
+
+data_10 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Arceneaux_AAAPSSsubset_2005.csv")
 
 ```
