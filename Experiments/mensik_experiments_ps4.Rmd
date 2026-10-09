@@ -672,26 +672,25 @@ The sampling distributions under the null hypothesis are slightly tighter around
 
 # Question 6
 
-#### (a)
+#### a
 
 ```{r, echo = T, include = T, warning = F}
 
-q6_data <- read.csv("OBrien_Patsiorkovski_ICPSR_1999.csv")
+data_6 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/OBrien_Patsiorkovski_ICPSR_1999.csv")
 
+names(data_6)
 # adding ids
 
-q6_data$id <- seq_len(nrow(q6_data))
+data_6$id <- seq_len(nrow(data_6))
 
-#converting social class variable into a factor variable
+data_6$group6 <- as.factor(data_6$group6) #make social class variable factor variable
 
-q6_data$group6 <- as.factor(q6_data$group6)
+# predict post-intervention by regressing variables
 
-# regressing variables to assess which might predict post-intervention evals
+model_6a <- lm(index96 ~ sexresp6 + memberc6 + group6 + index95, 
+                data_6)
 
-q6a_model <- lm(index96 ~ sexresp6 + memberc6 + group6 + index95, 
-                q6_data)
-
-summary(q6a_model)
+summary(model_6a)
 
 ```
 
@@ -701,63 +700,62 @@ The 1995 evaluations of national conditions seem to most strongly predict the fo
 
 ```{r, echo = T, include = T, warning = F}
 
-#setting seed 
 
-set.seed(20250929)
+set.seed(6081709)
 
 # convert each level of the factor variable into binary variable
 
-q6_matrix <- model.matrix(~ sexresp6 + memberc6 + group6 + index96 + index97 
+matrix_6 <- model.matrix(~ sexresp6 + memberc6 + group6 + index96 + index97 
                           + id, 
-                          data = q6_data)
+                          data = data_6)
 
 # removing the intercept column
 
-q6_matrix <- q6_matrix [, -1]
+matrix_6 <- matrix_6 [, -1]
 
-head(q6_matrix)
+head(matrix_6)
 
 # blocking! 
 
-q6_block <- block(q6_matrix, n.tr = 42, id.vars = "id", block.vars = setdiff(names(q6_matrix), "id"))
+blocks_6 <- block(matrix_6, n.tr = 42, id.vars = "id", block.vars = setdiff(names(matrix_6), "id"))
 
-q6_block
+blocks_6
 
-q6_data_blocked <- as.data.frame(q6_matrix)
+data_6_blocked <- as.data.frame(matrix_6)
 
-q6_data_blocked$block <- createBlockIDs(q6_block, q6_data_blocked, id.var = "id")
+data_6_blocked$block <- createBlockIDs(blocks_6, data_6_blocked, id.var = "id")
 
-head(q6_data_blocked)
+head(data_6_blocked)
 
 # checking number of units in each block 
 
-block_counts <- as.data.frame(table(q6_data_blocked$block))
+block_counts <- as.data.frame(table(data_6_blocked$block))
 names(block_counts) <- c("block", "n")
 block_counts
 
 # conducting block random assignment 
 
-q6_declaration <- declare_ra(nrow(q6_data_blocked), m = 21, blocks = q6_data_blocked$block)
-q6_declaration
+declaration_6 <- declare_ra(nrow(data_6_blocked), m = 21, blocks = data_6_blocked$block)
+declaration_6
 
 # to check for covariate balance 
 
 # obtaining permutation matrix
 
-q6_permmatrix <- obtain_permutation_matrix(q6_declaration)
+perm_matrix_6 <- obtain_permutation_matrix(declaration_6)
 
 # conducting repeated f-tests 
 
-fp1 <- c()
+repeated_f_tests <- c()
 
-for (i in 1:ncol(q6_permmatrix)) {
-  q6_data_blocked$d_temp = q6_permmatrix[, i]
+for (i in 1:ncol(perm_matrix_6)) {
+  data_6_blocked$d_temp = perm_matrix_6[, i]
   f <- lm_robust(d_temp ~ sexresp6 + memberc6 + group62 + group63 + group64 + index96, 
-                 data = q6_data_blocked)$fstatistic
-  fp1[i] <- 1 - pf(q = f[1], df1 = f[2], df2 = f[3])
+                 data = data_6_blocked)$fstatistic
+  repeated_f_tests[i] <- 1 - pf(q = f[1], df1 = f[2], df2 = f[3])
 }
 
-hist(fp1)
+hist(repeated_f_tests)
 
 ```
 
@@ -769,70 +767,70 @@ This distribution of p-values indicates that the groups are not systematically i
 
 # setting seed
 
-set.seed(20250929)
+set.seed(6081709)
 
 # running a for loop to generate sampling distributions - block ra
 
 # creating empty vector to store results of for loop
 
-q6c_ate_estimates <- rep(NA, 10000)
+ate_estimates_6c <- rep(NA, 10000)
 
 # estimating ATE 
 
-for (i in 1:ncol(q6_permmatrix)) {
-  q6_data_blocked$ri <- q6_permmatrix[, i]
+for (i in 1:ncol(perm_matrix_6)) {
+  data_6_blocked$ri <- perm_matrix_6[, i]
 
-  q6c_ate_estimates [i] <- lm(index97 ~ ri, data = q6_data_blocked)$coef["ri"]
+  ate_estimates_6c [i] <- lm(index97 ~ ri, data = data_6_blocked)$coef["ri"]
 
 }
 
 # checking that the distribution is centred around 0
 
-print(round(mean(q6c_ate_estimates), 2))
+print(round(mean(ate_estimates_6c), 2))
 
 
 # running a for loop to generate sampling distributions - complete ra
 
 # conducting complete random assignment 
 
-q6_declaration2 <- declare_ra(nrow(q6_data), m = nrow(q6_data)/2)
-q6_declaration2
+declaration_6c <- declare_ra(nrow(data_6), m = nrow(data_6)/2)
+declaration_6c
 
 # obtaining permutation matrix
 
-q6_permmatrix2 <- obtain_permutation_matrix(q6_declaration2)
+perm_matrix_6c <- obtain_permutation_matrix(declaration_6c)
 
 # creating empty vector to store results of for loop
 
-q6c_ate_estimates2 <- rep(NA, 10000)
+ate_estimates_6c2 <- rep(NA, 10000)
 
 # estimating ATE
 
-for (i in 1:ncol(q6_permmatrix2)) {
-  q6_data$ri <- q6_permmatrix2[, i]
+for (i in 1:ncol(perm_matrix_6c)) {
+  data_6$ri <- perm_matrix_6c[, i]
 
-  q6c_ate_estimates2 [i] <- lm(index97 ~ ri, data = q6_data)$coef["ri"]
+  ate_estimates_6c2 [i] <- lm(index97 ~ ri, data = data_6)$coef["ri"]
 
 }
 
 # checking that the distribution is centred around 0
 
-print(round(mean(q6c_ate_estimates2), 2))
+print(round(mean(ate_estimates_6c2), 2))
 
 # comparing sampling distributions under block and complete ra
 
-q6c_df <- data.frame(
-  value = c(q6c_ate_estimates, q6c_ate_estimates2),
-  group = factor(c(rep("Block RA", length(q6c_ate_estimates)), 
-                   rep("Complete RA", length(q6c_ate_estimates2))))
+data_6c <- data.frame(
+  value = c(ate_estimates_6c, ate_estimates_6c2),
+  group = factor(c(rep("Block RA", length(ate_estimates_6c)), 
+                   rep("Complete RA", length(ate_estimates_6c2))))
 )
 
 library(ggplot2)
 
-ggplot(q6c_df, aes(x = value, color = group)) +
+ggplot(data_6c, aes(x = value, color = group)) +
   geom_density (alpha = 0.5, linewidth = 1) +
-  scale_fill_manual(values = c("skyblue2", "violetred3")) +
-  labs(title = "Comparing Sampling Distributions (Block and Complete Randomisation)",
+  scale_fill_manual(values = c("forestgreen", "lightblue")) +
+  labs(title = "Sampling Distributions (Block and Complete Randomisation)",
        x = "Value", y = "Count", color = "Group") +
   theme_minimal()
 
@@ -840,51 +838,51 @@ ggplot(q6c_df, aes(x = value, color = group)) +
 
 The sampling distribution of the ATE under block random assignment is narrower and more clustered around the 'true' ATE of 0, than the corresponding sampling distribution under complete random assignment.
 
-#### (d)
+#### d
 
 ```{r, echo = T, include = T, warning = F}
 
 # setting seed
 
-set.seed(20250929)
+set.seed(6081709)
 
 # running for loop to generate distribution under covariate adjusted regression
 
 # creating empty vector to store results of for loop
 
-q6c_ate_estimates3 <- rep(NA, 10000)
+ate_estimates_6_d <- rep(NA, 10000)
 
 # estimating ATE
 
-for (i in 1:ncol(q6_permmatrix2)) {
-  q6_data$ri <- q6_permmatrix2[, i]
+for (i in 1:ncol(perm_matrix_6c)) {
+  data_6$ri <- perm_matrix_6c[, i]
   
-  q6c_ate_estimates3 [i] <- lm(index97 ~ ri + 
+  ate_estimates_6_d [i] <- lm(index97 ~ ri + 
                               sexresp6 + 
                               memberc6 + 
                               group6 + 
-                              index96, data = q6_data)$coef["ri"]
+                              index96, data = data_6)$coef["ri"]
 
 }
 
 # checking that the distribution is centred around 0
 
-print(round(mean(q6c_ate_estimates3)))
+print(round(mean(ate_estimates_6_d)))
 
 # comparing sampling distributions under block ra and covariate adjustment
 
-q6c_df2 <- data.frame(
-  value = c(q6c_ate_estimates, q6c_ate_estimates3),
-  group = factor(c(rep("Block RA", length(q6c_ate_estimates)), 
-                   rep("Covariate Adjustment", length(q6c_ate_estimates3))))
+data_6c2 <- data.frame(
+  value = c(ate_estimates_6c, ate_estimates_6_d),
+  group = factor(c(rep("Block RA", length(ate_estimates_6c)), 
+                   rep("Covariate Adjustment", length(ate_estimates_6_d))))
 )
 
 library(ggplot2)
 
-ggplot(q6c_df2, aes(x = value, color = group)) +
+ggplot(data_6c2, aes(x = value, color = group)) +
   geom_density (alpha = 0.5, linewidth = 1) +
-  scale_fill_manual(values = c("skyblue2", "violetred3")) +
-  labs(title = "Comparing Sampling Distributions 
+  scale_fill_manual(values = c("forestgreen", "lightblue")) +
+  labs(title = "Sampling Distributions 
        (Block Randomisation and Covariate Adjustment)",
        x = "Value", y = "Count", color = "Group") +
   theme_minimal()
@@ -959,71 +957,71 @@ Sampling Variance is
 
 # creating each block as its own dataset
 
-blocking_schemes <- list(
+block_options <- list(
   list(c("A","B"), c("C","D")),
   list(c("A","C"), c("B","D")),
   list(c("A","D"), c("B","C"))
 )
 
-get_block_data <- function(block_scheme, data) {
-  subjects_ordered <- unlist(block_scheme)
+get_block_data <- function(block_options, data) {
+  subjects_ordered <- unlist(block_options)
   block_data <- data[match(subjects_ordered, data$Subject), ]
-    block_data$Block <- rep(1:length(block_scheme), each = 2)
+    block_data$Block <- rep(1:length(block_options), each = 2)
   return(block_data)
 }
 
-block_datasets <- lapply(blocking_schemes, get_block_data, data = data_7)
+block_datasets <- lapply(block_options, get_block_data, data = data_7)
 
-names(block_datasets) <- paste0("BlockScheme", 1:3)
+names(block_datasets) <- paste0("BlockOption", 1:3)
 
-BlockScheme1 <- block_datasets$BlockScheme1
-BlockScheme2 <- block_datasets$BlockScheme2
-BlockScheme3 <- block_datasets$BlockScheme3
+BlockOption1 <- block_datasets$BlockOption1
+BlockOption2 <- block_datasets$BlockOption2
+BlockOption3 <- block_datasets$BlockOption3
 
-# randomising within blocking schemes - 1
+# randomising within blocking options - 1
 
 delcaration_71 <- declare_ra(
-  N = nrow(BlockScheme1), 
-  blocks = BlockScheme1$Block,
-  block_m = rep(1, length(unique(BlockScheme1$Block))) 
+  N = nrow(BlockOption1), 
+  blocks = BlockOption1$Block,
+  block_m = rep(1, length(unique(BlockOption1$Block))) 
 )
 delcaration_71
 
-# randomising within blocking schemes - 2
+# randomising within blocking options - 2
 
 delcaration_72 <- declare_ra(
-  N = nrow(BlockScheme2), 
-  blocks = BlockScheme2$Block,
-  block_m = rep(1, length(unique(BlockScheme2$Block))) 
+  N = nrow(BlockOption2), 
+  blocks = BlockOption2$Block,
+  block_m = rep(1, length(unique(BlockOption2$Block))) 
 )
 delcaration_72
 
-# randomising within blocking schemes - 3
+# randomising within blocking options - 3
 
 delcaration_73 <- declare_ra(
-  N = nrow(BlockScheme3), 
-  blocks = BlockScheme3$Block,
-  block_m = rep(1, length(unique(BlockScheme3$Block))) 
+  N = nrow(BlockOption3), 
+  blocks = BlockOption3$Block,
+  block_m = rep(1, length(unique(BlockOption3$Block))) 
 )
 delcaration_73
 
 library(randomizr)
 
-# extracting assignment vectors for each blocking scheme - 1 
+# extracting assignment vectors for each blocking optioon - 1 
 
 assignment1 <- obtain_permutation_matrix(delcaration_71)
 
-# extracting assignment vectors for each blocking scheme - 2 
+# extracting assignment vectors for each blocking option - 2 
 
 assignment2 <- obtain_permutation_matrix(delcaration_72)
 
-# extracting assignment vectors for each blocking scheme - 3
+# extracting assignment vectors for each blocking option - 3
 
 assignment3 <- obtain_permutation_matrix(delcaration_73)
 
 # combining to create permmatrix of unique random assignments
 
-q7b_permmatrix <- cbind(assignment1, assignment2, assignment3)
+perm_matrix_7b <- cbind(assignment1, assignment2, assignment3)
 
 # running a for loop to assess sampling variance of DIM estimator
 # I use the standard R var function as we have no reason 
@@ -1031,31 +1029,29 @@ q7b_permmatrix <- cbind(assignment1, assignment2, assignment3)
 
 # setting seed
 
-set.seed(20250929)
+set.seed(6081709)
 
 # creating empty vector to store results of for loop
 
-q7b_dim_estimates <- c()
+dim_estimates_7b <- c()
 
 # estimating dim 
 
-for (i in 1:ncol(q7b_permmatrix)) {
-  data_7$ri <- q7b_permmatrix[, i]
+for (i in 1:ncol(perm_matrix_7b)) {
+  data_7$ri <- perm_matrix_7b[, i]
   
   treated_mean <- mean(data_7$`Y1`[data_7$ri == 1])
   control_mean <- mean(data_7$`Y0`[data_7$ri == 0])
   
   dim <- treated_mean - control_mean
-  q7b_dim_estimates <- c(q7b_dim_estimates, dim)
+  dim_estimates_7b <- c(dim_estimates_7b, dim)
 }
 
-print(var(q7b_dim_estimates))
+print(var(dim_estimates_7b))
 
 ```
 
 #### (c)
-
-I know something has gone wrong with 7(b), because it is generating a lower sampling variance than under 7(a) -- I understand the logic that blocking on a non-prognostic covariate (such as when we block randomly) can in fact increase variance in small samples. I promise I will never ever block on a non-prognostic covariate. Does that count as lesson learned even if something went wrong with the code in 7(b)?
 
 
 
