@@ -53,22 +53,34 @@ Equation 4.2 says
 
 $$
 E(\hat{ATE}) = E[Y_i - X_i|D_i = 1] - E[Y_i-X_i|D_i = 0]
-$$ The rescaled pretest $cX_i$ where $c$ is constant and positive can be
-substituted for $X_i$. $$
+$$
+
+The rescaled pretest $cX_i$ where $c$ is constant and positive can be
+substituted for $X_i$.
+
+$$
 E(\hat{ATE}) = E[Y_i - cX_i|D_i = 1] - E[Y_i-cX_i|D_i = 0]
-$$ So when we expand as in 4.2: $$
+$$
+
+So when we expand as in 4.2:
+
+$$
 E(\hat{ATE}) = E[Y_i|D_i = 1] - E[cX_i|D_i=1] - E[Y_i|D_i = 0] + cE[X_i|Di=0]
-$$ ...and rearrange: $$
+$$
+
+...and rearrange:
+
+$$
 E(\hat{ATE}) = E[Y_i|D_i = 1] - E[Y_i|D_i = 0] - c(E[X_i|D_i=1]  + E[X_i|Di=0])
-$$ ...and because we assume that the expected values of $Y_i$ when
+$$
+
+...and because we assume that the expected values of $Y_i$ when
 $D_i = 0$ are the same as when $D_i = 1$, we arrive at the same place as
-in figure 4.2: 
+in figure 4.2:
 
 $$
  E(\hat{ATE}) = E(Y_i(1))-E[Y_i(0)]
 $$
-
-
 
 ### d
 
@@ -77,21 +89,17 @@ potential outcomes $\mu_{Y1} - \mu_{Y0}$, also called the ATE.
 
 $$
 E(ATE) = E[Y_i(1)] - E[Y_i(0)]
-$$ 
+$$
 
-### e 
-Balanced designs are ideal because they allow for interval
-estimation: CI's will be conservative rather than too wide or narrow
-from outcome variances with imbalance in the treatment and controls that
-produce. They're particularly helpful when there is similar variance in
-the outcomes of treatment and control groups.
+### e
+
+Balanced designs are ideal because they allow for interval estimation:
+CI's will be conservative rather than too wide or narrow from outcome
+variances with imbalance in the treatment and controls that produce.
+They're particularly helpful when there is similar variance in the
+outcomes of treatment and control groups.
 
 ## Question 2
-
-Puzzles after treatment, recorded number of correctly solved puzzles.
-control students given 30 extra minutes a few days later to improve
-puzzle-solving skills, treatment group were given rules of thumb; all
-then took post-test.
 
 ### a.
 
@@ -113,11 +121,11 @@ improvement <- data_2$improvement
 
 model_2 <- lm_robust(treatment ~ pretest)
 
+fstat_2 <- model_2$fstatistic[1] # get the f stat of treatment
 
+fstat_2
 
-fstat_2 <- model_2$fstatistic # f stat of treatment
-
-#fstat_2
+# now random. inference with f-stat to get a p-value:
 
 ra_2 <- declare_ra(nrow(data_2), m = 9) # random assignment procedure
 
@@ -126,10 +134,15 @@ perm_matrx_2 <- obtain_permutation_matrix(ra_2) #10k randomization permmatrix
 estimates_2 <- c() #bucket to store results
 
 for (i in 1:ncol(perm_matrx_2)) {
+  
   data_2$ri <- perm_matrx_2[, i]
+  
   random_inf_2 <- lm_robust(data_2$ri ~ data_2$pretest)
+  
   estimates_2 <- c(estimates_2, random_inf_2$fstatistic[1])
+  
 }
+
 ```
 
 The reported p-value is:
@@ -139,7 +152,7 @@ print(mean(estimates_2 >= random_inf_2$fstatistic))
 ```
 
 We can't reject the null hypothesis that treatment had no effect on
-pretest scores because 0.1972 is much higher than 0.05. In this case,
+pretest scores because 0.2093 is much higher than 0.05. In this case,
 rejecting the null means randomization was successful.
 
 ### b
@@ -159,7 +172,10 @@ print(dim_ate_2)
 
 ```
 
+Now 95% CI constructed with randomization inference:
+
 ```{r}
+
 set.seed(312608170)
 
 null <- 0
@@ -259,7 +275,9 @@ precision, which is surprising.
 
 This reporting policy does not offer up unbiased estimates because it is
 premised on the outcomes -- seems like rather explicit
-researcher-induced bias.
+researcher-induced bias. Whether or not to report results based on
+covariates included should only be decided by theory and expectations
+(pre-registered, ideally, hypotheses).
 
 ## Question 4
 
@@ -269,9 +287,15 @@ researcher-induced bias.
 
 data_4 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/GerberGreenBook_Chapter4_Table_4_1.csv")
 
+view(data_4)
+
 ```
 
 ### a
+
+$$
+Y_i = d_iY_i(1) + (1-d_i)Y_i(0)
+$$
 
 ```{r}
 
@@ -283,18 +307,14 @@ model_4 <- lm_robust(obs_y ~ D, data = data_4)
 
 summary(model_4)
 
-```
+print(coef(model_4)["D"])
 
-```{r}
 
 dim_4 <- difference_in_means(obs_y ~ D, data = data_4)
 dim_ate_4 <- dim_4$coefficients
 
 print(dim_ate_4)
-```
 
-```{r}
-print(coef(model_4)["D"])
 ```
 
 Is estimated slope the same as estimated ATE based on DIM
@@ -303,11 +323,11 @@ Is estimated slope the same as estimated ATE based on DIM
 mean(data_4$obs_y [data_4$D == 0]) #control group mean should = intercept value
 ```
 
-Yes.
+Yes. Being assigned to treatment is associated with 10.7 higher scores compared to not being assigned to treatment.The mean value of those not assigned to treatment is 26.85 (as shown in the coefficient estimate for the Intercept and the mean value of observed ys when D is 0).
 
 ### b
 
-Treated and untreated outcomes on $X_i$.
+The condition in equation 4.6 requires that the sum of the slope coefficients from regressing treated and untreated outcomes on $X_i$ is > 1.
 
 ```{r}
 
@@ -315,20 +335,23 @@ model_4b <- lm_robust(y0 ~ x, data = data_4)
 summary(model_4b)
 
 print(coef(model_4b)["x"])
-```
 
-```{r}
+coef_4_b <- (coef(model_4b)["x"])
 
-model_4b_2 <- lm_robust(y1 ~ x, data = data_4)
+model_4b_2 <- lm_robust(y1 ~ x, data = data_4) #treated outcomes on x
 
 summary(model_4b_2)
 
-
 ```
-
+Sum the coefficients:
 ```{r}
 print(coef(model_4b_2)["x"])
 ```
+plus
+```{r}
+coef_4_b
+```
+
 
 Sum of the slope coefficients:
 
@@ -337,13 +360,13 @@ Sum of the slope coefficients:
 ```
 
 . . . is greater than 1, which means the dependent variable needs to be
-rescaled so that the outcome is a change score.
+rescaled  to reduce sampling variability (but its not required for unbiasedness).
 
 ### c
 
 ```{r}
 
-model_4c <- lm_robust(obs_y ~ D + x, data = data_4)
+model_4c <- lm_robust(obs_y ~ D + x, data = data_4) #y on d and x
 
 summary(model_4c)
 
@@ -353,27 +376,26 @@ summary(model_4c)
 print(coef(model_4c)["D"])
 ```
 
-The results here provide a smaller estimate for D (close to halved). The
-DIM approach then produces a smaller treatment effect. The SE is
-smaller, so we should be more confident in these results.
+Upon including the covariate, D's coefficient estimate of the treatment effect is now smaller -- nearly halved. This likely is from correcting an imbalance. The SE is also smaller, suggesting we should have greater confidence in the results from this covariate adjusted model than for the no-covariate DIM. 
 
 ### d
 
 ```{r}
 
+#randomization inference
+
 set.seed(6081709)
 
-declare_4c <- declare_ra(nrow(data_4), m = sum(data_4$D))
+declare_4c <- declare_ra(nrow(data_4), m = sum(data_4$D)) #declared RA procedure 
 declare_4c
 
 ```
-
 ```{r}
 #10k matrix
 
-matrix_4 <- replicate(1000, conduct_ra(declare_4c))
+matrix_4 <- replicate(100000, conduct_ra(declare_4c))
 
-estimates_4 <- rep(NA, 1000)
+estimates_4 <- rep(NA, 100000)
 
 # dim for every permutation
 
@@ -383,35 +405,34 @@ for (i in 1:ncol(matrix_4)) {
   estimates_4 [i] <- lm_robust(obs_y ~ ri, data = data_4)$coef["ri"]
 }
 
-print(round(mean(estimates_4), 2))
+print(round(mean(estimates_4), 2)) #centered enough around 0?
 
 ```
 
 The two sided p value is:
 
 ```{r}
-print(mean(abs(estimates_4) >= abs(10.7 )))
+print(mean(abs(estimates_4) >= abs(10.7)))
 ```
 
-...less than 0.05 so we are good to reject the sharp null that there is
-no effect for any school.
+...and less than 0.05 so we are good to reject the sharp null that there isno effect for any school.
 
 ### e
 
-Estimates from part (c):
+
 
 ```{r}
+
+# Estimates from part (c):
 coef_4c<-(coef(model_4c)["D"])
 
 print(coef_4c)
-```
 
-RI to eval sharp null, then obtain sampling distribution with 100k
-random assignments and for each estimate ATE by regressing Yi on di and
-Xi, then interpret.
+```
 
 ```{r}
 
+#RI
 set.seed(6081709)
 
 coef_estimates_4c <- rep(NA, 100000)
@@ -420,32 +441,51 @@ for(i in 1:ncol(matrix_4)) {
   
   data_4$ri <- matrix_4[, i]
   
-  coef_estimates_4c <- lm(obs_y ~ ri + x, data = data_4)$coef["ri"]
+  coef_estimates_4c[i] <- lm(obs_y ~ ri + x, data = data_4)$coef["ri"]
 }
 
-
-print(round(mean(coef_estimates_4c), 2))
-
+length(coef_estimates_4c)
+mean(coef_estimates_4c) #centered around 0 (finally, forgot to add [i] to est loop)
 
 ```
 
-is not centered around 0!
+The p-value:
+```{r}
+print(mean(abs(coef_estimates_4c) >= abs(coef_4c)))
+```
+I get a two-sided p value is smaller than 0.05 so we can reject the sharp null hypothesis that there is no effect for any school. 
 
 ### f
 
 95% CI estimated with RI:
 
 ```{r}
+#coef_4c
+
+# fill in missing potential outcomes for each school
 
 data_4$y0_ci <- ifelse(data_4$D == 0, data_4$obs_y, data_4$obs_y - dim_ate_4)
+
 data_4$y1_ci <- ifelse(data_4$D == 0, data_4$obs_y + dim_ate_4, data_4$obs_y)
 
 
+# RI / simulate assignments 
+
 set.seed(6081709)
 
-# RI
+declare_4f <- declare_ra(nrow(data_4), m = sum(data_4$D))
 
-ate_estimates_4 <- rep(NA, 10000) #init
+ate_estimates_4 <- rep(NA, 100000) #init
+
+
+
+
+
+
+
+sims_4     <- replicate(100000, conduct_ra(declare_4f))
+
+
 
 #ate
 
@@ -459,11 +499,32 @@ for( i in 1:ncol(matrix_4)) {
 }
 
 
+
+ate_sims <- numeric(ncol(D_sims))
+for (i in 1:ncol(D_sims)) {
+  d_temp <- D_sims[, i]
+  y_temp <- d_temp * data_4f$y1_sim + (1 - d_temp) * data_4f$y0_sim   # switching equation
+  ate_sims[i] <- coef(lm(y_temp ~ d_temp))["d_temp"]                   # note the [i]
+}
+
+
+
 # lower bound
 
 sort_ATEs <- sort(ate_estimates_4)
 
 ci_lower <- sort_ATEs()
+
+# upper bound
+
+ci_upper <- sort_ATEs()
+
+
+#
+
+# step 3: simulate assignments the same way the real ones were made
+
+# step 4: for each assignment, reveal outcomes and re-estimate
 
 ```
 
@@ -511,8 +572,10 @@ min(fp)
 
 ```
 
-The min value of the created vector a p vals is just above the threshhold in a generous read (0.05005606 -> 0.05006 > 0.05000). I'm not sure if the hypothetical researcher would but I'll take this as sufficient to proceed.
-
+The min value of the created vector a p vals is just above the
+threshhold in a generous read (0.05005606 -\> 0.05006 \> 0.05000). I'm
+not sure if the hypothetical researcher would but I'll take this as
+sufficient to proceed.
 
 #### a
 
@@ -537,7 +600,8 @@ print(sd(data_5$weights[data_5$D == 1]))
 
 ```
 
-Weights vary by 0.024 SDs in the control group and by 0.018 in the treatment group. 
+Weights vary by 0.024 SDs in the control group and by 0.018 in the
+treatment group.
 
 #### b
 
@@ -576,7 +640,7 @@ print(mean(abs(dim_estimates_5) >= abs(ate_dim_5))) # p-value
 
 ```
 
-The p-value of 0.0045 lets us reject the sharp null. 
+The p-value of 0.0045 lets us reject the sharp null.
 
 #### (c)
 
@@ -621,12 +685,13 @@ print(mean(abs(coef_estimates_5c) >= abs(coef_5c)))
 
 ```
 
-Here we get a two-sided p-val of 0.0028 which is less than 0.05 we can reject the sharp null (no effect for any school)
-
+Here we get a two-sided p-val of 0.0028 which is less than 0.05 we can
+reject the sharp null (no effect for any school)
 
 #### d
 
-Sampling distribution comparison: 5b and c to 4 d and e (latter assumed unrestricted randomization).
+Sampling distribution comparison: 5b and c to 4 d and e (latter assumed
+unrestricted randomization).
 
 ```{r, echo = T, include = T, warning = F}
 
@@ -668,7 +733,12 @@ ggplot(q5d_df2, aes(x = value, color = group)) +
 
 ```
 
-The sampling distributions under the null hypothesis are slightly tighter around 0 when randomisation was restricted, compared to when it was unrestricted. However, this difference is marginal and not particularly visually apparent — especially in the cases of 4e and 5c — likely because unrestricted randomisation was run 100,000 times, whereas the restricted scenarios used only 10,000 simulations.
+The sampling distributions under the null hypothesis are slightly
+tighter around 0 when randomisation was restricted, compared to when it
+was unrestricted. However, this difference is marginal and not
+particularly visually apparent — especially in the cases of 4e and 5c —
+likely because unrestricted randomisation was run 100,000 times, whereas
+the restricted scenarios used only 10,000 simulations.
 
 # Question 6
 
@@ -694,7 +764,10 @@ summary(model_6a)
 
 ```
 
-The 1995 evaluations of national conditions seem to most strongly predict the following year's evaluations. The $R^2$ is 0.39 (rounded to two decimal places), indicating that about 39% of the variation in the 1996 evaluations is explained by our model.
+The 1995 evaluations of national conditions seem to most strongly
+predict the following year's evaluations. The $R^2$ is 0.39 (rounded to
+two decimal places), indicating that about 39% of the variation in the
+1996 evaluations is explained by our model.
 
 #### (b)
 
@@ -759,7 +832,9 @@ hist(repeated_f_tests)
 
 ```
 
-This distribution of p-values indicates that the groups are not systematically imbalanced across the control and treatment groups with regard to our covariates of interest.
+This distribution of p-values indicates that the groups are not
+systematically imbalanced across the control and treatment groups with
+regard to our covariates of interest.
 
 #### (c)
 
@@ -836,7 +911,9 @@ ggplot(data_6c, aes(x = value, color = group)) +
 
 ```
 
-The sampling distribution of the ATE under block random assignment is narrower and more clustered around the 'true' ATE of 0, than the corresponding sampling distribution under complete random assignment.
+The sampling distribution of the ATE under block random assignment is
+narrower and more clustered around the 'true' ATE of 0, than the
+corresponding sampling distribution under complete random assignment.
 
 #### d
 
@@ -889,7 +966,9 @@ ggplot(data_6c2, aes(x = value, color = group)) +
 
 ```
 
-The sampling distribution of the ATE under covariate adjustment is more clustered around the 'true' ATE of 0, than the corresponding sampling distribution under block random assignment.
+The sampling distribution of the ATE under covariate adjustment is more
+clustered around the 'true' ATE of 0, than the corresponding sampling
+distribution under block random assignment.
 
 ## Question 7
 
@@ -946,8 +1025,8 @@ for (i in 1:ncol(D_7)) {
 print(var(dim_estimates_7))
 
 ```
-Sampling Variance is 
-3.4 
+
+Sampling Variance is 3.4
 
 #### b
 
@@ -1053,8 +1132,6 @@ print(var(dim_estimates_7b))
 
 #### (c)
 
-
-
 # Question 9
 
 ```{r}
@@ -1068,7 +1145,7 @@ districts that were not competitive. The effect was positive in the
 Michigan districts that were competitive, and negative in those that
 were non competitive. Neither was particularly pronounced.
 
-## b 
+## b
 
 The composition of treated subjects within each block and differences in
 block sizes are obscured in the total ATE.
