@@ -1,0 +1,13 @@
+---
+title: "mensik_pset_5"
+author: "Kristina Mensik"
+date: "2026-10-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Assigned problems: 3, 4, 5, 6a, 8
+

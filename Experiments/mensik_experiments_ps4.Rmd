@@ -285,7 +285,8 @@ covariates included should only be decided by theory and expectations
 
 ```{r}
 
-data_4 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/GerberGreenBook_Chapter4_Table_4_1.csv")
+getwd()
+data_4 <- read.csv("./doi-10.60600-yu-vuh8kd/GerberGreenBook_Chapter4_Table_4_1.csv")
 
 view(data_4)
 
@@ -468,6 +469,8 @@ data_4$y0_ci <- ifelse(data_4$D == 0, data_4$obs_y, data_4$obs_y - dim_ate_4)
 
 data_4$y1_ci <- ifelse(data_4$D == 0, data_4$obs_y + dim_ate_4, data_4$obs_y)
 
+#started and stopped here, so checking treatment effect is 10.7 for both
+unique(data_4$y1_ci - data_4$y0_ci)
 
 # RI / simulate assignments 
 
@@ -477,76 +480,133 @@ declare_4f <- declare_ra(nrow(data_4), m = sum(data_4$D))
 
 ate_estimates_4 <- rep(NA, 100000) #init
 
-
-
-
-
-
-
 sims_4     <- replicate(100000, conduct_ra(declare_4f))
 
 
 
 #ate
 
-for( i in 1:ncol(matrix_4)) {
+for( i in 1:ncol(sims_4)) {
   
-  data_4$ri <- matrix_4[, i]
+  data_4$ri <- sims_4[, i]
   
   data_4$y_temp <- data_4$y1_ci*data_4$ri + data_4$y0_ci*(1-data_4$ri)
   
   ate_estimates_4 [i] <- lm_robust(y_temp ~ ri, data = data_4)$coef["ri"]
 }
 
-
-
-ate_sims <- numeric(ncol(D_sims))
-for (i in 1:ncol(D_sims)) {
-  d_temp <- D_sims[, i]
-  y_temp <- d_temp * data_4f$y1_sim + (1 - d_temp) * data_4f$y0_sim   # switching equation
-  ate_sims[i] <- coef(lm(y_temp ~ d_temp))["d_temp"]                   # note the [i]
-}
-
-
-
-# lower bound
+# lower and upper bound
 
 sort_ATEs <- sort(ate_estimates_4)
 
-ci_lower <- sort_ATEs()
+ci_f <- c(
+  lower = sort_ATEs[2500], # could have also used qualtile dim_sims
+  upper = sort_ATEs[97501]
+)
 
-# upper bound
+ci_f
 
-ci_upper <- sort_ATEs()
+```
+The CI (1.59, 19.77) remains above or does not cross 0, so we can reject the null hypothesis that there are no treatment effects. 
+
+### g 
+
+```{r}
+# first get the tau (ATE from part C)
+tau_4 <- (coef(model_4c)["D"]) # bc we're using covariate adjusted-estimate instead of assuming 10.7
+
+tau_4
+# then fill in potential outcomes (imputed Y1 imputed Y0)
+
+data_4g <- data_4 %>%
+  mutate(
+    y0_imputed = case_when(
+      D == 0 ~ obs_y,
+      D == 1 ~ obs_y - tau_4
+    ),
+    y1_imputed = case_when(
+      D == 1 ~ obs_y,
+      D == 0 ~ obs_y + tau_4
+    )
+  )
 
 
-#
+# double checking that tau_4 (5.33) imposed constant treatment effect is treatment effect
 
-# step 3: simulate assignments the same way the real ones were made
+unique(data_4g$y1_imputed - data_4g$y0_imputed)
 
-# step 4: for each assignment, reveal outcomes and re-estimate
+# simulate 100k
+
+set.seed(6081709)
+
+declare_4g <- declare_ra(nrow(data_4g), m = sum(data_4g$D))
+
+ate_estimates_4g <- rep(NA, 100000) #init
+
+sims_4g     <- replicate(100000, conduct_ra(declare_4g))
+
+
+#ate
+
+for( i in 1:ncol(sims_4g)) {
+  
+  data_4g$ri <- sims_4g[, i] # new treatment assignment
+  #outcomes to correspond to above given assignment
+  data_4g$y_temp <- data_4g$y1_imputed*data_4g$ri + data_4g$y0_imputed*(1-data_4g$ri)
+  #regress new outcome on assignment and covariate (dif from f)
+  ate_estimates_4g [i] <- coef(
+    lm_robust(y_temp ~ ri + x, data = data_4g)
+    )["ri"]
+}
+
+# lower and upper bound
+
+sort_g_ATEs <- sort(ate_estimates_4g)
+
+ci_f <- c(
+  lower = sort_g_ATEs[2500], # could have also used qualtile dim_sims
+  upper = sort_g_ATEs[97501]
+)
+
+ci_f
+
 
 ```
 
+The CI here is considerably narrower than in 4f, which suggests greater precision. In other words, adding the pre-treatment scores to the estimate reduces the variability of estimated treatment effects, across repeated simulated assignments (also as suggested by 4b).
+
+
 ### Question 5
 
+
 ```{r, echo = T, include = T, warning = F}
+data_5 <- read.csv("./doi-10.60600-yu-vuh8kd/GerberGreenBook_Chapter4_Table_4_1.csv")
+```
 
-data_5 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/GerberGreenBook_Chapter4_Table_4_1.csv")
 
+#### a
 
+```{r, echo = T, include = T, warning = F}
 # restriction that a regression of $d_i$ on $X_i$ (the pre-test) generates and F stat whose reported p value is greater that 0.05. Ie were assigned $d_i$  significantly predicted by $X-i$, RI would be conducted again until $d_i$ met criterion.
 
-#fstat_5 <- lm_robust()
-
+# d is dataset, z is generated treatment assignment vector, x is name of covariate, m = number of schools assigned to treatment
 restricted_assignment_5 <- function (d, x, m) {
   while (TRUE) {
    
-    Z <- complete_ra(nrow(d), m)
-    f <- lm_robust(as.formula(paste("Z ~ ", x)), d)$fstatistic 
-
-  if (1 - pf(q = f[1], df1 = f[2], df2 = f[3]) > 0.05) {
-  return(Z)
+    Z <- complete_ra(nrow(d), m) #generate a complete RA
+    
+    d$Z <- Z # add assignment to temporary df
+    
+    fit <- lm_robust(as.formula(paste("Z ~", x)),
+                     data = d)
+    
+    f <- fit$fstatistic #has 3 numbers: value of F stat, numerator DoF, Denom DoF
+    
+    p.val <- 1 - pf(q = f[1], df1 = f[2], df2 = f[3])
+    
+    # keep only restriction-satisfier assignments
+    if (p.val > 0.05){
+      return(Z)
     }
   }
 }
@@ -570,6 +630,8 @@ for (i in 1:ncol(sim_matrix_5)) {
 
 min(fp)
 
+all(fp > 0.05)
+
 ```
 
 The min value of the created vector a p vals is just above the
@@ -577,8 +639,7 @@ threshhold in a generous read (0.05005606 -\> 0.05006 \> 0.05000). I'm
 not sure if the hypothetical researcher would but I'll take this as
 sufficient to proceed.
 
-#### a
-
+Weights?
 ```{r, echo = T, include = T, warning = F}
 
 # about inverse probability weights
@@ -588,77 +649,104 @@ sufficient to proceed.
 # can I use obtain conditional probabilities? 
 
 declare_5 <- declare_ra(permutation_matrix = sim_matrix_5)
-declare_5 #declared conditional probabilities procedure
+declare_5 #declared restricted assignment  procedure
 
-data_5$weights <- 1/(
-  obtain_condition_probabilities(declare_5, data_5$D)
-)
+# calculate probabilities and IPWs
+data_5 <- data_5 %>%
+  mutate(
+    probs = obtain_condition_probabilities(declare_5, D),
+    weights = 1 / probs
+  )
 
-# weights in the control and treatment groups should vary 
-print(sd(data_5$weights[data_5$D == 0]))
-print(sd(data_5$weights[data_5$D == 1]))
+# compare weights for treated units and control
+data_5 %>%
+  group_by(D) %>%
+  summarize(
+    mean_weight = mean(weights),
+    sd_w = sd(weights),
+    min_w = min(weights),
+    max_w = max(weights),
+    .groups = "drop"
+  )
 
 ```
 
 Weights vary by 0.024 SDs in the control group and by 0.018 in the
-treatment group.
+treatment group.That seems like a small difference (ie, observed variation in estimated weights is small), and otherwise they are comperable. I know we can't always assume that balance in terms of numbers in treatment and control has anything to do with covariate balance (or, equal C/T group size alone doesn't mean equal probability of being treated).Here also reversing treatment or control assignment does not change the F stat (with 20 of 40 schools treated, true probability of being treated is 0.5, so everyone's weight is 2).
 
 #### b
 
 ```{r, echo = T, include = T, warning = F}
 
+# constructing observed outcomes
+
 #  actual DIM, weighted
 
-data_5$obs_y <- ifelse(data_5$D == 1, data_5$y1, data_5$y0)
+data_5$obs_y <- ifelse(data_5$D == 1, 
+                       data_5$y1, 
+                       data_5$y0)
 
+#estimate original treatment-control difference with 5a IPW
 dim_5 <- difference_in_means(obs_y ~ D, weights = weights, data = data_5)
 
-ate_dim_5 <- dim_5$coefficients
+ate_dim_5 <- coef(dim_5)["D"] #treatment coefficient
 
 print(ate_dim_5)
 
-## RI 
+# sampling distribution under the null Y1 = Y0
+
+
+#probability assigned to treatment x restricted randomizations:
+p_treat_5 <- rowMeans(sim_matrix_5)
 
 set.seed(6081709)
 
-dim_estimates_5 <- rep(NA, 10000)
+dim_estimates_5 <- rep(NA, ncol(sim_matrix_5))
 
-# for every permutation, get the DIM
-
+## RI 
 for (i in 1:ncol(sim_matrix_5)) {
-  data_5$ri <- sim_matrix_5[, i]
-
-    dim_estimates_5 [i] <- lm_robust(obs_y ~ ri, 
-                                      weights = weights, 
-                                      data = data_5)$coef["ri"]
-
+  
+  data_5$ri <- sim_matrix_5[, i] # sim treatment assignment
+  
+  
+  data_5$w_ri <- ifelse( #IPW re: simulated assignment
+    data_5$ri == 1, 
+    1 / p_treat_5,
+    1 / (1 - p_treat_5) 
+  )
+  
+# est treatment effect under sharp null
+    dim_estimates_5 [i] <- coef(
+      lm_robust(obs_y ~ ri, weights = w_ri, data = data_5)
+      )["ri"]
 }
 
-print(round(mean(dim_estimates_5))) # is center on 0
+print(mean(dim_estimates_5)) # is center on 0
 
 print(mean(abs(dim_estimates_5) >= abs(ate_dim_5))) # p-value 
 
 ```
 
-The p-value of 0.0045 lets us reject the sharp null.
+The p-value of 0.0046 lets us reject the sharp null: observed treatment effect is unusual enough under the sharp null (Y1=Y0) to reject the hypothesis of no treatment effect. 
 
-#### (c)
+#### c
 
 ```{r, echo = T, include = T, warning = F}
 
 # actual coefficients (weighted, covariate-adjusted)
 
 model_5c <- lm_robust(obs_y ~ D + x, 
-                                      weights = weights,
+                                      weights = weights, #ip each schools original assignment
                                       data = data_5)
 
 summary(model_5c)
 
-coef_5c <- model_5c$coef["D"]
+coef_5c <- coef(model_5c)["D"]
 
 print(coef_5c)
 
 # do RI
+ # have sim_matrix_5: 10k criteria-meeting assignments ; obs_y: original observed post scores that under sharp null should be same for unit if treated as if untreated; p_treat_5: probability assigned to treatment x restricted randomizations
 
 set.seed(6081709)
 
@@ -667,78 +755,120 @@ coef_estimates_5c <- rep(NA, 10000)
 # estimating covariate-adjusted regression 
 
 for (i in 1:ncol(sim_matrix_5)) {
+  
   data_5$ri <- sim_matrix_5[, i]
+  
+   data_5$w_ri <- ifelse( #IPW re: simulated assignment
+    data_5$ri == 1, 
+    1 / p_treat_5,
+    1 / (1 - p_treat_5) 
+  )
 
-  coef_estimates_5c [i] <- lm_robust(obs_y ~ ri + x, 
-                                      weights = weights,
-                                      data = data_5)$coef["ri"]
+   # est treatment effect under sharp null
+    coef_estimates_5c [i] <- coef(
+      lm_robust(obs_y ~ ri + x, weights = w_ri, data = data_5)
+      )["ri"]
+  
 
 }
 
+
 # checking that the distribution is centred around 0
 
-print(round(mean(coef_estimates_5c)))
+print(mean(coef_estimates_5c))
 
 # calculating the p-value 
 
 print(mean(abs(coef_estimates_5c) >= abs(coef_5c))) 
 
+# compare sampling variability without then with cov adjustment 
+sd(dim_estimates_5)
+
+sd(coef_estimates_5c)
 ```
 
-Here we get a two-sided p-val of 0.0028 which is less than 0.05 we can
-reject the sharp null (no effect for any school)
+Here we get a two-sided p-val of 0.0029 which is less than 0.05 (we would very infrequently generate a covariate-adjusted treatment coefficient at least as extreme as that observed if treatment had no effect) we can
+reject the sharp null (no effect for any school).
+
+Sampling variability shrinks notably with covariate adjustment -- it "worked."
 
 #### d
 
-Sampling distribution comparison: 5b and c to 4 d and e (latter assumed
+Sampling distribution comparison: 5 (dim_estimates_5 and coef_estimates_5c) to 4 (estimates_4 and coef_estimates_4c) (latter assumed
 unrestricted randomization).
 
 ```{r, echo = T, include = T, warning = F}
-
 # b and c were difference in means
 # data_5_bc
 
-data_5b5c <- data.frame(
-  value = c(coef_estimates_5c, dim_estimates_5),
-  group = factor(c(rep("Unrestricted", length(coef_estimates_5c)), 
-                   rep("Restricted", length(dim_estimates_5))))
-)
+#Restricted randomization unadjusted from 4 and 5
+sd(estimates_4)
 
-library(ggplot2)
-
-ggplot(data_5b5c, aes(x = value, color = group)) +
-  geom_density (alpha = 0.5, linewidth = 1) +
-  scale_fill_manual(values = c("darkgreen", "lightblue")) +
-  labs(title = "Sampling Distributions: DIM",
-       x = "Value", y = "Count", color = "Group") +
-  theme_minimal()
-
-
-# 4 d and e (covariate adjusted regression)
-
-data_4d4e <- data.frame(
-  value = c(q4e_coef_estimates, q5c_coef_estimates),
-  group = factor(c(rep("Unrestricted", length(q4e_coef_estimates)), 
-                   rep("Restricted", length(q5c_coef_estimates))))
-)
-
-library(ggplot2)
-
-ggplot(q5d_df2, aes(x = value, color = group)) +
-  geom_density (alpha = 0.5, linewidth = 1) +
-  scale_fill_manual(values = c("darkgreen", "lightblue")) +
-  labs(title = "Samplign Distributions: Unrestricted Randomization",
-       x = "Value", y = "Count", color = "Group") +
-  theme_minimal()
+sd(dim_estimates_5)
 
 ```
 
-The sampling distributions under the null hypothesis are slightly
-tighter around 0 when randomisation was restricted, compared to when it
-was unrestricted. However, this difference is marginal and not
-particularly visually apparent — especially in the cases of 4e and 5c —
-likely because unrestricted randomisation was run 100,000 times, whereas
-the restricted scenarios used only 10,000 simulations.
+```{r}
+# unrestricted randomization adjusted
+
+sd(coef_estimates_4c)
+sd(coef_estimates_5c)
+
+```
+
+```{r}
+
+df_5d <- rbind(
+  data.frame(
+    value = estimates_4,
+    assignment = "unrestricted",
+    estimator = "unadjusted"
+  ),
+  data.frame(
+    value = dim_estimates_5,
+    assignment = "restricted",
+    estimator = "unadjusted"
+    
+  ),
+  data.frame(
+    value = coef_estimates_4c,
+    assignment = "unrestricted",
+    estimator = "covariate adjusted"
+  ),
+  data.frame(
+    value = coef_estimates_5c,
+    assignment = "restricted",
+    estimator = "covariate adjusted"
+  )
+)
+
+df_5d
+```
+
+```{r}
+
+ggplot(
+  df_5d,
+  aes(x = value, color = assignment)
+) +
+  geom_density(linewidth = 1) +
+  facet_wrap(~estimator) +
+  labs(
+    title = "Sampling Distributions Under Sharp Null",
+    x = "Estimated treatment effect",
+    y = "Density",
+    color = "Assignment Procedure"
+  ) +
+  theme_minimal()
+
+```
+The standard deviations reflect variability in estimated treatment effects across hypothetical random assignments. We see restricted randomization did reduce the SD, so "worked" in the sense that some variation the covariate would have 'controlled' was eliminated, by excluding hypothetical random assignments that would have had more of a relationship between covariates and the outcome (reduces chance covariate imbalance to sampling variability). The exclusion restriction of 0.05 might be a bit lax and only reduce extreme cases.
+
+Comparing restricted randomization having adjustd for covariates: the difference is fairly negligible (see lefthand side of the plot above). This makes sense: regression already adjusts for pre-treatment scores, reducing whatever differences those scores would be associated with vis-a-vis estimates of treatment effects. 
+
+Perhaps the topline is restricted randomization and regression adjustment are able to address the same (or some of the same) conduits for sampling variability. At the same time, one (at least RR) doesn't eliminate the value of the other (CA).
+
+
 
 # Question 6
 
@@ -746,14 +876,15 @@ the restricted scenarios used only 10,000 simulations.
 
 ```{r, echo = T, include = T, warning = F}
 
-data_6 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/OBrien_Patsiorkovski_ICPSR_1999.csv")
+data_6 <- read.csv("./doi-10.60600-yu-vuh8kd/OBrien_Patsiorkovski_ICPSR_1999.csv")
 
 names(data_6)
-# adding ids
 
-data_6$id <- seq_len(nrow(data_6))
+# adding observation/ids
 
-data_6$group6 <- as.factor(data_6$group6) #make social class variable factor variable
+data_6$villager <- seq_len(nrow(data_6))
+
+data_6$group6 <- as.factor(data_6$group6) # social class variable as factor variable
 
 # predict post-intervention by regressing variables
 
@@ -763,80 +894,144 @@ model_6a <- lm(index96 ~ sexresp6 + memberc6 + group6 + index95,
 summary(model_6a)
 
 ```
+1996 evaluations of conditions seem most strongly predicted by 1995 evaluations -- the other variables do not report a significant relationship. The $R^2$ is 0.3937: about 39% of the variation in the 1996 evaluations is explained by our model.
 
-The 1995 evaluations of national conditions seem to most strongly
-predict the following year's evaluations. The $R^2$ is 0.39 (rounded to
-two decimal places), indicating that about 39% of the variation in the
-1996 evaluations is explained by our model.
-
-#### (b)
+#### b
+Block RA on sex, church, class, '96 evaluations.
 
 ```{r, echo = T, include = T, warning = F}
-
-
 set.seed(6081709)
 
-# convert each level of the factor variable into binary variable
+# missingness in covs?
+#colSums(is.na(data_6[c("sexresp6", "memberc6", "group6", "index96")]))
+# no
 
-matrix_6 <- model.matrix(~ sexresp6 + memberc6 + group6 + index96 + index97 
-                          + id, 
+# also want church and sex as factor
+data_6 <- data_6 %>%
+  mutate(sexresp6 = factor(sexresp6),
+         memberc6 = factor(memberc6),
+         group6 = factor(group6))
+
+
+
+# pre-treatment cov matrix
+
+matrix_6 <- model.matrix(~ sexresp6 + memberc6 + group6 + index96, 
                           data = data_6)
 
-# removing the intercept column
+# removing the intercept column, add villager ID instead
 
-matrix_6 <- matrix_6 [, -1]
+data_6_b <- data.frame(
+  villager = data_6$villager,
+  matrix_6[, -1, drop = FALSE]
+)
 
-head(matrix_6)
+stopifnot(nrow(data_6_b) == nrow(data_6))
+
+head(data_6_b)
 
 # blocking! 
 
-blocks_6 <- block(matrix_6, n.tr = 42, id.vars = "id", block.vars = setdiff(names(matrix_6), "id"))
+# if 42 block size, 11 blocks, 21 in treatment per 21 in control per; if 6 in each block, 77 blocks, 3 treated 3 untreated per
+blocks_6 <- block(data_6_b, n.tr = 42, id.vars = "villager", block.vars = colnames(data_6_b)[-1])
 
-blocks_6
 
-data_6_blocked <- as.data.frame(matrix_6)
+# give blcok IDs to main DF
+data_6_blocked <- data_6 %>%
+  mutate(
+    block = createBlockIDs(
+      blocks_6,
+      data_6_b,
+      id.var = "villager"
+    )
+  )
 
-data_6_blocked$block <- createBlockIDs(blocks_6, data_6_blocked, id.var = "id")
+# check number of units in each block 
+table(data_6_blocked$block)
 
-head(data_6_blocked)
-
-# checking number of units in each block 
-
-block_counts <- as.data.frame(table(data_6_blocked$block))
-names(block_counts) <- c("block", "n")
-block_counts
 
 # conducting block random assignment 
 
-declaration_6 <- declare_ra(nrow(data_6_blocked), m = 21, blocks = data_6_blocked$block)
-declaration_6
+data_6_blocked <- data_6_blocked %>%
+  mutate(
+    D = block_ra(blocks = block, m = 21)
+  )
 
-# to check for covariate balance 
+#look at assignments within blocks
+data_6_blocked %>%
+  group_by(block, D) %>%
+  summarize(n = n(), .groups = "drop")
 
-# obtaining permutation matrix
+
+#  check for covariate balance could mean with this one realized assignment, looking at whether treatment and control have comperable pre-treatment characteristics
+
+data_6_blocked %>%
+  group_by(D) %>%
+  summarize(
+    n = n(),
+    mean_index96 = mean(index96, na.rm = TRUE),
+    sd_index96 = sd(index96, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+
+```
+
+Treated and untreated units look comperable in their mean and SD of 1996 attitudes. Untreated units have slightly higher 1995 attitude averages. Ther
+
+```{r, echo = T, include = T, warning = F}
+# f-tests to provide randomization-based balance check
+
+# declare
+declaration_6 <- declare_ra(
+  N = nrow(data_6_blocked),
+  blocks = data_6_blocked$block,
+  block_m = rep(21, length(unique(data_6_blocked$block)))
+)
+
+block_m = rep(21, length(unique(data_6_blocked$block)))
+
+# permutation matrix
 
 perm_matrix_6 <- obtain_permutation_matrix(declaration_6)
 
+# need actual realized treatment assignment F stat
+
+f_observed_6 <- lm_robust(
+  D ~ sexresp6 + memberc6 + group6 + index96,
+  data = data_6_blocked
+)$fstatistic[1]
+
+f_observed_6
+
 # conducting repeated f-tests 
 
-repeated_f_tests <- c()
+repeated_f_tests <- numeric(ncol(perm_matrix_6))
 
+# now ri
 for (i in 1:ncol(perm_matrix_6)) {
+  #assign t status
   data_6_blocked$d_temp = perm_matrix_6[, i]
-  f <- lm_robust(d_temp ~ sexresp6 + memberc6 + group62 + group63 + group64 + index96, 
-                 data = data_6_blocked)$fstatistic
-  repeated_f_tests[i] <- 1 - pf(q = f[1], df1 = f[2], df2 = f[3])
+  
+  #calc f stat for simulated assignment
+  repeated_f_tests[i] <- lm_robust(
+    d_temp ~ sexresp6 + memberc6 + group6 + index96,
+    data = data_6_blocked
+  )$fstatistic[1]
 }
 
-hist(repeated_f_tests)
+
+# r i p value
+mean(repeated_f_tests >= f_observed_6)
+
 
 ```
 
 This distribution of p-values indicates that the groups are not
 systematically imbalanced across the control and treatment groups with
-regard to our covariates of interest.
+regard to our covariates of interest. 
 
-#### (c)
+#### c
 
 ```{r, echo = T, include = T, warning = F}
 
@@ -983,22 +1178,19 @@ data_7 <- data.frame(
 
 colnames(data_7) <- c("Subject", "Y0", "Y1")
 
-delcaration_7 <- declare_ra(nrow(data_7), m = 2)
+
+delcaration_7 <- declare_ra(
+  N = nrow(data_7),
+  m = 2
+  )
 delcaration_7
 
 # creating the matrix of unique perms mechanically 
 
-perms_7 <- combn(4, 2, simplify = FALSE)
+D_7 <- obtain_permutation_matrix(delcaration_7)
 
-n_perms_7 <- length(perms_7)
-D <- matrix(0, nrow = n_perms_7, ncol = 4)
+dim(D_7)
 
-for (i in seq_len(n_perms_7)) {
-  treated <- perms_7[[i]]
-  D[i, treated] <- 1
-}
-
-D_7 <- t(D)
 
 # running a for loop to assess sampling variance of DIM estimator
 # I use the standard R var function as we have no reason 
@@ -1008,33 +1200,37 @@ set.seed(6081709)
 
 # creating empty vector to store results of for loop
 
-dim_estimates_7 <- c()
+dim_estimates_7 <- numeric(ncol(D_7))
 
 # estimating dim 
 
 for (i in 1:ncol(D_7)) {
+  
   data_7$ri <- D_7[, i]
   
-  treated_mean <- mean(data_7$`Y1`[data_7$ri == 1])
-  control_mean <- mean(data_7$`Y0`[data_7$ri == 0])
+  treated_mean <- mean(data_7$Y1[data_7$ri == 1])
+  control_mean <- mean(data_7$Y0[data_7$ri == 0])
   
-  dim <- treated_mean - control_mean
-  dim_estimates_7 <- c(dim_estimates_7, dim)
+  dim_estimates_7[i] <- treated_mean - control_mean
 }
 
-print(var(dim_estimates_7))
+var_7a <- mean(
+  (dim_estimates_7 - mean(dim_estimates_7))^2
+   )
+
+var_7a
 
 ```
 
-Sampling Variance is 3.4
+Sampling Variance is 2.833
 
 #### b
 
 ```{r, echo = T, include = T, warning = F}
 
-# I will run randomisations separately for each blocking scheme, and then cbind
+# run randomizations separately for each blocking scheme,  then cbind
 
-# creating each block as its own dataset
+# creating block assignments
 
 block_options <- list(
   list(c("A","B"), c("C","D")),
@@ -1043,9 +1239,13 @@ block_options <- list(
 )
 
 get_block_data <- function(block_options, data) {
+  
   subjects_ordered <- unlist(block_options)
+  
   block_data <- data[match(subjects_ordered, data$Subject), ]
-    block_data$Block <- rep(1:length(block_options), each = 2)
+  
+  block_data$Block <- rep(1:length(block_options), each = 2)
+  
   return(block_data)
 }
 
@@ -1086,21 +1286,36 @@ delcaration_73
 
 library(randomizr)
 
-# extracting assignment vectors for each blocking optioon - 1 
+# extracting assignment vectors for each blocking optioon - 1 -3
 
 assignment1 <- obtain_permutation_matrix(delcaration_71)
-
-# extracting assignment vectors for each blocking option - 2 
-
 assignment2 <- obtain_permutation_matrix(delcaration_72)
-
-# extracting assignment vectors for each blocking option - 3
-
 assignment3 <- obtain_permutation_matrix(delcaration_73)
 
-# combining to create permmatrix of unique random assignments
+# reorder matrix rows so they match data_7 order
+
+
+assignment1 <- assignment1[
+  match(data_7$Subject, BlockOption1$Subject),
+  , drop = FALSE
+]
+
+assignment2 <- assignment2[
+  match(data_7$Subject, BlockOption2$Subject),
+  , drop = FALSE
+]
+
+assignment3 <- assignment3[
+  match(data_7$Subject, BlockOption3$Subject),
+  , drop = FALSE
+]
+
+# combining for permmatrix of unique random assignments
 
 perm_matrix_7b <- cbind(assignment1, assignment2, assignment3)
+
+
+dim(perm_matrix_7b)
 
 # running a for loop to assess sampling variance of DIM estimator
 # I use the standard R var function as we have no reason 
@@ -1112,30 +1327,40 @@ set.seed(6081709)
 
 # creating empty vector to store results of for loop
 
-dim_estimates_7b <- c()
+dim_estimates_7b <- numeric(ncol(perm_matrix_7b))
 
 # estimating dim 
 
 for (i in 1:ncol(perm_matrix_7b)) {
   data_7$ri <- perm_matrix_7b[, i]
   
-  treated_mean <- mean(data_7$`Y1`[data_7$ri == 1])
-  control_mean <- mean(data_7$`Y0`[data_7$ri == 0])
+  treated_mean <- mean(data_7$Y1[data_7$ri == 1])
+  control_mean <- mean(data_7$Y0[data_7$ri == 0])
   
-  dim <- treated_mean - control_mean
-  dim_estimates_7b <- c(dim_estimates_7b, dim)
+  
+  dim_estimates_7b[i] <- treated_mean - control_mean
 }
 
-print(var(dim_estimates_7b))
+  #sampling variance
+  var_7b <- mean(
+  (dim_estimates_7b - mean(dim_estimates_7b))^2
+   )
+
+
+var_7b
 
 ```
 
-#### (c)
+Variance is 2.833, same as in 7a. 
+
+### c
+
+Randomly bocking or blocking on a non-prognostic covariate does not increase precision by design. It could by accident I suppose (or would that mean blocking on a covariate that is in fact progrostic, though not known to be?) but we see here that it can instead produce identical sampling variance as that given by complete random assignment. 
 
 # Question 9
 
 ```{r}
-data_9 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Gerber_Green_AAAPSS_2005.csv")
+data_9 <- read.csv("./doi-10.60600-yu-vuh8kd/Gerber_Green_AAAPSS_2005.csv")
 ```
 
 ## a
@@ -1177,42 +1402,54 @@ c.
 ## e
 
 ```{r}
+# assignment counts per block
+table(data_9$strata, data_9$treat2)
 
-data_9a <- data_9[data_9$strata == 1,]
-data_9b <- data_9[data_9$strata == 2,]
-data_9c <- data_9[data_9$strata == 3,]
-data_9d <- data_9[data_9$strata == 4,]
+# get assignment probabilities and IPWs
 
-#strata
+data_9_weighted <- data_9 %>%
+  group_by(strata) %>%
+  mutate(
 
-data_9a <- ifelse(data_9a$treat2 == 1,
-                  sum((data_9a$treat2 == 1)) / nrow(data_9a),
-                  sum((data_9a$treat2 == 0 )) / nrow(data_9a))
+    p_treat = mean(treat2 == 1),# proport assigned to treatment in each block
+
+    q = ifelse( # p(receiving observed condition)
+      treat2 == 1,
+      p_treat,
+      1 - p_treat
+    ),
+
+    weight = 1 / q #ipw
+
+  ) %>%
+  ungroup()
 
 
-data_9b <- ifelse(data_9b$treat2 == 1,
-                  sum((data_9b$treat2 == 1)) / nrow(data_9b),
-                  sum((data_9b$treat2 == 0 )) / nrow(data_9b))
-
-data_9c <- ifelse(data_9c$treat2 == 1,
-               sum((data_9c$treat2 == 1)) / nrow(data_9c),
-               sum((data_9c$treat2 == 0 )) / nrow(data_9c))
-
-data_9d <- ifelse(data_9d$treat2 == 1,
-                  sum((data_9d$treat2 == 1)) / nrow(data_9d),
-                  sum((data_9d$treat2 == 0 )) / nrow(data_9d))
-
-data_9_weighted <- rbind(data_9a, data_9b, data_9c, data_9d)
-  
 #regress after inverting weights
 
-data_9_weighted$weight <- 1/data_9_weighted$q # not working
+model_9e <- lm_robust(
+  vote02 ~ treat2,
+  weights = weight,
+  data = data_9_weighted
+)
 
+summary(model_9e)
 # would then regress weighted vote on treatment
 
-model_9 <- lm_robust(vote02 ~ treat + strata, weights = weight, data = data_9_weighted)
+ate_9e <- coef(model_9e)["treat2"]
 
+ate_9e
+
+
+model_9e_blocks <- lm_robust(
+  vote02 ~ treat2 + as.factor(strata),
+  weights = weight,
+  data = data_9_weighted
+)
+
+coef(model_9e_blocks)["treat2"]
 ```
+Reproduced reported -0.00783 for weighted regression with blocking included, and weighted regression without blocking.
 
 # Question 10
 
@@ -1220,6 +1457,6 @@ Cluster Random Design for KC voter mobilization.
 
 ```{r}
 
-data_10 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Arceneaux_AAAPSSsubset_2005.csv")
+data_10 <- read.csv("./doi-10.60600-yu-vuh8kd/Arceneaux_AAAPSSsubset_2005.csv")
 
 ```
