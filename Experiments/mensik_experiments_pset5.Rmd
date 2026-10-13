@@ -11,3 +11,36 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Assigned problems: 3, 4, 5, 6a, 8
 
+## Question 3
+
+### a
+
+### b
+
+### c
+
+## Question 4
+
+### a
+
+### b
+
+### c
+
+### d
+
+## Question 5
+
+## Question 6a
+
+## Question 8
+
+### a
+
+### b
+
+### c
+
+### d
+
+### e

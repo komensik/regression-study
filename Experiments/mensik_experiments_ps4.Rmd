@@ -1487,7 +1487,7 @@ f_stat_10
 # RI to test null that none of those vars preidcts treatment
 # means cluster assignment
 
-clusters_10 <- data_10 %>%
+clusters_10 <- data_10 %>% #28 row summary for counting treated precincts
   group_by(unit) %>%
   summarize(
     treated = mean(treatment)
@@ -1495,7 +1495,7 @@ clusters_10 <- data_10 %>%
 
 declaration_10 = declare_ra(
   N = nrow(data_10),
-  clusters = data_10$unit, 
+  clusters = data_10$unit, #IDs precinct for each voter
   m = sum(clusters_10$treated))
 
 declaration_10
@@ -1533,15 +1533,15 @@ f_stat_10
 pval10
 
 ```
-We cannot reject the null: observed association between turnout and treatment assignment is comperable to (or not unusually large compared to) that which randomization by precinct could have produced by chance (ie not evidence of problematic covariate imbalance).
+We cannot reject the null: observed association between turnout and treatment assignment is not distinguishable from (or not unusually large compared to) that which randomization by precinct could have produced by chance (ie not evidence of problematic covariate imbalance). 93.7% of simulated cluster assignments produced F-stats at least as large as 1.654.
 
 
 ### b
-Have: declaration_10, clusters_10
+Have: declaration_10, clusters_10, vote_vars_10 is list of past votes
 ```{r}
 
 prep_10b <- reformulate(
-  c("treatment", vote_vars_10),
+  c("treatment", vote_vars_10), #list of past votes
   response = "vote03"
 )
 
@@ -1553,7 +1553,254 @@ model_10b <- lm_robust(
 
 summary(model_10b)
 
-model_10b$coefficients["treatment"]
+ate_10b <- model_10b$coefficients["treatment"]
+
+ate_10b
+
 
 ```
+Assignment to a treated precinct is associated with an increase of 5.6 percentage poings in one's probability of voting in 2003, net of voting across the other 20 elections. The adjusted R2 suggests that 32.23% of observed variation in 2003 turnout (individual) is explained by the model containing turnout in past elections and treatment assignment.
+
+```{r}
+
+# RI to test sharp null treated outcome = untreated outcome
+
+
+
+avoiding_long_type_2 <- reformulate(
+    c("ri", vote_vars_10), #replace treatment with RI
+    response = "vote03"
+    )
+
+# RI
+set.seed(6081709)
+
+n_sims_10b <- 10000
+
+estimates_10b <- numeric(n_sims_10b)
+
+
+# sim cluster assignments, est coefs
+
+for(i in 1:10000) {
+  
+  data_10$ri <- conduct_ra(declaration_10) #precint level assignment
+  
+
+  m10_temp <- lm_robust(avoiding_long_type_2, data = data_10) 
+  
+  estimates_10b[i] <- coef(m10_temp)["ri"] #get coef on simulated treatment assignment
+
+}
+
+# p val
+
+pval10b <- mean(
+  abs(estimates_10b) >= abs(ate_10b)
+)
+
+pval10b
+
+```
+
+Sharp null: Y0 = Y1. The p value for this sharp null is 0.0045 -- this is less than the standard 0.05 cutoff and 0.01. Thus we can  reject the null hypothesis (at both the 5% and 1% significance levels) that experimental assignment had no effect on decisions to vote in 2003 (only 0.45% of simulated random assignments under the sharp null generated treatment effects as extreme as that reported in the observed ATE. 
+
+### c
+
+DIT
+
+```{r}
+
+precinct_10c <- data_10 %>%
+  group_by(unit, treatment) %>%
+  summarize(
+    n_voters = n(),
+    votes = sum(vote03),
+    .groups = "drop"
+  )
+
+precinct_10c
+
+total_voted <- precinct_10c %>%
+  group_by(treatment) %>%
+  summarize(
+    k = n(),
+    total_votes = sum(votes),
+    avg_votes = mean(votes),
+    n_voters = sum(n_voters),
+    .groups = "drop"
+  )
+
+total_voted
+
+#DIT
+
+K <- nrow(precinct_10c) # n precincts
+
+N <- nrow(data_10) # n voters
+
+avg_treated <- total_voted$avg_votes[total_voted$treatment == 1] #avg voters per treated precinct
+
+avg_control <- total_voted$avg_votes[total_voted$treatment == 0] # avg voters per control precinct
+
+# DIT for real then is:
+
+dit <- (K/N) * (avg_treated - avg_control)
+
+
+dit
+
+
+```
+
+The DIT is 0.0539.
+
+### d
+
+RI to test sharp null with DIT
+
+```{r}
+
+# RI to test sharp null treated outcome = untreated outcome
+
+
+
+avoiding_long_type_3 <- reformulate(
+    c("ri", vote_vars_10), #replace treatment with RI
+    response = "vote03"
+    )
+
+# RI
+set.seed(6081709)
+
+n_sims_10c <- 10000
+
+estimates_10c <- numeric(n_sims_10c)
+
+
+# sim cluster assignments, est coefs
+
+for(i in 1:10000) {
+  
+  data_10$ri <- conduct_ra(declaration_10) #precint level assignment
+  
+
+  m10_temp <- lm_robust(avoiding_long_type_2, data = data_10) 
+  
+  estimates_10c[i] <- coef(m10_temp)["ri"] #get coef on simulated treatment assignment
+
+}
+
+# p val
+
+pval10c <- mean(
+  abs(estimates_10c) >= abs(dit)
+)
+
+pval10c
+
+```
+
+
+### e
+
+```{r}
+# new "differenced" outcome var: dif between subjects turnout 1, 0 and average rate of turnout in all past elections
+
+"vote03" %in% vote_vars_10
+length(vote_vars_10)
+
+data_10_differenced <- data_10 %>%
+  mutate(
+    past_avg = rowMeans(
+      pick(all_of(vote_vars_10)),
+      na.rm = TRUE
+    ),
+    
+    vote03diff = vote03 - past_avg
+    
+  )
+
+
+precinct_10e <- data_10_differenced %>%
+  group_by(unit, treatment) %>%
+  summarize(
+    n_voters = n(),
+    votes = sum(vote03diff),
+    .groups = "drop"
+  )
+
+
+total_voted <- precinct_10e %>%
+  group_by(treatment) %>%
+  summarize(
+    k = n(),
+    total_votes = sum(votes),
+    avg_votes = mean(votes),
+    n_voters = sum(n_voters),
+    .groups = "drop"
+  )
+
+total_voted
+
+#DIT
+
+K <- nrow(precinct_10e) # n precincts
+
+N <- nrow(data_10_differenced) # n voters
+
+avg_treated <- total_voted$avg_votes[total_voted$treatment == 1] #avg voters per treated precinct
+
+avg_control <- total_voted$avg_votes[total_voted$treatment == 0] # avg voters per control precinct
+
+# DIT for real then is:
+
+dit_e <- (K/N) * (avg_treated - avg_control)
+
+
+dit_e
+
+```
+
+RI
+```{r}
+
+set.seed(6081709)
+
+declaration_10e <- declare_ra( #declare, x precincts
+  N = nrow(precinct_10e),
+  m = sum(clusters_10$treated)
+)
+
+estimates_10e <- numeric(10000) #dit ests
+
+for (i in 1:10000) {
+
+  precinct_10e$ri <- conduct_ra(declaration_10e) #sim precinct assignments
+
+  
+  estimates_10e[i] <- (K / N) * (
+    mean(precinct_10e$votes[precinct_10e$ri == 1]) -
+    mean(precinct_10e$votes[precinct_10e$ri == 0]) #get dit est
+  )
+}
+
+# p val, 2 sided
+pval_10e <- mean(
+  abs(estimates_10e) >= abs(dit_e)
+)
+
+dit_e
+pval_10e
+
+```
+We can reject the sharp null at the 95% confidence level.
+
+
+
+
+
+
+
+
 
