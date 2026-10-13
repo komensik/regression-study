@@ -1459,4 +1459,75 @@ Cluster Random Design for KC voter mobilization.
 
 data_10 <- read.csv("./doi-10.60600-yu-vuh8kd/Arceneaux_AAAPSSsubset_2005.csv")
 
+names(data_10)
 ```
+
+### a
+
+```{r}
+
+model_10a <- lm_robust(treatment ~ v_m2003 + v_m2002 + v_m2000 +
+v_m1999 + v_m1998 + v_m1997 + v_m1996, data = data_10 )
+
+f_stat_10 <- model_10a$fstatistic
+f_stat_10
+
+```
+
+```{r}
+
+# RI to test null that none of those vars preidcts treatment
+# means cluster assignment
+
+clusters_10 <- data_10 %>%
+  group_by(unit) %>%
+  summarize(
+    treated = mean(treatment)
+  )
+
+declaration_10 = declare_ra(clusters = data_10$unit, m = sum(clusters_10$treated))
+
+declaration_10
+```
+
+```{r}
+set.seed(6081709)
+
+# RI
+
+estimates_10 <- numeric(10000)
+
+# f stats
+
+for(i in 1:10000) {
+  data_10$ri <- conduct_ra(declaration_10)
+  m10_temp <- lm(ri ~ v_m2003 + v_m2002 + v_m2000 +
+v_m1999 + v_m1998 + v_m1997 + v_m1996, data = data_10)
+  
+  
+estimates_10 [i] <- summary(m10_temp)$fstatistic["value"]
+}
+
+pval10 <- mean(abs(estimates_10) >= abs(f_stat_10))
+
+pval10
+
+```
+We cannot reject the null: those in treatment and control are allowably comperable on past voting behavior.
+
+### b
+
+```{r}
+
+clusters <- data_10 %>%
+  group_by(unit) %>%
+  summarize(
+    treated=mean(treatment)
+    
+  )
+
+est_10b <- 
+
+
+```
+
