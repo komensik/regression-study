@@ -7,9 +7,20 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+
+
+library(tidyverse)
+library(randomizr)
+library(estimatr)
+
+
+
 ```
 
 Assigned problems: 3, 4, 5, 6a, 8
+
+
 
 ## Question 3
 
@@ -23,6 +34,7 @@ Assigned problems: 3, 4, 5, 6a, 8
 
 ### a
 
+
 ### b
 
 ### c
@@ -32,6 +44,13 @@ Assigned problems: 3, 4, 5, 6a, 8
 ## Question 5
 
 ## Question 6a
+
+```{r}
+getwd()
+q6data <- read.csv("./doi-10.60600-yu-vuh8kd/Rind_Bordia_JASP_1996.csv") 
+
+```
+
 
 ## Question 8
 
