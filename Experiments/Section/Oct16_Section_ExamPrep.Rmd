@@ -1,0 +1,17 @@
+---
+title: "Experiments Exam Prep and Oct 16 Section"
+output: html_notebook
+---
+
+$$
+E[Y_i(z=0)] = \pi_C * E[Y_i(d_i(0), z=0) | d_i(1) = 1]]
++\pi_{NT}*E[Y_i(d_i(0),z=0)|d_i(1)=0]
+
+E[Y_i(z=1)] = \pi_C * E[Y_i(d_i(1), z=1) | d_i(1) = 1]]
++\pi_{NT}*E[Y_i(d_i(1),z=0)|d_i(1)=0]
+$$
+
+next step is replacing di(0) with di(z=0)
+
+- Jumping to problem set question covered in section on placebo designs
+

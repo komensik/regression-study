@@ -878,7 +878,7 @@ Perhaps the topline is restricted randomization and regression adjustment are ab
 
 ```{r, echo = T, include = T, warning = F}
 
-data_6 <- read.csv("./doi-10.60600-yu-vuh8kd/OBrien_Patsiorkovski_ICPSR_1999.csv")
+data_6 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/OBrien_Patsiorkovski_ICPSR_1999.csv")
 
 names(data_6)
 
@@ -1362,7 +1362,7 @@ Randomly bocking or blocking on a non-prognostic covariate does not increase pre
 # Question 9
 
 ```{r}
-data_9 <- read.csv("./doi-10.60600-yu-vuh8kd/Gerber_Green_AAAPSS_2005.csv")
+data_9 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Gerber_Green_AAAPSS_2005.csv")
 ```
 
 ## a
@@ -1459,7 +1459,7 @@ Cluster Random Design for KC voter mobilization.
 
 ```{r}
 
-data_10 <- read.csv("./doi-10.60600-yu-vuh8kd/Arceneaux_AAAPSSsubset_2005.csv")
+data_10 <- read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/doi-10.60600-yu-vuh8kd/Arceneaux_AAAPSSsubset_2005.csv")
 
 names(data_10)
 ```
