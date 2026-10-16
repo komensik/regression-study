@@ -2,7 +2,9 @@
 title: "mensik_pset_5"
 author: "Kristina Mensik"
 date: "2026-10-12"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -20,46 +22,163 @@ library(estimatr)
 
 Assigned problems: 3, 4, 5, 6a, 8
 
-
-
 ## Question 3
+
+An experiment satisfies non-interference and excludability.
+
+Non-interference: your assignment to treatment does not affect anyone else's assignment to treatment. - whether a subject is treated depends only on the subject's own treatment group assignment. Other subject's assignments have no bearing (in expectation) on whether one receives treatment.
+
+$d_i(z) = d_i(z')$ if $z = z'$
+
+Further, the potential outcomes are affected by (1) the subject's own assignment and (2) the treatment that the subject receives as a consequence of that assignment
+
+$Y_i(z,d) = Y_i(z',d')$ if $z_i = z_i'$ and $d_i=d_i'$.
+
+Excludability assumption: potential outcomes respond to treatments, not treatment assignments
 
 ### a
 
+If the ITT is negative, the CACE must be negative is true (ITT = ITT_D \* CACE)
+
 ### b
 
+No - the numerator might not stay constant when the ITTD changes, so we can't assume that the CACE would grow/shrink when ITTD shrinks/grows.
+
 ### c
+
+Yes - Y(d=1) effectively does not exist, or can't be observed. The setup is "unidentified."
 
 ## Question 4
 
 ### a
 
+The expected potential outcomes of subjects when assigned to treatment does equal the expected potential outcome among subjects assigned to treatment, given that they are 'treatment compliers' -- these are equal quantities under excludability.
 
 ### b
 
+Yes, because both sides of the equation have d_i(1) = 0.
+
 ### c
+
+No - these are outcomes of people who don't take the treatment when assigned and people who do take the treatment when assigned. We can't expect the potential outcomes of people who do not take a treatment to be the same as those of people who do take a treatment.
 
 ### d
 
+Yes. The meaningful difference in these terms is that they show different assignment status. Excludability lets us only care about potential outcomes vis-a-vis treatments, not treatment assignments.
+
 ## Question 5
+
+We can identify compliers: those assigned to treatment who take treatment. That's because in one sided non-comp, we rule out always by assumption.
+
+Among those assigned to control, we can't distinguish who is a complier versus a never taker (both who have di(0)=0 ) unless a placebo is assigned to the control. It also seems these statuses really depend on the experiment -- they are not about what a subject would do in all contexts, and even very similar versions of the same experiment.
 
 ## Question 6a
 
 ```{r}
-getwd()
-q6data <- read.csv("./doi-10.60600-yu-vuh8kd/Rind_Bordia_JASP_1996.csv") 
-
+400/1000*100
 ```
 
+40
+
+```{r}
+(700/2000) * 100
+```
+
+```{r}
+40-35
+```
+
+```{r}
+5/(500/1000)
+```
+
+CACE = 10 percentage points
 
 ## Question 8
 
+```{r}
+getwd()
+q6data <- read.csv("./doi-10.60600-yu-vuh8kd/Rind_Bordia_JASP_1996.csv")
+
+```
+
 ### a
+
+```{r}
+Y1_treated <- (591/1849)*100
+
+Y0_control <- (377/1430)*100
+
+ITT <- Y1_treated - Y0_control
+
+ITT
+
+```
+
+Average recycling rates amongst those assigned to treatment were 5.6 percentage points greater than those assigned to control (not canvassed about recycling).
 
 ### b
 
+```{r}
+
+ITT_D <- 1015 / 1849
+ITT_D
+
+```
+
+Among those assigned to treatment, the compliance rate is 54.89.
+
 ### c
+
+|                    | Assigned treatment | Assigned control  |
+|--------------------|--------------------|-------------------|
+| Total              | 1,849              | 1,430             |
+| Canvassed (\$d_i\$)| 1,015              | 0                 |
+| Not Canvassed      | 834                | 1,430             |
+| Recycled (\$Y_i\$) | 591                | 377               |
+| Recycling Rate     | 591/1849 = 31.96%  | 337/1430 = 26.36% |
+|                    |                    |                   |
+
+Expected recycling rate among those in the control group:
+
+$$
+E[Y_i(z=0)] = \pi_CE[Y_i(d=0)|C] + (1 - \pi_c)E[Y_i(d=0)|N]
+$$
+
+Expected recycling rate for those assigned to treatment:
+
+$$
+E[Y_i(z = 1)] = \pi_c * E[Y_i(d=1)|C] + (1 - \pi_c)E[Y_i(d=0)|N]
+$$
+
+$\pi_c = P(d_i(1) = 1)$ = 0.549 (the proportion of compliers).
+
+Never-takers treatment receipt does not change across the two expectations. Also, we know that $ITT_Y = E[Y_i(z = 1)] - E[Y_i(z=0)]$. We can take out the never takers, subtract the two expected rate equations, and substitute what's left into the above ITTY:
+
+$$
+ITT_Y = \pi_C(E[Y_i(1)|C] - E[Y_i(0)|C] + (1-\pi_C)(E[Y_i(0)|N] - E[Y_i(0) |N])
+$$
+
+sans never takers leaves:
+
+$$
+\pi_C(E[Y_i(1)|C] - E[Y_i(0)|C]
+$$
+
+which is the CACE times the compliance rate (5.49).
+
+
 
 ### d
 
+```{r}
+
+CACE <- ITT/ITT_D
+
+CACE
+```
+
+There is a 10.2 percentage point effect of treatment for those who complied with it (10.2 percentage point increase in recycling after being canvassed).
+
 ### e
+Comparing the recycling rates of the treated and untreated subjects alone tends to produce misleading estimates of the CACE because we are not isolating effects of having received treatment.
