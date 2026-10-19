@@ -1,0 +1,385 @@
+---
+title: "Experiments Exam Prep and Oct 16 Section"
+output: html_notebook
+---
+
+\$\$ E[Y_i(z=0)] = \pi\*C \* E[Y_i(d_i(0), z=0) \| d_i(1) = 1]] +\*\pi{NT}\*E[Y_i(d_i(0),z=0)\|d_i(1)=0]
+
+E[Y_i(z=1)] = \pi\*C \* E[Y_i(d_i(1), z=1) \| d_i(1) = 1]] +\*\pi{NT}\*E[Y_i(d_i(1),z=0)\|d_i(1)=0] \$\$
+
+next step is replacing di(0) with di(z=0)
+
+- Jumping to problem set question covered in section on placebo designs
+
+## Terms
+
+# POLSCI 672 — Exam Terms: Self-Assessment
+
+## 1. Foundations: Correlation, Causation, and Potential Outcomes
+
+### Mathematical notation
+
+- i:
+- N:
+- m:
+- d_i:
+- d_i = 0:
+- d_i = 1:
+- Y_i(0):
+- Y_i(1):
+- Y_i:
+- tau_i (τ_i):
+- tau (τ):
+- ATE:
+- E[ ]:
+- E[Y_i(0)]:
+- E[Y_i(1)]:
+- E[ \| ]:
+- E[Y_i(0) \| D_i = 0]:
+- Σ (summation):
+- Y_i(1) - Y_i(0):
+
+### Foundational concepts
+
+- Correlation / association:
+- Causation:
+- Confounding:
+- Directed acyclic graph (DAG):
+- Backdoor path:
+- Potential outcomes framework:
+- Counterfactual:
+- Fundamental problem of causal inference (FPCI):
+- Switching equation:
+- Treatment-effect heterogeneity:
+- Constant treatment effect:
+
+## 2. Random Assignment and Experimental Design
+
+- Random:
+- Random assignment:
+- Random sampling:
+- Simple random assignment:
+- Complete random assignment:
+- D_i:
+- d_i versus D_i:
+- p_i:
+- Assignment vector:
+- Assignment mechanism:
+- Statistical independence:
+- Randomization independence:
+- Treatment group:
+- Control group:
+- Laboratory experiment:
+- Survey experiment:
+- Field experiment:
+- Natural experiment:
+- Quasi-experiment:
+
+## 3. Estimation, Unbiasedness, and Identification Assumptions
+
+- Estimand:
+- Estimator:
+- Estimate:
+- θ (theta):
+- θ̂ (theta hat):
+- Difference-in-means (DIM) estimator:
+- Y-bar_1 - Y-bar_0:
+- Unbiased estimator:
+- Bias:
+- Identification:
+- Identification assumption:
+- Selection bias:
+- Excludability:
+- Non-interference:
+- Spillover:
+- Randomization imbalance:
+- Balance in expectation:
+- ρ(X,Y):
+- Cov(X,Y):
+
+## 4. Sampling Distributions, Uncertainty, and Statistical Inference
+
+- Sampling distribution:
+- Sampling variability:
+- Var(X):
+- Standard deviation (SD):
+- Standard error (SE):
+- Estimated standard error:
+- Precision:
+- Accuracy:
+- Null hypothesis (H_0):
+- Alternative hypothesis (H_A):
+- Sharp null hypothesis:
+- Null of zero average treatment effect:
+- Test statistic:
+- Randomization inference:
+- Randomization distribution:
+- Permutation matrix:
+- p-value:
+- One-sided test:
+- Two-sided test:
+- Statistical significance:
+- Significance level (α):
+- Type I error:
+- Type II error:
+- Confidence interval (CI):
+- Confidence level:
+- Statistical power:
+- Minimum detectable effect (MDE):
+
+## 5. Covariates, Regression, and Precision
+
+- Covariate (X_i):
+- Pretreatment covariate:
+- Post-treatment covariate:
+- Pretest:
+- Posttest:
+- Prognostic covariate:
+- Covariate adjustment:
+- Change score:
+- Difference-in-differences (DiD):
+- Ordinary least squares (OLS):
+- Intercept:
+- Regression coefficient / slope:
+- Residual:
+- Sum of squared residuals (SSR):
+- R-squared (R²):
+- Covariate balance check:
+- Randomization check:
+- F-statistic:
+- Joint significance:
+
+## 6. Blocking, Clustering, and Experimental Design
+
+- Blocking:
+- Block:
+- Block random assignment:
+- Homogeneous block:
+- Matched pair:
+- Mahalanobis distance:
+- Clustering:
+- Cluster random assignment:
+- Block versus cluster:
+- Block-specific treatment effect:
+- Block-weighted ATE estimator:
+- Inverse-probability weighting (IPW):
+- 1/p_i:
+- Differential assignment probabilities:
+- Block fixed effects:
+- Cluster-robust standard errors:
+- Restricted randomization:
+- Rerandomization:
+
+## 7. One-Sided Noncompliance
+
+- Compliance:
+- Noncompliance:
+- One-sided noncompliance:
+- Two-sided noncompliance:
+- z_i:
+- d_i (under noncompliance):
+- z_i = 1, d_i = 0:
+- d_i(z):
+- d_i(1) = 1:
+- d_i(1) = 0:
+- d_i(0) = 0:
+- Complier:
+- Never-taker:
+- Subject type:
+- Y_i(z,d):
+- Intent-to-treat effect on outcomes (ITT_Y):
+- Intent-to-treat effect on treatment receipt (ITT_D):
+- Compliance rate (π_C):
+- Complier average causal effect (CACE):
+- ITT_Y / ITT_D:
+- Exclusion restriction:
+- ITT_D \> 0:
+- Consistency of an estimator:
+- Ratio estimator:
+- Placebo treatment:
+- Encouragement design:
+
+## 8. Additional Concepts and Functions from R Labs
+
+- set.seed():
+- simple_ra():
+- complete_ra():
+- block_ra():
+- declare_ra():
+- conduct_ra():
+- obtain_permutation_matrix():
+- difference_in_means():
+- lm_robust():
+- rbinom():
+- potential_outcomes():
+- reveal_outcomes():
+- simulate_design():
+- diagnose_designs():
+
+## 9. Mathematical Expressions to Translate into Plain English
+
+### Equation 1: Switching equation
+
+$Y_i = d_i Y_i(1) + (1-d_i)Y_i(0)$
+
+Explanation:
+
+### Equation 2: Unbiasedness
+
+$E[\hat{\theta}] = \theta$
+
+Explanation:
+
+### Equation 3: Standard error
+
+$SE(\hat{\theta})$
+
+Explanation:
+
+### Equation 4: Sharp null of no effect
+
+$H_0: \tau_i = 0 \quad \forall i$
+
+Explanation:
+
+### Equation 5: Null of zero ATE
+
+$H_0: ATE = 0$
+
+Explanation:
+
+### Equation 6: Statistical significance
+
+$p < 0.05$
+
+Explanation:
+
+### Equation 7: Intent-to-treat effect
+
+$ITT_Y = E[Y_i \mid Z_i=1] - E[Y_i \mid Z_i=0]$
+
+Explanation:
+
+### Equation 8: Complier average causal effect
+
+$CACE = \frac{ITT_Y}{ITT_D}$
+
+Explanation:
+
+### Equation 9: Bias of a ratio estimator
+
+$E[\widehat{ITT}_Y/\widehat{ITT}_D] \neq ITT_Y/ITT_D$
+
+Explanation:
+
+## 10. Important Conceptual Distinctions
+
+Explain the difference between each pair or group in your own words.
+
+1.  Correlation versus causation:
+
+Correlation is about how two variables co-vary. Ie, rates of news watching increase or decrease when rates of news reading increase or decrease.
+
+Causation means we have established that the change is one variable is the result of the change in or turning off or on of another variable. One way causation can be established is with randomization, because it severs the connection between the outcome of interest and the world of possible alternative covariables which is infinate. The other way causation is estimated is by fitting models and attempting to hold other possible covariates fixed. the problem with the latter is that the list of possible covariates is unknowable.
+
+I'm going to try to say in a different way how randomization can help establish causation. Under randomization -- a procedure where assignment to treatment is known, between 0 and 1, and replicable -- we can construct an estimator. The estimator is not a signle thing, but a procedure for looking at a relationship across (in theory at least) a large number of different samples. Imagine that someone walks into a bar, does a randomization procedure to assign 10 people in the bar to treatment and 10 to control. Say the treatment is reading his poem, and the outcome is the quality of a night the 20 customers report having on a 10 point scale (1 is the worst, 10 is the best). Say the experimenter finds people who got the treatment (poem) report an average of an 8 out of 10 night over a 6 out of 10 night. The story of how randomization brings us closer towards identifying causation is not that because on this night, he randomly assigned people to read his poem, he has severeld the link between other factors that could explain better nights and the outcome. It is that, if he did this over and over again, and N converged toward infinity, the estimated effect would move closer to the true effect...because if done over and over again, (tho also in the context of the single experiment) everyone sampled would have an equal probability of being assigned to treatment.
+
+2.  Potential outcomes versus observed outcomes:
+
+Potential outcomes are hypotheticals and every study unit has two of them. They are counterfactual states of the world: the state of the world where unit is treated and state of the world where unit is not treated.
+
+We need both potential outcomes to explain the true effect of treatment for a unit.
+
+Observed outcomes are those outcomes (treated or untreated) that we actually can observe when we run an experiment.
+
+We can use observed outcomes and other things to estimate treatment effects: differences in means (between the treated and untreated), local average treatment effects (not remembering but think that is when we're looking at something like and RD with a cutoff), conditional average treatment effects, and average treatment effects for compliers.
+
+3.  Random sampling versus random assignment:
+
+Random sampling is a procedure for creating a sample, random assignment is a procedure for assigning units in a sample to treatment or control.
+
+For example, random sampling might be when I have a pool of emails, and I send invitations to the emails in some way inviting ppl to take a survey. Random assignment is the procedure through which I would send out the survey - imagine that its a vignette type survey that includes a treatment frame and a control frame, so random assignment would be there the procedure for who gets the version of the survey with the treatment and who gets it without. Each person's probability of getting the treatment survey would be some known figure between 0 and 1 and the procedure would be replicable.
+
+4.  Estimand versus estimator versus estimate:
+
+The estimand is the procedure ? and estimate is the result of a single draw. I think I confuse estimand and estimator. Or is estimand the true value that we can't know, and we're trying to estimate with the estimator?
+
+5.  Unbiasedness versus precision versus consistency:
+
+Biased means there is something that affects the outcome that also affects units' probability of being treated. Consistency is that if we were to do the experiment a large number of times, the estimated value would converge on the true value.
+
+6.  Excludability versus non-interference:
+
+Excludability and non-interference always feel closely related and I tend to swap them.
+
+Excludability means that one unit being treated does not affect anyone else's likelihood of receiving the treatment.
+
+Non-interference means that a change in one units outcome is only affected by that unit being treated, not the treatment status of other units? That seems wrong.
+
+The example I think of is a study where students live in dorms, and individual students getting assigned to treatment means they receive a newspaper.
+
+7.  Blocking versus clustering:
+
+Blocking means that you assign subjects to a block - often groups that already reflect some grouping in the real world that you're studying. Example: you want to know how testimony from incarcerated organizers affects legislators willingness to visit a prison. Say all legislators in your study will receive a letter from someone in prison who says they are the legislators' constituent, and asks the legislator to come visit the prison to understand conditions or build relationships with constituents there. The treatment will be that treated legislators will first receive a letter from an incarcerated constituent that is testimony they wrote in support of some piece of legislation.
+
+I might be stretching with this example, but one benefit of blocking here might be if you group legislators by committee. Then, you assign treatment by committee. The idea is that legislators on the same committee might talk to one another, so complete random assignment might violate the assumption that one units treatment doesn't affect another units treatment.
+
+In a blocking design, you would group legislators by committee and then randomly assign treatment across committees. You would estimate the average outcome across committees, not individual legislators.
+
+In clustering, you create a bunch of mini experiments. If you "clustered" by grouping legislators into their committees, you would then randomly assign treatment within the committee, and estimate the average difference bewteen untreated and treated legislators within the committee, take those within-committee average differences, and average them.
+
+Perhaps the more intuitive clustering situation in this would be if you cluster by legislature.
+
+8.  Blocking versus regression adjustment:
+
+In regression adjustment, you are doing post-experiment adjustments. You would have measured other variables (covariates) and then hold them fixed. For example, you would measure legislators' committee assignment, and include it as a covariate so you can say: net of committee assignment, here is the associated effect of exposure to testimony on willingness to visit prison.
+
+Blocking is like doing regression adjustment but "live" in the experiment. The downside is you loose some numerical power. The upside is you might gain precision.
+
+9.  ATE versus ITT versus CACE:
+
+The ATE is the average treatment effect. The ITT is the the thing that goes in the numerator above the ITTD. So ITT is usually short for ITTY? The ITT is the "first" something. The ITTD is the ratio of assigned to treated units to actually or took-treatment units. The ITT over ITTD lets you estimate the ATE for compliers: the CACE.
+
+I wanted to say that with the CACE, it might feel like you "throw away" observations. But I'm not sure if that's true.
+
+10. Standard deviation versus standard error:
+
+Standard deviation is the square root of the average distance between observations and the mean observations. The standard error uses the SD? It is the estimated difference between observations and the truth in standard deviations? Problematic that I still don't have that down cold
+
+11. Sharp null versus null of zero ATE:
+
+The sharp null is H0: no effect of treatment. We test the sharp null to get our p value. That is, we find out the probability of finding a value as "extreme" as the one we observe, if the relationship between the independent and dependent variable were actually 0.
+
+null of zero ATE makes me think I've gotten the sharp null wrong, because I basically want to say they're the same things.
+
+12. Treatment assignment versus treatment receipt:
+
+Treatment assignment (zi) is whether during randomization, a study unit is assigned to get treatment. Whether they actually "take" the treatment is treatment receipt (di). Because of the exclusion restriction, we get to only "care" about treatment receipt.
+
+I'm forgetting the right notation here and maybe switching them. If not, zi= 1 means takes treatment, zi=0 means doesn't take the treatment, and di=1 = assigned to treatment, di=0 means assigned to control. But here's what else I understand: - everyone in a study could be a complier (always take treatment when assigned, "take" control when assigned to control), defier (do the opposite of what they're assigned), never taker, or always taker, treatment assignment does not mean receipt. This might be something about individuals in the context of the study (shouldn't assume it is true of the individual across all study contexts) and it might be something that is a product of survey implementation (ie, hired door knockers don't actually knock on assigned doors).
+
+In one sided noncompliance, we limit these groups by assumption to compliers and never takers.
+
+I know I need to work on translating some of the relevant notation on this to plain english.
+
+Situations like E[Yi(D=1)\| (notation establishing a never taker)] winds up meaning E[Yi(D=0)].
+
+13. Statistical significance versus substantive significance:
+
+Statistical significance is often about 95% or some other given confidence interval. We say a p value less than 0.05 is significant. That would report the probability of observing a value as extreme as that observed if the relationship were 0.
+
+Substantive significance requires thinking about study context. For example, say we find some relationship between rate of visiting prison and exposure to incarcerated testimony. Understandign substantive significance requires thinking about whether the estimated effect is actually meaningful: is it very sifnificant, but does the numerical value of the estimate suggest just a fleeting or imperceptable likelihood? I'm not explaining it well with that example.
+
+Ignoring the example, you'd think about the scale of the actual DV, your theory/hypothesis. Example: I live in an apartment complex with two buildings. I run an expiriment where I see whether turning on one building's fire alarm at 3am leads to people leaving the building within the hour it takes for the fire department to arrive and figure out how to turn the alarm off.
+
+I would expect that like 70% of the apartments in the building with the alarm going off to leave the building. I might expect a few people in the adjacent building to leave there's if they can hear the alarm from the other building. If I find that the difference in apartment leaving at 3am between the two buildings is like 3% and that effect is very statistically significant, I wouldn't make too much of the results: in the research context, that is an oddly small effect
+
+14. Randomization inference versus conventional sampling-based inference:
+
+In conventional sampling-based inference....I'm not actually sure.
+
+I know in RI we do a procedure to estimate something about our sample. We set the seed, create an empty vector, run a for loop...
+
+15. Individual treatment effect versus average treatment effect:
+
+individual treatment effect is the treatment affect on one unit, versus the average of effects across units.
