@@ -1,0 +1,373 @@
+---
+title: "Exam Markdown File"
+author: "Kristina Mensik"
+date: "2026-10-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Coding for One Sided Non Compliance
+
+### Estimates:
+
+$$
+ITT_d = e[d_i(z=1) - d_i(z = 0)]
+$$
+
+ITTY or ITT: 
+
+$$
+ITT = E[Y_i(z=1) - E(Y_i(z=0))]
+  = E[Y_i(z=1, d(1))] - E[Y_i(z=0, d(0))]
+$$
+CACE
+
+$$
+CACE = E[ (Y_i(d=1) - Y_i(d=0)) | d_i(1) = 1]
+$$
+
+
+### 5.1: express as weighted averages
+
+$$
+
+E[Yi(z=1, d(1))] = E[Y_i(z=1, d = 1) | d_i(1) = 1]*ITT_D  + E[Y_i(z = 1, d = 0)| d_i(1) = 0] * (1-ITT_D)
+
+E[Yi(z=0, d(0))] = E[Y_i(z=0, d = 0) | d_i(1) = 1]*ITT_D  + E[Y_i(z = 0, d = 0)| d_i(1) = 0] * (1-ITT_D)
+
+$$
+$$
+
+ITT = E[{Y_i(z = 1, d=1) - Y_i(z = 0, d = 0)} | d_i(1) = 1] *ITT_D + E[{Y_i(z=1, d=0) - Y_i(z=0,d=0)}|d_i(1) = 0]*(1-ITT_D)
+
+$$
+
+$$
+
+\frac{ITT}{ITT_D} = E[{Y_i(d=1) - Y_i(d=0)} | d_i(1)= 1]=CACE
+
+$$
+
+
+
+## 1-Sided Non Comp
+
+Typically, we're asked to:
+- Estimate the ITT, ITTD, and CACE under 1 sided non comp (theorem 5.1)
+- Verify CACE (can use instrumental variables)
+
+Usually, you:
+- load the data and create an analysis sample
+- Check whether non-compliance is one-sided
+- Estimate the ITT (of assignment on Yi)
+- Get the ITT_D (effect of assignment on actual treatment receipt)
+- Calc the CACE (5.1)
+- Estimate the CACE (often using instrumental variables regression, iv_robust)
+- Interpret estimates and explain assumptions required for a causal interpretation 
+
+Relevant Packages
+```{r setup, include=FALSE}
+
+library(estimatr)
+library(tidyverse) # sometimes
+library(randomizr)
+
+```
+
+Variables:
+
+Y = observed outcome
+Z = treatment assignment (0 = control, 1 = assigned treatment)
+D = actual treatment receipt (0 = untreated, 1 = treated)
+
+
+```{r, echo = T, include = T, warning = F}
+
+# you'd read in a data set
+data <- read.csv("datasetname.csv")
+data <- na.omit(data)
+# or : 
+data <- data[complete.cases(data[, c("Y", "Z", "D")]), ]
+
+# check compliance pattern:
+table(data$Z, data$D)
+
+# Step 1: Effect of assignment on outcome (ITT_Y)
+ITT_Y <- mean(data$Yi[data$Z == 1]) - 
+       mean(data$Yi[data$Z == 0])
+
+print(ITT)
+
+
+# Step 2: Effect of assignment on receipt:
+
+ITT_D <- mean(data$D[data$Z == 1]) -
+         mean(data$D[data$Z == 0])
+
+print(ITT_D)
+
+# Step 3: CACE
+CACE <- ITT_Y / ITT_D
+print(CACE)
+
+# Step 4: Estimate CACE with IV
+# outcome ~ actual receipt | random assignment
+
+model_cace <- iv_robust(Y ~ D | Z, data = data)
+
+# Coefficiant on D estimates the CACE
+tidy(model_CACE)
+
+
+```
+
+## Typical tasks
+
+"estimate effect of assignment on the outcome" -> ITT
+Packages: Base R (mean()); estimatr (optional)
+
+Procedure: Calculate mean outcome (Y) for (Z=1), minus mean outcome for (Z=0). Include everyone assigned to treatment, regardless of actual receipt.
+
+"estimate average treatment effect among compliers" -> CACE/Theorem 5.1
+Packages: estimatr, broom (optional)
+
+Procedure: Calculate (ITT_Y) and (ITT_D), then divide: (CACE=ITT_Y/ITT_D). Alternatively, estimate using iv_robust(Y ~ D | Z).
+
+
+
+"use F stat to assess covariate balance" -> randomization check
+Packages: estimatr
+
+Procedure: Regress assignment (Z) on pretreatment covariates (X_1,X_2,X_3) using lm_robust(). Extract F-statistic to assess joint predictive power.
+
+"test whether pretreatment covariates jointly predict assignment" -> randomization check
+
+Packages: estimatr
+
+Procedure: Same as above. Test (H_0:\beta_1=\beta_2=\beta_3=0). Larger F-statistic indicates stronger joint predictive association.
+
+
+"calculate a randomization inference p value for the F stat" -> randomization balance check with f 
+
+Packages: estimatr, randomizr
+
+Procedure: Calculate observed F → declare actual assignment procedure → simulate assignments → calculate F for each → p-value = proportion of simulated F-statistics ≥ observed F.
+
+
+
+"randomize again and keep original number treated" -> declare_ra and conduct_ra
+Packages: randomizr
+
+Procedure: Use declare_ra(N = nrow(data), m = sum(data$Z == 1)), then conduct_ra(). Preserves sample size and exact number assigned to treatment.
+
+
+"restrict assignment to allocations satisfying a balance criterion" -> restricted randomization 
+Packages: randomizr, estimatr, broom (optional)
+
+Procedure: Generate assignment → regress (Z) on covariates → calculate F-test p-value → reject if (p \leq 0.10), accept if (p>0.10). Repeat to generate permissible assignments. Calculate assignment probabilities/IPWs and use weighted iv_robust() for CACE when appropriate.
+
+
+## Randomization Checks with F
+Experiments randomly assign individuals to treatment and control, and datasets usually include treatment assignment plus several pretreatment characteristics.
+
+We want to find p-values and examine balance across the covariates. 
+
+Might:
+1. Regress the treatment assignment on the pretreatment covariates
+2. Extract the observed F stat for the joint significance of the covariates.
+3. Conduct RI with some large # of simulated assignments (10-50k) and maintain the number originally assigned to treatment.
+4. Construct a randomized distribution from the F stat.
+5. Calculate a p value and interpret whether the observed covariate imbalance is unusual under the specified randomization procedure.  
+
+When we do this, the dependent variable in the regression is treatment assignment itself rather than an outcome of interest.
+
+Need:
+- dataset 
+- randomized treatment assignment (Z)
+- Pretreatment covariates (X1, X2....as needed)
+- Hypothetical treatment assignment vector (Z_sim)
+- regression using actual assigment (model_obs)
+- observed F stat (F_obs)
+- declared RA procedured (ra)
+- vector storing simulated F stats (F_sim)
+- randomized inference p value (p_value)
+
+Remember F Stats:
+- test whether a set of explanatory variables jointly helps predict the dependent variable, comparing the variation explained by the model with the unexplained variation.
+- In a randomization check, measures how strongly pretreatment covariates jointly predict treatment assignment; a larger F stat indicates greater observed imbalance relative to residual variation.
+
+
+```{r}
+
+#Step 1: calculate the observed F statistic
+
+model_obs <- lm_robust(
+  Z ~ X1 + X2 + X3,
+  data = data
+)
+
+F_obs <- model_obs$fstatistic[1]
+
+# The F stat would describe how strongly the three pretreatment covariates jointly predict the treatment assignment that actually occured
+
+# Need to compare it to the distribution of F statistics generated by randomization.
+
+# Step 2: delcare the randomization procedure (the procedure for assigning N and m needs to produce the same N and m as that which was actually used)
+
+ra <- declare_ra(
+  N = nrow(data), # total num observations
+  m = sum(data$Z == 1) # num assigned to treatment
+)
+
+# Step 3: Initialize a vector that will eventualyl hold F stats
+
+B <- 50000 # number of simulated random draws
+F_sim <- numeric(B) 
+
+# Step 4: Conduct RI (only the assignment vector changes across iterations)
+
+for (i in 1:B) {
+
+  data$Z_sim <- conduct_ra(ra)
+
+  model_sim <- lm_robust(
+    Z_sim ~ X1 + X2 + X3,
+    data = data
+  )
+
+  F_sim[i] <- model_sim$fstatistic[1]
+}
+
+# Step 5: p value
+
+p_value <- mean(F_sim >= F_obs)
+
+# interpretation: under the specified RA procedure, approx (p_value)% of hypothetical assignments produced n F stat at least as large as the observed F stat
+
+# 
+
+```
+
+
+
+## Restricted Randomization and CACE
+
+We might conduct a randomized experiment that has 1 sided NC. Rather than accept every random assignment we might generate treatment assignments until the F test of pretreatment covariates has a p value greater than some number (0.10).
+
+We need to think about the estimated CACE. Adjusting the CACE requires:
+1. implement restricted randomization procedure
+2. generate 10k permissible treatment assignment vectors
+3. obtain the assignment probabilities implied by the restrition
+4. calculate IPWs
+5. Estimate the CACE with weighted IVR.
+
+Restricted Randomization: 
+- use balance as a criterion for accepting an assignment in the first place
+- do so by regressing assignment vector on pretreatment covariates and calculating the F stat and its p value, and apply whatever acceptance criterion.
+- this might change the CACE estimation because it changes the assignments that can occur.
+- it does not always produce unequal individual assignment probabilities.
+
+We'd need:
+- data
+-pretreatment covariates (X1,...)
+- actual treatment assignment (Z)
+- actual treatment receipt (D)
+- Observed outcome (Y)
+- number of units assignmed to treatment (m)
+- matrix of acceptable hypothetical assignments
+- weights (IPW of observed assignment)
+- weighted iv model estimating the cace (model_cace)
+
+```{r}
+
+library(estimatr)
+library(randomizr)
+library(broom)
+
+# VARIABLES:
+# Y = observed outcome
+# Z = actual randomized assignment
+# D = actual treatment receipt
+# X1, X2, X3 = pretreatment covariates
+
+# STEP 1: Create restricted randomization function (creates assignment and checks whether it satisfies the balance criterion)
+
+restricted_ra <- function(data, m) {
+
+  while (TRUE) {
+
+    # Generate hypothetical treatment assignment
+    Z_temp <- complete_ra(N = nrow(data), m = m)
+
+    # Regress hypothetical assignment on covariates
+    model <- lm_robust(
+      Z_temp ~ X1 + X2 + X3,
+      data = data
+    )
+
+    # Extract F-statistic and degrees of freedom
+    f <- model$fstatistic
+
+    # Calculate upper-tail F-test p-value
+    p_balance <- pf(
+      q = f[1],
+      df1 = f[2],
+      df2 = f[3],
+      lower.tail = FALSE
+    )
+
+    # ACCEPT assignment only if p > 0.10
+    if (p_balance > 0.10) {
+      return(Z_temp)
+    }
+  }
+}
+
+# STEP 2: Generate 10,000 acceptable assignments
+
+set.seed(6081709)
+
+B <- 10000
+m <- sum(data$Z == 1)
+
+sim_matrix <- replicate(
+  B,
+  restricted_ra(data = data, m = m)
+)
+
+# Each COLUMN is one acceptable assignment vector
+dim(sim_matrix)
+
+# STEP 3: Declare restricted assignment mechanism
+
+ra_restricted <- declare_ra(
+  permutation_matrix = sim_matrix
+)
+
+print(ra_restricted)
+
+# STEP 4: Calculate inverse-probability weights
+# Use the OBSERVED assignment Z
+
+data$weights <- 1 /
+  obtain_condition_probabilities(
+    ra_restricted,
+    data$Z
+  )
+
+# STEP 5: Estimate weighted CACE with IV regression
+
+model_cace <- iv_robust(
+  Y ~ D | Z,
+  weights = weights,
+  data = data
+)
+
+# Examine estimate, SE, p-value, CI
+print(tidy(model_cace))
+
+```

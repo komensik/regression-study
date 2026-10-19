@@ -92,18 +92,18 @@ next step is replacing di(0) with di(z=0)
 - Excludability:
 - Non-interference:
 - Spillover:
-- Randomization imbalance:
-- Balance in expectation:
+- Randomization imbalance: differences between treatment and controlg roups that occur by chance in a particular assignment
+- Balance in expectation: across hypothetical random assignments, treatment and control groups have same expected pretreatment characteristics
 - ρ(X,Y):
 - Cov(X,Y):
 
 ## 4. Sampling Distributions, Uncertainty, and Statistical Inference
 
-- Sampling distribution:
-- Sampling variability:
-- Var(X):
+- Sampling distribution: the distribution of estimates that would arise from hypothetical repetitions of the sampling or assignment process
+- Sampling variability: differences in estimates that arise because different samples or random assignments yield different observed data.
+- Var(X): how dispersed the values of X are around their mean.
 - Standard deviation (SD):
-- Standard error (SE):
+- Standard error (SE): how much estimates vary across hypothetical repetitions
 - Estimated standard error:
 - Precision:
 - Accuracy:
