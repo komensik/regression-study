@@ -1,0 +1,142 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Example Midterm 
+```{r setup, include=FALSE}
+
+library(estimatr)
+library(tidyverse)
+library(randomizr)
+
+```
+
+## Part (3)
+
+```{r, echo = T, include = T, warning = F}
+
+data <- read.csv("green_study.csv")
+q6data <- na.omit(data)
+
+ITT <- mean(q6data$Vote98[q6data$Contact == 1]) - 
+       mean(q6data$Vote98[q6data$Contact == 0])
+print(ITT)
+
+ITT_D <- nrow(q6data[q6data$Contacted == 1,]) / 
+         nrow(q6data[q6data$Contact == 1,])
+print(ITT_D)
+
+CACE <- ITT / ITT_D
+print(CACE)
+
+model_cace <- iv_robust(Vote98 ~ Contacted | Contact, data = q6data) %>% tidy()
+print(model_cace)
+
+```
+
+## Part (4)
+
+```{r, echo = T, include = T, warning = F}
+
+# setting seed
+
+set.seed(20251101)
+
+# regressing treatment on our covariates of interest
+
+q6_model <- lm_robust(Contact ~ Age + Party + Vote96, data = q6data)
+
+# extracting the actual f-statistic
+
+q6_fstat <- q6_model$fstatistic[1]
+
+print(q6_fstat)
+
+# conducting randomisation inference on the f-statistic to obtain a p-value
+
+# declaring random assignment procedure
+
+q6_declaration <- declare_ra(nrow(q6data), 
+                             m = nrow(q6data[q6data$Contact == 1,]))
+
+print(q6_declaration)
+
+# creating empty vector to store results of for loop
+
+q6_estimates <- numeric(50000)
+
+# calculating f-statistic for pre-test, looping over every permutation
+
+for (i in 1:50000) {
+  
+q6data$ri <- conduct_ra(q6_declaration)
+ri_model <- lm(ri ~ Age + Party + Vote96, data = q6data)
+q6_estimates[i] <- summary(ri_model)$fstatistic[1]
+}
+
+# calculating the p-value
+
+q6_pvalue <- mean(q6_estimates >= q6_fstat)
+
+print(q6_pvalue)
+
+```
+
+## Part (5)
+
+Yes, I would estimate the CACE differently in this scenario. The researchers' decision rule has meant that they have conducted a restricted randomization, which produces differential probabilities of assignment to conditions. To address this, CACE must be estimated using an inverse probability weighed estimator.
+
+```{r, echo = T, include = T, warning = F}
+
+# creating a function to conduct restricted randomisation
+
+restricted_ra <- function(d, a, b, c, m) {
+   while (TRUE) {
+     
+    Z = complete_ra(nrow(d), m)
+    f <- lm_robust(as.formula(paste("Z ~", 
+                                    paste(c(a, b, c), collapse = " + "))), 
+                                    data = d)$fstatistic
+
+if (1 - pf(q = f[1], df1 = f[2], df2 = f[3]) > 0.10) {
+return(Z)
+    
+    
+    }
+  }
+}
+
+# setting seed
+
+set.seed(20251101)
+
+# conducting iterations of restricted randomisation
+
+sim_matrix <- replicate(10000, restricted_ra(d = q6data, 
+                                             a = "Age", 
+                                             b = "Party", 
+                                             c = "Vote96", 
+                                             m = sum(q6data$Contact)))
+
+# picking a random number to select the column that will be the realisation  
+
+number <- sample(1:10000,1,FALSE)
+
+q6data$Z <- sim_matrix[,number]
+
+# calculating ipws
+
+zdeclaration <- declare_ra(permutation_matrix = sim_matrix)
+
+print(zdeclaration)
+
+q6data$weights <- 1 / obtain_condition_probabilities(zdeclaration, q6data$Z)
+
+# calculating weighted CACE using ivrobust
+
+z_cace <- iv_robust(Vote98 ~ Contacted | Contact, weights = weights, data = q6data) %>% tidy()
+print(z_cace)
+
+```
+
