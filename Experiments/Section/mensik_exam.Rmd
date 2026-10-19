@@ -1,0 +1,17 @@
+---
+title: "Mensik_Exam"
+author: "Kristina Mensik"
+date: "2026-10-19"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(estimatr)
+library(tidyverse) # sometimes
+library(randomizr)
+
+
+```
+
