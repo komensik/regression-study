@@ -112,7 +112,7 @@ ra <- declare_ra(
 
 # Step 3: Initialize a vector that will eventualyl hold F stats
 
-B <- 50000 # number of simulated random draws
+B <- 1000 # number of simulated random draws reducing so I can knit (running at 10k)
 F_sim <- numeric(B) 
 
 # Step 4: Conduct RI (only the assignment vector changes across iterations)
@@ -185,7 +185,7 @@ restricted_ra <- function(data, m) {
 
 set.seed(6081709)
 
-B <- 10000
+B <- 1000
 m <- sum(data$Contact == 1)
 
 sim_matrix <- replicate(
