@@ -1,0 +1,101 @@
+---
+title: "mensik_exam_revisions"
+author: "Kristina Mensik"
+date: "2026-10-21"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1
+
+### 1a
+
+$$E[Y_i(0)] = 8.75 $$
+
+(5+8+12+10) / 4
+
+### 1b
+
+$$E[Y_i(1)] = 9.5 $$
+
+(12+10+14+2)/4
+
+### 1c
+
+True average treatment effect
+
+$$E[Y_i(1) - Y_i(0)]= 9.5 - 8.75 = 0.75$$
+
+8.75 - 9.5
+
+### 1e.
+
+| Yi(1) | Yi(0) | Zi  | Y0Null | Y1Null |
+|-------|-------|-----|--------|--------|
+| 12    | 5     | 1   | 12     | 12     |
+| 10    | 8     | 0   | 8      | 8      |
+| 14    | 12    | 1   | 14     | 14     |
+| 2     | 10    | 0   | 10     | 10     |
+|       |       |     |        |        |
+
+### 1f.
+
+| Yi(1) | Yi(0) | Zi  | Y0CI | Y1CI |
+|-------|-------|-----|------|------|
+| 12    | 5     | 1   | 8    | 12   |
+| 10    | 8     | 0   | 8    | 12   |
+| 14    | 12    | 1   | 10   | 14   |
+| 2     | 10    | 0   | 10   | 14   |
+|       |       |     |      |      |
+
+## Problem 2
+
+### 2b
+
+0.23+0.24 = 0. 47
+
+```{r}
+0.23+0.24
+```
+
+### 2c
+
+0.23 + 0.28 = 0.51
+
+```{r}
+0.23 + 0.28
+
+```
+
+### 2d
+
+0.23 + 0. 31=0.54
+
+```{r}
+0.23 + 0.31
+```
+
+## Problem 3
+
+### 3b
+
+For any pre-treatment variable like Xpre, we know Xpre(1)=Xpre(0). By conditioning on Xpre, what estimand is the DIM estimator recovering?
+
+### 3c. 
+
+For any post-treatment variable X post, what takes the value Xpost(1) when the subject is assigned to treatment, and Xpost(0) when they are assigned to control.
+
+By conditioning on Xpost = 1, what estimand is the difference in means estimator recovering
+
+## Problem 4
+
+### 4 part 5
+
+Robinhood interventions "steal from the rich" and "give to the poor" – they increase potential outcomes among units with lower pre-treatment values.
+
+The challenge in this context vis-a-vis accurate ATE is that the ATE captures baseline differences
+
+False: Allocating more subjects to the treatment group is not the move to get a more precise estimate. Allocating subjects to the control
