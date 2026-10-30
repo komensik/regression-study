@@ -40,6 +40,7 @@ The expected untreated potential outcome for compliers is 37.54.
 $$
 E[Y_i(1)|d_i(1) = 1]
 $$
+
 The expected treated potential outcome for compliers is 54.43.
 
 ## Problem 2
@@ -156,6 +157,7 @@ q6data <- read.csv("./doi-10.60600-yu-vuh8kd/Rind_Bordia_JASP_1996.csv")
 ### a
 
 ```{r}
+
 Y1_treated <- (591/1849)*100
 
 Y0_control <- (377/1430)*100
@@ -202,7 +204,11 @@ $$
 E[Y_i(z = 1)] = \pi_c * E[Y_i(d=1)|C] + (1 - \pi_c)E[Y_i(d=0)|N]
 $$
 
-$\pi_c = P(d_i(1) = 1)$ = 0.549 (the proportion of compliers).
+$$
+\pi_c = P(d_i(1) = 1)
+$$
+
+= 0.549 (the proportion of compliers).
 
 Never-takers treatment receipt does not change across the two expectations. Also, we know that $ITT_Y = E[Y_i(z = 1)] - E[Y_i(z=0)]$. We can take out the never takers, subtract the two expected rate equations, and substitute what's left into the above ITTY:
 
@@ -219,7 +225,6 @@ $$
 which is the CACE times the compliance rate (5.49).
 
 
-
 ### d
 
 ```{r}
@@ -227,6 +232,7 @@ which is the CACE times the compliance rate (5.49).
 CACE <- ITT/ITT_D
 
 CACE
+
 ```
 
 There is a 10.2 percentage point effect of treatment for those who complied with it (10.2 percentage point increase in recycling after being canvassed).
@@ -336,7 +342,138 @@ for (i in seq_len(ncol(permmatrix_10))) {
 }
 
 mean(estimates_10)
-# very not centered around 0
+# centered around 0
+
+
+p_val_10 <- (sum(abs(estimates_10) >= abs(itt_hat)) + 1)/(length(estimates_10)+1) #at first got 0, but then used mc correction bc SEs likely dwarfed by large effect size
+
+itt_hat
+p_val_10
 
 ```
+
+The effect of assignment to canvassing was significantly statistic, so we can reject the null hypothesis. 
+
+### c
+
+CACE assuming the leaflet alone had no effect on turnout seems like the functional equivalent of the exclusion restriction (thing that matters is being treated where treated means canvasser interaction). It is:
+
+```{r}
+
+itt_hat/(sum(data_10$contact)/sum(data_10$treat2))
+
+```
+
+### d
+Turnout rate would have been 0.7 instead of 0.8 
+```{r}
+#turnout for assigned to treatment
+2152/2688
+
+treated_turnout <- 2152/2688
+
+no_flyer_treated_turnout <- (0.79 * 2688)
+
+no_flyer_treated_turnout 
+#assuming the .52 means 1 percentage point is rounded
+
+no_flyer_treated_turnout <- treated_turnout - 0.01
+
+no_flyer_treated_turnout
+#this was sort of silly to do because I was just told it is 0.8-0.01.
+
+# total proportion compliers
+2380/2688
+
+```
+
+$$
+
+\pi_{d(1)=1} = 2380/2688
+
+\\
+\\
+
+\pi_{d(1)=1} = \frac{Y(d = 1, z = 1)}{Y(z = 1)}
+
+\\
+\\
+
+\mu_{comlier-canvassed-human} = E[Y(z=1, d=1)|d(1) = 1]
+
+\\
+\\
+
+\mu_{complier-not-canvassed} = E[Y(z=0, d = 0)|d(1) = 1]
+
+\\
+\\
+
+\mu_{nevertaker-not-canvassed} = E[Y(z=0, d = 0)|d(1) = 0]
+
+$$
+Treatment-assigned turnout then:
+
+$$
+
+E[Y_i|z_i = 1] = \pi_{d(1)=1}\mu_{comlier-canvassed-human} + (1-\pi_{d(1)=1})\mu_{nevertaker-not-canvassed} + 0.01
+
+$$
+Control-assigned turnout:
+
+
+
+$$
+
+E[Y_i|z_i = 0] = \pi_{d(1)=1}\mu_{complier-not-canvassed} + (1 - \pi_{d(1) = 1})\mu_{nevertaker-not-canvassed} 
+
+$$
+### e
+CACE of canvassing
+
+I know E[] treated = 0.7906, and E[] control = 0.6687
+```{r}
+
+prop_complier <- mean(data_10$contact[data_10$treat2 == 1])
+
+# itt hat - 0.01 / pi complier
+# 
+# cace_10e <- itt_hat - 0.01 /pi_complier
+
+control_turnout <- mean(data_10$turnout[data_10$treat2 == 0])
+
+#treated_turnout 
+#no_flyer_treated_turnout 
+
+cace_canvassing <- (
+  no_flyer_treated_turnout - control_turnout
+) / prop_complier
+
+cace_canvassing
+
+```
+The CACE is 0.137
+
+### f
+CACE if leaflet had no effect on compliers and raised turnout among never takers by 3 pct points.
+Have:
+ITT_hat
+proportion compliers (prop_complier)
+Y_hat for control (control_turnout)
+Y-hat for treated when all assigned to treatment are counted as treated (treated_turnout)
+```{r}
+#change to ITT is 0.03 * prop never takers
+# is 0.03 * (1-prop_complier)
+
+prop_nts <- 1-prop_complier
+
+new_itt <- itt_hat-(.03*prop_nts)
+
+# cace is new / prop_complier
+
+new_itt / prop_complier
+
+```
+
+
 

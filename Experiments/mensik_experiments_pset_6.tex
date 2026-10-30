@@ -1,0 +1,849 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\newcounter{none} % for unnumbered tables
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+% fallback for those not using the hyperref driver hyperxmp:
+\makeatletter
+\@ifundefined{xmpquote}{\newcommand{\xmpquote}[1]{#1}}{}
+\makeatother
+\hypersetup{
+  pdftitle={mensik\_pset\_6},
+  pdfauthor={Kristina Mensik},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{mensik\_pset\_6}
+\author{Kristina Mensik}
+\date{2026-10-24}
+
+\begin{document}
+\maketitle
+
+\subsection{Problem 1 (a)}\label{problem-1-a}
+
+\[
+E[d_i(1)]
+\] The expected treatment status i would have when treatment is assigned
+is 1? Or do we factor in that we know 395 out of the 1,445 total
+assigned to treatment actually took the treatment, the rest didn't
+(ITT\_D) is approximately 0.273.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{395}\SpecialCharTok{/}\DecValTok{1445}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.2733564
+\end{verbatim}
+
+\[
+E[Y_i(0)|d_i(1) = 0]
+\] The expected untreated potential outcome for never takers is 36.48
+
+\[
+E[Y_i(0)|d_i(1) = 1]
+\] The expected untreated potential outcome for compliers is 37.54.
+
+\[
+E[Y_i(1)|d_i(1) = 1]
+\]
+
+The expected treated potential outcome for compliers is 54.43.
+
+\subsection{Problem 2}\label{problem-2}
+
+Half compliers, half never takers (not actually treated in 1SNC)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{schedule }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{Subjects =} \DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{,}
+  \AttributeTok{Type =} \FunctionTok{c}\NormalTok{(}\StringTok{"Complier"}\NormalTok{,}\StringTok{"Complier"}\NormalTok{,}\StringTok{"Complier"}\NormalTok{,}\StringTok{"NT"}\NormalTok{,}\StringTok{"NT"}\NormalTok{,}\StringTok{"NT"}\NormalTok{),}
+  \AttributeTok{Yi\_0 =} \FunctionTok{c}\NormalTok{(}\DecValTok{6}\NormalTok{, }\DecValTok{6}\NormalTok{, }\DecValTok{8}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{7}\NormalTok{, }\DecValTok{7}\NormalTok{),}
+  \AttributeTok{Yi\_1 =} \FunctionTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{7}\NormalTok{, }\DecValTok{7}\NormalTok{, }\DecValTok{30}\NormalTok{),}
+  \AttributeTok{di\_1 =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{),}
+  \AttributeTok{di\_0 =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{)}
+\NormalTok{)}
+
+\FunctionTok{View}\NormalTok{(schedule)}
+
+
+\NormalTok{schedule}\SpecialCharTok{$}\NormalTok{tau }\OtherTok{\textless{}{-}}\NormalTok{ schedule}\SpecialCharTok{$}\NormalTok{Yi\_1 }\SpecialCharTok{{-}}\NormalTok{ schedule}\SpecialCharTok{$}\NormalTok{Yi\_0}
+\NormalTok{ATE }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(schedule}\SpecialCharTok{$}\NormalTok{tau)}
+\NormalTok{CACE }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(schedule}\SpecialCharTok{$}\NormalTok{tau[schedule}\SpecialCharTok{$}\NormalTok{type }\SpecialCharTok{==} \StringTok{"Complier"}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+The ATE is misleading because a subject assigned to treatment that is a
+never taker skews the ATE positive.
+
+The CACE might be misleading because it does not provide information
+about never takers. It's possible that if never takers did take the
+treatment, the effect we are estimating would be different. However, I'm
+not sure if that is more artifact of the CACE as it is the trouble of
+never-takers themselves.
+
+\subsection{Problem 3}\label{problem-3}
+
+\subsubsection{3a}\label{a}
+
+If the ITT is negative, the CACE must be negative is true (ITT = ITT\_D
+* CACE)
+
+\subsubsection{3b}\label{b}
+
+No - the numerator might not stay constant when the ITTD changes, so we
+can't assume that the CACE would grow/shrink when ITTD shrinks/grows.
+
+\subsubsection{3c}\label{c}
+
+Yes - Y(d=1) effectively does not exist, or can't be observed. The setup
+is ``unidentified.''
+
+\subsection{Problem 4}\label{problem-4}
+
+\subsubsection{4a}\label{a-1}
+
+The expected potential outcomes of subjects when assigned to treatment
+does equal the expected potential outcome among subjects assigned to
+treatment, given that they are `treatment compliers' -- these are equal
+quantities under excludability.
+
+\subsubsection{4b}\label{b-1}
+
+Yes, because both sides of the equation have d\_i(1) = 0.
+
+\subsubsection{4c}\label{c-1}
+
+No - these are outcomes of people who don't take the treatment when
+assigned and people who do take the treatment when assigned. We can't
+expect the potential outcomes of people who do not take a treatment to
+be the same as those of people who do take a treatment.
+
+\subsubsection{4d}\label{d}
+
+Yes. The meaningful difference in these terms is that they show
+different assignment status. Excludability lets us only care about
+potential outcomes vis-a-vis treatments, not treatment assignments.
+
+\subsection{Problem 5}\label{problem-5}
+
+We can identify compliers: those assigned to treatment who take
+treatment. That's because in one sided non-comp, we rule out always by
+assumption.
+
+Among those assigned to control, we can't distinguish who is a complier
+versus a never taker (both who have di(0)=0 ) unless a placebo is
+assigned to the control. It also seems these statuses really depend on
+the experiment -- they are not about what a subject would do in all
+contexts, and even very similar versions of the same experiment.
+
+\subsection{Problem 6}\label{problem-6}
+
+\subsubsection{6a}\label{a-2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{400}\SpecialCharTok{/}\DecValTok{1000}\SpecialCharTok{*}\DecValTok{100}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 40
+\end{verbatim}
+
+40
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{(}\DecValTok{700}\SpecialCharTok{/}\DecValTok{2000}\NormalTok{) }\SpecialCharTok{*} \DecValTok{100}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 35
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{40{-}35}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{5}\SpecialCharTok{/}\NormalTok{(}\DecValTok{500}\SpecialCharTok{/}\DecValTok{1000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 10
+\end{verbatim}
+
+CACE = 10 percentage points
+
+\subsubsection{6b}\label{b-2}
+
+250 treated -- the ITT stays the same, but the ITT\_D changes or is now
+250/1000 =0.25. The CACE then is 5/0.25, or:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{5}\SpecialCharTok{/}\FloatTok{0.25}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 20
+\end{verbatim}
+
+20 percentage points.
+
+\subsubsection{6c}\label{c-2}
+
+If effectiveness is defined as the CACE, then their exaggeration
+diminishes the reported effect on turnout of their efforts. Given that
+the ITT is the same whether the true contact rate is reported, it might
+flummox researchers particularly if they have not themselves canvassed
+on a particularly hot summer day or in a less than entirely
+friendly-to-the-cause neighborhood.
+
+\subsection{Problem 8}\label{problem-8}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{getwd}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "/Users/kom11/Documents/GitHub/regression-study/Experiments"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{q6data }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"./doi{-}10.60600{-}yu{-}vuh8kd/Rind\_Bordia\_JASP\_1996.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{a}\label{a-3}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Y1\_treated }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{591}\SpecialCharTok{/}\DecValTok{1849}\NormalTok{)}\SpecialCharTok{*}\DecValTok{100}
+
+\NormalTok{Y0\_control }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{377}\SpecialCharTok{/}\DecValTok{1430}\NormalTok{)}\SpecialCharTok{*}\DecValTok{100}
+
+\NormalTok{ITT }\OtherTok{\textless{}{-}}\NormalTok{ Y1\_treated }\SpecialCharTok{{-}}\NormalTok{ Y0\_control}
+
+\NormalTok{ITT}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 5.599587
+\end{verbatim}
+
+Average recycling rates amongst those assigned to treatment were 5.6
+percentage points greater than those assigned to control (not canvassed
+about recycling).
+
+\subsubsection{b}\label{b-3}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ITT\_D }\OtherTok{\textless{}{-}} \DecValTok{1015} \SpecialCharTok{/} \DecValTok{1849}
+\NormalTok{ITT\_D}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.5489454
+\end{verbatim}
+
+Among those assigned to treatment, the compliance rate is 54.89.
+
+\subsubsection{c}\label{c-3}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+& Assigned treatment & Assigned control \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Total & 1,849 & 1,430 \\
+Canvassed (\$d\_i\$) & 1,015 & 0 \\
+Not Canvassed & 834 & 1,430 \\
+Recycled (\$Y\_i\$) & 591 & 377 \\
+Recycling Rate & 591/1849 = 31.96\% & 337/1430 = 26.36\% \\
+& & \\
+\end{longtable}
+}
+
+Expected recycling rate among those in the control group:
+
+\[
+E[Y_i(z=0)] = \pi_CE[Y_i(d=0)|C] + (1 - \pi_c)E[Y_i(d=0)|N]
+\]
+
+Expected recycling rate for those assigned to treatment:
+
+\[
+E[Y_i(z = 1)] = \pi_c * E[Y_i(d=1)|C] + (1 - \pi_c)E[Y_i(d=0)|N]
+\]
+
+\[
+\pi_c = P(d_i(1) = 1)
+\]
+
+= 0.549 (the proportion of compliers).
+
+Never-takers treatment receipt does not change across the two
+expectations. Also, we know that
+\(ITT_Y = E[Y_i(z = 1)] - E[Y_i(z=0)]\). We can take out the never
+takers, subtract the two expected rate equations, and substitute what's
+left into the above ITTY:
+
+\[
+ITT_Y = \pi_C(E[Y_i(1)|C] - E[Y_i(0)|C] + (1-\pi_C)(E[Y_i(0)|N] - E[Y_i(0) |N])
+\]
+
+sans never takers leaves:
+
+\$\$
+
+\pi\_C(E{[}Y\_i(1)\textbar C{]} - E{[}Y\_i(0)\textbar C{]}
+
+\$\$
+
+which is the CACE times the compliance rate (5.49).
+
+\subsubsection{d}\label{d-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{CACE }\OtherTok{\textless{}{-}}\NormalTok{ ITT}\SpecialCharTok{/}\NormalTok{ITT\_D}
+
+\NormalTok{CACE}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 10.20063
+\end{verbatim}
+
+There is a 10.2 percentage point effect of treatment for those who
+complied with it (10.2 percentage point increase in recycling after
+being canvassed).
+
+\subsubsection{e}\label{e}
+
+Comparing the recycling rates of the treated and untreated subjects
+alone tends to produce misleading estimates of the CACE because we are
+not isolating effects of having received treatment.
+
+\subsection{Problem 10}\label{problem-10}
+
+\subsubsection{a}\label{a-4}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{getwd}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "/Users/kom11/Documents/GitHub/regression-study/Experiments"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\_10 }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"/Users/kom11/Documents/GitHub/regression{-}study/Experiments/Guan\_Green\_CPS\_2006.csv"}\NormalTok{)}
+
+\NormalTok{data\_10 }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(data\_10)}
+
+\FunctionTok{table}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{treat2, data\_10}\SpecialCharTok{$}\NormalTok{contact)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    
+##        0    1
+##   0 1334    0
+##   1  307 2381
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ITT }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{turnout[data\_10}\SpecialCharTok{$}\NormalTok{treat2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{] }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{turnout[data\_10}\SpecialCharTok{$}\NormalTok{treat2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{]))}
+
+\NormalTok{ITT}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1319296
+\end{verbatim}
+
+The ITT is 0.1319.
+
+\subsubsection{b}\label{b-4}
+
+RI to test sharp null that ITT is zero for all observations, taking into
+account that random assignment was clustered by dorm room Yi(Z=1) =
+Yi(Z=0) for each i
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# data\_10 \%\textgreater{}\%}
+\CommentTok{\#   group\_by(dormid) \%\textgreater{}\%}
+\CommentTok{\#   mutate(}
+\CommentTok{\#     dorm\_pop = n()}
+\CommentTok{\#   ) \%\textgreater{}\%}
+\CommentTok{\#   ungroup ()}
+
+\CommentTok{\# I\textquotesingle{}m confused how to count treated dorms. RI by dorm means that what\textquotesingle{}s supposed to happen is in a dorm where one person is treated, everyone else should be treated. }
+
+\NormalTok{data\_10 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(dormid) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{any\_contact =} \FunctionTok{any}\NormalTok{(contact }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{n\_dorms\_contact =} \FunctionTok{sum}\NormalTok{(any\_contact)}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 1
+##   n_dorms_contact
+##             <int>
+## 1             590
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# 590 }
+
+
+\NormalTok{treated\_dorms }\OtherTok{\textless{}{-}}\NormalTok{ data\_10[data\_10}\SpecialCharTok{$}\NormalTok{treat2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, ]}
+
+\FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(treated\_dorms}\SpecialCharTok{$}\NormalTok{dormid))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 670
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# 670 dorms assigned to treatment}
+
+\NormalTok{dorm\_check }\OtherTok{\textless{}{-}}\NormalTok{ data\_10 }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(dormid) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{n\_assignments =} \FunctionTok{n\_distinct}\NormalTok{(treat2),}
+    \AttributeTok{assignment =} \FunctionTok{first}\NormalTok{(treat2),}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  )}
+
+\CommentTok{\# assignment clustered by dorm room?}
+\FunctionTok{all}\NormalTok{(dorm\_check}\SpecialCharTok{$}\NormalTok{n\_assignments }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# n dorms assigned to treatment}
+\NormalTok{n\_dorms\_assigned }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(dorm\_check}\SpecialCharTok{$}\NormalTok{assignment }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+
+\CommentTok{\# n dorms rooms in experiment}
+\NormalTok{n\_dorms }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(dorm\_check)}
+
+\FunctionTok{c}\NormalTok{(}\AttributeTok{n\_dorms =}\NormalTok{ n\_dorms, }\AttributeTok{n\_dorms\_assigned =}\NormalTok{ n\_dorms\_assigned)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##          n_dorms n_dorms_assigned 
+##             1004              670
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# 670 of 1004 dorms assigned}
+
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{6081709}\NormalTok{)}
+
+\NormalTok{delcare\_10 }\OtherTok{\textless{}{-}} \FunctionTok{declare\_ra}\NormalTok{(}
+  \AttributeTok{N =} \FunctionTok{nrow}\NormalTok{(data\_10),}
+  \AttributeTok{clusters =}\NormalTok{ data\_10}\SpecialCharTok{$}\NormalTok{dormid,}
+  \AttributeTok{m =}\NormalTok{ n\_dorms\_assigned}
+\NormalTok{)}
+
+\NormalTok{delcare\_10}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Random assignment procedure: Cluster random assignment 
+## Number of units: 4022 
+## Number of clusters: 1004
+## Number of treatment arms: 2 
+## The possible treatment categories are 0 and 1.
+## The number of possible random assignments is approximately infinite. 
+## The probabilities of assignment are constant across units: 
+##    prob_0    prob_1 
+## 0.3326693 0.6673307
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{permmatrix\_10 }\OtherTok{\textless{}{-}} \FunctionTok{obtain\_permutation\_matrix}\NormalTok{(delcare\_10)}
+
+\FunctionTok{dim}\NormalTok{(permmatrix\_10)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1]  4022 10000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{estimates\_10 }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(}\FunctionTok{ncol}\NormalTok{(permmatrix\_10))}
+
+\NormalTok{itt\_hat }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{turnout[data\_10}\SpecialCharTok{$}\NormalTok{treat2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{] }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{turnout[data\_10}\SpecialCharTok{$}\NormalTok{treat2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{]))}
+  
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(}\FunctionTok{ncol}\NormalTok{(permmatrix\_10))) \{}
+  
+\NormalTok{  ri }\OtherTok{\textless{}{-}}\NormalTok{ permmatrix\_10[, i]}
+  
+\NormalTok{  estimates\_10 [i] }\OtherTok{\textless{}{-}} 
+    \FunctionTok{mean}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{turnout[ri }\SpecialCharTok{==} \DecValTok{1}\NormalTok{], }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{{-}} \FunctionTok{mean}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{turnout[ri }\SpecialCharTok{==}\DecValTok{0}\NormalTok{], }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{\}}
+
+\FunctionTok{mean}\NormalTok{(estimates\_10)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -0.0002462874
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# centered around 0}
+
+
+\NormalTok{p\_val\_10 }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{sum}\NormalTok{(}\FunctionTok{abs}\NormalTok{(estimates\_10) }\SpecialCharTok{\textgreater{}=} \FunctionTok{abs}\NormalTok{(itt\_hat)) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{length}\NormalTok{(estimates\_10)}\SpecialCharTok{+}\DecValTok{1}\NormalTok{) }\CommentTok{\#at first got 0, but then used mc correction bc SEs likely dwarfed by large effect size}
+
+\NormalTok{itt\_hat}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1319296
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{p\_val\_10}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 9.999e-05
+\end{verbatim}
+
+The effect of assignment to canvassing was significantly statistic, so
+we can reject the null hypothesis.
+
+\subsubsection{c}\label{c-4}
+
+CACE assuming the leaflet alone had no effect on turnout seems like the
+functional equivalent of the exclusion restriction (thing that matters
+is being treated where treated means canvasser interaction). It is:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{itt\_hat}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{sum}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{contact)}\SpecialCharTok{/}\FunctionTok{sum}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{treat2))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1489402
+\end{verbatim}
+
+\subsubsection{d}\label{d-2}
+
+Turnout rate would have been 0.7 instead of 0.8
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#turnout for assigned to treatment}
+\DecValTok{2152}\SpecialCharTok{/}\DecValTok{2688}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.8005952
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{treated\_turnout }\OtherTok{\textless{}{-}} \DecValTok{2152}\SpecialCharTok{/}\DecValTok{2688}
+
+\NormalTok{no\_flyer\_treated\_turnout }\OtherTok{\textless{}{-}}\NormalTok{ (}\FloatTok{0.79} \SpecialCharTok{*} \DecValTok{2688}\NormalTok{)}
+
+\NormalTok{no\_flyer\_treated\_turnout }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2123.52
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#assuming the .52 means 1 percentage point is rounded}
+
+\NormalTok{no\_flyer\_treated\_turnout }\OtherTok{\textless{}{-}}\NormalTok{ treated\_turnout }\SpecialCharTok{{-}} \FloatTok{0.01}
+
+\NormalTok{no\_flyer\_treated\_turnout}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.7905952
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#this was sort of silly to do because I was just told it is 0.8{-}0.01.}
+
+\CommentTok{\# total proportion compliers}
+\DecValTok{2380}\SpecialCharTok{/}\DecValTok{2688}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.8854167
+\end{verbatim}
+
+\$\$
+
+\pi\_\{d(1)=1\} = 2380/2688
+
+\textbackslash{} \textbackslash{}
+
+\pi\_\{d(1)=1\} = \frac{Y(d = 1, z = 1)}{Y(z = 1)}
+
+\textbackslash{} \textbackslash{}
+
+\mu\_\{comlier-canvassed-human\} = E{[}Y(z=1, d=1)\textbar d(1) = 1{]}
+
+\textbackslash{} \textbackslash{}
+
+\mu\_\{complier-not-canvassed\} = E{[}Y(z=0, d = 0)\textbar d(1) = 1{]}
+
+\textbackslash{} \textbackslash{}
+
+\mu\_\{nevertaker-not-canvassed\} = E{[}Y(z=0, d = 0)\textbar d(1) =
+0{]}
+
+\$\$ Treatment-assigned turnout then:
+
+\$\$
+
+E{[}Y\_i\textbar z\_i = 1{]} =
+\pi\emph{\{d(1)=1\}\mu}\{comlier-canvassed-human\} +
+(1-\pi\emph{\{d(1)=1\})\mu}\{nevertaker-not-canvassed\} + 0.01
+
+\$\$ Control-assigned turnout:
+
+\$\$
+
+E{[}Y\_i\textbar z\_i = 0{]} =
+\pi\emph{\{d(1)=1\}\mu}\{complier-not-canvassed\} + (1 - \pi\emph{\{d(1)
+= 1\})\mu}\{nevertaker-not-canvassed\}
+
+\$\$ \#\#\# e CACE of canvassing
+
+I know E{[}{]} treated = 0.7906, and E{[}{]} control = 0.6687
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{prop\_complier }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{contact[data\_10}\SpecialCharTok{$}\NormalTok{treat2 }\SpecialCharTok{==} \DecValTok{1}\NormalTok{])}
+
+\CommentTok{\# itt hat {-} 0.01 / pi complier}
+\CommentTok{\# }
+\CommentTok{\# cace\_10e \textless{}{-} itt\_hat {-} 0.01 /pi\_complier}
+
+\NormalTok{control\_turnout }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(data\_10}\SpecialCharTok{$}\NormalTok{turnout[data\_10}\SpecialCharTok{$}\NormalTok{treat2 }\SpecialCharTok{==} \DecValTok{0}\NormalTok{])}
+
+\CommentTok{\#treated\_turnout }
+\CommentTok{\#no\_flyer\_treated\_turnout }
+
+\NormalTok{cace\_canvassing }\OtherTok{\textless{}{-}}\NormalTok{ (}
+\NormalTok{  no\_flyer\_treated\_turnout }\SpecialCharTok{{-}}\NormalTok{ control\_turnout}
+\NormalTok{) }\SpecialCharTok{/}\NormalTok{ prop\_complier}
+
+\NormalTok{cace\_canvassing}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1376509
+\end{verbatim}
+
+The CACE is 0.137
+
+\subsubsection{f}\label{f}
+
+CACE if leaflet had no effect on compliers and raised turnout among
+never takers by 3 pct points. Have: ITT\_hat proportion compliers
+(prop\_complier) Y\_hat for control (control\_turnout) Y-hat for treated
+when all assigned to treatment are counted as treated (treated\_turnout)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#change to ITT is 0.03 * prop never takers}
+\CommentTok{\# is 0.03 * (1{-}prop\_complier)}
+
+\NormalTok{prop\_nts }\OtherTok{\textless{}{-}} \DecValTok{1}\SpecialCharTok{{-}}\NormalTok{prop\_complier}
+
+\NormalTok{new\_itt }\OtherTok{\textless{}{-}}\NormalTok{ itt\_hat}\SpecialCharTok{{-}}\NormalTok{(.}\DecValTok{03}\SpecialCharTok{*}\NormalTok{prop\_nts)}
+
+\CommentTok{\# cace is new / prop\_complier}
+
+\NormalTok{new\_itt }\SpecialCharTok{/}\NormalTok{ prop\_complier}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1450721
+\end{verbatim}
+
+\end{document}
