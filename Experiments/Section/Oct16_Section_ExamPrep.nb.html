@@ -1753,18 +1753,527 @@ Section</h1>
 
 
 <!-- rnb-text-begin -->
-<p>$$ E[Y_i(z=0)] = <em>C * E[Y_i(d_i(0), z=0) | d_i(1) = 1]]
-+</em>{NT}*E[Y_i(d_i(0),z=0)|d_i(1)=0]</p>
-<p>E[Y_i(z=1)] = <em>C * E[Y_i(d_i(1), z=1) | d_i(1) = 1]]
-+</em>{NT}*E[Y_i(d_i(1),z=0)|d_i(1)=0] $$</p>
+<p>$$ E[Y_i(z=0)] = C * E[Y_i(d_i(0), z=0) | d_i(1) = 1]]
++**E[Y_i(d_i(0),z=0)|d_i(1)=0]</p>
+<p>E[Y_i(z=1)] = C * E[Y_i(d_i(1), z=1) | d_i(1) = 1]]
++**E[Y_i(d_i(1),z=0)|d_i(1)=0] $$</p>
 <p>next step is replacing di(0) with di(z=0)</p>
 <ul>
 <li>Jumping to problem set question covered in section on placebo
 designs</li>
 </ul>
+<div id="terms" class="section level2">
+<h2>Terms</h2>
+</div>
+<div id="polsci-672-exam-terms-self-assessment" class="section level1">
+<h1>POLSCI 672 — Exam Terms: Self-Assessment</h1>
+<div id="foundations-correlation-causation-and-potential-outcomes" class="section level2">
+<h2>1. Foundations: Correlation, Causation, and Potential Outcomes</h2>
+<div id="mathematical-notation" class="section level3">
+<h3>Mathematical notation</h3>
+<ul>
+<li>i:</li>
+<li>N:</li>
+<li>m:</li>
+<li>d_i:</li>
+<li>d_i = 0:</li>
+<li>d_i = 1:</li>
+<li>Y_i(0):</li>
+<li>Y_i(1):</li>
+<li>Y_i:</li>
+<li>tau_i (τ_i):</li>
+<li>tau (τ):</li>
+<li>ATE:</li>
+<li>E[ ]:</li>
+<li>E[Y_i(0)]:</li>
+<li>E[Y_i(1)]:</li>
+<li>E[ | ]:</li>
+<li>E[Y_i(0) | D_i = 0]:</li>
+<li>Σ (summation):</li>
+<li>Y_i(1) - Y_i(0):</li>
+</ul>
+</div>
+<div id="foundational-concepts" class="section level3">
+<h3>Foundational concepts</h3>
+<ul>
+<li>Correlation / association:</li>
+<li>Causation:</li>
+<li>Confounding:</li>
+<li>Directed acyclic graph (DAG):</li>
+<li>Backdoor path:</li>
+<li>Potential outcomes framework:</li>
+<li>Counterfactual:</li>
+<li>Fundamental problem of causal inference (FPCI):</li>
+<li>Switching equation:</li>
+<li>Treatment-effect heterogeneity:</li>
+<li>Constant treatment effect:</li>
+</ul>
+</div>
+</div>
+<div id="random-assignment-and-experimental-design" class="section level2">
+<h2>2. Random Assignment and Experimental Design</h2>
+<ul>
+<li>Random:</li>
+<li>Random assignment:</li>
+<li>Random sampling:</li>
+<li>Simple random assignment:</li>
+<li>Complete random assignment:</li>
+<li>D_i:</li>
+<li>d_i versus D_i:</li>
+<li>p_i:</li>
+<li>Assignment vector:</li>
+<li>Assignment mechanism:</li>
+<li>Statistical independence:</li>
+<li>Randomization independence:</li>
+<li>Treatment group:</li>
+<li>Control group:</li>
+<li>Laboratory experiment:</li>
+<li>Survey experiment:</li>
+<li>Field experiment:</li>
+<li>Natural experiment:</li>
+<li>Quasi-experiment:</li>
+</ul>
+</div>
+<div id="estimation-unbiasedness-and-identification-assumptions" class="section level2">
+<h2>3. Estimation, Unbiasedness, and Identification Assumptions</h2>
+<ul>
+<li>Estimand:</li>
+<li>Estimator:</li>
+<li>Estimate:</li>
+<li>θ (theta):</li>
+<li>θ̂ (theta hat):</li>
+<li>Difference-in-means (DIM) estimator:</li>
+<li>Y-bar_1 - Y-bar_0:</li>
+<li>Unbiased estimator:</li>
+<li>Bias:</li>
+<li>Identification:</li>
+<li>Identification assumption:</li>
+<li>Selection bias:</li>
+<li>Excludability:</li>
+<li>Non-interference:</li>
+<li>Spillover:</li>
+<li>Randomization imbalance:</li>
+<li>Balance in expectation:</li>
+<li>ρ(X,Y):</li>
+<li>Cov(X,Y):</li>
+</ul>
+</div>
+<div id="sampling-distributions-uncertainty-and-statistical-inference" class="section level2">
+<h2>4. Sampling Distributions, Uncertainty, and Statistical
+Inference</h2>
+<ul>
+<li>Sampling distribution:</li>
+<li>Sampling variability:</li>
+<li>Var(X):</li>
+<li>Standard deviation (SD):</li>
+<li>Standard error (SE):</li>
+<li>Estimated standard error:</li>
+<li>Precision:</li>
+<li>Accuracy:</li>
+<li>Null hypothesis (H_0):</li>
+<li>Alternative hypothesis (H_A):</li>
+<li>Sharp null hypothesis:</li>
+<li>Null of zero average treatment effect:</li>
+<li>Test statistic:</li>
+<li>Randomization inference:</li>
+<li>Randomization distribution:</li>
+<li>Permutation matrix:</li>
+<li>p-value:</li>
+<li>One-sided test:</li>
+<li>Two-sided test:</li>
+<li>Statistical significance:</li>
+<li>Significance level (α):</li>
+<li>Type I error:</li>
+<li>Type II error:</li>
+<li>Confidence interval (CI):</li>
+<li>Confidence level:</li>
+<li>Statistical power:</li>
+<li>Minimum detectable effect (MDE):</li>
+</ul>
+</div>
+<div id="covariates-regression-and-precision" class="section level2">
+<h2>5. Covariates, Regression, and Precision</h2>
+<ul>
+<li>Covariate (X_i):</li>
+<li>Pretreatment covariate:</li>
+<li>Post-treatment covariate:</li>
+<li>Pretest:</li>
+<li>Posttest:</li>
+<li>Prognostic covariate:</li>
+<li>Covariate adjustment:</li>
+<li>Change score:</li>
+<li>Difference-in-differences (DiD):</li>
+<li>Ordinary least squares (OLS):</li>
+<li>Intercept:</li>
+<li>Regression coefficient / slope:</li>
+<li>Residual:</li>
+<li>Sum of squared residuals (SSR):</li>
+<li>R-squared (R²):</li>
+<li>Covariate balance check:</li>
+<li>Randomization check:</li>
+<li>F-statistic:</li>
+<li>Joint significance:</li>
+</ul>
+</div>
+<div id="blocking-clustering-and-experimental-design" class="section level2">
+<h2>6. Blocking, Clustering, and Experimental Design</h2>
+<ul>
+<li>Blocking:</li>
+<li>Block:</li>
+<li>Block random assignment:</li>
+<li>Homogeneous block:</li>
+<li>Matched pair:</li>
+<li>Mahalanobis distance:</li>
+<li>Clustering:</li>
+<li>Cluster random assignment:</li>
+<li>Block versus cluster:</li>
+<li>Block-specific treatment effect:</li>
+<li>Block-weighted ATE estimator:</li>
+<li>Inverse-probability weighting (IPW):</li>
+<li>1/p_i:</li>
+<li>Differential assignment probabilities:</li>
+<li>Block fixed effects:</li>
+<li>Cluster-robust standard errors:</li>
+<li>Restricted randomization:</li>
+<li>Rerandomization:</li>
+</ul>
+</div>
+<div id="one-sided-noncompliance" class="section level2">
+<h2>7. One-Sided Noncompliance</h2>
+<ul>
+<li>Compliance:</li>
+<li>Noncompliance:</li>
+<li>One-sided noncompliance:</li>
+<li>Two-sided noncompliance:</li>
+<li>z_i:</li>
+<li>d_i (under noncompliance):</li>
+<li>z_i = 1, d_i = 0:</li>
+<li>d_i(z):</li>
+<li>d_i(1) = 1:</li>
+<li>d_i(1) = 0:</li>
+<li>d_i(0) = 0:</li>
+<li>Complier:</li>
+<li>Never-taker:</li>
+<li>Subject type:</li>
+<li>Y_i(z,d):</li>
+<li>Intent-to-treat effect on outcomes (ITT_Y):</li>
+<li>Intent-to-treat effect on treatment receipt (ITT_D):</li>
+<li>Compliance rate (π_C):</li>
+<li>Complier average causal effect (CACE):</li>
+<li>ITT_Y / ITT_D:</li>
+<li>Exclusion restriction:</li>
+<li>ITT_D &gt; 0:</li>
+<li>Consistency of an estimator:</li>
+<li>Ratio estimator:</li>
+<li>Placebo treatment:</li>
+<li>Encouragement design:</li>
+</ul>
+</div>
+<div id="additional-concepts-and-functions-from-r-labs" class="section level2">
+<h2>8. Additional Concepts and Functions from R Labs</h2>
+<ul>
+<li>set.seed():</li>
+<li>simple_ra():</li>
+<li>complete_ra():</li>
+<li>block_ra():</li>
+<li>declare_ra():</li>
+<li>conduct_ra():</li>
+<li>obtain_permutation_matrix():</li>
+<li>difference_in_means():</li>
+<li>lm_robust():</li>
+<li>rbinom():</li>
+<li>potential_outcomes():</li>
+<li>reveal_outcomes():</li>
+<li>simulate_design():</li>
+<li>diagnose_designs():</li>
+</ul>
+</div>
+<div id="mathematical-expressions-to-translate-into-plain-english" class="section level2">
+<h2>9. Mathematical Expressions to Translate into Plain English</h2>
+<div id="equation-1-switching-equation" class="section level3">
+<h3>Equation 1: Switching equation</h3>
+<p><span class="math inline">\(Y_i = d_i Y_i(1) +
+(1-d_i)Y_i(0)\)</span></p>
+<p>Explanation:</p>
+</div>
+<div id="equation-2-unbiasedness" class="section level3">
+<h3>Equation 2: Unbiasedness</h3>
+<p><span class="math inline">\(E[\hat{\theta}] = \theta\)</span></p>
+<p>Explanation:</p>
+</div>
+<div id="equation-3-standard-error" class="section level3">
+<h3>Equation 3: Standard error</h3>
+<p><span class="math inline">\(SE(\hat{\theta})\)</span></p>
+<p>Explanation:</p>
+</div>
+<div id="equation-4-sharp-null-of-no-effect" class="section level3">
+<h3>Equation 4: Sharp null of no effect</h3>
+<p><span class="math inline">\(H_0: \tau_i = 0 \quad \forall
+i\)</span></p>
+<p>Explanation:</p>
+</div>
+<div id="equation-5-null-of-zero-ate" class="section level3">
+<h3>Equation 5: Null of zero ATE</h3>
+<p><span class="math inline">\(H_0: ATE = 0\)</span></p>
+<p>Explanation:</p>
+</div>
+<div id="equation-6-statistical-significance" class="section level3">
+<h3>Equation 6: Statistical significance</h3>
+<p><span class="math inline">\(p &lt; 0.05\)</span></p>
+<p>Explanation:</p>
+</div>
+<div id="equation-7-intent-to-treat-effect" class="section level3">
+<h3>Equation 7: Intent-to-treat effect</h3>
+<p><span class="math inline">\(ITT_Y = E[Y_i \mid Z_i=1] - E[Y_i \mid
+Z_i=0]\)</span></p>
+<p>Explanation:</p>
+</div>
+<div id="equation-8-complier-average-causal-effect" class="section level3">
+<h3>Equation 8: Complier average causal effect</h3>
+<p><span class="math inline">\(CACE = \frac{ITT_Y}{ITT_D}\)</span></p>
+<p>Explanation:</p>
+</div>
+<div id="equation-9-bias-of-a-ratio-estimator" class="section level3">
+<h3>Equation 9: Bias of a ratio estimator</h3>
+<p><span class="math inline">\(E[\widehat{ITT}_Y/\widehat{ITT}_D] \neq
+ITT_Y/ITT_D\)</span></p>
+<p>Explanation:</p>
+</div>
+</div>
+<div id="important-conceptual-distinctions" class="section level2">
+<h2>10. Important Conceptual Distinctions</h2>
+<p>Explain the difference between each pair or group in your own
+words.</p>
+<ol style="list-style-type: decimal">
+<li>Correlation versus causation:</li>
+</ol>
+<p>Correlation is about how two variables co-vary. Ie, rates of news
+watching increase or decrease when rates of news reading increase or
+decrease.</p>
+<p>Causation means we have established that the change is one variable
+is the result of the change in or turning off or on of another variable.
+One way causation can be established is with randomization, because it
+severs the connection between the outcome of interest and the world of
+possible alternative covariables which is infinate. The other way
+causation is estimated is by fitting models and attempting to hold other
+possible covariates fixed. the problem with the latter is that the list
+of possible covariates is unknowable.</p>
+<p>I’m going to try to say in a different way how randomization can help
+establish causation. Under randomization – a procedure where assignment
+to treatment is known, between 0 and 1, and replicable – we can
+construct an estimator. The estimator is not a signle thing, but a
+procedure for looking at a relationship across (in theory at least) a
+large number of different samples. Imagine that someone walks into a
+bar, does a randomization procedure to assign 10 people in the bar to
+treatment and 10 to control. Say the treatment is reading his poem, and
+the outcome is the quality of a night the 20 customers report having on
+a 10 point scale (1 is the worst, 10 is the best). Say the experimenter
+finds people who got the treatment (poem) report an average of an 8 out
+of 10 night over a 6 out of 10 night. The story of how randomization
+brings us closer towards identifying causation is not that because on
+this night, he randomly assigned people to read his poem, he has
+severeld the link between other factors that could explain better nights
+and the outcome. It is that, if he did this over and over again, and N
+converged toward infinity, the estimated effect would move closer to the
+true effect…because if done over and over again, (tho also in the
+context of the single experiment) everyone sampled would have an equal
+probability of being assigned to treatment.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Potential outcomes versus observed outcomes:</li>
+</ol>
+<p>Potential outcomes are hypotheticals and every study unit has two of
+them. They are counterfactual states of the world: the state of the
+world where unit is treated and state of the world where unit is not
+treated.</p>
+<p>We need both potential outcomes to explain the true effect of
+treatment for a unit.</p>
+<p>Observed outcomes are those outcomes (treated or untreated) that we
+actually can observe when we run an experiment.</p>
+<p>We can use observed outcomes and other things to estimate treatment
+effects: differences in means (between the treated and untreated), local
+average treatment effects (not remembering but think that is when we’re
+looking at something like and RD with a cutoff), conditional average
+treatment effects, and average treatment effects for compliers.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Random sampling versus random assignment:</li>
+</ol>
+<p>Random sampling is a procedure for creating a sample, random
+assignment is a procedure for assigning units in a sample to treatment
+or control.</p>
+<p>For example, random sampling might be when I have a pool of emails,
+and I send invitations to the emails in some way inviting ppl to take a
+survey. Random assignment is the procedure through which I would send
+out the survey - imagine that its a vignette type survey that includes a
+treatment frame and a control frame, so random assignment would be there
+the procedure for who gets the version of the survey with the treatment
+and who gets it without. Each person’s probability of getting the
+treatment survey would be some known figure between 0 and 1 and the
+procedure would be replicable.</p>
+<ol start="4" style="list-style-type: decimal">
+<li>Estimand versus estimator versus estimate:</li>
+</ol>
+<p>The estimand is the procedure ? and estimate is the result of a
+single draw. I think I confuse estimand and estimator. Or is estimand
+the true value that we can’t know, and we’re trying to estimate with the
+estimator?</p>
+<ol start="5" style="list-style-type: decimal">
+<li>Unbiasedness versus precision versus consistency:</li>
+</ol>
+<p>Biased means there is something that affects the outcome that also
+affects units’ probability of being treated. Consistency is that if we
+were to do the experiment a large number of times, the estimated value
+would converge on the true value.</p>
+<ol start="6" style="list-style-type: decimal">
+<li>Excludability versus non-interference:</li>
+</ol>
+<p>Excludability and non-interference always feel closely related and I
+tend to swap them.</p>
+<p>Excludability means that one unit being treated does not affect
+anyone else’s likelihood of receiving the treatment.</p>
+<p>Non-interference means that a change in one units outcome is only
+affected by that unit being treated, not the treatment status of other
+units? That seems wrong.</p>
+<p>The example I think of is a study where students live in dorms, and
+individual students getting assigned to treatment means they receive a
+newspaper.</p>
+<ol start="7" style="list-style-type: decimal">
+<li>Blocking versus clustering:</li>
+</ol>
+<p>Blocking means that you assign subjects to a block - often groups
+that already reflect some grouping in the real world that you’re
+studying. Example: you want to know how testimony from incarcerated
+organizers affects legislators willingness to visit a prison. Say all
+legislators in your study will receive a letter from someone in prison
+who says they are the legislators’ constituent, and asks the legislator
+to come visit the prison to understand conditions or build relationships
+with constituents there. The treatment will be that treated legislators
+will first receive a letter from an incarcerated constituent that is
+testimony they wrote in support of some piece of legislation.</p>
+<p>I might be stretching with this example, but one benefit of blocking
+here might be if you group legislators by committee. Then, you assign
+treatment by committee. The idea is that legislators on the same
+committee might talk to one another, so complete random assignment might
+violate the assumption that one units treatment doesn’t affect another
+units treatment.</p>
+<p>In a blocking design, you would group legislators by committee and
+then randomly assign treatment across committees. You would estimate the
+average outcome across committees, not individual legislators.</p>
+<p>In clustering, you create a bunch of mini experiments. If you
+“clustered” by grouping legislators into their committees, you would
+then randomly assign treatment within the committee, and estimate the
+average difference bewteen untreated and treated legislators within the
+committee, take those within-committee average differences, and average
+them.</p>
+<p>Perhaps the more intuitive clustering situation in this would be if
+you cluster by legislature.</p>
+<ol start="8" style="list-style-type: decimal">
+<li>Blocking versus regression adjustment:</li>
+</ol>
+<p>In regression adjustment, you are doing post-experiment adjustments.
+You would have measured other variables (covariates) and then hold them
+fixed. For example, you would measure legislators’ committee assignment,
+and include it as a covariate so you can say: net of committee
+assignment, here is the associated effect of exposure to testimony on
+willingness to visit prison.</p>
+<p>Blocking is like doing regression adjustment but “live” in the
+experiment. The downside is you loose some numerical power. The upside
+is you might gain precision.</p>
+<ol start="9" style="list-style-type: decimal">
+<li>ATE versus ITT versus CACE:</li>
+</ol>
+<p>The ATE is the average treatment effect. The ITT is the the thing
+that goes in the numerator above the ITTD. So ITT is usually short for
+ITTY? The ITT is the “first” something. The ITTD is the ratio of
+assigned to treated units to actually or took-treatment units. The ITT
+over ITTD lets you estimate the ATE for compliers: the CACE.</p>
+<p>I wanted to say that with the CACE, it might feel like you “throw
+away” observations. But I’m not sure if that’s true.</p>
+<ol start="10" style="list-style-type: decimal">
+<li>Standard deviation versus standard error:</li>
+</ol>
+<p>Standard deviation is the square root of the average distance between
+observations and the mean observations. The standard error uses the SD?
+It is the estimated difference between observations and the truth in
+standard deviations? Problematic that I still don’t have that down
+cold</p>
+<ol start="11" style="list-style-type: decimal">
+<li>Sharp null versus null of zero ATE:</li>
+</ol>
+<p>The sharp null is H0: no effect of treatment. We test the sharp null
+to get our p value. That is, we find out the probability of finding a
+value as “extreme” as the one we observe, if the relationship between
+the independent and dependent variable were actually 0.</p>
+<p>null of zero ATE makes me think I’ve gotten the sharp null wrong,
+because I basically want to say they’re the same things.</p>
+<ol start="12" style="list-style-type: decimal">
+<li>Treatment assignment versus treatment receipt:</li>
+</ol>
+<p>Treatment assignment (zi) is whether during randomization, a study
+unit is assigned to get treatment. Whether they actually “take” the
+treatment is treatment receipt (di). Because of the exclusion
+restriction, we get to only “care” about treatment receipt.</p>
+<p>I’m forgetting the right notation here and maybe switching them. If
+not, zi= 1 means takes treatment, zi=0 means doesn’t take the treatment,
+and di=1 = assigned to treatment, di=0 means assigned to control. But
+here’s what else I understand: - everyone in a study could be a complier
+(always take treatment when assigned, “take” control when assigned to
+control), defier (do the opposite of what they’re assigned), never
+taker, or always taker, treatment assignment does not mean receipt. This
+might be something about individuals in the context of the study
+(shouldn’t assume it is true of the individual across all study
+contexts) and it might be something that is a product of survey
+implementation (ie, hired door knockers don’t actually knock on assigned
+doors).</p>
+<p>In one sided noncompliance, we limit these groups by assumption to
+compliers and never takers.</p>
+<p>I know I need to work on translating some of the relevant notation on
+this to plain english.</p>
+<p>Situations like E[Yi(D=1)| (notation establishing a never taker)]
+winds up meaning E[Yi(D=0)].</p>
+<ol start="13" style="list-style-type: decimal">
+<li>Statistical significance versus substantive significance:</li>
+</ol>
+<p>Statistical significance is often about 95% or some other given
+confidence interval. We say a p value less than 0.05 is significant.
+That would report the probability of observing a value as extreme as
+that observed if the relationship were 0.</p>
+<p>Substantive significance requires thinking about study context. For
+example, say we find some relationship between rate of visiting prison
+and exposure to incarcerated testimony. Understandign substantive
+significance requires thinking about whether the estimated effect is
+actually meaningful: is it very sifnificant, but does the numerical
+value of the estimate suggest just a fleeting or imperceptable
+likelihood? I’m not explaining it well with that example.</p>
+<p>Ignoring the example, you’d think about the scale of the actual DV,
+your theory/hypothesis. Example: I live in an apartment complex with two
+buildings. I run an expiriment where I see whether turning on one
+building’s fire alarm at 3am leads to people leaving the building within
+the hour it takes for the fire department to arrive and figure out how
+to turn the alarm off.</p>
+<p>I would expect that like 70% of the apartments in the building with
+the alarm going off to leave the building. I might expect a few people
+in the adjacent building to leave there’s if they can hear the alarm
+from the other building. If I find that the difference in apartment
+leaving at 3am between the two buildings is like 3% and that effect is
+very statistically significant, I wouldn’t make too much of the results:
+in the research context, that is an oddly small effect</p>
+<ol start="14" style="list-style-type: decimal">
+<li>Randomization inference versus conventional sampling-based
+inference:</li>
+</ol>
+<p>In conventional sampling-based inference….I’m not actually sure.</p>
+<p>I know in RI we do a procedure to estimate something about our
+sample. We set the seed, create an empty vector, run a for loop…</p>
+<ol start="15" style="list-style-type: decimal">
+<li>Individual treatment effect versus average treatment effect:</li>
+</ol>
+<p>individual treatment effect is the treatment affect on one unit,
+versus the average of effects across units.</p>
 <!-- rnb-text-end -->
+</div>
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiRXhwZXJpbWVudHMgRXhhbSBQcmVwIGFuZCBPY3QgMTYgU2VjdGlvbiIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKJCQKRVtZX2koej0wKV0gPSBccGlfQyAqIEVbWV9pKGRfaSgwKSwgej0wKSB8IGRfaSgxKSA9IDFdXQorXHBpX3tOVH0qRVtZX2koZF9pKDApLHo9MCl8ZF9pKDEpPTBdCgpFW1lfaSh6PTEpXSA9IFxwaV9DICogRVtZX2koZF9pKDEpLCB6PTEpIHwgZF9pKDEpID0gMV1dCitccGlfe05UfSpFW1lfaShkX2koMSksej0wKXxkX2koMSk9MF0KJCQKCm5leHQgc3RlcCBpcyByZXBsYWNpbmcgZGkoMCkgd2l0aCBkaSh6PTApCgotIEp1bXBpbmcgdG8gcHJvYmxlbSBzZXQgcXVlc3Rpb24gY292ZXJlZCBpbiBzZWN0aW9uIG9uIHBsYWNlYm8gZGVzaWducwoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiRXhwZXJpbWVudHMgRXhhbSBQcmVwIGFuZCBPY3QgMTYgU2VjdGlvbiIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKXCRcJCBFW1lfaSh6PTApXSA9IFxwaSpDIFwqIEVbWV9pKGRfaSgwKSwgej0wKSBcfCBkX2koMSkgPSAxXV0gKypccGl7TlR9XCpFW1lfaShkX2koMCksej0wKVx8ZF9pKDEpPTBdCgpFW1lfaSh6PTEpXSA9IFxwaSpDIFwqIEVbWV9pKGRfaSgxKSwgej0xKSBcfCBkX2koMSkgPSAxXV0gKypccGl7TlR9XCpFW1lfaShkX2koMSksej0wKVx8ZF9pKDEpPTBdIFwkXCQKCm5leHQgc3RlcCBpcyByZXBsYWNpbmcgZGkoMCkgd2l0aCBkaSh6PTApCgotIEp1bXBpbmcgdG8gcHJvYmxlbSBzZXQgcXVlc3Rpb24gY292ZXJlZCBpbiBzZWN0aW9uIG9uIHBsYWNlYm8gZGVzaWducwoKIyMgVGVybXMKCiMgUE9MU0NJIDY3MiDigJQgRXhhbSBUZXJtczogU2VsZi1Bc3Nlc3NtZW50CgojIyAxLiBGb3VuZGF0aW9uczogQ29ycmVsYXRpb24sIENhdXNhdGlvbiwgYW5kIFBvdGVudGlhbCBPdXRjb21lcwoKIyMjIE1hdGhlbWF0aWNhbCBub3RhdGlvbgoKLSBpOgotIE46Ci0gbToKLSBkX2k6Ci0gZF9pID0gMDoKLSBkX2kgPSAxOgotIFlfaSgwKToKLSBZX2koMSk6Ci0gWV9pOgotIHRhdV9pICjPhF9pKToKLSB0YXUgKM+EKToKLSBBVEU6Ci0gRVsgXToKLSBFW1lfaSgwKV06Ci0gRVtZX2koMSldOgotIEVbIFx8IF06Ci0gRVtZX2koMCkgXHwgRF9pID0gMF06Ci0gzqMgKHN1bW1hdGlvbik6Ci0gWV9pKDEpIC0gWV9pKDApOgoKIyMjIEZvdW5kYXRpb25hbCBjb25jZXB0cwoKLSBDb3JyZWxhdGlvbiAvIGFzc29jaWF0aW9uOgotIENhdXNhdGlvbjoKLSBDb25mb3VuZGluZzoKLSBEaXJlY3RlZCBhY3ljbGljIGdyYXBoIChEQUcpOgotIEJhY2tkb29yIHBhdGg6Ci0gUG90ZW50aWFsIG91dGNvbWVzIGZyYW1ld29yazoKLSBDb3VudGVyZmFjdHVhbDoKLSBGdW5kYW1lbnRhbCBwcm9ibGVtIG9mIGNhdXNhbCBpbmZlcmVuY2UgKEZQQ0kpOgotIFN3aXRjaGluZyBlcXVhdGlvbjoKLSBUcmVhdG1lbnQtZWZmZWN0IGhldGVyb2dlbmVpdHk6Ci0gQ29uc3RhbnQgdHJlYXRtZW50IGVmZmVjdDoKCiMjIDIuIFJhbmRvbSBBc3NpZ25tZW50IGFuZCBFeHBlcmltZW50YWwgRGVzaWduCgotIFJhbmRvbToKLSBSYW5kb20gYXNzaWdubWVudDoKLSBSYW5kb20gc2FtcGxpbmc6Ci0gU2ltcGxlIHJhbmRvbSBhc3NpZ25tZW50OgotIENvbXBsZXRlIHJhbmRvbSBhc3NpZ25tZW50OgotIERfaToKLSBkX2kgdmVyc3VzIERfaToKLSBwX2k6Ci0gQXNzaWdubWVudCB2ZWN0b3I6Ci0gQXNzaWdubWVudCBtZWNoYW5pc206Ci0gU3RhdGlzdGljYWwgaW5kZXBlbmRlbmNlOgotIFJhbmRvbWl6YXRpb24gaW5kZXBlbmRlbmNlOgotIFRyZWF0bWVudCBncm91cDoKLSBDb250cm9sIGdyb3VwOgotIExhYm9yYXRvcnkgZXhwZXJpbWVudDoKLSBTdXJ2ZXkgZXhwZXJpbWVudDoKLSBGaWVsZCBleHBlcmltZW50OgotIE5hdHVyYWwgZXhwZXJpbWVudDoKLSBRdWFzaS1leHBlcmltZW50OgoKIyMgMy4gRXN0aW1hdGlvbiwgVW5iaWFzZWRuZXNzLCBhbmQgSWRlbnRpZmljYXRpb24gQXNzdW1wdGlvbnMKCi0gRXN0aW1hbmQ6Ci0gRXN0aW1hdG9yOgotIEVzdGltYXRlOgotIM64ICh0aGV0YSk6Ci0gzrjMgiAodGhldGEgaGF0KToKLSBEaWZmZXJlbmNlLWluLW1lYW5zIChESU0pIGVzdGltYXRvcjoKLSBZLWJhcl8xIC0gWS1iYXJfMDoKLSBVbmJpYXNlZCBlc3RpbWF0b3I6Ci0gQmlhczoKLSBJZGVudGlmaWNhdGlvbjoKLSBJZGVudGlmaWNhdGlvbiBhc3N1bXB0aW9uOgotIFNlbGVjdGlvbiBiaWFzOgotIEV4Y2x1ZGFiaWxpdHk6Ci0gTm9uLWludGVyZmVyZW5jZToKLSBTcGlsbG92ZXI6Ci0gUmFuZG9taXphdGlvbiBpbWJhbGFuY2U6Ci0gQmFsYW5jZSBpbiBleHBlY3RhdGlvbjoKLSDPgShYLFkpOgotIENvdihYLFkpOgoKIyMgNC4gU2FtcGxpbmcgRGlzdHJpYnV0aW9ucywgVW5jZXJ0YWludHksIGFuZCBTdGF0aXN0aWNhbCBJbmZlcmVuY2UKCi0gU2FtcGxpbmcgZGlzdHJpYnV0aW9uOgotIFNhbXBsaW5nIHZhcmlhYmlsaXR5OgotIFZhcihYKToKLSBTdGFuZGFyZCBkZXZpYXRpb24gKFNEKToKLSBTdGFuZGFyZCBlcnJvciAoU0UpOgotIEVzdGltYXRlZCBzdGFuZGFyZCBlcnJvcjoKLSBQcmVjaXNpb246Ci0gQWNjdXJhY3k6Ci0gTnVsbCBoeXBvdGhlc2lzIChIXzApOgotIEFsdGVybmF0aXZlIGh5cG90aGVzaXMgKEhfQSk6Ci0gU2hhcnAgbnVsbCBoeXBvdGhlc2lzOgotIE51bGwgb2YgemVybyBhdmVyYWdlIHRyZWF0bWVudCBlZmZlY3Q6Ci0gVGVzdCBzdGF0aXN0aWM6Ci0gUmFuZG9taXphdGlvbiBpbmZlcmVuY2U6Ci0gUmFuZG9taXphdGlvbiBkaXN0cmlidXRpb246Ci0gUGVybXV0YXRpb24gbWF0cml4OgotIHAtdmFsdWU6Ci0gT25lLXNpZGVkIHRlc3Q6Ci0gVHdvLXNpZGVkIHRlc3Q6Ci0gU3RhdGlzdGljYWwgc2lnbmlmaWNhbmNlOgotIFNpZ25pZmljYW5jZSBsZXZlbCAozrEpOgotIFR5cGUgSSBlcnJvcjoKLSBUeXBlIElJIGVycm9yOgotIENvbmZpZGVuY2UgaW50ZXJ2YWwgKENJKToKLSBDb25maWRlbmNlIGxldmVsOgotIFN0YXRpc3RpY2FsIHBvd2VyOgotIE1pbmltdW0gZGV0ZWN0YWJsZSBlZmZlY3QgKE1ERSk6CgojIyA1LiBDb3ZhcmlhdGVzLCBSZWdyZXNzaW9uLCBhbmQgUHJlY2lzaW9uCgotIENvdmFyaWF0ZSAoWF9pKToKLSBQcmV0cmVhdG1lbnQgY292YXJpYXRlOgotIFBvc3QtdHJlYXRtZW50IGNvdmFyaWF0ZToKLSBQcmV0ZXN0OgotIFBvc3R0ZXN0OgotIFByb2dub3N0aWMgY292YXJpYXRlOgotIENvdmFyaWF0ZSBhZGp1c3RtZW50OgotIENoYW5nZSBzY29yZToKLSBEaWZmZXJlbmNlLWluLWRpZmZlcmVuY2VzIChEaUQpOgotIE9yZGluYXJ5IGxlYXN0IHNxdWFyZXMgKE9MUyk6Ci0gSW50ZXJjZXB0OgotIFJlZ3Jlc3Npb24gY29lZmZpY2llbnQgLyBzbG9wZToKLSBSZXNpZHVhbDoKLSBTdW0gb2Ygc3F1YXJlZCByZXNpZHVhbHMgKFNTUik6Ci0gUi1zcXVhcmVkIChSwrIpOgotIENvdmFyaWF0ZSBiYWxhbmNlIGNoZWNrOgotIFJhbmRvbWl6YXRpb24gY2hlY2s6Ci0gRi1zdGF0aXN0aWM6Ci0gSm9pbnQgc2lnbmlmaWNhbmNlOgoKIyMgNi4gQmxvY2tpbmcsIENsdXN0ZXJpbmcsIGFuZCBFeHBlcmltZW50YWwgRGVzaWduCgotIEJsb2NraW5nOgotIEJsb2NrOgotIEJsb2NrIHJhbmRvbSBhc3NpZ25tZW50OgotIEhvbW9nZW5lb3VzIGJsb2NrOgotIE1hdGNoZWQgcGFpcjoKLSBNYWhhbGFub2JpcyBkaXN0YW5jZToKLSBDbHVzdGVyaW5nOgotIENsdXN0ZXIgcmFuZG9tIGFzc2lnbm1lbnQ6Ci0gQmxvY2sgdmVyc3VzIGNsdXN0ZXI6Ci0gQmxvY2stc3BlY2lmaWMgdHJlYXRtZW50IGVmZmVjdDoKLSBCbG9jay13ZWlnaHRlZCBBVEUgZXN0aW1hdG9yOgotIEludmVyc2UtcHJvYmFiaWxpdHkgd2VpZ2h0aW5nIChJUFcpOgotIDEvcF9pOgotIERpZmZlcmVudGlhbCBhc3NpZ25tZW50IHByb2JhYmlsaXRpZXM6Ci0gQmxvY2sgZml4ZWQgZWZmZWN0czoKLSBDbHVzdGVyLXJvYnVzdCBzdGFuZGFyZCBlcnJvcnM6Ci0gUmVzdHJpY3RlZCByYW5kb21pemF0aW9uOgotIFJlcmFuZG9taXphdGlvbjoKCiMjIDcuIE9uZS1TaWRlZCBOb25jb21wbGlhbmNlCgotIENvbXBsaWFuY2U6Ci0gTm9uY29tcGxpYW5jZToKLSBPbmUtc2lkZWQgbm9uY29tcGxpYW5jZToKLSBUd28tc2lkZWQgbm9uY29tcGxpYW5jZToKLSB6X2k6Ci0gZF9pICh1bmRlciBub25jb21wbGlhbmNlKToKLSB6X2kgPSAxLCBkX2kgPSAwOgotIGRfaSh6KToKLSBkX2koMSkgPSAxOgotIGRfaSgxKSA9IDA6Ci0gZF9pKDApID0gMDoKLSBDb21wbGllcjoKLSBOZXZlci10YWtlcjoKLSBTdWJqZWN0IHR5cGU6Ci0gWV9pKHosZCk6Ci0gSW50ZW50LXRvLXRyZWF0IGVmZmVjdCBvbiBvdXRjb21lcyAoSVRUX1kpOgotIEludGVudC10by10cmVhdCBlZmZlY3Qgb24gdHJlYXRtZW50IHJlY2VpcHQgKElUVF9EKToKLSBDb21wbGlhbmNlIHJhdGUgKM+AX0MpOgotIENvbXBsaWVyIGF2ZXJhZ2UgY2F1c2FsIGVmZmVjdCAoQ0FDRSk6Ci0gSVRUX1kgLyBJVFRfRDoKLSBFeGNsdXNpb24gcmVzdHJpY3Rpb246Ci0gSVRUX0QgXD4gMDoKLSBDb25zaXN0ZW5jeSBvZiBhbiBlc3RpbWF0b3I6Ci0gUmF0aW8gZXN0aW1hdG9yOgotIFBsYWNlYm8gdHJlYXRtZW50OgotIEVuY291cmFnZW1lbnQgZGVzaWduOgoKIyMgOC4gQWRkaXRpb25hbCBDb25jZXB0cyBhbmQgRnVuY3Rpb25zIGZyb20gUiBMYWJzCgotIHNldC5zZWVkKCk6Ci0gc2ltcGxlX3JhKCk6Ci0gY29tcGxldGVfcmEoKToKLSBibG9ja19yYSgpOgotIGRlY2xhcmVfcmEoKToKLSBjb25kdWN0X3JhKCk6Ci0gb2J0YWluX3Blcm11dGF0aW9uX21hdHJpeCgpOgotIGRpZmZlcmVuY2VfaW5fbWVhbnMoKToKLSBsbV9yb2J1c3QoKToKLSByYmlub20oKToKLSBwb3RlbnRpYWxfb3V0Y29tZXMoKToKLSByZXZlYWxfb3V0Y29tZXMoKToKLSBzaW11bGF0ZV9kZXNpZ24oKToKLSBkaWFnbm9zZV9kZXNpZ25zKCk6CgojIyA5LiBNYXRoZW1hdGljYWwgRXhwcmVzc2lvbnMgdG8gVHJhbnNsYXRlIGludG8gUGxhaW4gRW5nbGlzaAoKIyMjIEVxdWF0aW9uIDE6IFN3aXRjaGluZyBlcXVhdGlvbgoKJFlfaSA9IGRfaSBZX2koMSkgKyAoMS1kX2kpWV9pKDApJAoKRXhwbGFuYXRpb246CgojIyMgRXF1YXRpb24gMjogVW5iaWFzZWRuZXNzCgokRVtcaGF0e1x0aGV0YX1dID0gXHRoZXRhJAoKRXhwbGFuYXRpb246CgojIyMgRXF1YXRpb24gMzogU3RhbmRhcmQgZXJyb3IKCiRTRShcaGF0e1x0aGV0YX0pJAoKRXhwbGFuYXRpb246CgojIyMgRXF1YXRpb24gNDogU2hhcnAgbnVsbCBvZiBubyBlZmZlY3QKCiRIXzA6IFx0YXVfaSA9IDAgXHF1YWQgXGZvcmFsbCBpJAoKRXhwbGFuYXRpb246CgojIyMgRXF1YXRpb24gNTogTnVsbCBvZiB6ZXJvIEFURQoKJEhfMDogQVRFID0gMCQKCkV4cGxhbmF0aW9uOgoKIyMjIEVxdWF0aW9uIDY6IFN0YXRpc3RpY2FsIHNpZ25pZmljYW5jZQoKJHAgPCAwLjA1JAoKRXhwbGFuYXRpb246CgojIyMgRXF1YXRpb24gNzogSW50ZW50LXRvLXRyZWF0IGVmZmVjdAoKJElUVF9ZID0gRVtZX2kgXG1pZCBaX2k9MV0gLSBFW1lfaSBcbWlkIFpfaT0wXSQKCkV4cGxhbmF0aW9uOgoKIyMjIEVxdWF0aW9uIDg6IENvbXBsaWVyIGF2ZXJhZ2UgY2F1c2FsIGVmZmVjdAoKJENBQ0UgPSBcZnJhY3tJVFRfWX17SVRUX0R9JAoKRXhwbGFuYXRpb246CgojIyMgRXF1YXRpb24gOTogQmlhcyBvZiBhIHJhdGlvIGVzdGltYXRvcgoKJEVbXHdpZGVoYXR7SVRUfV9ZL1x3aWRlaGF0e0lUVH1fRF0gXG5lcSBJVFRfWS9JVFRfRCQKCkV4cGxhbmF0aW9uOgoKIyMgMTAuIEltcG9ydGFudCBDb25jZXB0dWFsIERpc3RpbmN0aW9ucwoKRXhwbGFpbiB0aGUgZGlmZmVyZW5jZSBiZXR3ZWVuIGVhY2ggcGFpciBvciBncm91cCBpbiB5b3VyIG93biB3b3Jkcy4KCjEuICBDb3JyZWxhdGlvbiB2ZXJzdXMgY2F1c2F0aW9uOgoKQ29ycmVsYXRpb24gaXMgYWJvdXQgaG93IHR3byB2YXJpYWJsZXMgY28tdmFyeS4gSWUsIHJhdGVzIG9mIG5ld3Mgd2F0Y2hpbmcgaW5jcmVhc2Ugb3IgZGVjcmVhc2Ugd2hlbiByYXRlcyBvZiBuZXdzIHJlYWRpbmcgaW5jcmVhc2Ugb3IgZGVjcmVhc2UuCgpDYXVzYXRpb24gbWVhbnMgd2UgaGF2ZSBlc3RhYmxpc2hlZCB0aGF0IHRoZSBjaGFuZ2UgaXMgb25lIHZhcmlhYmxlIGlzIHRoZSByZXN1bHQgb2YgdGhlIGNoYW5nZSBpbiBvciB0dXJuaW5nIG9mZiBvciBvbiBvZiBhbm90aGVyIHZhcmlhYmxlLiBPbmUgd2F5IGNhdXNhdGlvbiBjYW4gYmUgZXN0YWJsaXNoZWQgaXMgd2l0aCByYW5kb21pemF0aW9uLCBiZWNhdXNlIGl0IHNldmVycyB0aGUgY29ubmVjdGlvbiBiZXR3ZWVuIHRoZSBvdXRjb21lIG9mIGludGVyZXN0IGFuZCB0aGUgd29ybGQgb2YgcG9zc2libGUgYWx0ZXJuYXRpdmUgY292YXJpYWJsZXMgd2hpY2ggaXMgaW5maW5hdGUuIFRoZSBvdGhlciB3YXkgY2F1c2F0aW9uIGlzIGVzdGltYXRlZCBpcyBieSBmaXR0aW5nIG1vZGVscyBhbmQgYXR0ZW1wdGluZyB0byBob2xkIG90aGVyIHBvc3NpYmxlIGNvdmFyaWF0ZXMgZml4ZWQuIHRoZSBwcm9ibGVtIHdpdGggdGhlIGxhdHRlciBpcyB0aGF0IHRoZSBsaXN0IG9mIHBvc3NpYmxlIGNvdmFyaWF0ZXMgaXMgdW5rbm93YWJsZS4KCkknbSBnb2luZyB0byB0cnkgdG8gc2F5IGluIGEgZGlmZmVyZW50IHdheSBob3cgcmFuZG9taXphdGlvbiBjYW4gaGVscCBlc3RhYmxpc2ggY2F1c2F0aW9uLiBVbmRlciByYW5kb21pemF0aW9uIC0tIGEgcHJvY2VkdXJlIHdoZXJlIGFzc2lnbm1lbnQgdG8gdHJlYXRtZW50IGlzIGtub3duLCBiZXR3ZWVuIDAgYW5kIDEsIGFuZCByZXBsaWNhYmxlIC0tIHdlIGNhbiBjb25zdHJ1Y3QgYW4gZXN0aW1hdG9yLiBUaGUgZXN0aW1hdG9yIGlzIG5vdCBhIHNpZ25sZSB0aGluZywgYnV0IGEgcHJvY2VkdXJlIGZvciBsb29raW5nIGF0IGEgcmVsYXRpb25zaGlwIGFjcm9zcyAoaW4gdGhlb3J5IGF0IGxlYXN0KSBhIGxhcmdlIG51bWJlciBvZiBkaWZmZXJlbnQgc2FtcGxlcy4gSW1hZ2luZSB0aGF0IHNvbWVvbmUgd2Fsa3MgaW50byBhIGJhciwgZG9lcyBhIHJhbmRvbWl6YXRpb24gcHJvY2VkdXJlIHRvIGFzc2lnbiAxMCBwZW9wbGUgaW4gdGhlIGJhciB0byB0cmVhdG1lbnQgYW5kIDEwIHRvIGNvbnRyb2wuIFNheSB0aGUgdHJlYXRtZW50IGlzIHJlYWRpbmcgaGlzIHBvZW0sIGFuZCB0aGUgb3V0Y29tZSBpcyB0aGUgcXVhbGl0eSBvZiBhIG5pZ2h0IHRoZSAyMCBjdXN0b21lcnMgcmVwb3J0IGhhdmluZyBvbiBhIDEwIHBvaW50IHNjYWxlICgxIGlzIHRoZSB3b3JzdCwgMTAgaXMgdGhlIGJlc3QpLiBTYXkgdGhlIGV4cGVyaW1lbnRlciBmaW5kcyBwZW9wbGUgd2hvIGdvdCB0aGUgdHJlYXRtZW50IChwb2VtKSByZXBvcnQgYW4gYXZlcmFnZSBvZiBhbiA4IG91dCBvZiAxMCBuaWdodCBvdmVyIGEgNiBvdXQgb2YgMTAgbmlnaHQuIFRoZSBzdG9yeSBvZiBob3cgcmFuZG9taXphdGlvbiBicmluZ3MgdXMgY2xvc2VyIHRvd2FyZHMgaWRlbnRpZnlpbmcgY2F1c2F0aW9uIGlzIG5vdCB0aGF0IGJlY2F1c2Ugb24gdGhpcyBuaWdodCwgaGUgcmFuZG9tbHkgYXNzaWduZWQgcGVvcGxlIHRvIHJlYWQgaGlzIHBvZW0sIGhlIGhhcyBzZXZlcmVsZCB0aGUgbGluayBiZXR3ZWVuIG90aGVyIGZhY3RvcnMgdGhhdCBjb3VsZCBleHBsYWluIGJldHRlciBuaWdodHMgYW5kIHRoZSBvdXRjb21lLiBJdCBpcyB0aGF0LCBpZiBoZSBkaWQgdGhpcyBvdmVyIGFuZCBvdmVyIGFnYWluLCBhbmQgTiBjb252ZXJnZWQgdG93YXJkIGluZmluaXR5LCB0aGUgZXN0aW1hdGVkIGVmZmVjdCB3b3VsZCBtb3ZlIGNsb3NlciB0byB0aGUgdHJ1ZSBlZmZlY3QuLi5iZWNhdXNlIGlmIGRvbmUgb3ZlciBhbmQgb3ZlciBhZ2FpbiwgKHRobyBhbHNvIGluIHRoZSBjb250ZXh0IG9mIHRoZSBzaW5nbGUgZXhwZXJpbWVudCkgZXZlcnlvbmUgc2FtcGxlZCB3b3VsZCBoYXZlIGFuIGVxdWFsIHByb2JhYmlsaXR5IG9mIGJlaW5nIGFzc2lnbmVkIHRvIHRyZWF0bWVudC4KCjIuICBQb3RlbnRpYWwgb3V0Y29tZXMgdmVyc3VzIG9ic2VydmVkIG91dGNvbWVzOgoKUG90ZW50aWFsIG91dGNvbWVzIGFyZSBoeXBvdGhldGljYWxzIGFuZCBldmVyeSBzdHVkeSB1bml0IGhhcyB0d28gb2YgdGhlbS4gVGhleSBhcmUgY291bnRlcmZhY3R1YWwgc3RhdGVzIG9mIHRoZSB3b3JsZDogdGhlIHN0YXRlIG9mIHRoZSB3b3JsZCB3aGVyZSB1bml0IGlzIHRyZWF0ZWQgYW5kIHN0YXRlIG9mIHRoZSB3b3JsZCB3aGVyZSB1bml0IGlzIG5vdCB0cmVhdGVkLgoKV2UgbmVlZCBib3RoIHBvdGVudGlhbCBvdXRjb21lcyB0byBleHBsYWluIHRoZSB0cnVlIGVmZmVjdCBvZiB0cmVhdG1lbnQgZm9yIGEgdW5pdC4KCk9ic2VydmVkIG91dGNvbWVzIGFyZSB0aG9zZSBvdXRjb21lcyAodHJlYXRlZCBvciB1bnRyZWF0ZWQpIHRoYXQgd2UgYWN0dWFsbHkgY2FuIG9ic2VydmUgd2hlbiB3ZSBydW4gYW4gZXhwZXJpbWVudC4KCldlIGNhbiB1c2Ugb2JzZXJ2ZWQgb3V0Y29tZXMgYW5kIG90aGVyIHRoaW5ncyB0byBlc3RpbWF0ZSB0cmVhdG1lbnQgZWZmZWN0czogZGlmZmVyZW5jZXMgaW4gbWVhbnMgKGJldHdlZW4gdGhlIHRyZWF0ZWQgYW5kIHVudHJlYXRlZCksIGxvY2FsIGF2ZXJhZ2UgdHJlYXRtZW50IGVmZmVjdHMgKG5vdCByZW1lbWJlcmluZyBidXQgdGhpbmsgdGhhdCBpcyB3aGVuIHdlJ3JlIGxvb2tpbmcgYXQgc29tZXRoaW5nIGxpa2UgYW5kIFJEIHdpdGggYSBjdXRvZmYpLCBjb25kaXRpb25hbCBhdmVyYWdlIHRyZWF0bWVudCBlZmZlY3RzLCBhbmQgYXZlcmFnZSB0cmVhdG1lbnQgZWZmZWN0cyBmb3IgY29tcGxpZXJzLgoKMy4gIFJhbmRvbSBzYW1wbGluZyB2ZXJzdXMgcmFuZG9tIGFzc2lnbm1lbnQ6CgpSYW5kb20gc2FtcGxpbmcgaXMgYSBwcm9jZWR1cmUgZm9yIGNyZWF0aW5nIGEgc2FtcGxlLCByYW5kb20gYXNzaWdubWVudCBpcyBhIHByb2NlZHVyZSBmb3IgYXNzaWduaW5nIHVuaXRzIGluIGEgc2FtcGxlIHRvIHRyZWF0bWVudCBvciBjb250cm9sLgoKRm9yIGV4YW1wbGUsIHJhbmRvbSBzYW1wbGluZyBtaWdodCBiZSB3aGVuIEkgaGF2ZSBhIHBvb2wgb2YgZW1haWxzLCBhbmQgSSBzZW5kIGludml0YXRpb25zIHRvIHRoZSBlbWFpbHMgaW4gc29tZSB3YXkgaW52aXRpbmcgcHBsIHRvIHRha2UgYSBzdXJ2ZXkuIFJhbmRvbSBhc3NpZ25tZW50IGlzIHRoZSBwcm9jZWR1cmUgdGhyb3VnaCB3aGljaCBJIHdvdWxkIHNlbmQgb3V0IHRoZSBzdXJ2ZXkgLSBpbWFnaW5lIHRoYXQgaXRzIGEgdmlnbmV0dGUgdHlwZSBzdXJ2ZXkgdGhhdCBpbmNsdWRlcyBhIHRyZWF0bWVudCBmcmFtZSBhbmQgYSBjb250cm9sIGZyYW1lLCBzbyByYW5kb20gYXNzaWdubWVudCB3b3VsZCBiZSB0aGVyZSB0aGUgcHJvY2VkdXJlIGZvciB3aG8gZ2V0cyB0aGUgdmVyc2lvbiBvZiB0aGUgc3VydmV5IHdpdGggdGhlIHRyZWF0bWVudCBhbmQgd2hvIGdldHMgaXQgd2l0aG91dC4gRWFjaCBwZXJzb24ncyBwcm9iYWJpbGl0eSBvZiBnZXR0aW5nIHRoZSB0cmVhdG1lbnQgc3VydmV5IHdvdWxkIGJlIHNvbWUga25vd24gZmlndXJlIGJldHdlZW4gMCBhbmQgMSBhbmQgdGhlIHByb2NlZHVyZSB3b3VsZCBiZSByZXBsaWNhYmxlLgoKNC4gIEVzdGltYW5kIHZlcnN1cyBlc3RpbWF0b3IgdmVyc3VzIGVzdGltYXRlOgoKVGhlIGVzdGltYW5kIGlzIHRoZSBwcm9jZWR1cmUgPyBhbmQgZXN0aW1hdGUgaXMgdGhlIHJlc3VsdCBvZiBhIHNpbmdsZSBkcmF3LiBJIHRoaW5rIEkgY29uZnVzZSBlc3RpbWFuZCBhbmQgZXN0aW1hdG9yLiBPciBpcyBlc3RpbWFuZCB0aGUgdHJ1ZSB2YWx1ZSB0aGF0IHdlIGNhbid0IGtub3csIGFuZCB3ZSdyZSB0cnlpbmcgdG8gZXN0aW1hdGUgd2l0aCB0aGUgZXN0aW1hdG9yPwoKNS4gIFVuYmlhc2VkbmVzcyB2ZXJzdXMgcHJlY2lzaW9uIHZlcnN1cyBjb25zaXN0ZW5jeToKCkJpYXNlZCBtZWFucyB0aGVyZSBpcyBzb21ldGhpbmcgdGhhdCBhZmZlY3RzIHRoZSBvdXRjb21lIHRoYXQgYWxzbyBhZmZlY3RzIHVuaXRzJyBwcm9iYWJpbGl0eSBvZiBiZWluZyB0cmVhdGVkLiBDb25zaXN0ZW5jeSBpcyB0aGF0IGlmIHdlIHdlcmUgdG8gZG8gdGhlIGV4cGVyaW1lbnQgYSBsYXJnZSBudW1iZXIgb2YgdGltZXMsIHRoZSBlc3RpbWF0ZWQgdmFsdWUgd291bGQgY29udmVyZ2Ugb24gdGhlIHRydWUgdmFsdWUuCgo2LiAgRXhjbHVkYWJpbGl0eSB2ZXJzdXMgbm9uLWludGVyZmVyZW5jZToKCkV4Y2x1ZGFiaWxpdHkgYW5kIG5vbi1pbnRlcmZlcmVuY2UgYWx3YXlzIGZlZWwgY2xvc2VseSByZWxhdGVkIGFuZCBJIHRlbmQgdG8gc3dhcCB0aGVtLgoKRXhjbHVkYWJpbGl0eSBtZWFucyB0aGF0IG9uZSB1bml0IGJlaW5nIHRyZWF0ZWQgZG9lcyBub3QgYWZmZWN0IGFueW9uZSBlbHNlJ3MgbGlrZWxpaG9vZCBvZiByZWNlaXZpbmcgdGhlIHRyZWF0bWVudC4KCk5vbi1pbnRlcmZlcmVuY2UgbWVhbnMgdGhhdCBhIGNoYW5nZSBpbiBvbmUgdW5pdHMgb3V0Y29tZSBpcyBvbmx5IGFmZmVjdGVkIGJ5IHRoYXQgdW5pdCBiZWluZyB0cmVhdGVkLCBub3QgdGhlIHRyZWF0bWVudCBzdGF0dXMgb2Ygb3RoZXIgdW5pdHM/IFRoYXQgc2VlbXMgd3JvbmcuCgpUaGUgZXhhbXBsZSBJIHRoaW5rIG9mIGlzIGEgc3R1ZHkgd2hlcmUgc3R1ZGVudHMgbGl2ZSBpbiBkb3JtcywgYW5kIGluZGl2aWR1YWwgc3R1ZGVudHMgZ2V0dGluZyBhc3NpZ25lZCB0byB0cmVhdG1lbnQgbWVhbnMgdGhleSByZWNlaXZlIGEgbmV3c3BhcGVyLgoKNy4gIEJsb2NraW5nIHZlcnN1cyBjbHVzdGVyaW5nOgoKQmxvY2tpbmcgbWVhbnMgdGhhdCB5b3UgYXNzaWduIHN1YmplY3RzIHRvIGEgYmxvY2sgLSBvZnRlbiBncm91cHMgdGhhdCBhbHJlYWR5IHJlZmxlY3Qgc29tZSBncm91cGluZyBpbiB0aGUgcmVhbCB3b3JsZCB0aGF0IHlvdSdyZSBzdHVkeWluZy4gRXhhbXBsZTogeW91IHdhbnQgdG8ga25vdyBob3cgdGVzdGltb255IGZyb20gaW5jYXJjZXJhdGVkIG9yZ2FuaXplcnMgYWZmZWN0cyBsZWdpc2xhdG9ycyB3aWxsaW5nbmVzcyB0byB2aXNpdCBhIHByaXNvbi4gU2F5IGFsbCBsZWdpc2xhdG9ycyBpbiB5b3VyIHN0dWR5IHdpbGwgcmVjZWl2ZSBhIGxldHRlciBmcm9tIHNvbWVvbmUgaW4gcHJpc29uIHdobyBzYXlzIHRoZXkgYXJlIHRoZSBsZWdpc2xhdG9ycycgY29uc3RpdHVlbnQsIGFuZCBhc2tzIHRoZSBsZWdpc2xhdG9yIHRvIGNvbWUgdmlzaXQgdGhlIHByaXNvbiB0byB1bmRlcnN0YW5kIGNvbmRpdGlvbnMgb3IgYnVpbGQgcmVsYXRpb25zaGlwcyB3aXRoIGNvbnN0aXR1ZW50cyB0aGVyZS4gVGhlIHRyZWF0bWVudCB3aWxsIGJlIHRoYXQgdHJlYXRlZCBsZWdpc2xhdG9ycyB3aWxsIGZpcnN0IHJlY2VpdmUgYSBsZXR0ZXIgZnJvbSBhbiBpbmNhcmNlcmF0ZWQgY29uc3RpdHVlbnQgdGhhdCBpcyB0ZXN0aW1vbnkgdGhleSB3cm90ZSBpbiBzdXBwb3J0IG9mIHNvbWUgcGllY2Ugb2YgbGVnaXNsYXRpb24uCgpJIG1pZ2h0IGJlIHN0cmV0Y2hpbmcgd2l0aCB0aGlzIGV4YW1wbGUsIGJ1dCBvbmUgYmVuZWZpdCBvZiBibG9ja2luZyBoZXJlIG1pZ2h0IGJlIGlmIHlvdSBncm91cCBsZWdpc2xhdG9ycyBieSBjb21taXR0ZWUuIFRoZW4sIHlvdSBhc3NpZ24gdHJlYXRtZW50IGJ5IGNvbW1pdHRlZS4gVGhlIGlkZWEgaXMgdGhhdCBsZWdpc2xhdG9ycyBvbiB0aGUgc2FtZSBjb21taXR0ZWUgbWlnaHQgdGFsayB0byBvbmUgYW5vdGhlciwgc28gY29tcGxldGUgcmFuZG9tIGFzc2lnbm1lbnQgbWlnaHQgdmlvbGF0ZSB0aGUgYXNzdW1wdGlvbiB0aGF0IG9uZSB1bml0cyB0cmVhdG1lbnQgZG9lc24ndCBhZmZlY3QgYW5vdGhlciB1bml0cyB0cmVhdG1lbnQuCgpJbiBhIGJsb2NraW5nIGRlc2lnbiwgeW91IHdvdWxkIGdyb3VwIGxlZ2lzbGF0b3JzIGJ5IGNvbW1pdHRlZSBhbmQgdGhlbiByYW5kb21seSBhc3NpZ24gdHJlYXRtZW50IGFjcm9zcyBjb21taXR0ZWVzLiBZb3Ugd291bGQgZXN0aW1hdGUgdGhlIGF2ZXJhZ2Ugb3V0Y29tZSBhY3Jvc3MgY29tbWl0dGVlcywgbm90IGluZGl2aWR1YWwgbGVnaXNsYXRvcnMuCgpJbiBjbHVzdGVyaW5nLCB5b3UgY3JlYXRlIGEgYnVuY2ggb2YgbWluaSBleHBlcmltZW50cy4gSWYgeW91ICJjbHVzdGVyZWQiIGJ5IGdyb3VwaW5nIGxlZ2lzbGF0b3JzIGludG8gdGhlaXIgY29tbWl0dGVlcywgeW91IHdvdWxkIHRoZW4gcmFuZG9tbHkgYXNzaWduIHRyZWF0bWVudCB3aXRoaW4gdGhlIGNvbW1pdHRlZSwgYW5kIGVzdGltYXRlIHRoZSBhdmVyYWdlIGRpZmZlcmVuY2UgYmV3dGVlbiB1bnRyZWF0ZWQgYW5kIHRyZWF0ZWQgbGVnaXNsYXRvcnMgd2l0aGluIHRoZSBjb21taXR0ZWUsIHRha2UgdGhvc2Ugd2l0aGluLWNvbW1pdHRlZSBhdmVyYWdlIGRpZmZlcmVuY2VzLCBhbmQgYXZlcmFnZSB0aGVtLgoKUGVyaGFwcyB0aGUgbW9yZSBpbnR1aXRpdmUgY2x1c3RlcmluZyBzaXR1YXRpb24gaW4gdGhpcyB3b3VsZCBiZSBpZiB5b3UgY2x1c3RlciBieSBsZWdpc2xhdHVyZS4KCjguICBCbG9ja2luZyB2ZXJzdXMgcmVncmVzc2lvbiBhZGp1c3RtZW50OgoKSW4gcmVncmVzc2lvbiBhZGp1c3RtZW50LCB5b3UgYXJlIGRvaW5nIHBvc3QtZXhwZXJpbWVudCBhZGp1c3RtZW50cy4gWW91IHdvdWxkIGhhdmUgbWVhc3VyZWQgb3RoZXIgdmFyaWFibGVzIChjb3ZhcmlhdGVzKSBhbmQgdGhlbiBob2xkIHRoZW0gZml4ZWQuIEZvciBleGFtcGxlLCB5b3Ugd291bGQgbWVhc3VyZSBsZWdpc2xhdG9ycycgY29tbWl0dGVlIGFzc2lnbm1lbnQsIGFuZCBpbmNsdWRlIGl0IGFzIGEgY292YXJpYXRlIHNvIHlvdSBjYW4gc2F5OiBuZXQgb2YgY29tbWl0dGVlIGFzc2lnbm1lbnQsIGhlcmUgaXMgdGhlIGFzc29jaWF0ZWQgZWZmZWN0IG9mIGV4cG9zdXJlIHRvIHRlc3RpbW9ueSBvbiB3aWxsaW5nbmVzcyB0byB2aXNpdCBwcmlzb24uCgpCbG9ja2luZyBpcyBsaWtlIGRvaW5nIHJlZ3Jlc3Npb24gYWRqdXN0bWVudCBidXQgImxpdmUiIGluIHRoZSBleHBlcmltZW50LiBUaGUgZG93bnNpZGUgaXMgeW91IGxvb3NlIHNvbWUgbnVtZXJpY2FsIHBvd2VyLiBUaGUgdXBzaWRlIGlzIHlvdSBtaWdodCBnYWluIHByZWNpc2lvbi4KCjkuICBBVEUgdmVyc3VzIElUVCB2ZXJzdXMgQ0FDRToKClRoZSBBVEUgaXMgdGhlIGF2ZXJhZ2UgdHJlYXRtZW50IGVmZmVjdC4gVGhlIElUVCBpcyB0aGUgdGhlIHRoaW5nIHRoYXQgZ29lcyBpbiB0aGUgbnVtZXJhdG9yIGFib3ZlIHRoZSBJVFRELiBTbyBJVFQgaXMgdXN1YWxseSBzaG9ydCBmb3IgSVRUWT8gVGhlIElUVCBpcyB0aGUgImZpcnN0IiBzb21ldGhpbmcuIFRoZSBJVFREIGlzIHRoZSByYXRpbyBvZiBhc3NpZ25lZCB0byB0cmVhdGVkIHVuaXRzIHRvIGFjdHVhbGx5IG9yIHRvb2stdHJlYXRtZW50IHVuaXRzLiBUaGUgSVRUIG92ZXIgSVRURCBsZXRzIHlvdSBlc3RpbWF0ZSB0aGUgQVRFIGZvciBjb21wbGllcnM6IHRoZSBDQUNFLgoKSSB3YW50ZWQgdG8gc2F5IHRoYXQgd2l0aCB0aGUgQ0FDRSwgaXQgbWlnaHQgZmVlbCBsaWtlIHlvdSAidGhyb3cgYXdheSIgb2JzZXJ2YXRpb25zLiBCdXQgSSdtIG5vdCBzdXJlIGlmIHRoYXQncyB0cnVlLgoKMTAuIFN0YW5kYXJkIGRldmlhdGlvbiB2ZXJzdXMgc3RhbmRhcmQgZXJyb3I6CgpTdGFuZGFyZCBkZXZpYXRpb24gaXMgdGhlIHNxdWFyZSByb290IG9mIHRoZSBhdmVyYWdlIGRpc3RhbmNlIGJldHdlZW4gb2JzZXJ2YXRpb25zIGFuZCB0aGUgbWVhbiBvYnNlcnZhdGlvbnMuIFRoZSBzdGFuZGFyZCBlcnJvciB1c2VzIHRoZSBTRD8gSXQgaXMgdGhlIGVzdGltYXRlZCBkaWZmZXJlbmNlIGJldHdlZW4gb2JzZXJ2YXRpb25zIGFuZCB0aGUgdHJ1dGggaW4gc3RhbmRhcmQgZGV2aWF0aW9ucz8gUHJvYmxlbWF0aWMgdGhhdCBJIHN0aWxsIGRvbid0IGhhdmUgdGhhdCBkb3duIGNvbGQKCjExLiBTaGFycCBudWxsIHZlcnN1cyBudWxsIG9mIHplcm8gQVRFOgoKVGhlIHNoYXJwIG51bGwgaXMgSDA6IG5vIGVmZmVjdCBvZiB0cmVhdG1lbnQuIFdlIHRlc3QgdGhlIHNoYXJwIG51bGwgdG8gZ2V0IG91ciBwIHZhbHVlLiBUaGF0IGlzLCB3ZSBmaW5kIG91dCB0aGUgcHJvYmFiaWxpdHkgb2YgZmluZGluZyBhIHZhbHVlIGFzICJleHRyZW1lIiBhcyB0aGUgb25lIHdlIG9ic2VydmUsIGlmIHRoZSByZWxhdGlvbnNoaXAgYmV0d2VlbiB0aGUgaW5kZXBlbmRlbnQgYW5kIGRlcGVuZGVudCB2YXJpYWJsZSB3ZXJlIGFjdHVhbGx5IDAuCgpudWxsIG9mIHplcm8gQVRFIG1ha2VzIG1lIHRoaW5rIEkndmUgZ290dGVuIHRoZSBzaGFycCBudWxsIHdyb25nLCBiZWNhdXNlIEkgYmFzaWNhbGx5IHdhbnQgdG8gc2F5IHRoZXkncmUgdGhlIHNhbWUgdGhpbmdzLgoKMTIuIFRyZWF0bWVudCBhc3NpZ25tZW50IHZlcnN1cyB0cmVhdG1lbnQgcmVjZWlwdDoKClRyZWF0bWVudCBhc3NpZ25tZW50ICh6aSkgaXMgd2hldGhlciBkdXJpbmcgcmFuZG9taXphdGlvbiwgYSBzdHVkeSB1bml0IGlzIGFzc2lnbmVkIHRvIGdldCB0cmVhdG1lbnQuIFdoZXRoZXIgdGhleSBhY3R1YWxseSAidGFrZSIgdGhlIHRyZWF0bWVudCBpcyB0cmVhdG1lbnQgcmVjZWlwdCAoZGkpLiBCZWNhdXNlIG9mIHRoZSBleGNsdXNpb24gcmVzdHJpY3Rpb24sIHdlIGdldCB0byBvbmx5ICJjYXJlIiBhYm91dCB0cmVhdG1lbnQgcmVjZWlwdC4KCkknbSBmb3JnZXR0aW5nIHRoZSByaWdodCBub3RhdGlvbiBoZXJlIGFuZCBtYXliZSBzd2l0Y2hpbmcgdGhlbS4gSWYgbm90LCB6aT0gMSBtZWFucyB0YWtlcyB0cmVhdG1lbnQsIHppPTAgbWVhbnMgZG9lc24ndCB0YWtlIHRoZSB0cmVhdG1lbnQsIGFuZCBkaT0xID0gYXNzaWduZWQgdG8gdHJlYXRtZW50LCBkaT0wIG1lYW5zIGFzc2lnbmVkIHRvIGNvbnRyb2wuIEJ1dCBoZXJlJ3Mgd2hhdCBlbHNlIEkgdW5kZXJzdGFuZDogLSBldmVyeW9uZSBpbiBhIHN0dWR5IGNvdWxkIGJlIGEgY29tcGxpZXIgKGFsd2F5cyB0YWtlIHRyZWF0bWVudCB3aGVuIGFzc2lnbmVkLCAidGFrZSIgY29udHJvbCB3aGVuIGFzc2lnbmVkIHRvIGNvbnRyb2wpLCBkZWZpZXIgKGRvIHRoZSBvcHBvc2l0ZSBvZiB3aGF0IHRoZXkncmUgYXNzaWduZWQpLCBuZXZlciB0YWtlciwgb3IgYWx3YXlzIHRha2VyLCB0cmVhdG1lbnQgYXNzaWdubWVudCBkb2VzIG5vdCBtZWFuIHJlY2VpcHQuIFRoaXMgbWlnaHQgYmUgc29tZXRoaW5nIGFib3V0IGluZGl2aWR1YWxzIGluIHRoZSBjb250ZXh0IG9mIHRoZSBzdHVkeSAoc2hvdWxkbid0IGFzc3VtZSBpdCBpcyB0cnVlIG9mIHRoZSBpbmRpdmlkdWFsIGFjcm9zcyBhbGwgc3R1ZHkgY29udGV4dHMpIGFuZCBpdCBtaWdodCBiZSBzb21ldGhpbmcgdGhhdCBpcyBhIHByb2R1Y3Qgb2Ygc3VydmV5IGltcGxlbWVudGF0aW9uIChpZSwgaGlyZWQgZG9vciBrbm9ja2VycyBkb24ndCBhY3R1YWxseSBrbm9jayBvbiBhc3NpZ25lZCBkb29ycykuCgpJbiBvbmUgc2lkZWQgbm9uY29tcGxpYW5jZSwgd2UgbGltaXQgdGhlc2UgZ3JvdXBzIGJ5IGFzc3VtcHRpb24gdG8gY29tcGxpZXJzIGFuZCBuZXZlciB0YWtlcnMuCgpJIGtub3cgSSBuZWVkIHRvIHdvcmsgb24gdHJhbnNsYXRpbmcgc29tZSBvZiB0aGUgcmVsZXZhbnQgbm90YXRpb24gb24gdGhpcyB0byBwbGFpbiBlbmdsaXNoLgoKU2l0dWF0aW9ucyBsaWtlIEVbWWkoRD0xKVx8IChub3RhdGlvbiBlc3RhYmxpc2hpbmcgYSBuZXZlciB0YWtlcildIHdpbmRzIHVwIG1lYW5pbmcgRVtZaShEPTApXS4KCjEzLiBTdGF0aXN0aWNhbCBzaWduaWZpY2FuY2UgdmVyc3VzIHN1YnN0YW50aXZlIHNpZ25pZmljYW5jZToKClN0YXRpc3RpY2FsIHNpZ25pZmljYW5jZSBpcyBvZnRlbiBhYm91dCA5NSUgb3Igc29tZSBvdGhlciBnaXZlbiBjb25maWRlbmNlIGludGVydmFsLiBXZSBzYXkgYSBwIHZhbHVlIGxlc3MgdGhhbiAwLjA1IGlzIHNpZ25pZmljYW50LiBUaGF0IHdvdWxkIHJlcG9ydCB0aGUgcHJvYmFiaWxpdHkgb2Ygb2JzZXJ2aW5nIGEgdmFsdWUgYXMgZXh0cmVtZSBhcyB0aGF0IG9ic2VydmVkIGlmIHRoZSByZWxhdGlvbnNoaXAgd2VyZSAwLgoKU3Vic3RhbnRpdmUgc2lnbmlmaWNhbmNlIHJlcXVpcmVzIHRoaW5raW5nIGFib3V0IHN0dWR5IGNvbnRleHQuIEZvciBleGFtcGxlLCBzYXkgd2UgZmluZCBzb21lIHJlbGF0aW9uc2hpcCBiZXR3ZWVuIHJhdGUgb2YgdmlzaXRpbmcgcHJpc29uIGFuZCBleHBvc3VyZSB0byBpbmNhcmNlcmF0ZWQgdGVzdGltb255LiBVbmRlcnN0YW5kaWduIHN1YnN0YW50aXZlIHNpZ25pZmljYW5jZSByZXF1aXJlcyB0aGlua2luZyBhYm91dCB3aGV0aGVyIHRoZSBlc3RpbWF0ZWQgZWZmZWN0IGlzIGFjdHVhbGx5IG1lYW5pbmdmdWw6IGlzIGl0IHZlcnkgc2lmbmlmaWNhbnQsIGJ1dCBkb2VzIHRoZSBudW1lcmljYWwgdmFsdWUgb2YgdGhlIGVzdGltYXRlIHN1Z2dlc3QganVzdCBhIGZsZWV0aW5nIG9yIGltcGVyY2VwdGFibGUgbGlrZWxpaG9vZD8gSSdtIG5vdCBleHBsYWluaW5nIGl0IHdlbGwgd2l0aCB0aGF0IGV4YW1wbGUuCgpJZ25vcmluZyB0aGUgZXhhbXBsZSwgeW91J2QgdGhpbmsgYWJvdXQgdGhlIHNjYWxlIG9mIHRoZSBhY3R1YWwgRFYsIHlvdXIgdGhlb3J5L2h5cG90aGVzaXMuIEV4YW1wbGU6IEkgbGl2ZSBpbiBhbiBhcGFydG1lbnQgY29tcGxleCB3aXRoIHR3byBidWlsZGluZ3MuIEkgcnVuIGFuIGV4cGlyaW1lbnQgd2hlcmUgSSBzZWUgd2hldGhlciB0dXJuaW5nIG9uIG9uZSBidWlsZGluZydzIGZpcmUgYWxhcm0gYXQgM2FtIGxlYWRzIHRvIHBlb3BsZSBsZWF2aW5nIHRoZSBidWlsZGluZyB3aXRoaW4gdGhlIGhvdXIgaXQgdGFrZXMgZm9yIHRoZSBmaXJlIGRlcGFydG1lbnQgdG8gYXJyaXZlIGFuZCBmaWd1cmUgb3V0IGhvdyB0byB0dXJuIHRoZSBhbGFybSBvZmYuCgpJIHdvdWxkIGV4cGVjdCB0aGF0IGxpa2UgNzAlIG9mIHRoZSBhcGFydG1lbnRzIGluIHRoZSBidWlsZGluZyB3aXRoIHRoZSBhbGFybSBnb2luZyBvZmYgdG8gbGVhdmUgdGhlIGJ1aWxkaW5nLiBJIG1pZ2h0IGV4cGVjdCBhIGZldyBwZW9wbGUgaW4gdGhlIGFkamFjZW50IGJ1aWxkaW5nIHRvIGxlYXZlIHRoZXJlJ3MgaWYgdGhleSBjYW4gaGVhciB0aGUgYWxhcm0gZnJvbSB0aGUgb3RoZXIgYnVpbGRpbmcuIElmIEkgZmluZCB0aGF0IHRoZSBkaWZmZXJlbmNlIGluIGFwYXJ0bWVudCBsZWF2aW5nIGF0IDNhbSBiZXR3ZWVuIHRoZSB0d28gYnVpbGRpbmdzIGlzIGxpa2UgMyUgYW5kIHRoYXQgZWZmZWN0IGlzIHZlcnkgc3RhdGlzdGljYWxseSBzaWduaWZpY2FudCwgSSB3b3VsZG4ndCBtYWtlIHRvbyBtdWNoIG9mIHRoZSByZXN1bHRzOiBpbiB0aGUgcmVzZWFyY2ggY29udGV4dCwgdGhhdCBpcyBhbiBvZGRseSBzbWFsbCBlZmZlY3QKCjE0LiBSYW5kb21pemF0aW9uIGluZmVyZW5jZSB2ZXJzdXMgY29udmVudGlvbmFsIHNhbXBsaW5nLWJhc2VkIGluZmVyZW5jZToKCkluIGNvbnZlbnRpb25hbCBzYW1wbGluZy1iYXNlZCBpbmZlcmVuY2UuLi4uSSdtIG5vdCBhY3R1YWxseSBzdXJlLgoKSSBrbm93IGluIFJJIHdlIGRvIGEgcHJvY2VkdXJlIHRvIGVzdGltYXRlIHNvbWV0aGluZyBhYm91dCBvdXIgc2FtcGxlLiBXZSBzZXQgdGhlIHNlZWQsIGNyZWF0ZSBhbiBlbXB0eSB2ZWN0b3IsIHJ1biBhIGZvciBsb29wLi4uCgoxNS4gSW5kaXZpZHVhbCB0cmVhdG1lbnQgZWZmZWN0IHZlcnN1cyBhdmVyYWdlIHRyZWF0bWVudCBlZmZlY3Q6CgppbmRpdmlkdWFsIHRyZWF0bWVudCBlZmZlY3QgaXMgdGhlIHRyZWF0bWVudCBhZmZlY3Qgb24gb25lIHVuaXQsIHZlcnN1cyB0aGUgYXZlcmFnZSBvZiBlZmZlY3RzIGFjcm9zcyB1bml0cy4K</div>
 
 
 

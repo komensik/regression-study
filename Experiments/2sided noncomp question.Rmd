@@ -1,0 +1,136 @@
+---
+title: "2 Sided NonComp Section"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+2 Sided Non-Comp
+
+$$
+Y_I(0)
+$$ Assuming monotonicity
+
+E(Yi(di(1))\|di(1) = 0)
+
+outcome when treatment status is assigned to treatment given that you
+are a never taker
+
+can substitute 0 into di(1)
+
+E(Yi(0)\|di(1) = 0)
+
+E(Yi(d1))\|Di=1]
+
+what is potential outcome when assigned to treatment, given someone
+hypothetically is actually treated \|Di=1 -- hypothetically when
+assigned
+
+Di=1 is weighted, excludes never takers ("when treatedment is
+hypothetically doled out") say p(treated) = 0.50 -NT = 0 -C = 0.50 -AT =
+1
+
+NT reports Yi(0) C reports Yi(1) AT reports Yi(1)
+
+Yi(0\|NT) x 0 + Yi(1\|C)x0.5 +Yi(1)\|AT x 1
+
+think about ATT E(pii\|Di=1) need expected Yi \| Di= 1 and need
+exptected Y(1)i\|Di=1 in a naive Yi (E[Y(i(1)]), we would include folks
+who never get treated
+
+Problematic Example (also a problem set question)
+
+**always taker:** instances where someone is given a warning, and always
+arrest follows
+
+**never takers:** instances where someone always gets a warning without
+arrest
+
+**compliers**: s
+
+\
+**defiers**
+
+gets collapsed into arrests/no arrests
+
+we want
+
+|   | Zi -\> | Arrest | No Arrest |   |
+|---------------|---------------|---------------|---------------|---------------|
+| actual treatment (Di) |  |  |  |  |
+|  | arrest | n(Di = 1 \| Z = 1) (note this is just a number, not an expected value) | n(Di = 1 \| Zi = 1) |  |
+|  | no arrest | n(Di = 0 \| Zi = 1) | n(di = 0, zi = 0) |  |
+|  | total N | n(Zi = 1) | n(Zi = 0) |  |
+|  |  |  |  |  |
+| outcomes (Yi) |  |  |  |  |
+|  | calls N(Yi = 1) | n(Yi=1)\|z=1 | n(Yi = 1)\|z=0 |  |
+|  | later arrest |  |  |  |
+|  |  |  |  |  |
+|  |  |  |  |  |
+
+Think about what dataset would have: id, Z, d, Y
+
+E(zi) = sumi(zi) / n = sum of treated over N
+
+mean(zi)
+
+ITTD = n(zi=1, di=1) / n(zi=1) (1 sided non comp)
+
+two sided non comp
+
+ITTD = [n(zi=1, di=1) / n(zi=1)] - [n(zi=0, di=1) / n(zi=0)]
+
+(minus proportion of those in the control group who are actually
+assigned to control)
+
+= 798 / 802 - 2 / 398
+
+\
+Next we want ITT_hat
+
+E[ Yi(d(zi=1)] - E[Yi(di(z=0)]
+
+mean Yi\|Zi = 1
+
+what goes into this
+
+Proportion of compliers is equal to ITT_D in two sided non-comp
+
+with two sided non-compliance, we're under identified. We do
+substitutions instead.
+
+avoid doing math by plugging into Wolfram alpha –
+
+they do want us to be able to write out things like the equations in
+task 2 in section slides
+
+re: task 3
+
+- if we kept a 3 arm trial, these quantities would be impossible to
+  compute
+
+When 3 treatment categories, what are your types?
+
+| Col1  | z=1 | z=2 | z=3 |
+|-------|-----|-----|-----|
+| d = 1 |     |     |     |
+| d = 2 |     |     |     |
+| d = 3 |     |     |     |
+|       |     |     |     |
+
+each person has 3 choices when assigned to each type
+
+z = 1 -\> 3
+
+z = 2 -\> 3
+
+z = 3 -\> 3
+
+3 x 3 x 3 = 27
+
+Pset exercise:
+
+list out all the types
+
+if we assume monotonicity, which can we eliminate?
