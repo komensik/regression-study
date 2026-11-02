@@ -99,19 +99,26 @@ The compliance rate is nearly 1, so the ITT for calls and CACE are similar -- as
 An initial arrest rather than warning is associated with a lower likeyhood of later arrest for compliers. 
 
 ### c --CHECK
-min max value of proportion NT, AT, and C disbanding with monotonicit:
+Not assuming monotonicity means we throw back in the possibility of defiers (d(z=1) = 0, d(z=0)=1)) so the ITTD is not just the proportion of compliers - 0 (by assumption). Each observed treatment status group has mix of possible compliance types.
 
-proportion of never takers and defiers is d(1) = 0 is upper bound for defiers if never takers = 0 and for never takers if never takers = 0.
+We can find bounds for never takers. The upper bound for never-takers occurs when defiers = 0.A
+
+Among those (calls/cases) assigned to arrest who were not actually arrested, either they're never-takers or defiers, so the proportion of never takers plus the proportion of defiers is:
 
 4/802
 
-proportion of compliers and never takers (d(0 = 0)) is upper bound for share of compliers if NT = 0
+If there are no defiers and all are never-takers, their max possible proportion is 4/802. But if the proportion instead is only defiers and no never takers, then the proportion of never takers is 0. So the proportion of never takers is bounded by 0 and 4/802. 
 
-396/398
+Indivviduals assigned to a warning who were arrested could either be always-takers or defiers:
+the sum of the proportion of always takers and of defiers is 2/398. This is the max possible proportion of always takers, and the min (0 in this proportion) is 4/802. 
+
+Always takers are greater or equal to just over 0 (2/398-4/802), less than or equal to 2/398.  
+
+Proportion compliers plus proportion never takers = 396/398. 
 
 lower bound for compliers if NT = 4/802 (max)
 
-396/398 - 4/802
+396/398 - 4/802 < Proportion compliers < 396/398. 
 
 UB for ATs if defiers = 0
 2/398
@@ -120,10 +127,9 @@ LB for ATs if defiers are above (max)
 
 2/398 - 4/802
 
-```{r}
+Substantively, it looks like around 99% of subjects are compliers, and 0.905% are defiers. 
+So removing the monot. assumption leads to an increase in assumed proportion of defiers and compliers. 
 
-
-```
 
 ### d
 
