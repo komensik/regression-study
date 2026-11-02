@@ -219,7 +219,7 @@ $$
 sans never takers leaves:
 
 $$
-\pi_C(E[Y_i(1)|C] - E[Y_i(0)|C]
+\pi_C\left(E[Y_i(1)\mid C] - E[Y_i(0)\mid C]\right)
 $$
 
 which is the CACE times the compliance rate (5.49).
@@ -388,46 +388,34 @@ no_flyer_treated_turnout
 ```
 
 $$
-
 \pi_{d(1)=1} = 2380/2688
-
 \\
 \\
-
 \pi_{d(1)=1} = \frac{Y(d = 1, z = 1)}{Y(z = 1)}
-
 \\
 \\
-
 \mu_{comlier-canvassed-human} = E[Y(z=1, d=1)|d(1) = 1]
-
 \\
 \\
-
 \mu_{complier-not-canvassed} = E[Y(z=0, d = 0)|d(1) = 1]
-
 \\
 \\
-
 \mu_{nevertaker-not-canvassed} = E[Y(z=0, d = 0)|d(1) = 0]
-
 $$
+
 Treatment-assigned turnout then:
 
 $$
-
 E[Y_i|z_i = 1] = \pi_{d(1)=1}\mu_{comlier-canvassed-human} + (1-\pi_{d(1)=1})\mu_{nevertaker-not-canvassed} + 0.01
-
 $$
 Control-assigned turnout:
 
 
 
 $$
-
 E[Y_i|z_i = 0] = \pi_{d(1)=1}\mu_{complier-not-canvassed} + (1 - \pi_{d(1) = 1})\mu_{nevertaker-not-canvassed} 
-
 $$
+
 ### e
 CACE of canvassing
 

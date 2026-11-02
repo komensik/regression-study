@@ -1,30 +1,140 @@
 ---
 title: "Mensik_Experiments_PS_7"
 author: "Kristina Mensik"
-date: "2026-10-30"
+date: "2026-10-29"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(estimatr)
+library(randomizr)
+library(tidyverse)
+library(dplyr)
+
 ```
 
-## R Markdown
+# Chapter 6 Pset
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Problem 1
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+The first quantity describes the expected treatment status for subjects assigned to treatment who take the treatment. The second quantity describes the treated potential outcome for compliers and with two sided NC, always takers. The third quantity describes the treated outcome (expected value of) for always takers.
 
-```{r cars}
-summary(cars)
+## Problem 3a
+
+Yes, the intent-to-treat effect conditional on compliers (d = z) is the ATE.
+
+### Problem 3b
+
+False: Among defiers d = inverse(z), so the ITT is the inverse of the ATE.
+
+### Problem 3c
+
+Neither? The ATE for always takers and never takers is an unknown quantity. So, it is false to say their ITT = ATE.
+
+## Problem 5
+
+30 pct always takers, 40 pct never takers, 15 pct compliers, 15 pct defiers, what is ITTD: 0 because 30 ATs and NTs don't matter and 15-15 = 0.
+
+## Problem 6
+
+Monotonicity is violated and sample has compliers and defiers. pi_c is proportion of subjects compliers pi_d is proportion defiers
+
+show CACE is still identified if ATE among defiers is ATE among compliers and the proportions are not equal
+
+Monotonicity means pi_d is not 0
+
+$$
+ITT = ATE|Complier * \pi_C - ATE|Defier * \pi_D
+$$ ATE\|Compliers = ATE\|Defiers, so $ITT = (ATE|Complier$ (or) $Defier)*(\pi_C-\pi_D)$ .
+
+Defiers means the ITT_D is the proportion of compliers net the proportion of defiers, so:
+
+$$
+CACE = \frac{ITT_Y}{ITT_D} = \frac{(ATE|CorD)*(\pi_C - \pi_D)}{\pi_C - \pi_D}
+\\
+CACE = ATE|CorD
+$$
+
+## Problem 8
+(Pretending this extremely problematic experiment is not real)
+
+### a
+Noninterference assumes that the outcomes of one household (calls to a hotline and later arrest) are only dependent on whether the police issued a warning or arrested the accused. 
+
+This does not seem plausible in a context (anywhere in the US, Milwaukee very much included) where crime, poverty, and policing/coercion are raced and classed. 
+
+Moreover, I cannot imagine that police would arrest (whether holding overnight or limited time) or only issue a warrant only based on instructions from a researcher. Rather, it seems wholly probable that a frustrated or badly (un)trained cop would escalate and arrest someone in part because they had left someone else off with a ticket. So no -- I do not see how noninterference is possible. 
+
+Excludability assumes that outcomes are affected by the treatment. A cop who is "assigned to arrest" may very well behave far more aggressively, detain someone for longer regardless of circumstances (for example -- the accused misses hourly wages, or is in precarious employment where absence/lateness has consequences, or on probation/parole so arrest means re-sentencing/re-incarceration). The well-studied collateral consequences of this terrible experiment mean there is no reason to think that future outcomes are conditional on treatment alone.
+
+There will absolutely be police who do the opposite of what they were instructed to do. Not all cops, (!) but undoubtedly many are inured to being in positions of power, and getting told what to do by some ivory tower academics who do not understand it seems much of anything about their subject seems a sure trigger for little acts of rebellion.
+
+### b
+
+Always takers show up in the control group, and randomization lets us assume that pi_alwaystakers(d=0) = pi_alwaystakers(d=1)
+
+```{r}
+
+ITT_D <- (789/802)-(2/398)
+
+ITT_calls <- (597/802)-(261/398)
+
+CACE_calls <- ITT/ITT_D
+
+itt_arrests <- 303/802 - 151/398
+
+cace_arrests <- itt_c/ITT_D
+
+ITT_D
+ITT_calls
+CACE_calls
+itt_arrests
+cace_arrests
+
+```
+The compliance rate is nearly 1, so the ITT for calls and CACE are similar -- assignment to treatment and treatment receipt are associated with an increase in the outcome (911 calls) of 8.9 and 9.0 respectively.
+
+An initial arrest rather than warning is associated with a lower likeyhood of later arrest for compliers. 
+
+### c --CHECK
+min max value of proportion NT, AT, and C disbanding with monotonicit:
+
+proportion of never takers and defiers is d(1) = 0 is upper bound for defiers if never takers = 0 and for never takers if never takers = 0.
+
+4/802
+
+proportion of compliers and never takers (d(0 = 0)) is upper bound for share of compliers if NT = 0
+
+396/398
+
+lower bound for compliers if NT = 4/802 (max)
+
+396/398 - 4/802
+
+UB for ATs if defiers = 0
+2/398
+
+LB for ATs if defiers are above (max)
+
+2/398 - 4/802
+
+```{r}
+
+
 ```
 
-## Including Plots
+### d
 
-You can also embed plots, for example:
+## Problem 10
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+### Problem 10a
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Problem 10b
+
+### Problem 10c
+
+### Problem 10d
+
+### Problem 10e
