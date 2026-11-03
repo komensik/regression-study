@@ -58,14 +58,16 @@ CACE = ATE|CorD
 $$
 
 ## Problem 8
+
 (Pretending this extremely problematic experiment is not real)
 
 ### a
-Noninterference assumes that the outcomes of one household (calls to a hotline and later arrest) are only dependent on whether the police issued a warning or arrested the accused. 
 
-This does not seem plausible in a context (anywhere in the US, Milwaukee very much included) where crime, poverty, and policing/coercion are raced and classed. 
+Noninterference assumes that the outcomes of one household (calls to a hotline and later arrest) are only dependent on whether the police issued a warning or arrested the accused.
 
-Moreover, I cannot imagine that police would arrest (whether holding overnight or limited time) or only issue a warrant only based on instructions from a researcher. Rather, it seems wholly probable that a frustrated or badly (un)trained cop would escalate and arrest someone in part because they had left someone else off with a ticket. So no -- I do not see how noninterference is possible. 
+This does not seem plausible in a context (anywhere in the US, Milwaukee very much included) where crime, poverty, and policing/coercion are raced and classed.
+
+Moreover, I cannot imagine that police would arrest (whether holding overnight or limited time) or only issue a warrant only based on instructions from a researcher. Rather, it seems wholly probable that a frustrated or badly (un)trained cop would escalate and arrest someone in part because they had left someone else off with a ticket. So no -- I do not see how noninterference is possible.
 
 Excludability assumes that outcomes are affected by the treatment. A cop who is "assigned to arrest" may very well behave far more aggressively, detain someone for longer regardless of circumstances (for example -- the accused misses hourly wages, or is in precarious employment where absence/lateness has consequences, or on probation/parole so arrest means re-sentencing/re-incarceration). The well-studied collateral consequences of this terrible experiment mean there is no reason to think that future outcomes are conditional on treatment alone.
 
@@ -81,11 +83,11 @@ ITT_D <- (789/802)-(2/398)
 
 ITT_calls <- (597/802)-(261/398)
 
-CACE_calls <- ITT/ITT_D
+CACE_calls <- ITT_calls/ITT_D
 
 itt_arrests <- 303/802 - 151/398
 
-cace_arrests <- itt_c/ITT_D
+cace_arrests <- itt_arrests/ITT_D
 
 ITT_D
 ITT_calls
@@ -94,53 +96,160 @@ itt_arrests
 cace_arrests
 
 ```
+
 The compliance rate is nearly 1, so the ITT for calls and CACE are similar -- assignment to treatment and treatment receipt are associated with an increase in the outcome (911 calls) of 8.9 and 9.0 respectively.
 
-An initial arrest rather than warning is associated with a lower likeyhood of later arrest for compliers. 
+An initial arrest rather than warning is associated with a lower likeyhood of later arrest for compliers.
 
-### c --CHECK
+### c
+
 Not assuming monotonicity means we throw back in the possibility of defiers (d(z=1) = 0, d(z=0)=1)) so the ITTD is not just the proportion of compliers - 0 (by assumption). Each observed treatment status group has mix of possible compliance types.
 
-We can find bounds for never takers. The upper bound for never-takers occurs when defiers = 0.A
+We want to know the proportions:
 
-Among those (calls/cases) assigned to arrest who were not actually arrested, either they're never-takers or defiers, so the proportion of never takers plus the proportion of defiers is:
+P(d = 0 \| z = 1) = 3+1/404+398 = 4/802 P(d = 1 \| z = 1) = 404+398 = 798/802 P(d = 0 \| z = 0) = 396/398 P(d = 1 \| z = 0) = 1+1 / 398 = 2/398
 
-4/802
+P(d = 0 \| z = 1) = P(NT) + P(D) = 408
 
-If there are no defiers and all are never-takers, their max possible proportion is 4/802. But if the proportion instead is only defiers and no never takers, then the proportion of never takers is 0. So the proportion of never takers is bounded by 0 and 4/802. 
+The upper bound for never-takers occurs when defiers = 0. The max possible P(NT) then = 4/802
 
-Indivviduals assigned to a warning who were arrested could either be always-takers or defiers:
-the sum of the proportion of always takers and of defiers is 2/398. This is the max possible proportion of always takers, and the min (0 in this proportion) is 4/802. 
+Min bound for never-takers = 0.
 
-Always takers are greater or equal to just over 0 (2/398-4/802), less than or equal to 2/398.  
+P(d = 1 \| z = 0) = P(AT) = P(D) = 2/398
 
-Proportion compliers plus proportion never takers = 396/398. 
+This is the max possible proportion of always-takers.
 
-lower bound for compliers if NT = 4/802 (max)
+Min possible proportion of always-takers means max defiers, which we have as 4/802. So min always takers is (2/398-4/802).
 
-396/398 - 4/802 < Proportion compliers < 396/398. 
+```{r}
+2/398-4/802
+```
 
-UB for ATs if defiers = 0
-2/398
+P(d = 0 \| z = 0) = P(Complier)+P(NeverTaker) = 396/398.
 
-LB for ATs if defiers are above (max)
+Compliers are minimum value when never takers are maxed (NT = 4/802)
 
-2/398 - 4/802
+So min compliers is: 396/398 - 4/802 Max compliers: 396/398.
 
-Substantively, it looks like around 99% of subjects are compliers, and 0.905% are defiers. 
-So removing the monot. assumption leads to an increase in assumed proportion of defiers and compliers. 
+Substantively, it looks like around 99% of subjects are compliers, and 0.905% are defiers.
 
+Removing the monot. assumption leads to an increase in assumed proportion of defiers and compliers.
 
 ### d
+
+Possible types when warning assigned (`d_0 = 1`)
+
+| `d_1` | `d_2` |
+|-------|-------|
+| 0     | 0     |
+| 2     | 2     |
+| 1     | 1     |
+| 0     | 1     |
+| 0     | 2     |
+| 1     | 0     |
+| 2     | 0     |
+| 1     | 2     |
+| 2     | 1     |
+
+Possible types when short arrest assigned (`d_1 = 1`)
+
+| `d_0` | `d_2` |
+|-------|-------|
+| 0     | 0     |
+| 2     | 2     |
+| 1     | 1     |
+| 0     | 1     |
+| 0     | 2     |
+| 1     | 0     |
+| 2     | 0     |
+| 1     | 2     |
+| 2     | 1     |
+
+Possible types when `d_2 = 1`
+
+| `d_0` | `d_1` |
+|-------|-------|
+| 0     | 0     |
+| 2     | 2     |
+| 1     | 1     |
+| 0     | 1     |
+| 0     | 2     |
+| 1     | 0     |
+| 2     | 0     |
+| 1     | 2     |
+| 2     | 1     |
+
+### e
+
+There are 10 types.
 
 ## Problem 10
 
 ### Problem 10a
 
+Monotonicity is plausible. The exception might be if its known that a polling station will have observers, people who might get up to shenanigans would move their tricks to another polling location, and observers would get wind of it and independently decide to go to those polling stations instead.
+
+That seems like a stretch, but perhaps more likely from the perspective of a poll watcher assigned to one location who happens to learn that another has more issues -- but that would not seem systematic or a consequence of assignment.
+
 ### Problem 10b
+
+Proportion never-takers 341/409 = 83.37%
+
+Proportion always takers: 21/1562 \~ 1.34%
+
+Proportion compliers: 68/409 \~ 16.62% - 1.3 = 15.32%
 
 ### Problem 10c
 
+Non-interference means that assigning election observers (d = 1 and z = 1) to a polling location does not affect the outcome (number of ballots declared) at another location. That wouldn't hold if voter fraud etc just concentrates elsewhere.
+
 ### Problem 10d
 
+```{r}
+getwd()
+data_10 <-read.csv("/Users/kom11/Documents/GitHub/regression-study/Experiments/Hyde_POP_2012.csv")
+
+ITT <- mean(data_10$invalidballots [data_10$Sample == 1]) - mean(data_10$invalidballots [data_10$Sample == 0])
+
+ITT_D <- (sum(data_10$observed [ data_10$Sample == 1])) / (sum(data_10$Sample == 1)) - (sum(data_10$observed [data_10$Sample == 0]) / sum(data_10$Sample == 0))
+
+CACE <- (ITT / ITT_D)
+
+ITT
+
+CACE 
+```
+
+The ITT is 4.28 and CACE 31.65.
+
 ### Problem 10e
+
+```{r}
+
+set.seed(6081709)
+
+declaration <- declare_ra(
+  N = nrow(data_10),
+  m = sum(data_10$Sample)
+)
+
+declaration
+
+permmatrix <- obtain_permutation_matrix(declaration)
+
+estimates_vector <- rep(NA, 10000)
+
+for(i in 1:10000){
+  data_10$ri <- permmatrix[, i]
+  
+  estimates_vector [i] <- difference_in_means(invalidballots ~ ri, data = data_10)$coefficients[1]
+  
+}
+
+mean(abs(estimates_vector) >= abs(ITT))
+
+```
+
+Testing the null that the ITT is 0 for all subjects serves the same purpose as testing that the ATE's 0 for all compliers because a 0 ITT means a 0 CACE.
+
+The high p value (0.487) means we fail to reject the null that there is no ITT effect for any poll. We can say that assignment of election observers did not have a significant effect on the number of valid ballots officialls report.
